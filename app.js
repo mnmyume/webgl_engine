@@ -3,6 +3,7 @@ import Shape from './shape.js';
 
 import vertexShaderSource from './shaders/vertexShader.js';
 import fragmentShaderSource from './shaders/fragmentShader.js';
+import { Material } from './material.js';
 
 const canvas = document.getElementById('webgl');
 const gl = canvas.getContext('webgl');
@@ -124,14 +125,18 @@ gl.texImage2D(
 	gl.UNSIGNED_BYTE,
 	document.getElementById('crate-image')
 );
-gl.bindTexture(gl.TEXTURE_2D, null);
+// gl.bindTexture(gl.TEXTURE_2D, null);
 
 // active program
 // shader.use();
 
-let mWorld = gl.getUniformLocation(gl.program, 'mWorld');
-let mView = gl.getUniformLocation(gl.program, 'mView');
-let mProj = gl.getUniformLocation(gl.program, 'mProj');
+let material = new Material(gl, gl.program);
+
+material.initialize();
+
+// let mWorld = gl.getUniformLocation(gl.program, 'mWorld');
+// let mView = gl.getUniformLocation(gl.program, 'mView');
+// let mProj = gl.getUniformLocation(gl.program, 'mProj');
 
 let worldMatrix = new Float32Array(16);
 let viewMatrix = new Float32Array(16);
@@ -140,9 +145,11 @@ mat4.identity(worldMatrix);
 mat4.lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
 mat4.perspective(projMatrix, glMatrix.toRadian(45), canvas.clientWidth / canvas.clientHeight, 0.1, 1000.0);
 
-gl.uniformMatrix4fv(mWorld, gl.FALSE, worldMatrix);
-gl.uniformMatrix4fv(mView, gl.FALSE, viewMatrix);
-gl.uniformMatrix4fv(mProj, gl.FALSE, projMatrix);
+material.draw(worldMatrix, viewMatrix, projMatrix);
+
+// gl.uniformMatrix4fv(mWorld, gl.FALSE, worldMatrix);
+// gl.uniformMatrix4fv(mView, gl.FALSE, viewMatrix);
+// gl.uniformMatrix4fv(mProj, gl.FALSE, projMatrix);
 
 let xRotationMatrix = new Float32Array(16);
 let yRotationMatrix = new Float32Array(16);
@@ -158,7 +165,8 @@ var loop = function () {
 	mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
 	mat4.rotate(xRotationMatrix, identityMatrix, angle / 4, [1, 0, 0]);
 	mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
-	gl.uniformMatrix4fv(mWorld, gl.FALSE, worldMatrix);
+	material.draw(worldMatrix, viewMatrix, projMatrix);
+  // gl.uniformMatrix4fv(mWorld, gl.FALSE, worldMatrix);
 
 	gl.clearColor(0.75, 0.85, 0.8, 1.0);
 	gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
@@ -166,7 +174,7 @@ var loop = function () {
 	gl.bindTexture(gl.TEXTURE_2D, boxTexture);
 	gl.activeTexture(gl.TEXTURE0);
 	gl.drawElements(gl.TRIANGLES, boxIndices.length, gl.UNSIGNED_SHORT, 0);
-
+  
 	requestAnimationFrame(loop);
 };
 requestAnimationFrame(loop);
