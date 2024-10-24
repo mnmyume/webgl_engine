@@ -1,0 +1,17 @@
+# 忽略dbg文件和dbg目录
+package-lock.json
+public/output.js
+out.js
+game.js
+.ionide
+.vscode
+.idea
+.zip
+#mac
+*.DS_Store
+tmp/
+log/
+node_modules/
+build/
+public/ui/index.js
+.vscode
