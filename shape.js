@@ -1,43 +1,23 @@
-import initShaders from './initShaders.js'
-
-class Shape {
-  constructor(gl, vertices, vertexShader, fragmentShader) {
+export default class Shape {
+  constructor(gl) {
     this.gl = gl;
-    this.vertices = vertices;
-    this.vertexShader = vertexShader;
-    this.fragmentShader = fragmentShader;
-    this.buffer = null;
+    this.vertexBuffer = null;
+    this.indexBuffer = null;
   }
 
-  initialize() {
-    // Initialize shaders
-    if (!initShaders(this.gl, this.vertexShader, this.fragmentShader)) {
-      console.error("Failed to initialize shaders.");
-      return;
-    }
+  initialize(vertices, indices) {
+    this.vertexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW);
 
-    // Create vertex buffer
-    this.buffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.vertices), this.gl.STATIC_DRAW);
-
-    const FSIZE = this.vertices.BYTES_PER_ELEMENT;
-
-    // Set the vertex position attribute
-    const a_position = this.gl.getAttribLocation(this.gl.program, 'a_position');
-    this.gl.vertexAttribPointer(a_position, 2, this.gl.FLOAT, false, 2 * FSIZE, 0);
-    this.gl.enableVertexAttribArray(a_position);
+    this.indexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), this.gl.STATIC_DRAW);
   }
 
   draw() {
-    // Clear the canvas
-    this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-
-    // Draw the shape (assuming triangle)
-    const n = this.vertices.length / 2; // Number of vertices
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, n);
-  }
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.gl.drawElements(this.gl.TRIANGLES, this.indexBuffer.numberOfElements, this.gl.UNSIGNED_SHORT, 0);
 }
-
-export default Shape;
+}
