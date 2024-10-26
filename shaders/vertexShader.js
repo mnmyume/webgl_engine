@@ -1,17 +1,16 @@
-let vertexShaderSource = `
-precision mediump float;
+const vertexShaderSource = `
+    attribute vec3 aPosition;
+    attribute vec2 aTexCoord;
+    uniform mat4 uPMatrix;
+    uniform mat4 uVMatrix;
+    uniform mat4 uMMatrix;
+    
+    varying vec2 vTexCoord;
 
-attribute vec3 vertPosition;
-attribute vec2 vertTexCoord;
-varying vec2 fragTexCoord;
-uniform mat4 mWorld;
-uniform mat4 mView;
-uniform mat4 mProj;
+    void main(void) {
+        gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(aPosition, 1.0);
+        vTexCoord = aTexCoord;
+    }
+`;
 
-void main() {
-    fragTexCoord = vertTexCoord;
-    gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
-}
-`
-
-export default vertexShaderSource
+export default vertexShaderSource;

@@ -1,12 +1,11 @@
-let fragmentShaderSource = `
-precision mediump float;
+const fragmentShaderSource = `
+    precision mediump float;
+    varying vec2 vTexCoord;
+    uniform sampler2D uTexture;
 
-varying vec2 fragTexCoord;
-uniform sampler2D sampler;
+    void main(void) {
+        gl_FragColor = texture2D(uTexture, vTexCoord);
+    }
+`;
 
-void main() {
-    gl_FragColor = texture2D(sampler, fragTexCoord);
-}
-`
-
-export default fragmentShaderSource
+export default fragmentShaderSource;

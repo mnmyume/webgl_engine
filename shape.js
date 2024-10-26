@@ -1,23 +1,45 @@
 export default class Shape {
-  constructor(gl) {
-    this.gl = gl;
-    this.vertexBuffer = null;
-    this.indexBuffer = null;
-  }
+    static RENDERSTATE = { triangle: 1, line: 2 };
 
-  initialize(vertices, indices) {
-    this.vertexBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW);
+    constructor(params = {}) {
+        this.data = params.data ?? { vertice: [], indice: [] };
+        this.state = params.state ?? Shape.RENDERSTATE.triangle;
+        this.verticeBuffer = null;
+        this.indiceBuffer = null;
+        this.vertice = null;
+        this.indice = null;
+    }
 
-    this.indexBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), this.gl.STATIC_DRAW);
-  }
+    initialize({ gl }) {
+        this.verticeBuffer = gl.createBuffer();
+        this.indiceBuffer = gl.createBuffer();
 
-  draw() {
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    this.gl.drawElements(this.gl.TRIANGLES, this.indexBuffer.numberOfElements, this.gl.UNSIGNED_SHORT, 0);
-}
+        // Set data
+        this.setData(this.data);
+
+        // Bind buffers and upload data
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertice, gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indiceBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indice, gl.STATIC_DRAW);
+    }
+
+    setData(data) {
+        this.vertice = new Float32Array(data.vertice);
+        if (data.indice) {
+            this.indice = new Uint16Array(data.indice);
+        }
+    }
+
+    draw(gl, material) {
+        // Bind the vertex buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
+        gl.vertexAttribPointer(material.dataLocation.attributes['aVertexPosition'], 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(material.dataLocation.attributes['aVertexPosition']);
+
+        // Bind the index buffer and draw
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indiceBuffer);
+        gl.drawElements(gl.TRIANGLES, this.indice.length, gl.UNSIGNED_SHORT, 0);
+    }
 }
