@@ -8,19 +8,8 @@ export default class Shader {
     }
 
     initShaders (gl) {
-        let vertexShader = this.createShader(gl, gl.VERTEX_SHADER, this.vertexSource)
-        let fragmentShader = this.createShader(gl, gl.FRAGMENT_SHADER, this.fragmentSource)
-        let program = this.createProgram(gl, vertexShader, fragmentShader)
-    
-        if (program) {
-            gl.useProgram(program)
-            // get program 
-            gl.program = program 
-            return true
-        } else {
-            console.log('Failed to create program.')
-            return false
-        }
+        this.vertex = this.createShader(gl, gl.VERTEX_SHADER, this.vertexSource);
+        this.fragment =this.createShader(gl, gl.FRAGMENT_SHADER, this.fragmentSource);
     }
 
     createShader (gl, type, source) {
@@ -38,31 +27,5 @@ export default class Shader {
             gl.deleteShader(shader)
             return null
         }
-    }
-
-    createProgram (gl, vertexShader, fragmentShader) {
-        let program = gl.createProgram()
-        if(!program) return null
-    
-        gl.attachShader(program, vertexShader)
-        gl.attachShader(program, fragmentShader)
-    
-        gl.linkProgram(program)
-        // link program result
-        let linked = gl.getProgramParameter(program, gl.LINK_STATUS)
-        if(linked) {
-            return program
-        } else {
-            let error = gl.getProgramInfoLog(program)
-            console.log('link program error: ' + error)
-            gl.deleteProgram(program)
-            gl.deleteShader(vertexShader)
-            gl.deleteShader(fragmentShader)
-            return null
-        }
-    }
-
-    use(gl) {
-        gl.useProgram(this.shaderProgram);
     }
 }
