@@ -1,6 +1,6 @@
 import Shader from './shader.js';
 import Camera from './camera.js';
-import Transform3D from './transform3d.js';
+import Transform from './transform.js';
 
 export default class Material {
     constructor(params = {}) {

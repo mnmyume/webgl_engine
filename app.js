@@ -6,7 +6,7 @@ import Material from './material.js';
 import vertexShaderSource from './shaders/vertexShader.js';
 import fragmentShaderSource from './shaders/fragmentShader.js';
 import Texture2D from './texture2d.js';
-import Transform3D from './transform3d.js';
+import Transform from './transform.js';
 
 const canvas = document.getElementById('game-surface');
 const gl = canvas.getContext('webgl');
@@ -109,7 +109,7 @@ image.onload = () => {
     texture.initialize(gl, image);
 };
 
-const transform = new Transform3D();
+const transform = new Transform();
 transform.setPosition(0, 0, 0);
 
 const material = new Material({

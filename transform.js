@@ -1,6 +1,6 @@
 // import { mat4 } from 'gl-matrix';
 
-export default class Transform3D {
+export default class Transform {
     constructor() {
         this.position = [0, 0, 0];
         this.matrix = mat4.create();
