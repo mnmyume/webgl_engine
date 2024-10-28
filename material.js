@@ -1,14 +1,11 @@
-import Shader from './shader.js';
-import Camera from './camera.js';
-import Transform3D from './transform3d.js';
-
 export default class Material {
     constructor(params = {}) {
         this.shader = params.shader || null;
+        this.shaderProgram = null;
         this.textures = {};
         this.dataLocation = {
             attributes: {},
-            uniforms: {}
+            uniforms: {},
         };
     }
 
@@ -17,7 +14,21 @@ export default class Material {
     }
 
     initialize({ gl }) {
-        this.shaderProgram = this.shader.shaderProgram;
+
+        this.vertex = this.shader.vertex;
+        this.fragment = this.shader.fragment;
+        // this.attributes
+        // this. uniforms
+
+        this.shaderProgram = gl.createProgram();
+        gl.attachShader(this.shaderProgram, this.vertex);
+        gl.attachShader(this.shaderProgram, this.fragment);
+
+        gl.linkProgram(this.shaderProgram);
+        if (!gl.getProgramParameter(this.shaderProgram, gl.LINK_STATUS)) {
+            var info = gl.getProgramInfoLog(this.shaderProgram);
+            throw new Error("Could not compile WebGL program. \n\n" + info);
+          }
 
         for (const attr in this.shader.attributes) {
             this.dataLocation.attributes[attr] = gl.getAttribLocation(this.shaderProgram, attr);

@@ -86,10 +86,10 @@ const shape = new Shape({
             22, 20, 23
         ],
         normals: [
-            // Define your cube normals here
+            // Define cube normals here
         ],
         uvs: [
-            // Define your cube UVs here
+            // Define cube UVs here
         ]
     }
 });
@@ -117,10 +117,10 @@ const material = new Material({
     texture: texture,  
 })
 
+material.initialize({gl});
+
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    shader.use(gl);
     
     // Set uniforms
     // gl.uniformMatrix4fv(shader.dataLocation.uniforms.uPMatrix, false, camera.projectionMatrix);
