@@ -97,17 +97,14 @@ const shape = new Shape({
 const shader = new Shader({
     vertexSource: vertexShaderSource,
     fragmentSource: fragmentShaderSource,
+    initValues:{uTexture:0}
 });
 
-shader.initShaders(gl);
+shader.initialize(gl);
 shape.initialize({ gl });
 
 const texture = new Texture2D();
-const image = new Image();
-image.src = './resources/crate.png';
-image.onload = () => {
-    texture.initialize(gl, image);
-};
+texture.initialize(gl, './resources/crate.png');
 
 const transform = new Transform();
 transform.setPosition(0, 0, 0);
@@ -116,8 +113,10 @@ const material = new Material({
     shader: shader,
     texture: texture,  
 })
-
+debugger;
 material.initialize({gl});
+
+material.setTexture('uDiffCol',tex);
 
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -127,11 +126,10 @@ function draw() {
     // gl.uniformMatrix4fv(shader.dataLocation.uniforms.uVMatrix, false, camera.viewMatrix);
     // gl.uniformMatrix4fv(shader.dataLocation.uniforms.uMMatrix, false, transform.getMatrix());
 
+    material.draw(gl, camera, transform);
     texture.bind(gl, 0);
-
     shape.draw(gl, shader);
 
-    material.draw(gl, camera, transform);
 
     requestAnimationFrame(draw);
 }

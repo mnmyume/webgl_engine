@@ -41,5 +41,7 @@ export default class Shape {
         // Bind the index buffer and draw
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indiceBuffer);
         gl.drawElements(gl.TRIANGLES, this.indice.length, gl.UNSIGNED_SHORT, 0);
+
+        
     }
 }

@@ -3,7 +3,7 @@ export default class Texture2D {
         this.texture = null;
     }
 
-    initialize(gl, image) {
+    initialize(gl, src) {
         this.texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
 
@@ -16,8 +16,6 @@ export default class Texture2D {
         // Upload the image into the texture
         const level = 0;
         const internalFormat = gl.RGBA;
-        const width = image.width;
-        const height = image.height;
         const format = gl.RGBA;
         const type = gl.UNSIGNED_BYTE;
 
@@ -27,7 +25,7 @@ export default class Texture2D {
 
         // Load the image
         const imageElement = new Image();
-        imageElement.src = image;
+        imageElement.src = src;
         imageElement.addEventListener('load', () => {
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
             gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, format, type, imageElement);
