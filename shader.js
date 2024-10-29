@@ -76,25 +76,7 @@ export default class Shader {
         this.attributes = shaders.attributes;
         this.uniforms = shaders.uniforms;
         this.compile(gl);
-    }
-
-    // createShader (gl, type, source) {
-    //     let shader = gl.createShader(type)
-    //     gl.shaderSource(shader, source)
-    //     gl.compileShader(shader)
-    //
-    //     // compile shader result
-    //     let compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
-    //     if(compiled) {
-    //         return shader
-    //     } else {
-    //         let error = gl.getShaderInfoLog(shader)
-    //         console.log('compile shaders error: ' + error)
-    //         gl.deleteShader(shader)
-    //         return null
-    //     }
-    // }
-
+    }               
 
     compile(gl,params){
         var params = params || {};

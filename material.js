@@ -1,3 +1,6 @@
+import {$assert} from "./common.js";
+import Texture2D from './texture2d.js';
+
 export default class Material {
     textures={};
     shaderProgram=null;
@@ -14,7 +17,6 @@ export default class Material {
 
         this.attributes = JSON.parse(JSON.stringify(this.shader.attributes));
         this.uniforms = JSON.parse(JSON.stringify(this.shader.uniforms));
-        debugger;
 
         this.vertex = this.shader.vertex;
         this.fragment = this.shader.fragment;
@@ -39,12 +41,12 @@ export default class Material {
             this.dataLocation.uniforms[name] = gl.getUniformLocation(this.shaderProgram, name);
         }
     }
+
     setTexture(key, texture){
         $assert(texture instanceof Texture2D);
         $assert(this.uniforms[key]);
         this.textures[key] = texture;
     };
-
 
     draw(gl, camera, transform) {
         gl.useProgram(this.shaderProgram);
@@ -56,7 +58,6 @@ export default class Material {
             gl.activeTexture(gl[`TEXTURE${texIndex}`]);
             gl.bindTexture(gl.TEXTURE_2D, value.texture);
         }
-
 
 
         for(var name in this.uniforms){
@@ -75,12 +76,8 @@ export default class Material {
         };
 
 
-
-
-
-
         if (this.dataLocation.uniforms["uPMatrix"] && camera) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uPMatrix"], false, camera.projectionMat);
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["uPMatrix"], false, camera.projectionMatrix);
         }
         if (this.dataLocation.uniforms["uVMatrix"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uVMatrix"], false, camera.viewMatrix);
@@ -89,9 +86,5 @@ export default class Material {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
         }
 
-    }
-
-    setTexture(name, texture) {
-        this.textures[name] = texture;
     }
 }

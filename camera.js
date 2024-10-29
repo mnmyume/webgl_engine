@@ -15,11 +15,13 @@ export default class Camera {
     }
 
     updateView() {
-        mat4.lookAt(this.viewMatrix, this.position, this.target, this.up);
+        this.viewMatrix = new Float32Array(mat4.lookAt(
+            this.viewMatrix, this.position, this.target, this.up));
     }
 
     updateProjection() {
-        mat4.perspective(this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far);
+        this.projectionMatrix = new Float32Array(mat4.perspective(
+            this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far));
     }
 
     setAspect(aspect) {

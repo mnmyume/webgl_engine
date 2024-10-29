@@ -98,6 +98,7 @@ const shader = new Shader({
     vertexSource: vertexShaderSource,
     fragmentSource: fragmentShaderSource,
     initValues:{uTexture:0}
+    // initValues:{uTexture:0}
 });
 
 shader.initialize(gl);
@@ -113,10 +114,10 @@ const material = new Material({
     shader: shader,
     texture: texture,  
 })
-debugger;
+
 material.initialize({gl});
 
-material.setTexture('uDiffCol',tex);
+material.setTexture('uTexture',texture);
 
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -127,7 +128,7 @@ function draw() {
     // gl.uniformMatrix4fv(shader.dataLocation.uniforms.uMMatrix, false, transform.getMatrix());
 
     material.draw(gl, camera, transform);
-    texture.bind(gl, 0);
+
     shape.draw(gl, shader);
 
 

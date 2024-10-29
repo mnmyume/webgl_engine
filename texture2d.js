@@ -29,12 +29,13 @@ export default class Texture2D {
         imageElement.addEventListener('load', () => {
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
             gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, format, type, imageElement);
-            gl.generateMipmap(gl.TEXTURE_2D);
+            // if (isPowerOfTwo(imageElement.width) && isPowerOfTwo(imageElement.height)) {
+            //    gl.generateMipmap(gl.TEXTURE_2D);
+            // }
         });
     }
 
-    bind(gl, unit) {
-        gl.activeTexture(gl[`TEXTURE${unit}`]);
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    delete(){
+        
     }
 }
