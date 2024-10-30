@@ -1,7 +1,7 @@
 // import { mat4 } from 'gl-matrix';
 
 export default class Camera {
-    constructor(position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], fov = 45, aspect = 1, near = 0.1, far = 100) {
+    constructor({position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], fov = 45, aspect = 1, near = 0.1, far = 1000}) {
         this.position = position;
         this.target = target;
         this.up = up;

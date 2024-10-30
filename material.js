@@ -52,12 +52,12 @@ export default class Material {
         gl.useProgram(this.shaderProgram);
 
 
-        gl.bindTexture(gl.TEXTURE_2D, null);
-        for(const [key,value] of Object.entries(this.textures)){
-            const texIndex = this.uniforms[key].value;
-            gl.activeTexture(gl[`TEXTURE${texIndex}`]);
-            gl.bindTexture(gl.TEXTURE_2D, value.texture);
-        }
+        // gl.bindTexture(gl.TEXTURE_2D, null);
+        // for(const [key,value] of Object.entries(this.textures)){
+        //     const texIndex = this.uniforms[key].value;
+        //     gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+        //     gl.bindTexture(gl.TEXTURE_2D, value.texture);
+        // }
 
 
         for(var name in this.uniforms){

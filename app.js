@@ -10,12 +10,13 @@ import Transform from './transform.js';
 
 const canvas = document.getElementById('game-surface');
 const gl = canvas.getContext('webgl');
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+gl.viewport(0, 0, canvas.width, canvas.height);
 
-const camera = new Camera();
-camera.setPosition(0, 0, 5);
+
+const camera = new Camera({aspect:canvas.width /canvas.height});
+camera.setPosition([0, 0, 5]);
 camera.updateProjection();
 camera.updateView();
 
@@ -25,72 +26,16 @@ const shape = new Shape({
         vertice: [ 
             // X, Y, Z         U, V
             // Top
-            -1.0, 1.0, -1.0,   0, 0,
-            -1.0, 1.0, 1.0,    0, 1,
-            1.0, 1.0, 1.0,     1, 1,
-            1.0, 1.0, -1.0,    1, 0,
-    
-            // Left
-            -1.0, 1.0, 1.0,    0, 0,
-            -1.0, -1.0, 1.0,   1, 0,
-            -1.0, -1.0, -1.0,  1, 1,
-            -1.0, 1.0, -1.0,   0, 1,
-    
-            // Right
-            1.0, 1.0, 1.0,    1, 1,
-            1.0, -1.0, 1.0,   0, 1,
-            1.0, -1.0, -1.0,  0, 0,
-            1.0, 1.0, -1.0,   1, 0,
-    
-            // Front
-            1.0, 1.0, 1.0,    1, 1,
-            1.0, -1.0, 1.0,    1, 0,
-            -1.0, -1.0, 1.0,    0, 0,
-            -1.0, 1.0, 1.0,    0, 1,
-    
-            // Back
-            1.0, 1.0, -1.0,    0, 0,
-            1.0, -1.0, -1.0,    0, 1,
-            -1.0, -1.0, -1.0,    1, 1,
-            -1.0, 1.0, -1.0,    1, 0,
-    
-            // Bottom
-            -1.0, -1.0, -1.0,   1, 1,
-            -1.0, -1.0, 1.0,    1, 0,
-            1.0, -1.0, 1.0,     0, 0,
-            1.0, -1.0, -1.0,    0, 1,
+            -1.0, -1.0,  0.0,    0, 0, //5*4 = 20Byte
+            1.0, -1.0,  0.0,     1, 0,
+            1.0, 1.0,   0.0,     1, 1,
+            -1.0, 1.0,   0.0,    0, 1,
+
         ],
         indice: [
-            // Top
-            0, 1, 2,
-            0, 2, 3,
-    
-            // Left
-            5, 4, 6,
-            6, 4, 7,
-    
-            // Right
-            8, 9, 10,
-            8, 10, 11,
-    
-            // Front
-            13, 12, 14,
-            15, 14, 12,
-    
-            // Back
-            16, 17, 18,
-            16, 18, 19,
-    
-            // Bottom
-            21, 20, 22,
-            22, 20, 23
+            0,1,2,
+            0,2,3
         ],
-        normals: [
-            // Define cube normals here
-        ],
-        uvs: [
-            // Define cube UVs here
-        ]
     }
 });
 
@@ -119,6 +64,13 @@ material.initialize({gl});
 material.setTexture('uTexture',texture);
 
 function draw() {
+
+
+
+
+
+    gl.clearColor(0.0, 1.0, 1.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     material.draw(gl, camera, transform);
 
