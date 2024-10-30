@@ -20,13 +20,47 @@ camera.setPosition([0, 0, 5]);
 camera.updateProjection();
 camera.updateView();
 
+//uniform size: [1,10]
+
+//attribute:
+    // X, Y, Z         U, V
+
+
+//Point ==> Quad
+//POS           UV 0,1,
+//POS           UV 0,0,
+//POS           UV 1,0,
+
+
+//POS           UV 0,1,
+//POS           UV 1,0,
+//POS           UV 1,1,
+
+//genParticle(minX,maxX,minY,maxY,minZ,maxZ)
+// P0x = Math.random()*(maxX-minX);
+// P0,    0, 0,
+// P0,     1, 0,
+// P0,     1, 1,
+// P0,    0, 1,
+
+// P1,    0, 0,
+// P1,     1, 0,
+// P1,     1, 1,
+// P1,    0, 1,
+
+
+// P2,    0, 0,
+// P2,     1, 0,
+// P2,     1, 1,
+// P2,    0, 1,
+
 
 const shape = new Shape({
     data: {
         vertice: [ 
             // X, Y, Z         U, V
             // Top
-            -1.0, -1.0,  0.0,    0, 0, //5*4 = 20Byte
+            -1.0, -1.0,  0.0,    0, 0,
             1.0, -1.0,  0.0,     1, 0,
             1.0, 1.0,   0.0,     1, 1,
             -1.0, 1.0,   0.0,    0, 1,
