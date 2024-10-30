@@ -33,10 +33,16 @@ export default class Shape {
     }
 
     draw(gl, material) {
+        // clear the canvas
+        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        debugger;
+
         // Bind the vertex buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
         gl.vertexAttribPointer(material.dataLocation.attributes['aVertexPosition'], 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(material.dataLocation.attributes['aVertexPosition']);
+        debugger;
 
         // Bind the index buffer and draw
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indiceBuffer);
