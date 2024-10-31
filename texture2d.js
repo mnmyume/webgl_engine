@@ -24,15 +24,15 @@ export default class Texture2D {
         gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, 1, 1, 0, format, type, bluePixel);
 
         // Load the image
-        const imageElement = new Image();
-        imageElement.src = src;
-        imageElement.addEventListener('load', () => {
-            gl.bindTexture(gl.TEXTURE_2D, this.texture);
-            gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, format, type, imageElement);
-            // if (isPowerOfTwo(imageElement.width) && isPowerOfTwo(imageElement.height)) {
-            //    gl.generateMipmap(gl.TEXTURE_2D);
-            // }
-        });
+        // const imageElement = new Image();
+        // imageElement.src = src;
+        // imageElement.onload = () => {
+        //     gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        //     gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, format, type, imageElement);
+        //     // if (isPowerOfTwo(imageElement.width) && isPowerOfTwo(imageElement.height)) {
+        //     //    gl.generateMipmap(gl.TEXTURE_2D);
+        //     // }
+        // };
     }
 
     delete(){

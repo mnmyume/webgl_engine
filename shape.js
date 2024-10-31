@@ -2,17 +2,17 @@ export default class Shape {
     static RENDERSTATE = { triangle: 1, line: 2 };
 
     constructor(params = {}) {
-        this.data = params.data ?? { vertice: [], indice: [] };
+        this.data = params.data ?? { vertice: [], uvs: [] };
         this.state = params.state ?? Shape.RENDERSTATE.triangle;
         this.verticeBuffer = null;
-        this.indiceBuffer = null;
+        this.uvsBuffer = null;
         this.vertice = null;
-        this.indice = null;
+        this.uvs = null;
     }
 
     initialize({ gl }) {
         this.verticeBuffer = gl.createBuffer();
-        this.indiceBuffer = gl.createBuffer();
+        this.uvsBuffer = gl.createBuffer();
 
         // Set data
         this.setData(this.data);
@@ -21,34 +21,45 @@ export default class Shape {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.vertice, gl.STATIC_DRAW);
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indiceBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indice, gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.uvs, gl.STATIC_DRAW);
     }
 
     setData(data) {
         this.vertice = new Float32Array(data.vertice);
-        if (data.indice) {
-            this.indice = new Uint16Array(data.indice);
+        if (data.uvs) {
+            this.uvs = new Float32Array(data.uvs);
         }
     }
 
     draw(gl, material) {
 
-
         // Bind the vertex buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
-        gl.vertexAttribPointer(material.dataLocation.attributes['aVertexPosition'], 3, gl.FLOAT, false, 20, 0);
-        gl.enableVertexAttribArray(material.dataLocation.attributes['aVertexPosition']);
+        gl.vertexAttribPointer(
+            material.dataLocation.attributes['aPosition'], 
+            3, 
+            gl.FLOAT, 
+            false, 
+            3 * Float32Array.BYTES_PER_ELEMENT, 
+            0
+        );
+        gl.enableVertexAttribArray(material.dataLocation.attributes['aPosition']);
 
-
-
-        // gl.vertexAttribPointer(material.dataLocation.attributes['aTexCoord'], 3, gl.FLOAT, false, 20, 12);
+        // Bind the uvs buffer
+        // gl.bindBuffer(gl.ARRAY_BUFFER, this.uvsBuffer);
+        // gl.vertexAttribPointer(
+        //     material.dataLocation.attributes['aTexCoord'],
+        //     2,
+        //     gl.FLOAT,
+        //     false,
+        //     2 * 4,
+        //     0
+        // );
         // gl.enableVertexAttribArray(material.dataLocation.attributes['aTexCoord']);
 
-
-        // Bind the index buffer and draw
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indiceBuffer);
-        gl.drawElements(gl.TRIANGLES, this.indice.length, gl.UNSIGNED_SHORT, 0);
+        // Draw
+        gl.drawArrays(gl.TRIANGLES, 0, this.vertice.length);
 
         
     }

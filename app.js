@@ -16,7 +16,7 @@ gl.viewport(0, 0, canvas.width, canvas.height);
 
 
 const camera = new Camera({aspect:canvas.width /canvas.height});
-camera.setPosition([0, 0, 5]);
+camera.setPosition([5, 5, 5]);
 camera.updateProjection();
 camera.updateView();
 
@@ -58,18 +58,61 @@ camera.updateView();
 const shape = new Shape({
     data: {
         vertice: [ 
-            // X, Y, Z         U, V
-            // Top
-            -1.0, -1.0,  0.0,    0, 0,
-            1.0, -1.0,  0.0,     1, 0,
-            1.0, 1.0,   0.0,     1, 1,
-            -1.0, 1.0,   0.0,    0, 1,
+            // top
+             -1.0, 1.0, -1.0,
+             -1.0, 1.0, 1.0,
+             1.0, 1.0, 1.0,
+             -1.0, 1.0, -1.0,
+             1.0, 1.0, 1.0,
+             1.0, 1.0, -1.0,
 
+             // left
+             -1.0, -1.0, 1.0,
+             -1.0, 1.0, 1.0,
+             -1.0, -1.0, -1.0,
+             -1.0, -1.0, -1.0,
+             -1.0, 1.0, 1.0,
+             -1.0, 1.0, -1.0,
+
+             // right
+             1.0, 1.0, 1.0,
+             1.0, -1.0, 1.0,
+             1.0, -1.0, -1.0,
+             1.0, 1.0, 1.0,
+             1.0, -1.0, -1.0,
+             1.0, 1.0, -1.0,
+
+             // front
+             1.0, -1.0, 1.0,
+             1.0, 1.0, 1.0,
+             -1.0, -1.0, 1.0,
+             -1.0, 1.0, 1.0,
+             -1.0, -1.0, 1.0,
+             1.0, 1.0, 1.0,
+
+             // back
+             1.0, 1.0, -1.0,
+             1.0, -1.0, -1.0,
+             -1.0, -1.0, -1.0,
+             1.0, 1.0, -1.0,
+             -1.0, -1.0, -1.0,
+             -1.0, 1.0, -1.0,
+
+             // bottom
+             -1.0, -1.0, 1.0,
+             -1.0, -1.0, -1.0,
+             1.0, -1.0, 1.0,
+             1.0, -1.0, 1.0,
+             -1.0, -1.0, -1.0,
+             1.0, -1.0, -1.0
         ],
-        indice: [
-            0,1,2,
-            0,2,3
-        ],
+
+        uvs: [
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 1
+        ]
     }
 });
 
@@ -99,17 +142,12 @@ material.setTexture('uTexture',texture);
 
 function draw() {
 
-
-
-
-
-    gl.clearColor(0.0, 1.0, 1.0, 1.0);
+    gl.clearColor(0.0, 1.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     material.draw(gl, camera, transform);
 
     shape.draw(gl, shader);
-
 
     requestAnimationFrame(draw);
 }
