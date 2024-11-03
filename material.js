@@ -61,7 +61,7 @@ export default class Material {
 
 
         for(var name in this.uniforms){
-            const data =this.uniforms[name];
+            const data = this.uniforms[name];
 
             if(data.type=="bool" || data.type=="int" || data.type == 'sampler2D' || data.type == 'samplerCube')
                 gl.uniform1i(this.dataLocation.uniforms[name], data.value);

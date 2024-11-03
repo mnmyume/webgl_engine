@@ -16,7 +16,7 @@ gl.viewport(0, 0, canvas.width, canvas.height);
 
 
 const camera = new Camera({aspect:canvas.width /canvas.height});
-camera.setPosition([5, 5, 5]);
+camera.setPosition([0, 0, 50]);
 camera.updateProjection();
 camera.updateView();
 
@@ -54,65 +54,50 @@ camera.updateView();
 // P2,     1, 1,
 // P2,    0, 1,
 
+function generatePos() {
+    const posArray = [];
+    const startX = -8;
+    const startY = -8;
+    const spacing = 2;
+
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            const posX = startX + j * spacing;
+            const posY = startY + i * spacing;
+
+            posArray.push([posX, posY, -1.0]);
+        }
+    }
+
+    return posArray;
+}
+
+function genQuadWithUV(out, index) {
+    const uvCoordinates = [
+        [0, 0],
+        [0, 1],
+        [1, 1],
+        [0, 0],
+        [1, 1],
+        [1, 0]
+    ];
+
+    for (let i = 0; i < uvCoordinates.length; i++) {
+        const uv = uvCoordinates[i];
+        out.push(...index, ...uv);
+    }
+}
+
+let posArray = [];
+let outArray = [];
+posArray = generatePos();
+for (let pos of posArray) {
+    genQuadWithUV(outArray, pos);
+}
 
 const shape = new Shape({
     data: {
-        vertice: [ 
-            // top
-             -1.0, 1.0, -1.0,
-             -1.0, 1.0, 1.0,
-             1.0, 1.0, 1.0,
-             -1.0, 1.0, -1.0,
-             1.0, 1.0, 1.0,
-             1.0, 1.0, -1.0,
-
-             // left
-             -1.0, -1.0, 1.0,
-             -1.0, 1.0, 1.0,
-             -1.0, -1.0, -1.0,
-             -1.0, -1.0, -1.0,
-             -1.0, 1.0, 1.0,
-             -1.0, 1.0, -1.0,
-
-             // right
-             1.0, 1.0, 1.0,
-             1.0, -1.0, 1.0,
-             1.0, -1.0, -1.0,
-             1.0, 1.0, 1.0,
-             1.0, -1.0, -1.0,
-             1.0, 1.0, -1.0,
-
-             // front
-             1.0, -1.0, 1.0,
-             1.0, 1.0, 1.0,
-             -1.0, -1.0, 1.0,
-             -1.0, 1.0, 1.0,
-             -1.0, -1.0, 1.0,
-             1.0, 1.0, 1.0,
-
-             // back
-             1.0, 1.0, -1.0,
-             1.0, -1.0, -1.0,
-             -1.0, -1.0, -1.0,
-             1.0, 1.0, -1.0,
-             -1.0, -1.0, -1.0,
-             -1.0, 1.0, -1.0,
-
-             // bottom
-             -1.0, -1.0, 1.0,
-             -1.0, -1.0, -1.0,
-             1.0, -1.0, 1.0,
-             1.0, -1.0, 1.0,
-             -1.0, -1.0, -1.0,
-             1.0, -1.0, -1.0
-        ],
-
-        uvs: [
-            0, 0,
-            1, 0,
-            1, 1,
-            0, 1
-        ]
+        vertice: outArray
     }
 });
 
@@ -140,14 +125,28 @@ material.initialize({gl});
 
 material.setTexture('uTexture',texture);
 
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+const cellSizes = [];
+const posCount = posArray.length; // 假设有64个 POS
+for (let i = 0; i < posCount; i++) {
+    cellSizes[i] = getRandomArbitrary(1, 10);
+}
+
+
 function draw() {
 
-    gl.clearColor(0.0, 1.0, 0.0, 1.0);
+    gl.clearColor(0.5, 0.7, 0.5, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    material.draw(gl, camera, transform);
+    for (let i = 0; i < posArray.length; i++) {
+        material.uniforms.uCellSize.value = cellSizes[i];
+        material.draw(gl, camera, transform);
+    }
 
-    shape.draw(gl, shader);
+    shape.draw(gl, material);
 
     requestAnimationFrame(draw);
 }
