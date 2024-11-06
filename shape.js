@@ -6,9 +6,6 @@ export default class Shape {
         this.state = params.state ?? Shape.RENDERSTATE.triangle;
         this.verticeBuffer = null;
         this.vertice = null;
-        this.uvBuffer = null;
-        // this.texCoordBuffer = null;
-        // this.texCoord = null;
     }
 
     initialize({ gl }) {
@@ -19,13 +16,13 @@ export default class Shape {
 
         // Bind buffers and upload data
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertice, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertice, gl.STATIC_DRAW); // DYNAMIC_DRAW
     }
 
     setData(data) {
         this.vertice = new Float32Array(data.vertice);
-        // if (data.texCoord) {
-        //     this.texCoord = new Float32Array(data.texCoord);
+        // if (data.velocity) {
+        //     this.velocity = new Float32Array(data.velocity);
         // }
     }
 
@@ -34,29 +31,39 @@ export default class Shape {
         // Bind the vertex buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['gridIndex'], 
+            material.dataLocation.attributes['position'], 
             3, 
             gl.FLOAT, 
             false, 
-            5 * Float32Array.BYTES_PER_ELEMENT, 
+            8 * Float32Array.BYTES_PER_ELEMENT, 
             0
         );
-        gl.enableVertexAttribArray(material.dataLocation.attributes['gridIndex']);
+        gl.enableVertexAttribArray(material.dataLocation.attributes['position']);
 
-        // Bind the uv buffer
+        // uv
         gl.vertexAttribPointer(
             material.dataLocation.attributes['uv'],
             2,
             gl.FLOAT,
             false,
-            5 * Float32Array.BYTES_PER_ELEMENT,
+            8 * Float32Array.BYTES_PER_ELEMENT,
             3 * Float32Array.BYTES_PER_ELEMENT
         );
         gl.enableVertexAttribArray(material.dataLocation.attributes['uv']);
 
+        // velocity
+        gl.vertexAttribPointer(
+            material.dataLocation.attributes['velocity'],
+            3,
+            gl.FLOAT,
+            false,
+            8 * Float32Array.BYTES_PER_ELEMENT,
+            5 * Float32Array.BYTES_PER_ELEMENT
+        )
+        gl.enableVertexAttribArray(material.dataLocation.attributes['velocity']);
+
         // Draw
         gl.drawArrays(gl.TRIANGLES, 0, this.vertice.length);
-
         
     }
 }

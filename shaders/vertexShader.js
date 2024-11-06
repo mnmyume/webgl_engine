@@ -1,5 +1,5 @@
 const vertexShaderSource = `
-    // attribute vec3 aPosition;
+
     attribute vec3 gridIndex;
     attribute vec2 uv;
 

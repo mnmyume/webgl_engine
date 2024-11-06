@@ -51,14 +51,12 @@ export default class Material {
     draw(gl, camera, transform) {
         gl.useProgram(this.shaderProgram);
 
-
         // gl.bindTexture(gl.TEXTURE_2D, null);
         // for(const [key,value] of Object.entries(this.textures)){
         //     const texIndex = this.uniforms[key].value;
         //     gl.activeTexture(gl[`TEXTURE${texIndex}`]);
         //     gl.bindTexture(gl.TEXTURE_2D, value.texture);
         // }
-
 
         for(var name in this.uniforms){
             const data = this.uniforms[name];
@@ -74,7 +72,6 @@ export default class Material {
             else if(data.type=="vec4")
                 gl.uniform4f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2],data.value[3]);
         };
-
 
         if (this.dataLocation.uniforms["uPMatrix"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uPMatrix"], false, camera.projectionMatrix);
