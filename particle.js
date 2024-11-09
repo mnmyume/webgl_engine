@@ -8,8 +8,11 @@ export class ParticleStateIds {
 }
 
 const CORNERS_ = [
-    [-0.5, -0.5],
+    [-0.5, -0.5], // triangle 1
     [+0.5, -0.5],
+    [+0.5, +0.5],
+
+    [-0.5, -0.5], // triangle 2
     [+0.5, +0.5],
     [-0.5, +0.5]
 ];
@@ -69,7 +72,7 @@ export class ParticleSystem {
 
         this.randomFunction_ = opt_randomFunction || (() => Math.random());
 
-        this.singleParticleArray_ = new Float32Array(4 * LAST_IDX);
+        this.singleParticleArray_ = new Float32Array(6 * LAST_IDX);
 
         this.defaultColorTexture = colorTexture;
         this.defaultRampTexture = rampTexture;
@@ -214,7 +217,7 @@ export class ParticleEmitter {
         opt_clock = opt_clock || particleSystem.timeSource_;
         this.gl = particleSystem.gl;
         const gl = this.gl;
-        this.singleParticleArray_ = new Float32Array(4 * LAST_IDX);
+        this.singleParticleArray_ = new Float32Array(6 * LAST_IDX);
         this.createdParticles_ = false;
         this.numParticles_ = 0;
         this.rampTexture_ = particleSystem.defaultRampTexture;
@@ -323,7 +326,7 @@ export class ParticleEmitter {
             let pOrientation = parameters.orientation;    
             
             // make each corner of the particle
-            for (var jj = 0; jj < 4; ++jj) {
+            for (var jj = 0; jj < 6; ++jj) {
                 var offset0 = LAST_IDX * jj;
                 var offset1 = offset0 + 1;
                 var offset2 = offset0 + 2;
@@ -374,6 +377,13 @@ export class ParticleEmitter {
     };
 
     allocateParticles_(numParticles) {
+        this.numParticles_ = numParticles;
+        const gl = this.gl;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer_);
+        gl.bufferData(gl.ARRAY_BUFFER,
+            (numParticles + 1) * this.particleSystem.singleParticleArray_.byteLength,
+            gl.DYNAMIC_DRAW);
+
         if (this.numParticles_ != numParticles) {
             const gl = this.gl;
             gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer_);
@@ -490,10 +500,10 @@ export class ParticleEmitter {
         gl.enableVertexAttribArray(material.dataLocation.attributes['colorMult']);
         
         // TODO: draw without indexBuffer
-        // gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer_);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer_);
-        gl.drawElements(gl.TRIANGLES, this.numParticles_ * 6,
-            gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer_);
+        gl.drawArrays(gl.TRIANGLES, 0, this.numParticles_ * 6);
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer_);
+        // gl.drawElements(gl.TRIANGLES, this.numParticles_ * 6, gl.UNSIGNED_SHORT, 0);
 
         gl.disableVertexAttribArray(material.dataLocation.attributes['uvLifeTimeFrameStart']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['positionStartTime']);
