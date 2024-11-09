@@ -26,7 +26,7 @@ export default class Shape {
         // }
     }
 
-    draw(gl, material) {
+    draw(gl, material, emitter) {
 
         // Bind the vertex buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);

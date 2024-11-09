@@ -12,6 +12,7 @@ export default class Camera {
 
         this.viewMatrix = mat4.create();
         this.projectionMatrix = mat4.create();
+        this.viewInverseMatrix = mat4.create();
     }
 
     updateView() {
@@ -22,6 +23,10 @@ export default class Camera {
     updateProjection() {
         this.projectionMatrix = new Float32Array(mat4.perspective(
             this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far));
+    }
+
+    updateViewInverse() {
+        mat4.invert(this.viewInverseMatrix, this.viewMatrix);
     }
 
     setAspect(aspect) {
@@ -45,5 +50,9 @@ export default class Camera {
 
     getProjectionMatrix() {
         return this.projectionMatrix;
+    }
+
+    getViewInverseMatrix() {
+        return this.viewInverseMatrix;
     }
 }

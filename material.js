@@ -79,6 +79,9 @@ export default class Material {
         if (this.dataLocation.uniforms["uVMatrix"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uVMatrix"], false, camera.viewMatrix);
         }
+        if (this.dataLocation.uniforms["uVInverseMatrix"] && camera) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["uVInverseMatrix"], false, camera.viewInverseMatrix);
+        }
         if (this.dataLocation.uniforms["uMMatrix"]) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
         }
