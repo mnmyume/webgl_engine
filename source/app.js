@@ -7,7 +7,7 @@ import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import { ParticleStateIds, ParticleSystem } from './particle.js';
 
-import SHADER_STRINGS from './shaders/particleShader.js';
+import SHADER_STRINGS from '../shaders/particleShader.js';
 
 const canvas = document.getElementById('game-surface');
 const gl = canvas.getContext('webgl');
@@ -34,11 +34,11 @@ camera.setPosition([0, 0, -600]);
 camera.updateProjection();
 camera.updateView();
 camera.updateViewInverse();
-
+import {basicVert,basicFrag} from "../shaders/output.js";
 // init shader
 const shader = new Shader({
-    vertexSource: SHADER_STRINGS[1],
-    fragmentSource: SHADER_STRINGS[2],
+    vertexSource: basicVert,
+    fragmentSource: basicFrag,
 });
 shader.initialize({ gl });
 
@@ -61,49 +61,48 @@ const material = new Material({
 material.initialize({ gl });
 // material.setTexture('uTexture',texture);
 
-const posArray = [];​
-const startX = -8;​
-const startY = -8;​
-const spacing = 2;​
-​function genPos(){
-for (let i = 0; i < 8; i++) {​
-    for (let j = 0; j < 8; j++) {​
-        const posX = startX + j * spacing;​
-        const posY = startY + i * spacing;​
-​
-            posArray.push([posX, posY, -1.0]);​
-        }​
-    }​
-​
-    return posArray;​
-}​
-​
-function genQuadWithUV(out, index) {​
-    const uvCoordinates = [​
-        [0, 0, 0, 0, 0],​
-        [0, 1, 0, 0, 0],​
-        [1, 1, 0, 0, 0],​
-        [0, 0, 0, 0, 0],​
-        [1, 1, 0, 0, 0],​
-        [1, 0, 0, 0, 0]​
-    ];​
-​
-    for (let i = 0; i < uvCoordinates.length; i++) {​
-        const uv = uvCoordinates[i];​
-        out.push(...index, ...uv);​
-    }​
-}​
-​
-let outArray = [];​
-posArray = genPos();​
-for (let pos of posArray) {​
-    genQuadWithUV(outArray, pos);​
-}​
-​
-const shape = new Shape({​
-    data: {​
-        vertice: outArray​
-    }​
+let posArray = [];
+const startX = -8;
+const startY = -8;
+const spacing = 2;
+function genPos(){
+for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+        const posX = startX + j * spacing;
+        const posY = startY + i * spacing;
+            posArray.push([posX, posY, -1.0]);
+        }
+    }
+
+    return posArray;
+}
+
+function genQuadWithUV(out, index) {
+    const uvCoordinates = [
+        [0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0],
+        [1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [1, 1, 0, 0, 0],
+        [1, 0, 0, 0, 0]
+    ];
+
+    for (let i = 0; i < uvCoordinates.length; i++) {
+        const uv = uvCoordinates[i];
+        out.push(...index, ...uv);
+    }
+}
+
+let outArray = [];
+posArray = genPos();
+for (let pos of posArray) {
+    genQuadWithUV(outArray, pos);
+}
+
+const shape = new Shape({
+    data: {
+        vertice: outArray
+    }
 });
 
 // init particle system
@@ -185,7 +184,7 @@ function draw() {
 
     material.draw(gl, camera, transform);
 
-    // particleSystem.draw(material);
+    particleSystem.draw(material);
 
     if (fpsCounter) {
         fpsCounter.update();
@@ -198,4 +197,10 @@ function draw() {
 setupFlame();
 // setupAnim();
 
+
+
 draw();
+
+
+//initSimpleQuad()
+//initParticle()

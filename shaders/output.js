@@ -1,0 +1,5 @@
+var basicVert = "attribute vec3 gridIndex;\r\nattribute vec2 uv;\r\n\r\nuniform float uCellSize;\r\nuniform mat4 uPMatrix;\r\nuniform mat4 uVMatrix;\r\nuniform mat4 uMMatrix;\r\n\r\nvarying vec2 vTexCoord;\r\n\r\nfloat random(float seed) {\r\n    return fract(sin(seed) * 43758.5453);\r\n}\r\n\r\nvoid main(void) {\r\n\r\n    float cellSize = random(gridIndex.x * 10.0 + gridIndex.y * 100.0 + gridIndex.z);\r\n    cellSize = mix(1.0, 10.0, cellSize);\r\n    mat3 gridIndex2World = mat3(\r\n    vec3(cellSize * 0.5, -cellSize * 0.25, 0.0),\r\n    vec3(-cellSize * 0.5, -cellSize * 0.25, 0.0),\r\n    vec3(0.0, 0.0, 1.0));\r\n\r\n    vec3 origin = gridIndex2World * gridIndex;\r\n    vec3 offset = vec3(cellSize * uv.x, -cellSize * uv.y, 0);\r\n    vec3 position = origin + offset;\r\n\r\n    gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(position, 1.0);\r\n    vTexCoord = uv;\r\n}\r\n";
+
+var basicFrag = "precision mediump float;\r\nvarying vec2 vTexCoord;\r\nuniform sampler2D uTexture;\r\n\r\nvoid main(void) {\r\n    gl_FragColor = texture2D(uTexture, vTexCoord);\r\n}\r\n";
+
+export { basicFrag, basicVert };
