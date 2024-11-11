@@ -1,6 +1,5 @@
 import {$assert} from "./common.js";
 
-
 function preprocess({vertex='',fragment='',init={}}){
     const shaders = {};
     shaders['vertex'] = addingLineNum(vertex);
@@ -10,8 +9,6 @@ function preprocess({vertex='',fragment='',init={}}){
     for(let i = 0; i<buffer.length/3;i++)
         attributes[buffer[3*i+2]] = {type:buffer[3*i+1], value:null};
 
-
-
     const uniforms = {};
     buffer =   $match(/uniform (\S+) (\S+);/g, `${vertex}\n${fragment}`);
     for(let i = 0; i<buffer.length/3;i++)
@@ -19,7 +16,6 @@ function preprocess({vertex='',fragment='',init={}}){
 
     shaders['attributes'] = attributes;
     shaders['uniforms'] = uniforms;
-
 
     for (let [key, value] of Object.entries(init)) {
         uniforms[key].value = value;
@@ -63,7 +59,7 @@ export default class Shader {
         this.dataLocation = { attributes: {}, uniforms: {} };
     }
 
-    initialize (gl) {
+    initialize ({ gl }) {
         const shaders = preprocess({
             vertex:this.vertSrc,
             fragment:this.fragSrc,

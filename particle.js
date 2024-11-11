@@ -227,7 +227,6 @@ export class ParticleEmitter {
         this.translation_ = [0, 0, 0];
         this.setState(ParticleStateIds.BLEND);
         this.particleBuffer_ = gl.createBuffer();
-        this.indexBuffer_ = gl.createBuffer();
     }
 
     setTranslation(x, y, z) {
@@ -383,33 +382,6 @@ export class ParticleEmitter {
         gl.bufferData(gl.ARRAY_BUFFER,
             (numParticles + 1) * this.particleSystem.singleParticleArray_.byteLength,
             gl.DYNAMIC_DRAW);
-
-        if (this.numParticles_ != numParticles) {
-            const gl = this.gl;
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer_);
-            gl.bufferData(gl.ARRAY_BUFFER,
-                (numParticles + 1) * this.particleSystem.singleParticleArray_.byteLength,
-                gl.DYNAMIC_DRAW);
-            
-            let indices = new Uint16Array(6 * numParticles);
-            let idx = 0;
-            for (let ii = 0; ii < numParticles; ++ii) {
-                // Make 2 triangles for the quad.
-                let startIndex = ii * 4;
-                indices[idx++] = startIndex + 0;
-                indices[idx++] = startIndex + 1;
-                indices[idx++] = startIndex + 2;
-                indices[idx++] = startIndex + 0;
-                indices[idx++] = startIndex + 2;
-                indices[idx++] = startIndex + 3;
-            }
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,
-                this.indexBuffer_);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
-                indices,
-                gl.STATIC_DRAW);
-            this.numParticles_ = numParticles;
-        }
     }
 
     setParameters (parameters, opt_perParticleParamSetter) {
@@ -499,11 +471,8 @@ export class ParticleEmitter {
             sizeofFloat * COLOR_MULT_IDX);
         gl.enableVertexAttribArray(material.dataLocation.attributes['colorMult']);
         
-        // TODO: draw without indexBuffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer_);
         gl.drawArrays(gl.TRIANGLES, 0, this.numParticles_ * 6);
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer_);
-        // gl.drawElements(gl.TRIANGLES, this.numParticles_ * 6, gl.UNSIGNED_SHORT, 0);
 
         gl.disableVertexAttribArray(material.dataLocation.attributes['uvLifeTimeFrameStart']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['positionStartTime']);
