@@ -61,6 +61,51 @@ const material = new Material({
 material.initialize({ gl });
 // material.setTexture('uTexture',texture);
 
+const posArray = [];​
+const startX = -8;​
+const startY = -8;​
+const spacing = 2;​
+​function genPos(){
+for (let i = 0; i < 8; i++) {​
+    for (let j = 0; j < 8; j++) {​
+        const posX = startX + j * spacing;​
+        const posY = startY + i * spacing;​
+​
+            posArray.push([posX, posY, -1.0]);​
+        }​
+    }​
+​
+    return posArray;​
+}​
+​
+function genQuadWithUV(out, index) {​
+    const uvCoordinates = [​
+        [0, 0, 0, 0, 0],​
+        [0, 1, 0, 0, 0],​
+        [1, 1, 0, 0, 0],​
+        [0, 0, 0, 0, 0],​
+        [1, 1, 0, 0, 0],​
+        [1, 0, 0, 0, 0]​
+    ];​
+​
+    for (let i = 0; i < uvCoordinates.length; i++) {​
+        const uv = uvCoordinates[i];​
+        out.push(...index, ...uv);​
+    }​
+}​
+​
+let outArray = [];​
+posArray = genPos();​
+for (let pos of posArray) {​
+    genQuadWithUV(outArray, pos);​
+}​
+​
+const shape = new Shape({​
+    data: {​
+        vertice: outArray​
+    }​
+});
+
 // init particle system
 const particleSystem = new ParticleSystem(gl, null, pseudoRandom);
 function setupFlame() {
@@ -151,6 +196,6 @@ function draw() {
 
 // main
 setupFlame();
-setupAnim();
+// setupAnim();
 
 draw();
