@@ -140,7 +140,7 @@ function draw() {
 
     material.draw(gl, camera, transform);
 
-    particleSystem.draw(material);
+    // particleSystem.draw(material);
 
     if (fpsCounter) {
         fpsCounter.update();
