@@ -21,8 +21,8 @@ void main(void) {
     vec3(-cellSize * 0.5, -cellSize * 0.25, 0.0),
     vec3(0.0, 0.0, 1.0));
 
-    vec3 origin = gridIndex2World * gridIndex;
-    vec3 offset = vec3(cellSize * uv.x, -cellSize * uv.y, 0);
+    vec3 origin = gridIndex;
+    vec3 offset = vec3(uv.x, uv.y, 0);
     vec3 position = origin + offset;
 
     gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(position, 1.0);

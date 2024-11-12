@@ -26,7 +26,7 @@ export default class Shape {
         // }
     }
 
-    draw(gl, material, emitter) {
+    draw(gl, material) {
 
         // Bind the vertex buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
@@ -35,7 +35,7 @@ export default class Shape {
             3, 
             gl.FLOAT, 
             false, 
-            8 * Float32Array.BYTES_PER_ELEMENT, 
+            5 * Float32Array.BYTES_PER_ELEMENT, 
             0
         );
         gl.enableVertexAttribArray(material.dataLocation.attributes['position']);
@@ -46,21 +46,10 @@ export default class Shape {
             2,
             gl.FLOAT,
             false,
-            8 * Float32Array.BYTES_PER_ELEMENT,
+            5 * Float32Array.BYTES_PER_ELEMENT,
             3 * Float32Array.BYTES_PER_ELEMENT
         );
         gl.enableVertexAttribArray(material.dataLocation.attributes['uv']);
-
-        // velocity
-        gl.vertexAttribPointer(
-            material.dataLocation.attributes['velocity'],
-            3,
-            gl.FLOAT,
-            false,
-            8 * Float32Array.BYTES_PER_ELEMENT,
-            5 * Float32Array.BYTES_PER_ELEMENT
-        )
-        gl.enableVertexAttribArray(material.dataLocation.attributes['velocity']);
 
         // Draw
         gl.drawArrays(gl.TRIANGLES, 0, this.vertice.length);

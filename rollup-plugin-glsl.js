@@ -27,7 +27,7 @@ function generateCode(source) {
 
 export default function glsl(options = {}) {
     const filter = createFilter(options.include, options.exclude);
-    debugger;
+    // debugger;
     return {
         name: 'glsl',
 
