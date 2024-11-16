@@ -23,12 +23,12 @@ let quadMaterial = null;
 let quadShape = null; 
 
 let particleShader = null;
-let particleImage = null;
-let particleTexture = null;
 let particleTransform = null;
 let particleMaterial = null;
 let particleShape = null;
 let particleSystem = null;
+let rampTexture = null;
+let colorTexture = null;
 
 const fps = document.getElementById("fps");
 if (!fps) {
@@ -45,7 +45,7 @@ function pseudoRandom() {
 
 // init camera
 const camera = new Camera({aspect:canvas.width /canvas.height});
-camera.setPosition([0, 0, -100]);
+camera.setPosition([0, 0, -300]);
 camera.updateProjection();
 camera.updateView();
 camera.updateViewInverse();
@@ -81,54 +81,6 @@ function genQuadWithUV(out, index) {
         const uv = uvCoordinates[i];
         out.push(...index, ...uv);
     }
-}
-
-function setupFlame() {
-    const emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(0, 0, 0);
-    emitter.setState(ParticleStateIds.ADD);
-    emitter.setColorRamp(
-        [1, 1, 0, 1,
-            1, 0, 0, 1,
-            0, 0, 0, 1,
-            0, 0, 0, 0.5,
-            0, 0, 0, 0
-        ]);
-    emitter.setParameters({
-        numParticles: 20,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 50,
-        endSize: 90,
-        velocity: [0, 60, 0],
-        velocityRange: [15, 15, 15],
-        spinSpeedRange: 4
-    });
-}
-
-function setupAnim() {
-    const emitter = particleSystem.createParticleEmitter();
-    emitter.setTranslation(300, 0, 0);
-    emitter.setColorRamp(
-        [1, 1, 1, 1,
-            1, 1, 1, 1,
-            1, 1, 1, 0
-        ]);
-    emitter.setParameters({
-        numParticles: 20,
-        numFrames: 8,
-        frameDuration: 0.25,
-        frameStartRange: 8,
-        lifeTime: 2,
-        timeRange: 2,
-        startSize: 50,
-        endSize: 90,
-        positionRange: [10, 10, 10],
-        velocity: [0, 200, 0],
-        velocityRange: [75, 15, 75],
-        acceleration: [0, -150, 0],
-        spinSpeedRange: 1
-    });
 }
 
 function initSimpleQuad() { 
@@ -202,28 +154,53 @@ function initParticles() {
     });
     particleShader.initialize({ gl });
 
-    // init particle texture
-    particleImage = new Image();
-    particleImage.src = '../resources/particle-anim.png';
-    particleTexture = new Texture2D('anim', {
-        image: particleImage 
-    });
-    particleTexture.initialize({ gl });
-
     // init particle transform
     particleTransform = new Transform();
     particleTransform.setPosition(0, 0, 0);
 
+    // init particle texture
+    rampTexture = new Texture2D('rampTexture');
+    rampTexture.setColorRamp(gl,
+        [1, 1, 0, 1,
+            1, 0, 0, 1,
+            0, 0, 0, 1,
+            0, 0, 0, 0.5,
+            0, 0, 0, 0
+        ]);
+
+    colorTexture = new Texture2D('colorTexture');
+    const pixelBase = [0, 0.20, 0.70, 1, 0.70, 0.20, 0, 0];
+    const pixels = [];
+    for (let yy = 0; yy < 8; ++yy) {
+        for (let xx = 0; xx < 8; ++xx) {
+            const pixel = pixelBase[xx] * pixelBase[yy];
+            pixels.push(pixel, pixel, pixel, pixel);
+        }
+    }
+    colorTexture.createTextureFromFloats(gl, 8, 8, pixels);
+
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
+        timeRange: 2
     })
     particleMaterial.initialize({ gl });
+    particleMaterial.setTexture('rampSampler', rampTexture);
+    particleMaterial.setTexture('colorSampler', colorTexture);
 
-    particleSystem = new ParticleSystem(gl, null, pseudoRandom);
-
-    setupFlame();
-    // setupAnim();
+    particleShape = new Shape({
+        data:{
+            numParticles: 20,
+            lifeTime: 2,
+            startSize: 50,
+            endSize: 90,
+            velocity: [0, 60, 0],
+            velocityRange: [15, 15, 15],
+            spinSpeedRange: 4
+        }},
+        pseudoRandom
+    )
+    particleShape.initialize({ gl });
 
     drawParticles();
 }
@@ -236,7 +213,7 @@ function drawParticles() {
 
     particleMaterial.draw(gl, camera, particleTransform);
 
-    particleSystem.draw(particleMaterial);
+    particleShape.draw(gl, particleMaterial);
 
     if (fpsCounter) {
         fpsCounter.update();
@@ -247,8 +224,8 @@ function drawParticles() {
 
 function main() {
 
-    initSimpleQuad();
-    // initParticles();
+    // initSimpleQuad();
+    initParticles();
 }
 
 main();

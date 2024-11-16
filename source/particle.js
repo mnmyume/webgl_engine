@@ -126,10 +126,10 @@ const ParticleSpec = function() {
     this.numParticles = 1;
 
     // The number of frames in the particle texture
-    this.numFrames = 1;
+    this.numFrames = 1; // uniform
 
     // The frame duration at which to animate the particle texture in seconds per frame 
-    this.frameDuration = 1;
+    this.frameDuration = 1; // uniform
 
     // The initial frame to display for a particular particle
     this.frameStart = 0;
@@ -139,7 +139,7 @@ const ParticleSpec = function() {
 
     // The life time of the entire particle system
     // To make a particle system be continuous set this to match the lifeTime
-    this.timeRange = 99999999;
+    this.timeRange = 99999999;  // uniform
 
     // The startTime of a particle
     this.startTime = null;

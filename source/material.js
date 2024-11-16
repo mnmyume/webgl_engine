@@ -1,15 +1,22 @@
 import {$assert} from "./common.js";
 import Texture2D from './texture2d.js';
 
+
 export default class Material {
-    textures={};
-    shaderProgram=null;
+    textures = {};
+    shaderProgram = null;
     dataLocation = {
         attributes: {},
         uniforms: {},
     };
     constructor(params = {}) {
         this.shader = params.shader || null;
+        this.numFrames = params.numFrames || 1;
+        this.frameDuration = params.frameDuration || 1;
+        this.timeRange = params.timeRange || 99999999;
+        this.timeSource_ = params.opt_clock || function(now, base) {return (now.getTime() - base.getTime()) / 1000.0;};
+        this.now_ = new Date();
+        this.timeBase_ = new Date();
     }
 
 
@@ -20,8 +27,8 @@ export default class Material {
 
         this.vertex = this.shader.vertex;
         this.fragment = this.shader.fragment;
-        // this.attributes
-        // this. uniforms
+        this.uniforms["rampSampler"].value = 0;
+        this.uniforms["colorSampler"].value = 1;
 
         this.shaderProgram = gl.createProgram();
         gl.attachShader(this.shaderProgram, this.vertex);
@@ -57,6 +64,19 @@ export default class Material {
             gl.activeTexture(gl[`TEXTURE${texIndex}`]);
             gl.bindTexture(gl.TEXTURE_2D, value.texture);
         }
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.blendEquation(gl.FUNC_ADD);
+
+        this.uniforms["timeRange"].value = this.timeRange;
+        this.uniforms["numFrames"].value = this.numFrames;
+        this.uniforms["frameDuration"].value = this.frameDuration;
+
+        // compute and set time
+        this.now_ = new Date();
+        let curTime = this.timeSource_(this.now_, this.timeBase_); 
+        this.uniforms["time"].value = curTime;
 
         for(var name in this.uniforms){
             const data = this.uniforms[name];
