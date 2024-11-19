@@ -5,7 +5,7 @@ import Material from './material.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
-import { ParticleStateIds, ParticleSystem } from './particle.js';
+import StaticEmitter from './staticemitter.js';
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
 
 const canvas = document.getElementById('game-surface');
@@ -111,8 +111,8 @@ function initSimpleQuad() {
     quadMaterial.initialize({ gl });
     // quadMaterial.setTexture('uTexture', quadTexture); 
 
-    let outArray = [];
     let posArray = genPos();
+    let outArray = [];
     for (let pos of posArray) {
         genQuadWithUV(outArray, pos);
     }
@@ -188,7 +188,7 @@ function initParticles() {
     particleMaterial.setTexture('rampSampler', rampTexture);
     particleMaterial.setTexture('colorSampler', colorTexture);
 
-    particleShape = new Shape({
+    particleShape = new StaticEmitter({
         data:{
             numParticles: 20,
             lifeTime: 2,
