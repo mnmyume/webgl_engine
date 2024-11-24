@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>WebGL Particle Emitter</title>
     <style>
-        #webgl {
-            border: 1px solid red;
-        }
+        body { margin: 0; }
+        canvas { width: 800px; height: 600px; display: block; }
     </style>
 </head>
-
 <body>
-    <canvas id="webgl" width="400" height="400">
-        not support HTML5, change browser
-    </canvas>
-    <script src="app.js" type="module"></script>
-</body>
+    <canvas id="game-surface"></canvas>
+    
 
+    <script src="source/gl-matrix.js"></script>
+    <script type="module" src="source/app.js"></script>
+    <div id="fps"></div>
+</body>
 </html>
