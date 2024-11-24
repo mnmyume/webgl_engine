@@ -16,6 +16,11 @@ attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize
 attribute vec4 spinStartSpinSpeed;   // spinStart.x, spinSpeed.y
 attribute vec4 colorMult;            // multiplies color and ramp textures
 
+
+attribute uint index; //1024
+
+//https://stackoverflow.com/questions/18453302/how-do-you-pack-one-32-bit-integers-into-4-8bit-ints-in-glsl-webgl/18454838#18454838
+
 // Outgoing variables to fragment shader
 varying vec2 outputTexcoord;
 varying float outputPercentLife;
