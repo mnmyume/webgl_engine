@@ -6,6 +6,7 @@ uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uVInverseMatrix;
 uniform mat4 uMMatrix;
+uniform sampler2D posSampler;
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
@@ -24,7 +25,11 @@ void main() {
   vec2 uv = uvLifeTimeFrameStart.xy;
   float lifeTime = uvLifeTimeFrameStart.z;
   float frameStart = uvLifeTimeFrameStart.w;
-  vec3 position = positionStartTime.xyz;
+
+  // vec3 position = positionStartTime.xyz;
+  vec4 posData = texture2D(posSampler, uv);
+  vec3 position = posData.xyz;
+
   float startTime = positionStartTime.w;
   vec3 velocity = velocityStartSize.xyz;
   float startSize = velocityStartSize.w;

@@ -29,6 +29,7 @@ export default class Material {
         this.fragment = this.shader.fragment;
         this.uniforms["rampSampler"].value = 0;
         this.uniforms["colorSampler"].value = 1;
+        this.uniforms["posSampler"].value = 2;
 
         this.shaderProgram = gl.createProgram();
         gl.attachShader(this.shaderProgram, this.vertex);

@@ -29,6 +29,7 @@ let particleShape = null;
 let particleSystem = null;
 let rampTexture = null;
 let colorTexture = null;
+let posTexture = null;
 
 const fps = document.getElementById("fps");
 if (!fps) {
@@ -179,6 +180,9 @@ function initParticles() {
     }
     colorTexture.createTextureFromFloats(gl, 8, 8, pixels);
 
+    posTexture = new Texture2D('posTexture');
+    posTexture.createTextureFromFloats(gl, 8, 8, pixels);
+
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
@@ -187,13 +191,14 @@ function initParticles() {
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
     particleMaterial.setTexture('colorSampler', colorTexture);
+    particleMaterial.setTexture('posSampler', posTexture);
 
     particleShape = new StaticEmitter({
         data:{
             numParticles: 20,
             lifeTime: 2,
-            startSize: 50,
-            endSize: 90,
+            startSize: 1,  // 50
+            endSize: 1,    // 90
             velocity: [0, 60, 0],
             velocityRange: [15, 15, 15],
             spinSpeedRange: 4
