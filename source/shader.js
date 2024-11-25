@@ -79,7 +79,7 @@ export default class Shader {
         var directives = [
             '#version 100',
             //'#extension GL_EXT_draw_buffers:require',
-            'precision mediump float;'
+            // 'precision mediump float;'
         ];
 
         for(var i in (params.defines || [])){

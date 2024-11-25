@@ -58,9 +58,9 @@ export class ParticleSystem {
                 pixels.push(pixel, pixel, pixel, pixel);
             }
         }
-        const colorTexture = this.createTextureFromFloats(8, 8, pixels);
+        const colorTexture = this.createTexture(8, 8, pixels);
 
-        const rampTexture = this.createTextureFromFloats(2, 1, [1, 1, 1, 1, 1, 1, 1, 0]);
+        const rampTexture = this.createTexture(2, 1, [1, 1, 1, 1, 1, 1, 1, 0]);
 
         this.now_ = new Date();
         this.timeBase_ = new Date();
@@ -86,7 +86,7 @@ export class ParticleSystem {
         };
     }
 
-    createTextureFromFloats(width, height, pixels, opt_texture) {
+    createTexture(width, height, pixels, opt_texture) {
         const gl = this.gl;
         let texture = opt_texture || gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -250,7 +250,7 @@ export class ParticleEmitter {
             this.rampTexture_ = null;
         }
 
-        this.rampTexture_ = this.particleSystem.createTextureFromFloats(width, 1, colorRamp, this.rampTexture_);
+        this.rampTexture_ = this.particleSystem.createTexture(width, 1, colorRamp, this.rampTexture_);
     }
 
     validateParameters(parameters) {

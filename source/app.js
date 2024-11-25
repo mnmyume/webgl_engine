@@ -13,7 +13,6 @@ const gl = canvas.getContext('webgl');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 gl.viewport(0, 0, canvas.width, canvas.height);
-
 // definite
 let quadShader = null;
 let quadImage = null;
@@ -53,7 +52,7 @@ function pseudoRandom() {
 
 // init camera
 const camera = new Camera({aspect:canvas.width /canvas.height});
-camera.setPosition([0, 0, -300]);
+camera.setPosition([0, 0, -5]);
 camera.updateProjection();
 camera.updateView();
 camera.updateViewInverse();
@@ -153,25 +152,23 @@ function drawSimpleQuad() {
     requestAnimationFrame(drawSimpleQuad);
 }
 
-function generateCirclePos(width, height) {
+function generateCirclePos(numParticle=32, generation=64) {
     const posPixels = [];
 
-    const centerX = 0;
-    const centerY = 0;
-    const radius = 50;
+    const radius = 100;
 
-    for (let row = 0; row < height; row++) {
-        const rowPixels = [];
-        for (let i = 0; i < width; i++) {
-            const angle = Math.random() * 2 * Math.PI; 
-            const x = centerX + radius * Math.cos(angle);
-            const y = centerY + radius * Math.sin(angle);
-            
-            rowPixels.push(x, y, 0, 1); 
+    const STRIDE = 2;
+
+    for(let row=0;row<generation;row++)
+        for(let col = 0; col<numParticle*STRIDE;col+=STRIDE){
+            const angle = Math.random() * 2 * Math.PI;
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+
+            posPixels.push(1.0,0.0);//EncodeFLoatRGBA
+                                    //DecodeFloatRGBA
         }
 
-        posPixels.push(...rowPixels);
-    }
 
     return posPixels;
 }
@@ -208,13 +205,13 @@ function initParticles() {
             pixels.push(pixel, pixel, pixel, pixel);
         }
     }
-    colorTexture.createTextureFromFloats(gl, 8, 8, pixels);
+    colorTexture.createTexture(gl, 8, 8, pixels);
 
     posTexture = new Texture2D('posTexture');
-    const posPixels = generateCirclePos(1024, 1024); 
+    const posPixels = generateCirclePos();
     // const posPixels = new Array(1024 * 1024 * 4).fill(0);
     // const posPixels = new Array(1024 * 1024).fill([1,1,0,0]).flat();
-    posTexture.createTextureFromFloats(gl, 1024, 1024, posPixels);
+    posTexture.createFloatTexture(gl, 64,64, posPixels);
 
     // init particle material
     particleMaterial = new Material({
@@ -228,14 +225,14 @@ function initParticles() {
 
     particleShape = new StaticEmitter({
         data:{
-            numParticles: 1024,
+            numParticles: 1,
             position: [0, 0, 0],
             lifeTime: 2,
-            startSize: 2,  // 50
-            endSize: 2,    // 90
+            startSize: 1,  // 50
+            endSize: 1,    // 90
             velocity: [0, 0, 0],   // [0, 60, 0]
             velocityRange: [0, 0, 0],    // [15, 15, 15]
-            spinSpeedRange: 4
+            spinSpeedRange: 0
         }},
         pseudoRandom
     )

@@ -44,7 +44,8 @@ export default class StaticEmitter extends Shape {
         colorMultRange: [0, 0, 0, 0]
     };
     particleBuffer = null;
-    singleParticleArray = new Float32Array(6 * LAST_IDX);
+    debugger;
+    bufferSubData = new Float32Array(6 * LAST_IDX);
 
     constructor(params = {}, opt_randomFunction) {
         super(params);
@@ -69,7 +70,7 @@ export default class StaticEmitter extends Shape {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
         gl.bufferData(gl.ARRAY_BUFFER,
-            (numParticles + 1) * this.singleParticleArray.byteLength,
+            (numParticles + 1) * this.bufferSubData.byteLength,
             gl.STATIC_DRAW);
 
         this.createParticles(
@@ -81,7 +82,7 @@ export default class StaticEmitter extends Shape {
     };
 
     createParticles(gl, firstParticleIndex, numParticles, parameters) {
-        let singleParticleArray = this.singleParticleArray;
+        const bufferSubData = this.bufferSubData;
         let random = this.randomFunction_;
 
         let addVector = function(a, b) {
@@ -126,40 +127,40 @@ export default class StaticEmitter extends Shape {
                 var offset2 = offset0 + 2;
                 var offset3 = offset0 + 3;
 
-                singleParticleArray[UV_LIFE_TIME_FRAME_START_IDX + offset0] = CORNERS_[jj][0];
-                singleParticleArray[UV_LIFE_TIME_FRAME_START_IDX + offset1] = CORNERS_[jj][1];
-                singleParticleArray[UV_LIFE_TIME_FRAME_START_IDX + offset2] = pLifeTime;
-                singleParticleArray[UV_LIFE_TIME_FRAME_START_IDX + offset3] = pFrameStart;
+                bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset0] = CORNERS_[jj][0];
+                bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset1] = CORNERS_[jj][1];
+                bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset2] = pLifeTime;
+                bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset3] = pFrameStart;
 
-                singleParticleArray[POSITION_START_TIME_IDX + offset0] = pPosition[0];
-                singleParticleArray[POSITION_START_TIME_IDX + offset1] = pPosition[1];
-                singleParticleArray[POSITION_START_TIME_IDX + offset2] = pPosition[2];
-                singleParticleArray[POSITION_START_TIME_IDX + offset3] = pStartTime;
+                bufferSubData[POSITION_START_TIME_IDX + offset0] = pPosition[0];
+                bufferSubData[POSITION_START_TIME_IDX + offset1] = pPosition[1];
+                bufferSubData[POSITION_START_TIME_IDX + offset2] = pPosition[2];
+                bufferSubData[POSITION_START_TIME_IDX + offset3] = pStartTime;
 
-                singleParticleArray[VELOCITY_START_SIZE_IDX + offset0] = pVelocity[0];
-                singleParticleArray[VELOCITY_START_SIZE_IDX + offset1] = pVelocity[1];
-                singleParticleArray[VELOCITY_START_SIZE_IDX + offset2] = pVelocity[2];
-                singleParticleArray[VELOCITY_START_SIZE_IDX + offset3] = pStartSize;
+                bufferSubData[VELOCITY_START_SIZE_IDX + offset0] = pVelocity[0];
+                bufferSubData[VELOCITY_START_SIZE_IDX + offset1] = pVelocity[1];
+                bufferSubData[VELOCITY_START_SIZE_IDX + offset2] = pVelocity[2];
+                bufferSubData[VELOCITY_START_SIZE_IDX + offset3] = pStartSize;
 
-                singleParticleArray[ACCELERATION_END_SIZE_IDX + offset0] = pAcceleration[0];
-                singleParticleArray[ACCELERATION_END_SIZE_IDX + offset1] = pAcceleration[1];
-                singleParticleArray[ACCELERATION_END_SIZE_IDX + offset2] = pAcceleration[2];
-                singleParticleArray[ACCELERATION_END_SIZE_IDX + offset3] = pEndSize;
+                bufferSubData[ACCELERATION_END_SIZE_IDX + offset0] = pAcceleration[0];
+                bufferSubData[ACCELERATION_END_SIZE_IDX + offset1] = pAcceleration[1];
+                bufferSubData[ACCELERATION_END_SIZE_IDX + offset2] = pAcceleration[2];
+                bufferSubData[ACCELERATION_END_SIZE_IDX + offset3] = pEndSize;
 
-                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset0] = pSpinStart;
-                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset1] = pSpinSpeed;
-                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset2] = ii;
-                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset3] = 0;
+                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset0] = pSpinStart;
+                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset1] = pSpinSpeed;
+                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset2] = ii;
+                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset3] = 0;
 
-                singleParticleArray[COLOR_MULT_IDX + offset0] = pColorMult[0];
-                singleParticleArray[COLOR_MULT_IDX + offset1] = pColorMult[1];
-                singleParticleArray[COLOR_MULT_IDX + offset2] = pColorMult[2];
-                singleParticleArray[COLOR_MULT_IDX + offset3] = pColorMult[3];
+                bufferSubData[COLOR_MULT_IDX + offset0] = pColorMult[0];
+                bufferSubData[COLOR_MULT_IDX + offset1] = pColorMult[1];
+                bufferSubData[COLOR_MULT_IDX + offset2] = pColorMult[2];
+                bufferSubData[COLOR_MULT_IDX + offset3] = pColorMult[3];
             }
 
             gl.bufferSubData(gl.ARRAY_BUFFER,
-                singleParticleArray.byteLength * (ii + firstParticleIndex),
-                singleParticleArray);
+                bufferSubData.byteLength * (ii + firstParticleIndex),
+                bufferSubData);
         }
     };
 

@@ -17,7 +17,7 @@ attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, index.z
 attribute vec4 colorMult;            // multiplies color and ramp textures
 
 
-attribute uint index; //1024
+//attribute uint index; //1024
 
 //https://stackoverflow.com/questions/18453302/how-do-you-pack-one-32-bit-integers-into-4-8bit-ints-in-glsl-webgl/18454838#18454838
 
@@ -54,14 +54,13 @@ void main() {
 
   int generation = int((time - startTime) / timeRange);
 
-  float posTexCoordXX = (index * 4.0) / 4096.0;
-  float posTexCoordXY = (index * 4.0 + 1.0) / 4096.0;
-  float posTexCoordXZ = (index * 4.0 + 2.0) / 4096.0;
+  float posTexCoordXX = (index * 2.0) / 1024.0;
+  float posTexCoordXY = (index * 2.0 + 1.0) / 1024.0;
+  float posTexCoordXZ = 0.0;
   float posTexCoordY = mod(float(generation), 1024.0) / 1024.0; 
-  float posX = DecodeFloatRGBA(posSampler, posTexCoordXX, posTexCoordY);
-  float posY = DecodeFloatRGBA(posSampler, posTexCoordXY, posTexCoordY);
-  float posZ = DecodeFloatRGBA(posSampler, posTexCoordXZ, posTexCoordY);
-  vec3 position = vec3(posX, posY, posZ);
+  float posX = DecodeFloatRGBA(posSampler, posTexCoordXX, 1.0);
+  float posY = DecodeFloatRGBA(posSampler, posTexCoordXY, 1.0);//posTexCoordY
+  vec3 position = vec3(posX, 0.0, 1.0);
 
   float uOffset = frame / numFrames;
   float u = uOffset + (uv.x + 0.5) * (1. / numFrames);

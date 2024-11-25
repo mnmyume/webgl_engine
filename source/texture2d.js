@@ -79,11 +79,10 @@ export default class Texture2D {
         if (width % 1 !== 0) {
             throw 'colorRamp must have multiple of 4 entries';
         }
-
-        this.createTextureFromFloats(gl, width, 1, colorRamp);
+        this.createTexture(gl, width, 1, colorRamp);
     }
 
-    createTextureFromFloats(gl, width, height, pixels) {
+    createTexture(gl, width, height, pixels) {
         let texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -95,4 +94,20 @@ export default class Texture2D {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, data);
         this.texture = texture
     };
+
+    createFloatTexture(gl, width, height, floatArr) {
+        let texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        const data = new Float32Array(floatArr);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array( data.buffer));
+        this.texture = texture
+    };
+
+    
+    
 }
