@@ -26,11 +26,18 @@ let particleShader = null;
 let particleTransform = null;
 let particleMaterial = null;
 let particleShape = null;
-let particleSystem = null;
 let rampTexture = null;
 let colorTexture = null;
 let posTexture = null;
 
+const floatTextures = gl.getExtension('OES_texture_float');
+if (!floatTextures) {
+    console.error('OES_texture_float is not supported');
+}
+const floatLinearTextures = gl.getExtension('OES_texture_float_linear');
+if (!floatLinearTextures) {
+    console.warn('OES_texture_float_linear is not supported, using NEAREST filtering instead of LINEAR');
+}
 const fps = document.getElementById("fps");
 if (!fps) {
     console.log('fps error')
@@ -146,6 +153,29 @@ function drawSimpleQuad() {
     requestAnimationFrame(drawSimpleQuad);
 }
 
+function generateCirclePos(width, height) {
+    const posPixels = [];
+
+    const centerX = 0;
+    const centerY = 0;
+    const radius = 50;
+
+    for (let row = 0; row < height; row++) {
+        const rowPixels = [];
+        for (let i = 0; i < width; i++) {
+            const angle = Math.random() * 2 * Math.PI; 
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+            
+            rowPixels.push(x, y, 0, 1); 
+        }
+
+        posPixels.push(...rowPixels);
+    }
+
+    return posPixels;
+}
+
 function initParticles() {
 
     // init particle shader
@@ -181,7 +211,10 @@ function initParticles() {
     colorTexture.createTextureFromFloats(gl, 8, 8, pixels);
 
     posTexture = new Texture2D('posTexture');
-    posTexture.createTextureFromFloats(gl, 8, 8, pixels);
+    const posPixels = generateCirclePos(1024, 1024); 
+    // const posPixels = new Array(1024 * 1024 * 4).fill(0);
+    // const posPixels = new Array(1024 * 1024).fill([1,1,0,0]).flat();
+    posTexture.createTextureFromFloats(gl, 1024, 1024, posPixels);
 
     // init particle material
     particleMaterial = new Material({
@@ -195,12 +228,13 @@ function initParticles() {
 
     particleShape = new StaticEmitter({
         data:{
-            numParticles: 20,
+            numParticles: 1024,
+            position: [0, 0, 0],
             lifeTime: 2,
-            startSize: 1,  // 50
-            endSize: 1,    // 90
-            velocity: [0, 60, 0],
-            velocityRange: [15, 15, 15],
+            startSize: 2,  // 50
+            endSize: 2,    // 90
+            velocity: [0, 0, 0],   // [0, 60, 0]
+            velocityRange: [0, 0, 0],    // [15, 15, 15]
             spinSpeedRange: 4
         }},
         pseudoRandom

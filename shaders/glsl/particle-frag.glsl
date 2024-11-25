@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 
 uniform sampler2D rampSampler;
 uniform sampler2D colorSampler;
@@ -10,7 +10,7 @@ varying vec4 outputColorMult;
 
 void main(void) {
 
-    //vec4 colorMult = texture2D(rampSampler, vec2(outputPercentLife, 0.5)) *outputColorMult;
-    //gl_FragColor = texture2D(colorSampler, outputTexcoord) * colorMult;
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);    
+    vec4 colorMult = texture2D(rampSampler, vec2(outputPercentLife, 0.5)) * outputColorMult;
+    gl_FragColor = texture2D(colorSampler, outputTexcoord) * colorMult;
+    // gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);    
 }
