@@ -4,7 +4,7 @@ const UV_LIFE_TIME_FRAME_START_IDX = 0;
 const POSITION_START_TIME_IDX = 4;
 const VELOCITY_START_SIZE_IDX = 8;
 const ACCELERATION_END_SIZE_IDX = 12;
-const SPIN_START_SPIN_SPEED_IDX = 16;
+const SPIN_START_SPEED_INDEX_IDX = 16;
 const COLOR_MULT_IDX = 20;
 const LAST_IDX = 24;
 
@@ -146,10 +146,10 @@ export default class StaticEmitter extends Shape {
                 singleParticleArray[ACCELERATION_END_SIZE_IDX + offset2] = pAcceleration[2];
                 singleParticleArray[ACCELERATION_END_SIZE_IDX + offset3] = pEndSize;
 
-                singleParticleArray[SPIN_START_SPIN_SPEED_IDX + offset0] = pSpinStart;
-                singleParticleArray[SPIN_START_SPIN_SPEED_IDX + offset1] = pSpinSpeed;
-                singleParticleArray[SPIN_START_SPIN_SPEED_IDX + offset2] = 0;
-                singleParticleArray[SPIN_START_SPIN_SPEED_IDX + offset3] = 0;
+                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset0] = pSpinStart;
+                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset1] = pSpinSpeed;
+                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset2] = ii;
+                singleParticleArray[SPIN_START_SPEED_INDEX_IDX + offset3] = 0;
 
                 singleParticleArray[COLOR_MULT_IDX + offset0] = pColorMult[0];
                 singleParticleArray[COLOR_MULT_IDX + offset1] = pColorMult[1];
@@ -198,11 +198,11 @@ export default class StaticEmitter extends Shape {
             material.dataLocation.attributes['accelerationEndSize']);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['spinStartSpinSpeed'], 
+            material.dataLocation.attributes['spinStartSpeedIndex'], 
             4, gl.FLOAT, false, stride,
-            sizeofFloat * SPIN_START_SPIN_SPEED_IDX);
+            sizeofFloat * SPIN_START_SPEED_INDEX_IDX);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['spinStartSpinSpeed']);
+            material.dataLocation.attributes['spinStartSpeedIndex']);
 
         gl.vertexAttribPointer(
             material.dataLocation.attributes['colorMult'], 
