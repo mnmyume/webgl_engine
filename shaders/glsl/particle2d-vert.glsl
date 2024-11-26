@@ -45,7 +45,7 @@ void main() {
   float endSize = accelerationEndSize.w;
   float spinStart = spinStartSpeedIndex.x;
   float spinSpeed = spinStartSpeedIndex.y;
-  float index = spinStartSpeedIndex.z;
+  float particleID = spinStartSpeedIndex.z;
 
   float localTime = mod((time - startTime), timeRange);
   float percentLife = localTime / lifeTime;
@@ -54,19 +54,19 @@ void main() {
 
   int generation = int((time - startTime) / timeRange);
 
-  float posTexCoordXX = (index * 2.0) / 1024.0;
-  float posTexCoordXY = (index * 2.0 + 1.0) / 1024.0;
-  float posTexCoordXZ = 0.0;
-  float posTexCoordY = mod(float(generation), 1024.0) / 1024.0; 
-  float posX = DecodeFloatRGBA(posSampler, posTexCoordXX, 1.0);
-  float posY = DecodeFloatRGBA(posSampler, posTexCoordXY, 1.0);//posTexCoordY
-  vec3 position = vec3(posX, 0.0, 1.0);
+  float posTexCoordUX = (particleID * 2.0) / 1024.0;
+  float posTexCoordUY = (particleID * 2.0 + 1.0) / 1024.0;
+  float posTexCoordUZ = 0.0;
+  float posTexCoordV = 1.0 - mod(float(generation), 1024.0) / 1024.0;
+
+
+  vec3 position = texture2D(posSampler,vec2( posTexCoordUX,posTexCoordV)).xyz;
 
   float uOffset = frame / numFrames;
   float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
 
   outputTexcoord = vec2(u, uv.y + 0.5);
-  outputColorMult = colorMult;
+  outputColorMult = vec4(1.0-particleID/255.0, 0.0,0.0,1.0);//colorMult;
 
   vec3 basisX = uVInverseMatrix[0].xyz;
   vec3 basisZ = uVInverseMatrix[1].xyz;

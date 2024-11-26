@@ -152,22 +152,22 @@ function drawSimpleQuad() {
     requestAnimationFrame(drawSimpleQuad);
 }
 
-function generateCirclePos(numParticle=32, generation=64) {
+function generateCirclePos(numParticle=32, generation=16) {
     const posPixels = [];
 
-    const radius = 100;
+    const radius = 1;
 
     const STRIDE = 2;
+    for(let row=0;row<generation;row++) {
+        const offset = 2 * Math.PI/generation * row;
+        for (let col = 0; col < numParticle * STRIDE; col += STRIDE) {
+            const angle = 2 * Math.PI /numParticle * col; //Math.random() *
+            const x = radius * Math.cos(angle + offset);
+            const y = radius * Math.sin(angle + offset);
 
-    for(let row=0;row<generation;row++)
-        for(let col = 0; col<numParticle*STRIDE;col+=STRIDE){
-            const angle = Math.random() * 2 * Math.PI;
-            const x = radius * Math.cos(angle);
-            const y = radius * Math.sin(angle);
-
-            posPixels.push(1.0,0.0);//EncodeFLoatRGBA
-                                    //DecodeFloatRGBA
+            posPixels.push(x, y, 0.0, 0.0);
         }
+    }
 
 
     return posPixels;
@@ -211,7 +211,7 @@ function initParticles() {
     const posPixels = generateCirclePos();
     // const posPixels = new Array(1024 * 1024 * 4).fill(0);
     // const posPixels = new Array(1024 * 1024).fill([1,1,0,0]).flat();
-    posTexture.createFloatTexture(gl, 64,64, posPixels);
+    posTexture.createFloatTexture(gl, 64/4,16, posPixels);
 
     // init particle material
     particleMaterial = new Material({
