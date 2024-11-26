@@ -52,7 +52,7 @@ function pseudoRandom() {
 
 // init camera
 const camera = new Camera({aspect:canvas.width /canvas.height});
-camera.setPosition([0, 0, -5]);
+camera.setPosition([0, 0, -300]);
 camera.updateProjection();
 camera.updateView();
 camera.updateViewInverse();
@@ -152,16 +152,15 @@ function drawSimpleQuad() {
     requestAnimationFrame(drawSimpleQuad);
 }
 
-function generateCirclePos(numParticle=32, generation=16) {
+function generateCirclePos(numParticle, generation) { // numParticle=32, generation=16 => width=32/4, height=16
     const posPixels = [];
+    const radius = 50;
+    const STRIDE = 4;
 
-    const radius = 1;
-
-    const STRIDE = 2;
-    for(let row=0;row<generation;row++) {
-        const offset = 2 * Math.PI/generation * row;
+    for(let row = 0; row < generation; row++) {
+        const offset = 2 * Math.PI / generation * row;
         for (let col = 0; col < numParticle * STRIDE; col += STRIDE) {
-            const angle = 2 * Math.PI /numParticle * col; //Math.random() *
+            const angle = 2 * Math.PI / numParticle * col;   // Math.random() *
             const x = radius * Math.cos(angle + offset);
             const y = radius * Math.sin(angle + offset);
 
@@ -169,11 +168,12 @@ function generateCirclePos(numParticle=32, generation=16) {
         }
     }
 
-
     return posPixels;
 }
 
 function initParticles() {
+
+    const numGen = 64;
 
     // init particle shader
     particleShader = new Shader({
@@ -208,15 +208,13 @@ function initParticles() {
     colorTexture.createTexture(gl, 8, 8, pixels);
 
     posTexture = new Texture2D('posTexture');
-    const posPixels = generateCirclePos();
-    // const posPixels = new Array(1024 * 1024 * 4).fill(0);
-    // const posPixels = new Array(1024 * 1024).fill([1,1,0,0]).flat();
-    posTexture.createFloatTexture(gl, 64/4,16, posPixels);
+    const posPixels = generateCirclePos(numGen, numGen);
+    posTexture.createTexture(gl, numGen/4, numGen, posPixels);
 
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
-        timeRange: 2
+        timeRange: 2   // 2
     })
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
@@ -225,13 +223,12 @@ function initParticles() {
 
     particleShape = new StaticEmitter({
         data:{
-            numParticles: 1,
-            position: [0, 0, 0],
-            lifeTime: 2,
-            startSize: 1,  // 50
-            endSize: 1,    // 90
-            velocity: [0, 0, 0],   // [0, 60, 0]
-            velocityRange: [0, 0, 0],    // [15, 15, 15]
+            numParticles: numGen,
+            lifeTime: 2,   // 2
+            startSize: 20,  // 50
+            endSize: 70,    // 90
+            velocity: [0, 60, 0],   // [0, 60, 0]
+            velocityRange: [15, 15, 15],    // [15, 15, 15]
             spinSpeedRange: 0
         }},
         pseudoRandom

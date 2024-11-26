@@ -109,7 +109,7 @@ export default class StaticEmitter extends Shape {
 
         for (let ii = 0; ii < numParticles; ++ii) {
             let pLifeTime = parameters.lifeTime;
-            let pStartTime = ii * parameters.lifeTime / numParticles;
+            let pStartTime = 0; // ii * parameters.lifeTime / numParticles;
             let pFrameStart = parameters.frameStart + plusMinus(parameters.frameStartRange);
             let pPosition = addVector(parameters.position, plusMinusVector(parameters.positionRange));
             let pVelocity = addVector(parameters.velocity, plusMinusVector(parameters.velocityRange)); 
@@ -150,7 +150,7 @@ export default class StaticEmitter extends Shape {
                 bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset0] = pSpinStart;
                 bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset1] = pSpinSpeed;
                 bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset2] = ii;
-                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset3] = 0;
+                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset3] = numParticles;
 
                 bufferSubData[COLOR_MULT_IDX + offset0] = pColorMult[0];
                 bufferSubData[COLOR_MULT_IDX + offset1] = pColorMult[1];
