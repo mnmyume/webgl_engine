@@ -192,7 +192,7 @@ function generateCirclePosRand(numParticle, generation) { // numParticle=32, gen
 
 function initParticles() {
 
-    const numGen = 64;
+    const numGen = 2048;
 
     // init particle shader
     particleShader = new Shader({
@@ -246,8 +246,8 @@ function initParticles() {
             numParticles: numGen,
             lifeTime: 2,   // 2
             frameStartRange:0,
-            startSize: 20,  // 50
-            endSize: 70,    // 90
+            startSize: 2,  // 50
+            endSize: 7,    // 90
             velocity: [0, 60, 0],   // [0, 60, 0]
             velocityRange: [15, 15, 15],    // [15, 15, 15]
             spinSpeedRange: 0

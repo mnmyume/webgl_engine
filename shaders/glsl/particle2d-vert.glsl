@@ -17,14 +17,14 @@ attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z,
 attribute vec4 colorMult;            // multiplies color and ramp textures
 
 // Outgoing variables to fragment shader
-varying vec2 outputTexcoord;
+//varying vec2 outputTexcoord;
 varying float outputPercentLife;
 varying vec4 outputColorMult;
 
 void main() {
   vec2 uv = uvLifeTimeFrameStart.xy;
   float lifeTime = uvLifeTimeFrameStart.z;
-  float frameStart = uvLifeTimeFrameStart.w;
+//  float frameStart = uvLifeTimeFrameStart.w;
   // vec3 position = positionStartTime.xyz;
   float startTime = positionStartTime.w;
   vec3 velocity = velocityStartSize.xyz;
@@ -36,8 +36,8 @@ void main() {
   float particleID = spinStartSpeedIndex.z;
   float numParticles = spinStartSpeedIndex.w; 
 
-//  float localTime = mod((time - startTime), timeRange);
-  float localTime =0.0;
+  float localTime = mod((time - startTime), timeRange);
+
   float percentLife = localTime / lifeTime;
 //  float frame = mod(floor(localTime / frameDuration + frameStart), numFrames);
 
@@ -53,9 +53,7 @@ void main() {
 //  float uOffset = frame / numFrames;
 //  float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
 
-  float u = (0.0 + uv.x + 0.5) / numFrames;
-
-  outputTexcoord = vec2(u, uv.y + 0.5);
+//  outputTexcoord = vec2(u, uv.y + 0.5);
   outputColorMult = colorMult;
   // outputColorMult = vec4(1.0-particleID/32.0, particleID/32.0,0.0,1.0);  // debug;
 
