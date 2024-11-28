@@ -1,6 +1,6 @@
 uniform float timeRange;
 uniform float time;
-uniform float frameDuration;
+//uniform float frameDuration;
 uniform float numFrames;
 uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
@@ -36,10 +36,12 @@ void main() {
   float particleID = spinStartSpeedIndex.z;
   float numParticles = spinStartSpeedIndex.w; 
 
-  float localTime = mod((time - startTime), timeRange);
+//  float localTime = mod((time - startTime), timeRange);
+  float localTime =0.0;
   float percentLife = localTime / lifeTime;
-  float frame = mod(floor(localTime / frameDuration + frameStart),
-                    numFrames);
+//  float frame = mod(floor(localTime / frameDuration + frameStart), numFrames);
+
+  float frame = floor(percentLife) * numFrames;
 
   int generation = int((time - startTime) / timeRange);
 
@@ -48,8 +50,10 @@ void main() {
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
 
-  float uOffset = frame / numFrames;
-  float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
+//  float uOffset = frame / numFrames;
+//  float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
+
+  float u = (0.0 + uv.x + 0.5) / numFrames;
 
   outputTexcoord = vec2(u, uv.y + 0.5);
   outputColorMult = colorMult;

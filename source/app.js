@@ -5,7 +5,7 @@ import Material from './material.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
-import StaticEmitter from './staticemitter.js';
+import StaticEmitter from './staticEmitter.js';
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
 
 const canvas = document.getElementById('game-surface');
@@ -171,6 +171,25 @@ function generateCirclePos(numParticle, generation) { // numParticle=32, generat
     return posPixels;
 }
 
+function generateCirclePosRand(numParticle, generation) { // numParticle=32, generation=16 => width=32/4, height=16
+    const posPixels = [];
+    const radius = 50;
+    const STRIDE = 4;
+
+    for(let row = 0; row < generation; row++) {
+        for (let col = 0; col < numParticle * STRIDE; col += STRIDE) {
+            const angle = 2 * Math.PI * Math.random()  ;
+            const x = radius * Math.cos(angle );
+            const y = radius * Math.sin(angle);
+
+            posPixels.push(x, y, 0.0, 0.0);
+        }
+    }
+
+    return posPixels;
+}
+
+
 function initParticles() {
 
     const numGen = 64;
@@ -189,7 +208,8 @@ function initParticles() {
     // init particle texture
     rampTexture = new Texture2D('rampTexture');
     rampTexture.setColorRamp(gl,
-        [1, 1, 0, 1,
+        [
+            1, 1, 0, 1,
             1, 0, 0, 1,
             0, 0, 0, 1,
             0, 0, 0, 0.5,
@@ -225,6 +245,7 @@ function initParticles() {
         data:{
             numParticles: numGen,
             lifeTime: 2,   // 2
+            frameStartRange:0,
             startSize: 20,  // 50
             endSize: 70,    // 90
             velocity: [0, 60, 0],   // [0, 60, 0]
@@ -235,16 +256,42 @@ function initParticles() {
     )
     particleShape.initialize({ gl });
 
-    drawParticles();
+
+    drawParticles(time);
 }
 
+class Time{
+    startTime = null;
+    lastUpdateTime = null;
+    intervalTime;
+
+
+    get ElapsedTime(){
+        return Date.now()/1000-this.startTime;
+    }
+
+
+    update(){
+        if(this.startTime === null)
+            this.startTime = Date.now()/1000;
+
+
+        if(this.lastUpdateTime === null)
+            this.lastUpdateTime = Date.now()/1000;
+        else
+            this.intervalTime = Date.now()/1000 - this.lastUpdateTime;
+    }
+}
+const time = new Time();
+
 function drawParticles() {
+    time.update();
     gl.clearColor(0.3, 0.3, 0.3, 1.0);
     gl.colorMask(true, true, true, true);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.colorMask(true, true, true, false);
 
-    particleMaterial.draw(gl, camera, particleTransform);
+    particleMaterial.draw(gl, time, camera, particleTransform);
 
     particleShape.draw(gl, particleMaterial);
 
