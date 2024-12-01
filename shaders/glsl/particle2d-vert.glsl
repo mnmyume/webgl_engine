@@ -1,15 +1,37 @@
 uniform float timeRange;
-uniform float frameDuration;
-uniform float numFrames;
 uniform float time;
-uniform float tileSize;
-uniform float texWidth;
-uniform float texHeight;
 uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uVInverseMatrix;
 uniform mat4 uMMatrix;
 uniform sampler2D posSampler;
+
+
+
+//#ifdef MACRO _ANI_TEX_0;
+
+uniform vec4 _ANI_TEX_0;        //[width,height,size, totalFrams]
+uniform float _ANI_TEX_0_FPS = 30.0;    // frameDuration = totalFrams.w/_ANI_TEX_0_FPS;
+varying vec2 _ANI_TEX_UV;
+void _GEN_ANI_TEX_UV(){
+
+  _ANI_TEX_UV = vec2(
+    uOffset + (uv.x + 0.5) / numCols,
+    1.0 - vOffset - (uv.y + 0.5) / numRows
+    );
+}
+
+
+uniform float numFrames;
+uniform float frameDuration;
+uniform float tileSize;
+uniform float texWidth;
+uniform float texHeight;
+varying vec2 outputTexcoord;
+
+//#endif /* MACRO */
+
+
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
@@ -20,7 +42,6 @@ attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z,
 attribute vec4 colorMult;            // multiplies color and ramp textures
 
 // Outgoing variables to fragment shader
-varying vec2 outputTexcoord;
 varying float outputPercentLife;
 varying vec4 outputColorMult;
 
