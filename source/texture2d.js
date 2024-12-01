@@ -8,6 +8,8 @@ export default class Texture2D {
     generateMipMap = null;
     path = null;
     image = null;
+    width = null;
+    height = null;
     textureSetting = null;
     type = "2DTexture";
     constructor(name, params={}) {

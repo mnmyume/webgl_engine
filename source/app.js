@@ -7,6 +7,7 @@ import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import StaticEmitter from './staticemitter.js';
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
+import savePixelsAsPNG from './savePic.js';
 
 const canvas = document.getElementById('game-surface');
 const gl = canvas.getContext('webgl');
@@ -152,7 +153,7 @@ function drawSimpleQuad() {
     requestAnimationFrame(drawSimpleQuad);
 }
 
-function generateCirclePos(numParticle, generation) { // numParticle=32, generation=16 => width=32/4, height=16
+function generateCirclePos(numParticle, generation) { 
     const posPixels = [];
     const radius = 50;
     const STRIDE = 4;
@@ -173,7 +174,7 @@ function generateCirclePos(numParticle, generation) { // numParticle=32, generat
 
 function initParticles() {
 
-    const numGen = 64;
+    const numGen = 1;
 
     // init particle shader
     particleShader = new Shader({
@@ -196,16 +197,26 @@ function initParticles() {
             0, 0, 0, 0
         ]);
 
-    colorTexture = new Texture2D('colorTexture');
-    const pixelBase = [0, 0.20, 0.70, 1, 0.70, 0.20, 0, 0];
-    const pixels = [];
-    for (let yy = 0; yy < 8; ++yy) {
-        for (let xx = 0; xx < 8; ++xx) {
-            const pixel = pixelBase[xx] * pixelBase[yy];
-            pixels.push(pixel, pixel, pixel, pixel);
-        }
-    }
-    colorTexture.createTexture(gl, 8, 8, pixels);
+    // colorTexture = new Texture2D('colorTexture');
+    // const pixelBase = [0, 0.20, 0.70, 1, 0.70, 0.20, 0, 0];
+    // const pixels = [];
+    // for (let yy = 0; yy < 8; ++yy) {
+    //     for (let xx = 0; xx < 8; ++xx) {
+    //         const pixel = pixelBase[xx] * pixelBase[yy];
+    //         pixels.push(pixel, pixel, pixel, pixel);
+    //     }
+    // }
+    // colorTexture.createTexture(gl, 8, 8, pixels);
+
+    // ----------------------------------------
+    const colorTextureImage = new Image();
+    colorTexture = new Texture2D('colorTexture', {
+        image: colorTextureImage,
+    });
+    colorTexture.params.image.src = '../resources/7761.png';
+    colorTexture.params.image.onload = () => {
+        colorTexture.initialize({ gl });
+    };
 
     posTexture = new Texture2D('posTexture');
     const posPixels = generateCirclePos(numGen, numGen);
@@ -214,7 +225,9 @@ function initParticles() {
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
-        timeRange: 2   // 2
+        timeRange: 50,
+        frameDuration: 0.1,
+        numFrames: 36
     })
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
@@ -224,12 +237,13 @@ function initParticles() {
     particleShape = new StaticEmitter({
         data:{
             numParticles: numGen,
-            lifeTime: 2,   // 2
-            startSize: 20,  // 50
-            endSize: 70,    // 90
-            velocity: [0, 60, 0],   // [0, 60, 0]
-            velocityRange: [15, 15, 15],    // [15, 15, 15]
-            spinSpeedRange: 0
+            lifeTime: 50,   // 2
+            startSize: 90,  // 50
+            endSize: 90,    // 90
+            velocity: [0, 0, 0],   // [0, 60, 0]
+            velocityRange: [0, 0, 0],    // [15, 15, 15]
+            spinSpeedRange: 0,
+            // frameStartRange: 36
         }},
         pseudoRandom
     )

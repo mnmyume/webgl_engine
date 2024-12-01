@@ -17,6 +17,9 @@ export default class Material {
         this.timeSource_ = params.opt_clock || function(now, base) {return (now.getTime() - base.getTime()) / 1000.0;};
         this.now_ = new Date();
         this.timeBase_ = new Date();
+        this.tileSize = params.tileSize || null;
+        this.texWidth = params.texWidth || null;
+        this.texHeight = params.texHeight || null;
     }
 
 
@@ -73,6 +76,10 @@ export default class Material {
         this.uniforms["timeRange"].value = this.timeRange;
         this.uniforms["numFrames"].value = this.numFrames;
         this.uniforms["frameDuration"].value = this.frameDuration;
+
+        this.uniforms["tileSize"].value = 128;
+        this.uniforms["texWidth"].value = 768;
+        this.uniforms["texHeight"].value = 768;
 
         // compute and set time
         this.now_ = new Date();

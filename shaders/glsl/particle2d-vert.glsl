@@ -1,7 +1,10 @@
 uniform float timeRange;
-uniform float time;
 uniform float frameDuration;
 uniform float numFrames;
+uniform float time;
+uniform float tileSize;
+uniform float texWidth;
+uniform float texHeight;
 uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uVInverseMatrix;
@@ -48,12 +51,24 @@ void main() {
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
 
-  float uOffset = frame / numFrames;
-  float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
+  // float uOffset = frame / numFrames;
+  // float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
+// 
+  // outputTexcoord = vec2(u, uv.y + 0.5);
 
-  outputTexcoord = vec2(u, uv.y + 0.5);
+  // test texcoord 6x6
+  float numCols = texWidth / tileSize;
+  float numRows = texHeight / tileSize;
+  int row = int(frame / numCols);
+  int col = int(mod(frame, numCols));
+  float uOffset = float(col) / float(numCols);
+  float vOffset = float(row) / float(numRows);
+  outputTexcoord = vec2(
+      uOffset + (uv.x + 0.5) / numCols, 
+      1.0 - vOffset - (uv.y + 0.5) / numRows  
+  );
+
   outputColorMult = colorMult;
-  // outputColorMult = vec4(1.0-particleID/32.0, particleID/32.0,0.0,1.0);  // debug;
 
   vec3 basisX = uVInverseMatrix[0].xyz;
   vec3 basisZ = uVInverseMatrix[1].xyz;
