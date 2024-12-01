@@ -109,10 +109,8 @@ export default class StaticEmitter extends Shape {
 
         for (let ii = 0; ii < numParticles; ++ii) {
             let pLifeTime = parameters.lifeTime;
-            let pStartTime = 0; // ii * parameters.lifeTime / numParticles;
-            // let pFrameStart = parameters.frameStart + plusMinus(parameters.frameStartRange);
-
-            let pFrameStart = 0;
+            let pStartTime = ii * parameters.lifeTime / numParticles;
+            let pFrameStart = parameters.frameStart + plusMinus(parameters.frameStartRange);
             let pPosition = addVector(parameters.position, plusMinusVector(parameters.positionRange));
             let pVelocity = addVector(parameters.velocity, plusMinusVector(parameters.velocityRange)); 
             let pAcceleration = addVector(parameters.acceleration, plusMinusVector(parameters.accelerationRange)); 

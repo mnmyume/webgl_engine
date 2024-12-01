@@ -11,11 +11,15 @@ export default class Material {
     };
     constructor(params = {}) {
         this.shader = params.shader || null;
-        this.numFrames = params.numFrames || 5;
-        // this.frameDuration = params.frameDuration || 5;
-        this.timeRange = params.timeRange || 1;
+        this.numFrames = params.numFrames || 1;
+        this.frameDuration = params.frameDuration || 1;
+        this.timeRange = params.timeRange || 99999999;
+        this.timeSource_ = params.opt_clock || function(now, base) {return (now.getTime() - base.getTime()) / 1000.0;};
         this.now_ = new Date();
         this.timeBase_ = new Date();
+        this.tileSize = params.tileSize || null;
+        this.texWidth = params.texWidth || null;
+        this.texHeight = params.texHeight || null;
     }
 
 
@@ -55,7 +59,7 @@ export default class Material {
         this.textures[key] = texture;
     };
 
-    draw(gl, time,camera, transform) {
+    draw(gl, camera, transform) {
         gl.useProgram(this.shaderProgram);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -71,10 +75,17 @@ export default class Material {
 
         this.uniforms["timeRange"].value = this.timeRange;
         this.uniforms["numFrames"].value = this.numFrames;
-        // this.uniforms["frameDuration"].value = this.frameDuration;
-        debugger;
-        // let curTime = this.timeSource_(this.now_, this.timeBase_);
-        this.uniforms["time"].value = time.ElapsedTime;
+        this.uniforms["frameDuration"].value = this.frameDuration;
+
+        this.uniforms["tileSize"].value = 128;
+        this.uniforms["texWidth"].value = 768;
+        this.uniforms["texHeight"].value = 768;
+
+        // compute and set time
+        this.now_ = new Date();
+        let curTime = this.timeSource_(this.now_, this.timeBase_); 
+        this.uniforms["time"].value = curTime;
+
         for(var name in this.uniforms){
             const data = this.uniforms[name];
 
