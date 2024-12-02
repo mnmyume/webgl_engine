@@ -38,11 +38,11 @@ const floatLinearTextures = gl.getExtension('OES_texture_float_linear');
 if (!floatLinearTextures) {
     console.warn('OES_texture_float_linear is not supported, using NEAREST filtering instead of LINEAR');
 }
-const fps = document.getElementById("fps");
-if (!fps) {
+const g_fps = document.getElementById("fps");
+if (!g_fps) {
     console.log('fps error')
 }
-const fpsCounter = new FPSCounter(fps);
+const fpsCounter = new FPSCounter(g_fps);
 
 let g_randSeed = 0;
 let g_randRange = Math.pow(2, 32);
@@ -208,10 +208,15 @@ function initParticles() {
     // }
     // colorTexture.createTexture(gl, 8, 8, pixels);
 
-    // ----------------------------------------
     const colorTextureImage = new Image();
     colorTexture = new Texture2D('colorTexture', {
         image: colorTextureImage,
+        textureSetting: {
+            wrapS:'CLAMP_TO_EDGE',
+            wrapT:'CLAMP_TO_EDGE',
+            scaleDown:'LINEAR',
+            scaleUp:'LINEAR'
+        }
     });
     colorTexture.params.image.src = '../resources/7761.png';
     colorTexture.params.image.onload = () => {
@@ -226,8 +231,11 @@ function initParticles() {
     particleMaterial = new Material({
         shader: particleShader,
         timeRange: 50,
-        frameDuration: 0.1,
-        numFrames: 36
+        tileSize: 128,
+        texWidth: 768,
+        texHeight: 768,
+        numFrames: 36,
+        fps: 60
     })
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
@@ -240,8 +248,8 @@ function initParticles() {
             lifeTime: 50,   // 2
             startSize: 90,  // 50
             endSize: 90,    // 90
-            velocity: [0, 10, 0],   // [0, 60, 0]
-            velocityRange: [2, 2, 2],    // [15, 15, 15]
+            velocity: [0, 1, 0],   // [0, 60, 0]
+            velocityRange: [1, 1, 1],    // [15, 15, 15]
             spinSpeedRange: 0,
             // frameStartRange: 36
         }},

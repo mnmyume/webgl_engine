@@ -6,32 +6,21 @@ uniform mat4 uVInverseMatrix;
 uniform mat4 uMMatrix;
 uniform sampler2D posSampler;
 
-
-
 //#ifdef MACRO _ANI_TEX_0;
 
-uniform vec4 _ANI_TEX_0;        //[width,height,size, totalFrams]
-uniform float _ANI_TEX_0_FPS = 30.0;    // frameDuration = totalFrams.w/_ANI_TEX_0_FPS;
+uniform vec4 _ANI_TEX_0;        // [width,height,size, totalFrams]
+uniform float _ANI_TEX_0_FPS;    // frameDuration = totalFrams.w/_ANI_TEX_0_FPS;
 varying vec2 _ANI_TEX_UV;
-void _GEN_ANI_TEX_UV(){
-
-  _ANI_TEX_UV = vec2(
-    uOffset + (uv.x + 0.5) / numCols,
-    1.0 - vOffset - (uv.y + 0.5) / numRows
-    );
-}
-
-
-uniform float numFrames;
-uniform float frameDuration;
-uniform float tileSize;
-uniform float texWidth;
-uniform float texHeight;
+// void _GEN_ANI_TEX_UV(){
+// 
+//   _ANI_TEX_UV = vec2(
+//     uOffset + (uv.x + 0.5) / numCols,
+//     1.0 - vOffset - (uv.y + 0.5) / numRows
+//     );
+// }
 varying vec2 outputTexcoord;
 
 //#endif /* MACRO */
-
-
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
@@ -59,6 +48,13 @@ void main() {
   float spinSpeed = spinStartSpeedIndex.y;
   float particleID = spinStartSpeedIndex.z;
   float numParticles = spinStartSpeedIndex.w; 
+  
+  // MACRO
+  float texWidth = _ANI_TEX_0.x;
+  float texHeight = _ANI_TEX_0.y;
+  float tileSize = _ANI_TEX_0.z;
+  float numFrames = _ANI_TEX_0.w;
+  float frameDuration = numFrames / _ANI_TEX_0_FPS;
 
   float localTime = mod((time - startTime), timeRange);
   float percentLife = localTime / lifeTime;
@@ -74,10 +70,7 @@ void main() {
 
   // float uOffset = frame / numFrames;
   // float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
-// 
   // outputTexcoord = vec2(u, uv.y + 0.5);
-
-  // test texcoord 6x6
   float numCols = texWidth / tileSize;
   float numRows = texHeight / tileSize;
   int row = int(frame / numCols);
@@ -85,6 +78,10 @@ void main() {
   float uOffset = float(col) / float(numCols);
   float vOffset = float(row) / float(numRows);
   outputTexcoord = vec2(
+      uOffset + (uv.x + 0.5) / numCols, 
+      1.0 - vOffset - (uv.y + 0.5) / numRows  
+  );
+  _ANI_TEX_UV = vec2(
       uOffset + (uv.x + 0.5) / numCols, 
       1.0 - vOffset - (uv.y + 0.5) / numRows  
   );

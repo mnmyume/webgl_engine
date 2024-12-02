@@ -20,6 +20,7 @@ export default class Material {
         this.tileSize = params.tileSize || null;
         this.texWidth = params.texWidth || null;
         this.texHeight = params.texHeight || null;
+        this.fps = params.fps || 60;
     }
 
 
@@ -74,12 +75,11 @@ export default class Material {
         gl.blendEquation(gl.FUNC_ADD);
 
         this.uniforms["timeRange"].value = this.timeRange;
-        this.uniforms["numFrames"].value = this.numFrames;
-        this.uniforms["frameDuration"].value = this.frameDuration;
 
-        this.uniforms["tileSize"].value = 128;
-        this.uniforms["texWidth"].value = 768;
-        this.uniforms["texHeight"].value = 768;
+        this.uniforms["_ANI_TEX_0"].value = [
+            this.texWidth, this.texHeight, this.tileSize, this.numFrames];
+
+        this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
 
         // compute and set time
         this.now_ = new Date();

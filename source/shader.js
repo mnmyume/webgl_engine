@@ -78,7 +78,7 @@ export default class Shader {
         var params = params || {};
         var directives = [
             '#version 100',
-            //'#extension GL_EXT_draw_buffers:require',
+            // '#extension GL_EXT_draw_buffers:require',
             // 'precision mediump float;'
         ];
 
