@@ -180,6 +180,7 @@ function initParticles() {
     particleShader = new Shader({
         vertexSource: particle2dVert,
         fragmentSource: particleFrag,
+        defines: ['MACRO'],
     });
     particleShader.initialize({ gl });
 
@@ -197,17 +198,6 @@ function initParticles() {
             0, 0, 0, 0
         ]);
 
-    // colorTexture = new Texture2D('colorTexture');
-    // const pixelBase = [0, 0.20, 0.70, 1, 0.70, 0.20, 0, 0];
-    // const pixels = [];
-    // for (let yy = 0; yy < 8; ++yy) {
-    //     for (let xx = 0; xx < 8; ++xx) {
-    //         const pixel = pixelBase[xx] * pixelBase[yy];
-    //         pixels.push(pixel, pixel, pixel, pixel);
-    //     }
-    // }
-    // colorTexture.createTexture(gl, 8, 8, pixels);
-
     const colorTextureImage = new Image();
     colorTexture = new Texture2D('colorTexture', {
         image: colorTextureImage,
@@ -218,7 +208,7 @@ function initParticles() {
             scaleUp:'LINEAR'
         }
     });
-    colorTexture.params.image.src = '../resources/7761.png';
+    colorTexture.params.image.src = '../resources/fire/7761.png';
     colorTexture.params.image.onload = () => {
         colorTexture.initialize({ gl });
     };

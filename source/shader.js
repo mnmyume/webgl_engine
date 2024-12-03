@@ -57,6 +57,7 @@ export default class Shader {
         this.fragSrc = params.fragmentSource ?? null;
         this.initValues = params.initValues ?? {};
         this.dataLocation = { attributes: {}, uniforms: {} };
+        this.params = params;
     }
 
     initialize ({ gl }) {
@@ -71,7 +72,7 @@ export default class Shader {
 
         this.attributes = shaders.attributes;
         this.uniforms = shaders.uniforms;
-        this.compile(gl);
+        this.compile(gl, this.params);
     }               
 
     compile(gl,params){

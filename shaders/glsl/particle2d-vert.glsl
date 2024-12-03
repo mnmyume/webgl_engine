@@ -6,21 +6,28 @@ uniform mat4 uVInverseMatrix;
 uniform mat4 uMMatrix;
 uniform sampler2D posSampler;
 
-//#ifdef MACRO _ANI_TEX_0;
+/* MACRO */
+#ifdef MACRO
 
-uniform vec4 _ANI_TEX_0;        // [width,height,size, totalFrams]
-uniform float _ANI_TEX_0_FPS;    // frameDuration = totalFrams.w/_ANI_TEX_0_FPS;
+uniform vec4 _ANI_TEX_0;  // texWidth.x, texHeight.y, tileSize.z, numFrames.w
+uniform float _ANI_TEX_0_FPS;    // frameDuration = numFrames / _ANI_TEX_0_FPS;
 varying vec2 _ANI_TEX_UV;
-// void _GEN_ANI_TEX_UV(){
-// 
-//   _ANI_TEX_UV = vec2(
-//     uOffset + (uv.x + 0.5) / numCols,
-//     1.0 - vOffset - (uv.y + 0.5) / numRows
-//     );
-// }
-varying vec2 outputTexcoord;
 
-//#endif /* MACRO */
+void _GEN_ANI_TEX_UV(float texWidth, float texHeight, float tileSize, float frame, vec2 uv){
+  float numCols = texWidth / tileSize;
+  float numRows = texHeight / tileSize;
+  int row = int(frame / numCols);
+  int col = int(mod(frame, numCols));
+  float uOffset = float(col) / float(numCols);
+  float vOffset = float(row) / float(numRows);
+
+  _ANI_TEX_UV = vec2(
+      uOffset + (uv.x + 0.5) / numCols, 
+      1.0 - vOffset - (uv.y + 0.5) / numRows  
+  );
+}
+
+#endif  /* MACRO */
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
@@ -71,20 +78,7 @@ void main() {
   // float uOffset = frame / numFrames;
   // float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
   // outputTexcoord = vec2(u, uv.y + 0.5);
-  float numCols = texWidth / tileSize;
-  float numRows = texHeight / tileSize;
-  int row = int(frame / numCols);
-  int col = int(mod(frame, numCols));
-  float uOffset = float(col) / float(numCols);
-  float vOffset = float(row) / float(numRows);
-  outputTexcoord = vec2(
-      uOffset + (uv.x + 0.5) / numCols, 
-      1.0 - vOffset - (uv.y + 0.5) / numRows  
-  );
-  _ANI_TEX_UV = vec2(
-      uOffset + (uv.x + 0.5) / numCols, 
-      1.0 - vOffset - (uv.y + 0.5) / numRows  
-  );
+  _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame, uv);
 
   outputColorMult = colorMult;
 

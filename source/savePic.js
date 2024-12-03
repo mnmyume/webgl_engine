@@ -5,6 +5,17 @@
 // }
 // savePixelsAsPNG(pixels, 8, 8);
 
+// colorTexture = new Texture2D('colorTexture');
+// const pixelBase = [0, 0.20, 0.70, 1, 0.70, 0.20, 0, 0];
+// const pixels = [];
+// for (let yy = 0; yy < 8; ++yy) {
+//     for (let xx = 0; xx < 8; ++xx) {
+//         const pixel = pixelBase[xx] * pixelBase[yy];
+//         pixels.push(pixel, pixel, pixel, pixel);
+//     }
+// }
+// colorTexture.createTexture(gl, 8, 8, pixels);
+
 export default function savePixelsAsPNG(pixels, width, height) {
     
     const canvas = document.createElement('canvas');
