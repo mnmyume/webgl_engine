@@ -45,17 +45,7 @@ function $match(regex, str) {
     return result;
 }
 function generateCode(params, source) {
-//     ${JSON.stringify(parmas)}
-// ============================================
-//     ${JSON.stringify(source)};
-    debugger;
     return `export default ${JSON.stringify({source,params})}`;
-
-//     return parmas?`
-// export default ${JSON.stringify(parmas)}
-// #############################################
-// ${JSON.stringify(source)};` :
-//         `export default ${JSON.stringify(source)};`;
 }
 function addingLineNum(srcPath, srcText){
     srcPath = path.relative(__dirname, srcPath);
@@ -66,10 +56,7 @@ function addingLineNum(srcPath, srcText){
     }
     return lines.join('');
 }
-function readFile(location){
-   const file =  fs.readFileSync(path.join( location));
-   debugger;
-}
+
 function addIncludeFiles(srcPath,source){
     const reg = /#include[\s]+"(.+)"/gm;
     const buffer =  $match(reg,source);
