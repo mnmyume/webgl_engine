@@ -16,5 +16,4 @@ node_modules/
 build/
 public/ui/index.js
 .vscode
-/shaders
 shaders/output.js
