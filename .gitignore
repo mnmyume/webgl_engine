@@ -14,6 +14,5 @@ tmp/
 log/
 node_modules/
 build/
-public/ui/index.js
 .vscode
 shaders/output.js
