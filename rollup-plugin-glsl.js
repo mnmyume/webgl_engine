@@ -62,7 +62,7 @@ function addingLineNum(srcPath, srcText){
 
     const lines = srcText.split('\n');
     for(const index in lines){
-        lines[index] = `#line ${index}:${srcPath}\n  ${lines[index]} \n`;
+        lines[index] = `#line ${index}:./${srcPath}\n  ${lines[index]} \n`;
     }
     return lines.join('');
 }
@@ -108,7 +108,6 @@ export default function glsl(options = {}) {
 
 
             const parmas = checkKeyWordParams('attribute', source);
-            debugger;
             const code = generateCode(parmas, `${includes}\n${addingLineNum(id,source)}`),
                 magicString = new MagicString(code);
             return { code: magicString.toString() };
