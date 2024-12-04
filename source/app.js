@@ -175,7 +175,7 @@ function generateCirclePos(numParticle, generation) {
 function initParticles() {
 
     const numGen = 64;
-
+    debugger;
     // init particle shader
     particleShader = new Shader({
         vertexSource: particle2dVert,

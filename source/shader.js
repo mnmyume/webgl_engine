@@ -61,6 +61,7 @@ export default class Shader {
     }
 
     initialize ({ gl }) {
+        debugger;
         const shaders = preprocess({
             vertex:this.vertSrc,
             fragment:this.fragSrc,
@@ -88,15 +89,16 @@ export default class Shader {
         }
         directives = directives.join('\n') + '\n';
 
-        var shaders = [this.fragment, this.vertex];
-        var src = [this.fragSrc,this.vertSrc];
-        for(var i in shaders){
+        const shaders = [
+            {shader:this.fragment, source:this.fragSrc},
+            {shader:this.vertex,source:this.vertSrc}
+        ];
+        // const src = [this.fragSrc,this.vertSrc];
+        for(let {shader,source} of shaders){
 
-            var shader = shaders[i];
-            var source = src[i];
-            for(var name in params.values || {}){
-                var re = new RegExp('#define ' + name + ' \\w+', 'm');
-                source = source.replace(re, '#define ' + name + ' ' + params.values[name]);
+            for(const key in params.values || {}){
+                // var re = new RegExp('#define ' + name + ' \\w+', 'm');
+                // source = source.replace(re, '#define ' + name + ' ' + params.values[name]);
             }
             gl.shaderSource(shader, directives + source);
             gl.compileShader(shader);

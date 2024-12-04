@@ -1,3 +1,6 @@
+#include "./testFolder/aniTex.glsl"
+
+
 attribute vec3 gridIndex;
 attribute vec2 uv;
 

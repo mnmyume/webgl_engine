@@ -2,6 +2,7 @@
 package-lock.json
 public/output.js
 out.js
+output.js
 game.js
 .ionide
 .vscode
@@ -15,3 +16,5 @@ node_modules/
 build/
 public/ui/index.js
 .vscode
+/shaders
+shaders/output.js
