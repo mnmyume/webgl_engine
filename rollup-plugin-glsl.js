@@ -55,7 +55,7 @@ function addingLineNum(srcPath, srcText){
 
     const lines = srcText.split('\n');
     for(const index in lines){
-        lines[index] = `#line ${index}:./${srcPath}\n  ${lines[index]} \n`;
+        lines[index] = `#line ${parseInt(index)+1} //${srcPath}\n  ${lines[index]} \n`;
     }
     return lines.join('');
 }
@@ -95,7 +95,6 @@ export default function glsl(options = {}) {
             console.log(id);
             if (!filter(id)) return;
             const includes = addIncludeFiles(path.dirname(id),source);
-
 
             const attributeParmas = checkKeyWordParams('attribute', source);
             const uniformParams = checkKeyWordParams('uniform', source);

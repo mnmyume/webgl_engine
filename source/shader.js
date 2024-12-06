@@ -104,7 +104,7 @@ export default class Shader {
                 // var re = new RegExp('#define ' + name + ' \\w+', 'm');
                 // source = source.replace(re, '#define ' + name + ' ' + params.values[name]);
             }
-            gl.shaderSource(shader, directives + source);
+            gl.shaderSource(shader, source.source);
             gl.compileShader(shader);
 
             $assert(gl.getShaderParameter(shader, gl.COMPILE_STATUS), `shader ${this.name} compile error, ${gl.getShaderInfoLog(shader)}`);
