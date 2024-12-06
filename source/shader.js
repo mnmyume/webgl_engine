@@ -4,6 +4,7 @@ function preprocess({vertex='',fragment='',init={}}){
     const shaders = {};
     shaders['vertex'] = addingLineNum(vertex);
     shaders['fragment'] = addingLineNum(fragment);
+    
     const attributes = {};
     let buffer =  $match(/attribute (\S+) (\S+);/g, vertex);
     for(let i = 0; i<buffer.length/3;i++)
@@ -61,18 +62,21 @@ export default class Shader {
     }
 
     initialize ({ gl }) {
-        debugger;
-        const shaders = preprocess({
-            vertex:this.vertSrc,
-            fragment:this.fragSrc,
-            init:this.initValues,
-        });
+
+        // const shaders = preprocess({
+        //     vertex:this.vertSrc,
+        //     fragment:this.fragSrc,
+        //     init:this.initValues,
+        // });
+
+        const attributes = this.vertSrc.attributes;
+        const uniforms = {...this.vertSrc.uniforms, ...this.fragSrc.uniforms};
 
         this.fragment = gl.createShader(gl.FRAGMENT_SHADER);
         this.vertex =gl.createShader(gl.VERTEX_SHADER);
 
-        this.attributes = shaders.attributes;
-        this.uniforms = shaders.uniforms;
+        this.attributes = attributes;
+        this.uniforms = uniforms;
         this.compile(gl, this.params);
     }               
 

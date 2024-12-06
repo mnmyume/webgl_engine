@@ -7,7 +7,6 @@ import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import StaticEmitter from './staticemitter.js';
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
-import savePixelsAsPNG from './savePic.js';
 
 const canvas = document.getElementById('game-surface');
 const gl = canvas.getContext('webgl');
@@ -175,7 +174,7 @@ function generateCirclePos(numParticle, generation) {
 function initParticles() {
 
     const numGen = 64;
-    debugger;
+
     // init particle shader
     particleShader = new Shader({
         vertexSource: particle2dVert,

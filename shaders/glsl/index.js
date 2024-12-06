@@ -1,11 +1,8 @@
-
 import basicVert from './basic-vert.glsl';
-export {basicVert};
-// import basicFrag from './basic-frag.glsl';
-//
-// import particle3dVert from './particle3d-vert.glsl';
-// import particle2dVert from './particle2d-vert.glsl';
-// import particleFrag from './particle-frag.glsl';
+import basicFrag from './basic-frag.glsl';
 
+import particle3dVert from './particle3d-vert.glsl';
+import particle2dVert from './particle2d-vert.glsl';
+import particleFrag from './particle-frag.glsl';
 
-// export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert}
+export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert}

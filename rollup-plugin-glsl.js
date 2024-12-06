@@ -28,6 +28,7 @@ function compressShader(source) {
         return result;
     }, []).join('').replace(/\n+/g, "\n");
 }
+
 function $match(regex, str) {
     let m, result = [];
     while ((m = regex.exec(str)) !== null) {
@@ -44,9 +45,11 @@ function $match(regex, str) {
     }
     return result;
 }
-function generateCode(params, source) {
-    return `export default ${JSON.stringify({source,params})}`;
+
+function generateCode(attributes, uniforms, source) {
+    return `export default ${JSON.stringify({source,attributes,uniforms})}`;
 }
+
 function addingLineNum(srcPath, srcText){
     srcPath = path.relative(__dirname, srcPath);
 
@@ -94,8 +97,9 @@ export default function glsl(options = {}) {
             const includes = addIncludeFiles(path.dirname(id),source);
 
 
-            const parmas = checkKeyWordParams('attribute', source);
-            const code = generateCode(parmas, `${includes}\n${addingLineNum(id,source)}`),
+            const attributeParmas = checkKeyWordParams('attribute', source);
+            const uniformParams = checkKeyWordParams('uniform', source);
+            const code = generateCode(attributeParmas, uniformParams, `${includes}\n${addingLineNum(id,source)}`),
                 magicString = new MagicString(code);
             return { code: magicString.toString() };
         }
