@@ -63,6 +63,7 @@ function addingLineNum(srcPath, srcText){
 function addIncludeFiles(srcPath,source){
     const reg = /#include[\s]+"(.+)"/gm;
     const buffer =  $match(reg,source);
+    source = source.replace(reg, '');
 
     const result = [];
 
@@ -73,7 +74,10 @@ function addIncludeFiles(srcPath,source){
         result.push(addingLineNum(location,file));
     }
 
-    return result.join();
+    return {
+        includes: result.join(),
+        modifiedSource: source
+    }
 }
 
 function checkKeyWordParams(key, source){
@@ -94,11 +98,11 @@ export default function glsl(options = {}) {
         transform(source, id) {
             console.log(id);
             if (!filter(id)) return;
-            const includes = addIncludeFiles(path.dirname(id),source);
+            const {includes, modifiedSource} = addIncludeFiles(path.dirname(id),source);
 
-            const attributeParmas = checkKeyWordParams('attribute', source);
-            const uniformParams = checkKeyWordParams('uniform', source);
-            const code = generateCode(attributeParmas, uniformParams, `${includes}\n${addingLineNum(id,source)}`),
+            const attributeParmas = {...checkKeyWordParams('attribute', includes), ...checkKeyWordParams('attribute', modifiedSource)};
+            const uniformParams = {...checkKeyWordParams('uniform', includes), ...checkKeyWordParams('uniform', modifiedSource)};
+            const code = generateCode(attributeParmas, uniformParams, `${includes}\n${addingLineNum(id,modifiedSource)}`),
                 magicString = new MagicString(code);
             return { code: magicString.toString() };
         }

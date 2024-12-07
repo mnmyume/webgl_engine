@@ -179,7 +179,6 @@ function initParticles() {
     particleShader = new Shader({
         vertexSource: particle2dVert,
         fragmentSource: particleFrag,
-        defines: ['MACRO'],
     });
     particleShader.initialize({ gl });
 

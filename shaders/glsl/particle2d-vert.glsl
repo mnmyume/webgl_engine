@@ -1,6 +1,5 @@
 #include "./testFolder/aniTex.glsl"
 
-
 uniform float timeRange;
 uniform float time;
 uniform mat4 uPMatrix;
