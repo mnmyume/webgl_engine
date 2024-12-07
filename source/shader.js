@@ -1,55 +1,7 @@
-import {$assert} from "./common.js";
+import {$assert, $getShaderInfo} from "./common.js";
 
-function preprocess({vertex='',fragment='',init={}}){
-    const shaders = {};
-    shaders['vertex'] = addingLineNum(vertex);
-    shaders['fragment'] = addingLineNum(fragment);
-    
-    const attributes = {};
-    let buffer =  $match(/attribute (\S+) (\S+);/g, vertex);
-    for(let i = 0; i<buffer.length/3;i++)
-        attributes[buffer[3*i+2]] = {type:buffer[3*i+1], value:null};
 
-    const uniforms = {};
-    buffer =   $match(/uniform (\S+) (\S+);/g, `${vertex}\n${fragment}`);
-    for(let i = 0; i<buffer.length/3;i++)
-        uniforms[buffer[3*i+2]] = {type:buffer[3*i+1], value:null};
 
-    shaders['attributes'] = attributes;
-    shaders['uniforms'] = uniforms;
-
-    for (let [key, value] of Object.entries(init)) {
-        uniforms[key].value = value;
-    }
-
-    return shaders;
-};
-
-function addingLineNum(srcText){
-
-    const lines = srcText.split('\n');
-    for(const index in lines){
-        lines[index] = `#line ${index}\n  ${lines[index]} \n`;
-    }
-    return lines.join('');
-}
-
-export function $match(regex, str) {
-    let m, result = [];
-    while ((m = regex.exec(str)) !== null) {
-        // This is necessary to avoid infinite loops with zero-width matches
-        if (m.index === regex.lastIndex) {
-            regex.lastIndex++;
-        }
-
-        // The result can be accessed through the `m`-variable.
-        m.forEach((match, groupIndex) => {
-            // console.log(`Found match, group ${groupIndex}: ${match}`);
-            result.push(match);
-        });
-    }
-    return result;
-}
 
 export default class Shader {
     constructor(params = {}) {
@@ -99,15 +51,16 @@ export default class Shader {
         ];
         // const src = [this.fragSrc,this.vertSrc];
         for(let {shader,source} of shaders){
-
+            const {attributes, uniforms, code, file} = source
             for(const key in params.values || {}){
                 // var re = new RegExp('#define ' + name + ' \\w+', 'm');
                 // source = source.replace(re, '#define ' + name + ' ' + params.values[name]);
             }
-            gl.shaderSource(shader, source.source);
+            debugger;
+            gl.shaderSource(shader, code);
             gl.compileShader(shader);
 
-            $assert(gl.getShaderParameter(shader, gl.COMPILE_STATUS), `shader ${this.name} compile error, ${gl.getShaderInfoLog(shader)}`);
+            $assert(gl.getShaderParameter(shader, gl.COMPILE_STATUS), $getShaderInfo(this.name,gl,shader,file));
         }
     };
 }

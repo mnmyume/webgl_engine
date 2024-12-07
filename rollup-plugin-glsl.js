@@ -46,16 +46,16 @@ function $match(regex, str) {
     return result;
 }
 
-function generateCode(attributes, uniforms, source) {
-    return `export default ${JSON.stringify({source,attributes,uniforms})}`;
+function generateCode(attributes, uniforms, code) {
+    return `export default ${JSON.stringify({code,attributes,uniforms, file:Object.fromEntries(__FILE_MAP.entries())})}`;
 }
 
-function addingLineNum(srcPath, srcText){
-    srcPath = path.relative(__dirname, srcPath);
-
+function addingLineNum(curFileIndex,srcPath, srcText){
+    srcPath = `./${path.relative(__dirname, srcPath)}`;
+    __FILE_MAP.set(curFileIndex,srcPath);
     const lines = srcText.split('\n');
     for(const index in lines){
-        lines[index] = `#line ${parseInt(index)+1} //${srcPath}\n  ${lines[index]} \n`;
+        lines[index] = `#line ${parseInt(index)+1} ${curFileIndex} \n  ${lines[index]} \n`;//${srcPath}\n
     }
     return lines.join('');
 }
@@ -67,16 +67,20 @@ function addIncludeFiles(srcPath,source){
 
     const result = [];
 
+
+    let fileIndex = 0;
     for(let i=0; i<buffer.length/2;i+=2){
         const location = path.join(srcPath, buffer[i+1]) ;
 
         const file = fs.readFileSync(location, 'utf8');
-        result.push(addingLineNum(location,file));
+        ++fileIndex;
+        result.push(addingLineNum(fileIndex,location,file));
     }
 
     return {
         includes: result.join(),
-        modifiedSource: source
+        modifiedSource: source,
+        curFileIndex:++fileIndex,
     }
 }
 
@@ -89,6 +93,7 @@ function checkKeyWordParams(key, source){
     return buffer.length?result:null;
 
 }
+const __FILE_MAP = new Map();
 
 export default function glsl(options = {}) {
     const filter = createFilter(options.include, options.exclude);
@@ -98,12 +103,13 @@ export default function glsl(options = {}) {
         transform(source, id) {
             console.log(id);
             if (!filter(id)) return;
-            const {includes, modifiedSource} = addIncludeFiles(path.dirname(id),source);
+            const {includes, modifiedSource,curFileIndex} = addIncludeFiles(path.dirname(id),source);
 
             const attributeParmas = {...checkKeyWordParams('attribute', includes), ...checkKeyWordParams('attribute', modifiedSource)};
             const uniformParams = {...checkKeyWordParams('uniform', includes), ...checkKeyWordParams('uniform', modifiedSource)};
-            const code = generateCode(attributeParmas, uniformParams, `${includes}\n${addingLineNum(id,modifiedSource)}`),
-                magicString = new MagicString(code);
+            const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,modifiedSource)}`;
+            const code = generateCode(attributeParmas, uniformParams, glslSrc),
+                    magicString = new MagicString(code);
             return { code: magicString.toString() };
         }
     };

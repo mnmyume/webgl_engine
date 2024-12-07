@@ -9,3 +9,31 @@ export function $assert(condition,msg){
         throw new Error(msg);
     }
 }
+export function $match(regex, str) {
+    let m, result = [];
+    while ((m = regex.exec(str)) !== null) {
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+
+        // The result can be accessed through the `m`-variable.
+        m.forEach((match, groupIndex) => {
+            // console.log(`Found match, group ${groupIndex}: ${match}`);
+            result.push(match);
+        });
+    }
+    return result;
+}
+
+export function $getShaderInfo(name,gl, shader, file){
+    debugger;
+
+    const msg =  gl.getShaderInfoLog(shader);
+    if(!msg) return "";
+
+
+    const [,fileIndex,lineNum] =  $match(/ERROR: ([0-9]+):([0-9]+):/gm, msg);
+    return msg.replace(/ERROR: (.+):[0-9]+:/gm, `file:"${file[fileIndex]}" line:${lineNum}`);
+
+}
