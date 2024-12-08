@@ -56,7 +56,7 @@ export default class Shader {
                 // var re = new RegExp('#define ' + name + ' \\w+', 'm');
                 // source = source.replace(re, '#define ' + name + ' ' + params.values[name]);
             }
-            debugger;
+
             gl.shaderSource(shader, code);
             gl.compileShader(shader);
 

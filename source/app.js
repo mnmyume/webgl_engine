@@ -6,6 +6,7 @@ import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import StaticEmitter from './staticemitter.js';
+import Time from './time.js';
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
 
 const canvas = document.getElementById('game-surface');
@@ -13,6 +14,7 @@ const gl = canvas.getContext('webgl');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 gl.viewport(0, 0, canvas.width, canvas.height);
+
 // definite
 let quadShader = null;
 let quadImage = null;
@@ -28,6 +30,8 @@ let particleShape = null;
 let rampTexture = null;
 let colorTexture = null;
 let posTexture = null;
+
+const time = new Time();
 
 const floatTextures = gl.getExtension('OES_texture_float');
 if (!floatTextures) {
@@ -218,7 +222,7 @@ function initParticles() {
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
-        timeRange: 50,
+        timeRange: 2,
         tileSize: 128,
         texWidth: 768,
         texHeight: 768,
@@ -233,10 +237,10 @@ function initParticles() {
     particleShape = new StaticEmitter({
         data:{
             numParticles: numGen,
-            lifeTime: 50,   // 2
+            lifeTime: 2,   // 2
             startSize: 90,  // 50
             endSize: 90,    // 90
-            velocity: [0, 1, 0],   // [0, 60, 0]
+            velocity: [0, 2, 0],   // [0, 60, 0]
             velocityRange: [1, 1, 1],    // [15, 15, 15]
             spinSpeedRange: 0,
             // frameStartRange: 36
@@ -249,12 +253,13 @@ function initParticles() {
 }
 
 function drawParticles() {
+    time.update();
     gl.clearColor(0.3, 0.3, 0.3, 1.0);
     gl.colorMask(true, true, true, true);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.colorMask(true, true, true, false);
 
-    particleMaterial.draw(gl, camera, particleTransform);
+    particleMaterial.draw(gl, time, camera, particleTransform);
 
     particleShape.draw(gl, particleMaterial);
 

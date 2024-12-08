@@ -27,7 +27,6 @@ export function $match(regex, str) {
 }
 
 export function $getShaderInfo(name,gl, shader, file){
-    debugger;
 
     const msg =  gl.getShaderInfoLog(shader);
     if(!msg) return "";

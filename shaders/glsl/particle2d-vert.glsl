@@ -45,7 +45,7 @@ void main() {
   float texHeight = _ANI_TEX_0.y;
   float tileSize = _ANI_TEX_0.z;
   float numFrames = _ANI_TEX_0.w;
-  float frameDuration = numFrames / _ANI_TEX_0_FPS;
+  float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
   float localTime = mod((time - startTime), timeRange);
   float percentLife = localTime / lifeTime;

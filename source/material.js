@@ -13,8 +13,7 @@ export default class Material {
         this.shader = params.shader || null;
         this.numFrames = params.numFrames || 1;
         this.frameDuration = params.frameDuration || 1;
-        this.timeRange = params.timeRange || 99999999;
-        this.timeSource_ = params.opt_clock || function(now, base) {return (now.getTime() - base.getTime()) / 1000.0;};
+        this.timeRange = params.timeRange || 1;
         this.now_ = new Date();
         this.timeBase_ = new Date();
         this.tileSize = params.tileSize || null;
@@ -60,7 +59,7 @@ export default class Material {
         this.textures[key] = texture;
     };
 
-    draw(gl, camera, transform) {
+    draw(gl, time, camera, transform) {
         gl.useProgram(this.shaderProgram);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -81,10 +80,7 @@ export default class Material {
 
         this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
 
-        // compute and set time
-        this.now_ = new Date();
-        let curTime = this.timeSource_(this.now_, this.timeBase_); 
-        this.uniforms["time"].value = curTime;
+        this.uniforms["time"].value = time.ElapsedTime;
 
         for(var name in this.uniforms){
             const data = this.uniforms[name];
