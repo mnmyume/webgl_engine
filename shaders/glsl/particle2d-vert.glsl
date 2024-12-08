@@ -51,17 +51,13 @@ void main() {
   float percentLife = localTime / lifeTime;
   float frame = mod(floor(localTime / frameDuration + frameStart),
                     numFrames);
-
-  int generation = int((time - startTime) / timeRange);
+  float generation = floor((time - startTime) / timeRange);
 
   float posTexCoordU = (particleID * 4.0) / (numParticles * 4.0);  
-  float posTexCoordV = 1.0 - mod(float(generation), numParticles) / numParticles;
+  float posTexCoordV = 1.0 - mod(generation, numParticles) / numParticles;
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
 
-  // float uOffset = frame / numFrames;
-  // float u = uOffset + (uv.x + 0.5) * (1. / numFrames);
-  // outputTexcoord = vec2(u, uv.y + 0.5);
   _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame, uv);
 
   outputColorMult = colorMult;

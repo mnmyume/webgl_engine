@@ -222,7 +222,7 @@ function initParticles() {
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
-        timeRange: 2,
+        timeRange: 50,
         tileSize: 128,
         texWidth: 768,
         texHeight: 768,
@@ -237,13 +237,12 @@ function initParticles() {
     particleShape = new StaticEmitter({
         data:{
             numParticles: numGen,
-            lifeTime: 2,   // 2
-            startSize: 90,  // 50
-            endSize: 90,    // 90
-            velocity: [0, 2, 0],   // [0, 60, 0]
-            velocityRange: [1, 1, 1],    // [15, 15, 15]
+            lifeTime: 50,   // 2
+            startSize: 50,  // 50
+            endSize: 50,    // 90
+            velocity: [0, 0, 0],   // [0, 60, 0]
+            velocityRange: [0, 0, 0],    // [15, 15, 15]
             spinSpeedRange: 0,
-            // frameStartRange: 36
         }},
         pseudoRandom
     )
