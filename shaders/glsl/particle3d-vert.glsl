@@ -1,4 +1,4 @@
-uniform float timeRange;
+uniform float duration;
 uniform float time;
 uniform float frameDuration;
 uniform float numFrames;
@@ -33,7 +33,7 @@ void main(void) {
     float spinStart = spinStartSpinSpeed.x;
     float spinSpeed = spinStartSpinSpeed.y;
     
-    float localTime = mod((time - startTime), timeRange);
+    float localTime = mod((time - startTime), duration);
     float percentLife = localTime / lifeTime;
     float frame = mod(floor(localTime / frameDuration + frameStart),
                 numFrames);

@@ -1,6 +1,6 @@
 #include "./testFolder/aniTex.glsl"
 
-uniform float timeRange;
+uniform float duration;
 uniform float time;
 uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
@@ -47,11 +47,11 @@ void main() {
   float numFrames = _ANI_TEX_0.w;
   float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
-  float localTime = mod((time - startTime), timeRange);
+  float localTime = mod((time - startTime), duration);
   float percentLife = localTime / lifeTime;
   float frame = mod(floor(localTime / frameDuration + frameStart),
                     numFrames);
-  float generation = floor((time - startTime) / timeRange);
+  float generation = floor((time - startTime) / duration);
 
   float posTexCoordU = (particleID * 4.0) / (numParticles * 4.0);  
   float posTexCoordV = 1.0 - mod(generation, numParticles) / numParticles;

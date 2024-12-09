@@ -13,7 +13,7 @@ export default class Material {
         this.shader = params.shader || null;
         this.numFrames = params.numFrames || 1;
         this.frameDuration = params.frameDuration || 1;
-        this.timeRange = params.timeRange || 1;
+        this.duration = params.duration || 1;
         this.now_ = new Date();
         this.timeBase_ = new Date();
         this.tileSize = params.tileSize || null;
@@ -73,7 +73,7 @@ export default class Material {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         gl.blendEquation(gl.FUNC_ADD);
 
-        this.uniforms["timeRange"].value = this.timeRange;
+        this.uniforms["duration"].value = this.duration;
 
         this.uniforms["_ANI_TEX_0"].value = [
             this.texWidth, this.texHeight, this.tileSize, this.numFrames];

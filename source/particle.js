@@ -139,7 +139,7 @@ const ParticleSpec = function() {
 
     // The life time of the entire particle system
     // To make a particle system be continuous set this to match the lifeTime
-    this.timeRange = 99999999;  // uniform
+    this.duration = 99999999;  // uniform
 
     // The startTime of a particle
     this.startTime = null;
@@ -272,7 +272,7 @@ export class ParticleEmitter {
         const gl = this.gl;
 
         // Set the globals
-        this.timeRange_ = parameters.timeRange;
+        this.duration_ = parameters.duration;
         this.numFrames_ = parameters.numFrames;
         this.frameDuration_ = parameters.frameDuration;
 
@@ -412,7 +412,7 @@ export class ParticleEmitter {
             gl.blendEquation(gl.FUNC_ADD);
         }
 
-        gl.uniform1f(material.dataLocation.uniforms["timeRange"], this.timeRange_);
+        gl.uniform1f(material.dataLocation.uniforms["duration"], this.duration_);
         gl.uniform1f(material.dataLocation.uniforms["numFrames"], this.numFrames_);
         gl.uniform1f(material.dataLocation.uniforms["frameDuration"], this.frameDuration_);
 
