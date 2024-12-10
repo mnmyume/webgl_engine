@@ -81,8 +81,9 @@ export default class StaticEmitter extends Shape {
         )
     };
 
-    createParticles(gl, firstParticleIndex, numParticles, parameters) {
+    createParticles(gl, firstParticleIndex, numParticles) {
         const bufferSubData = this.bufferSubData;
+        const data = this.data;
         let random = this.randomFunction_;
 
         let addVector = function(a, b) {
@@ -108,17 +109,17 @@ export default class StaticEmitter extends Shape {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
 
         for (let ii = 0; ii < numParticles; ++ii) {
-            let pLifeTime = parameters.lifeTime;
-            let pStartTime = ii * parameters.lifeTime / numParticles;
-            let pFrameStart = parameters.frameStart + plusMinus(parameters.frameStartRange);
-            let pPosition = addVector(parameters.position, plusMinusVector(parameters.positionRange));
-            let pVelocity = addVector(parameters.velocity, plusMinusVector(parameters.velocityRange)); 
-            let pAcceleration = addVector(parameters.acceleration, plusMinusVector(parameters.accelerationRange)); 
-            let pColorMult = addVector(parameters.colorMult, plusMinusVector(parameters.colorMultRange));
-            let pSpinStart = parameters.spinStart + plusMinus(parameters.spinStartRange);
-            let pSpinSpeed = parameters.spinSpeed + plusMinus(parameters.spinSpeedRange);
-            let pStartSize = parameters.startSize + plusMinus(parameters.startSizeRange);
-            let pEndSize = parameters.endSize + plusMinus(parameters.endSizeRange);  
+            let pLifeTime = data.lifeTime;
+            let pStartTime = ii * data.duration / numParticles;
+            let pFrameStart = data.frameStart + plusMinus(data.frameStartRange);
+            let pPosition = addVector(data.position, plusMinusVector(data.positionRange));
+            let pVelocity = addVector(data.velocity, plusMinusVector(data.velocityRange));
+            let pAcceleration = addVector(data.acceleration, plusMinusVector(data.accelerationRange));
+            let pColorMult = addVector(data.colorMult, plusMinusVector(data.colorMultRange));
+            let pSpinStart = data.spinStart + plusMinus(data.spinStartRange);
+            let pSpinSpeed = data.spinSpeed + plusMinus(data.spinSpeedRange);
+            let pStartSize = data.startSize + plusMinus(data.startSizeRange);
+            let pEndSize = data.endSize + plusMinus(data.endSizeRange);
         
             // make each corner of the particle
             for (var jj = 0; jj < 6; ++jj) {

@@ -219,33 +219,39 @@ function initParticles() {
     const posPixels = generateCirclePos(numGen, numGen);
     posTexture.createTexture(gl, numGen/4, numGen, posPixels);
 
+
+    const partiParams =  {
+        numParticles: numGen,
+        lifeTime: 1.0,   // 2
+        startSize: 50,  // 50
+        endSize: 50,    // 90
+        velocity: [0, 0, 0],   // [0, 60, 0]
+        velocityRange: [0, 0, 0],    // [15, 15, 15]
+        spinSpeedRange: 0,
+        duration: 1.0,
+        fps: 36
+    }
+
+
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
-        duration: 50,
+
         tileSize: 128,
         texWidth: 768,
         texHeight: 768,
         numFrames: 36,
-        fps: 60
+
+        // duration: 5,
+        // fps: 60
+        ...partiParams,
     })
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
     particleMaterial.setTexture('colorSampler', colorTexture);
     particleMaterial.setTexture('posSampler', posTexture);
 
-    particleShape = new StaticEmitter({
-        data:{
-            numParticles: numGen,
-            lifeTime: 50,   // 2
-            startSize: 50,  // 50
-            endSize: 50,    // 90
-            velocity: [0, 0, 0],   // [0, 60, 0]
-            velocityRange: [0, 0, 0],    // [15, 15, 15]
-            spinSpeedRange: 0,
-        }},
-        pseudoRandom
-    )
+    particleShape = new StaticEmitter({data:partiParams}, pseudoRandom)
     particleShape.initialize({ gl });
 
     drawParticles();

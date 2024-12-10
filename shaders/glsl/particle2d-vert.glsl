@@ -47,7 +47,7 @@ void main() {
   float numFrames = _ANI_TEX_0.w;
   float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
-  float localTime = mod((time - startTime), duration);
+  float localTime = mod(time, duration) - startTime;
   float percentLife = localTime / lifeTime;
   float frame = mod(floor(localTime / frameDuration + frameStart),
                     numFrames);
@@ -60,7 +60,7 @@ void main() {
 
   _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame, uv);
 
-  outputColorMult = colorMult;
+  outputColorMult = vec4(percentLife,0.0,0.0,1.0);//colorMult;
 
   vec3 basisX = uVInverseMatrix[0].xyz;
   vec3 basisZ = uVInverseMatrix[1].xyz;
