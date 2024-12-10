@@ -1,7 +1,7 @@
 export default class Time{
     startTime = null;
     lastUpdateTime = null;
-    intervalTime;
+    intervalTime = null;
 
 
     get ElapsedTime(){

@@ -177,7 +177,7 @@ function generateCirclePos(numParticle, generation) {
 
 function initParticles() {
 
-    const numGen = 64;
+    const numGen = 1;
 
     // init particle shader
     particleShader = new Shader({
@@ -222,7 +222,7 @@ function initParticles() {
     // init particle material
     particleMaterial = new Material({
         shader: particleShader,
-        duration: 500,
+        duration: 50,
         tileSize: 128,
         texWidth: 768,
         texHeight: 768,
@@ -240,8 +240,8 @@ function initParticles() {
             lifeTime: 50,   // 2
             startSize: 50,  // 50
             endSize: 50,    // 90
-            velocity: [0, 0.01, 0],   // [0, 60, 0]
-            velocityRange: [0.01, 0.01, 0.01],    // [15, 15, 15]
+            velocity: [0, 0, 0],   // [0, 60, 0]
+            velocityRange: [0, 0, 0],    // [15, 15, 15]
             spinSpeedRange: 0,
         }},
         pseudoRandom
