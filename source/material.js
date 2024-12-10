@@ -48,6 +48,9 @@ export default class Material {
     };
 
     draw(gl, time, camera, transform) {
+
+        this.uniforms["time"].value = time.ElapsedTime;
+
         gl.useProgram(this.shaderProgram);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
@@ -60,7 +63,6 @@ export default class Material {
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         gl.blendEquation(gl.FUNC_ADD);
-
 
         for(var name in this.uniforms){
             const data = this.uniforms[name];

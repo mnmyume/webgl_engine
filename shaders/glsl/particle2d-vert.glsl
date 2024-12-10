@@ -60,7 +60,7 @@ void main() {
 
   _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame, uv);
 
-  outputColorMult = vec4(percentLife,0.0,0.0,1.0);//colorMult;
+  outputColorMult = colorMult;
 
   vec3 basisX = uVInverseMatrix[0].xyz;
   vec3 basisZ = uVInverseMatrix[1].xyz;

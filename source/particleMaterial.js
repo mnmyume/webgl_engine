@@ -20,7 +20,7 @@ export default class ParticleMaterial extends Material{
 
 
     initialize({ gl }) {
-        super.initialize({gl});
+        super.initialize({ gl });
 
         this.uniforms["rampSampler"].value = 0;
         this.uniforms["colorSampler"].value = 1;
@@ -32,16 +32,12 @@ export default class ParticleMaterial extends Material{
 
     draw(gl, time, camera, transform) {
 
-
         this.uniforms["duration"].value = this.duration;
 
         this.uniforms["_ANI_TEX_0"].value = [
             this.texWidth, this.texHeight, this.tileSize, this.numFrames];
 
         this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
-
-        this.uniforms["time"].value = time.ElapsedTime;
-        console.log(time.ElapsedTime);
 
         super.draw(gl, time, camera, transform);
 

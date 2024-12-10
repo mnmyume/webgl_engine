@@ -44,7 +44,6 @@ export default class StaticEmitter extends Shape {
         colorMultRange: [0, 0, 0, 0]
     };
     particleBuffer = null;
-    debugger;
     bufferSubData = new Float32Array(6 * LAST_IDX);
 
     constructor(params = {}, opt_randomFunction) {

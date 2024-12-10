@@ -5,8 +5,10 @@ import Material from './material.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
-import StaticEmitter from './staticemitter.js';
 import Time from './time.js';
+import StaticEmitter from './staticemitter.js';
+import ParticleMaterial from './particleMaterial.js';
+
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
 
 const canvas = document.getElementById('game-surface');
@@ -219,8 +221,7 @@ function initParticles() {
     const posPixels = generateCirclePos(numGen, numGen);
     posTexture.createTexture(gl, numGen/4, numGen, posPixels);
 
-
-    const partiParams =  {
+    const particleParams =  {
         numParticles: numGen,
         lifeTime: 1.0,   // 2
         startSize: 50,  // 50
@@ -232,26 +233,22 @@ function initParticles() {
         fps: 36
     }
 
-
-    // init particle material
-    particleMaterial = new Material({
+    particleMaterial = new ParticleMaterial({
         shader: particleShader,
 
         tileSize: 128,
         texWidth: 768,
         texHeight: 768,
         numFrames: 36,
-
-        // duration: 5,
-        // fps: 60
-        ...partiParams,
+        
+        ...particleParams,
     })
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
     particleMaterial.setTexture('colorSampler', colorTexture);
     particleMaterial.setTexture('posSampler', posTexture);
 
-    particleShape = new StaticEmitter({data:partiParams}, pseudoRandom)
+    particleShape = new StaticEmitter({data:particleParams}, pseudoRandom)
     particleShape.initialize({ gl });
 
     drawParticles();
