@@ -53,8 +53,8 @@ void main() {
                     numFrames);
   float generation = floor((time) / duration);  //  - startTime
 
-  float posTexCoordU = (particleID * 4.0) / (numParticle * 4.0);  
-  float posTexCoordV = 1.0 - mod(generation, numParticle) / numGen;
+  float posTexCoordU = particleID  / numParticle + 0.5/numParticle;
+  float posTexCoordV = 1.0 - (generation/numGen+0.5/numGen); //mod(generation, numParticle) / numGen;
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
 

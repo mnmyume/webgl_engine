@@ -60,7 +60,7 @@ function pseudoRandom() {
 
 // init camera
 const camera = new Camera({aspect:canvas.width /canvas.height});
-camera.setPosition([0, 0, -300]);
+camera.setPosition([0, 0, 300]);
 camera.updateProjection();
 camera.updateView();
 camera.updateViewInverse();
@@ -163,15 +163,15 @@ function drawSimpleQuad() {
 function generateCirclePos(numParticle, generation) { 
     const posPixels = [];
     const radius = 50;
-    const STRIDE = 4;
 
     for(let row = 0; row < generation; row++) {
-        const offset = 2 * Math.PI / generation * row;
-        for (let col = 0; col < numParticle * STRIDE; col += STRIDE) {
-            const angle = Math.PI / numParticle * col;   // Math.random() *
+        const offset = 2 * Math.PI / generation * row;// Math.random() *
+        for (let col = 0; col < numParticle; col ++) {
+            const angle = 2*Math.PI / (numParticle) * col;
             const x = radius * Math.cos(angle + offset);
             const y = radius * Math.sin(angle + offset);
 
+            debugger;
             posPixels.push(x, y, 0.0, 0.0);
         }
     }
@@ -197,7 +197,7 @@ function generateCirclePosRandom(numParticle, generation, rate, duration) {
 function initParticles() {
 
     const particleParams =  {
-        numParticle: 4,
+        numParticle: 16,
         numGen: 1, 
         lifeTime: 10,   // 2
         startSize: 3,  // 50
