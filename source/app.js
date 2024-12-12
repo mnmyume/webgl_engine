@@ -17,6 +17,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 gl.viewport(0, 0, canvas.width, canvas.height);
 
+console.log(gl.getParameter(gl.MAX_TEXTURE_SIZE));
+debugger;
 // definite
 let quadShader = null;
 let quadImage = null;
@@ -173,6 +175,21 @@ function generateCirclePos(numParticle, generation) {
             posPixels.push(x, y, 0.0, 0.0);
         }
     }
+
+    return posPixels;
+}
+
+
+
+function generateCirclePosRandom(numParticle, generation, rate, duration) {
+    const posPixels = [];
+    const radius = 50;
+    const STRIDE = 4;
+
+    //0--duration(1s)
+    //0 -1000ms (delta: 66.7) ==== rate:60 i++( 0-60)
+    //Math.Random()*2*PI ==> x,y
+    // startTime: i*66.7/1000
 
     return posPixels;
 }
