@@ -1,7 +1,7 @@
 import Shape from './shape.js';
 
 const UV_LIFE_TIME_FRAME_START_IDX = 0;
-const POSITION_START_TIME_IDX = 4;
+const NUM_PARTICLE_GEN_IDX = 4;
 const VELOCITY_START_SIZE_IDX = 8;
 const ACCELERATION_END_SIZE_IDX = 12;
 const SPIN_START_SPEED_INDEX_IDX = 16;
@@ -20,7 +20,8 @@ const CORNERS_ = [
 
 export default class StaticEmitter extends Shape {
     static DEFAULT_DATA = {
-        numParticles: 1,
+        numParticle: 1,
+        numGen: 1, 
         frameStart: 0,
         frameStartRange: 0,
         startTime: 0,
@@ -65,22 +66,22 @@ export default class StaticEmitter extends Shape {
     };
 
     setData(gl, data) {
-        let numParticles = data.numParticles;
+        let numParticle = data.numParticle;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
         gl.bufferData(gl.ARRAY_BUFFER,
-            (numParticles + 1) * this.bufferSubData.byteLength,
+            (numParticle + 1) * this.bufferSubData.byteLength,
             gl.STATIC_DRAW);
 
         this.createParticles(
             gl, 
             0,
-            numParticles,
+            numParticle,
             data
         )
     };
 
-    createParticles(gl, firstParticleIndex, numParticles) {
+    createParticles(gl, firstParticleIndex, numParticle) {
         const bufferSubData = this.bufferSubData;
         const data = this.data;
         let random = this.randomFunction_;
@@ -107,9 +108,9 @@ export default class StaticEmitter extends Shape {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
 
-        for (let ii = 0; ii < numParticles; ++ii) {
+        for (let ii = 0; ii < numParticle; ++ii) {
             let pLifeTime = data.lifeTime;
-            let pStartTime = ii * data.duration / numParticles;
+            let pStartTime = ii * data.duration / numParticle;
             let pFrameStart = data.frameStart + plusMinus(data.frameStartRange);
             let pPosition = addVector(data.position, plusMinusVector(data.positionRange));
             let pVelocity = addVector(data.velocity, plusMinusVector(data.velocityRange));
@@ -132,10 +133,10 @@ export default class StaticEmitter extends Shape {
                 bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset2] = pLifeTime;
                 bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset3] = pFrameStart;
 
-                bufferSubData[POSITION_START_TIME_IDX + offset0] = pPosition[0];
-                bufferSubData[POSITION_START_TIME_IDX + offset1] = pPosition[1];
-                bufferSubData[POSITION_START_TIME_IDX + offset2] = pPosition[2];
-                bufferSubData[POSITION_START_TIME_IDX + offset3] = pStartTime;
+                bufferSubData[NUM_PARTICLE_GEN_IDX + offset0] = numParticle;
+                bufferSubData[NUM_PARTICLE_GEN_IDX + offset1] = data.numGen;
+                bufferSubData[NUM_PARTICLE_GEN_IDX + offset2] = 0.0;
+                bufferSubData[NUM_PARTICLE_GEN_IDX + offset3] = 0.0;
 
                 bufferSubData[VELOCITY_START_SIZE_IDX + offset0] = pVelocity[0];
                 bufferSubData[VELOCITY_START_SIZE_IDX + offset1] = pVelocity[1];
@@ -150,7 +151,7 @@ export default class StaticEmitter extends Shape {
                 bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset0] = pSpinStart;
                 bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset1] = pSpinSpeed;
                 bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset2] = ii;
-                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset3] = numParticles;
+                bufferSubData[SPIN_START_SPEED_INDEX_IDX + offset3] = 0.0;
 
                 bufferSubData[COLOR_MULT_IDX + offset0] = pColorMult[0];
                 bufferSubData[COLOR_MULT_IDX + offset1] = pColorMult[1];
@@ -178,11 +179,11 @@ export default class StaticEmitter extends Shape {
             material.dataLocation.attributes['uvLifeTimeFrameStart']);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['positionStartTime'], 
+            material.dataLocation.attributes['numParticleGen'], 
             4, gl.FLOAT, false, stride,
-            sizeofFloat * POSITION_START_TIME_IDX);
+            sizeofFloat * NUM_PARTICLE_GEN_IDX);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['positionStartTime']);
+            material.dataLocation.attributes['numParticleGen']);
 
         gl.vertexAttribPointer(
             material.dataLocation.attributes['velocityStartSize'], 
@@ -213,7 +214,7 @@ export default class StaticEmitter extends Shape {
             material.dataLocation.attributes['colorMult']);
         
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
-        gl.drawArrays(gl.TRIANGLES, 0, this.data.numParticles * 6);
+        gl.drawArrays(gl.TRIANGLES, 0, this.data.numParticle * 6);
 
         gl.disableVertexAttribArray(material.dataLocation.attributes['uvLifeTimeFrameStart']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['positionStartTime']);

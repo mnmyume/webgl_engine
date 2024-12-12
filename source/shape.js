@@ -45,7 +45,7 @@ export default class Shape {
             material.dataLocation.attributes['uv']);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
-        gl.drawArrays(gl.TRIANGLES, 0, this.data.numParticles * 6); // TODO
+        gl.drawArrays(gl.TRIANGLES, 0, this.data.numParticle * 6); // TODO
 
         gl.disableVertexAttribArray(
             material.dataLocation.attributes['gridIndex']);
