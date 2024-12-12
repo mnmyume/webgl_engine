@@ -166,7 +166,7 @@ function generateCirclePos(numParticle, generation) {
     for(let row = 0; row < generation; row++) {
         const offset = 2 * Math.PI / generation * row;
         for (let col = 0; col < numParticle * STRIDE; col += STRIDE) {
-            const angle = 2 * Math.PI / numParticle * col;   // Math.random() *
+            const angle = Math.PI / numParticle * col;   // Math.random() *
             const x = radius * Math.cos(angle + offset);
             const y = radius * Math.sin(angle + offset);
 
@@ -179,7 +179,18 @@ function generateCirclePos(numParticle, generation) {
 
 function initParticles() {
 
-    const numGen = 1;
+    const particleParams =  {
+        numParticle: 4,
+        numGen: 1, 
+        lifeTime: 10,   // 2
+        startSize: 3,  // 50
+        endSize: 3,    // 90
+        velocity: [0, 0, 0],   // [0, 60, 0]
+        velocityRange: [0, 0, 0],    // [15, 15, 15]
+        spinSpeedRange: 0,
+        duration: 10,
+        fps: 36
+    }
 
     // init particle shader
     particleShader = new Shader({
@@ -218,20 +229,10 @@ function initParticles() {
     };
 
     posTexture = new Texture2D('posTexture');
-    const posPixels = generateCirclePos(numGen, numGen);
-    posTexture.createTexture(gl, numGen/4, numGen, posPixels);
-
-    const particleParams =  {
-        numParticles: numGen,
-        lifeTime: 1.0,   // 2
-        startSize: 50,  // 50
-        endSize: 50,    // 90
-        velocity: [0, 0, 0],   // [0, 60, 0]
-        velocityRange: [0, 0, 0],    // [15, 15, 15]
-        spinSpeedRange: 0,
-        duration: 1.0,
-        fps: 36
-    }
+    const posPixels = generateCirclePos(
+        particleParams.numParticle, particleParams.numGen);
+    posTexture.createTexture(
+        gl, particleParams.numParticle, particleParams.numGen, posPixels);
 
     particleMaterial = new ParticleMaterial({
         shader: particleShader,
