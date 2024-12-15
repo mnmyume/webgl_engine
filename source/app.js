@@ -187,17 +187,13 @@ function generateCirclePosRandom(numParticle, rate, duration) {
     // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
     // Math.Random()*2*PI ==> x,y
     // startTime: i*66.7/1000
-
-    const delta = duration / rate;
     
     for(let i = 0; i < numParticle; i++) {
         const angle = Math.random() * 2 * Math.PI; 
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
 
-        const startTime = i * delta; 
-
-        posPixels.push(x, y, 0.0, startTime);
+        posPixels.push(x, y, 0.0, 0.0);
     }
 
     return posPixels;
