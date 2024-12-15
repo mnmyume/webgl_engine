@@ -17,8 +17,6 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 gl.viewport(0, 0, canvas.width, canvas.height);
 
-console.log(gl.getParameter(gl.MAX_TEXTURE_SIZE));
-debugger;
 // definite
 let quadShader = null;
 let quadImage = null;
@@ -166,8 +164,8 @@ function generateCirclePos(numParticle, generation) {
 
     for(let row = 0; row < generation; row++) {
         const offset = 2 * Math.PI / generation * row;// Math.random() *
-        for (let col = 0; col < numParticle; col ++) {
-            const angle = 2*Math.PI / (numParticle) * col;
+        for (let col = 0; col < numParticle; col++) {
+            const angle = 2 * Math.PI / (numParticle) * col;
             const x = radius * Math.cos(angle + offset);
             const y = radius * Math.sin(angle + offset);
 
@@ -181,15 +179,26 @@ function generateCirclePos(numParticle, generation) {
 
 
 
-function generateCirclePosRandom(numParticle, generation, rate, duration) {
+function generateCirclePosRandom(numParticle, rate, duration) {
     const posPixels = [];
     const radius = 50;
-    const STRIDE = 4;
 
-    //0--duration(1s)
-    //0 -1000ms (delta: 66.7) ==== rate:60 i++( 0-60)
-    //Math.Random()*2*PI ==> x,y
+    // 0--duration(1s)
+    // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
+    // Math.Random()*2*PI ==> x,y
     // startTime: i*66.7/1000
+
+    const delta = duration / rate;
+    
+    for(let i = 0; i < numParticle; i++) {
+        const angle = Math.random() * 2 * Math.PI; 
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+
+        const startTime = i * delta; 
+
+        posPixels.push(x, y, 0.0, startTime);
+    }
 
     return posPixels;
 }
@@ -197,11 +206,12 @@ function generateCirclePosRandom(numParticle, generation, rate, duration) {
 function initParticles() {
 
     const particleParams =  {
-        numParticle: 16,
-        numGen: 1, 
+        numParticle: 32,
+        numGen: 1,
+        rate: 60,  
         lifeTime: 10,   // 2
-        startSize: 3,  // 50
-        endSize: 3,    // 90
+        startSize: 5,  // 50
+        endSize: 5,    // 90
         velocity: [0, 0, 0],   // [0, 60, 0]
         velocityRange: [0, 0, 0],    // [15, 15, 15]
         spinSpeedRange: 0,
@@ -246,8 +256,10 @@ function initParticles() {
     };
 
     posTexture = new Texture2D('posTexture');
-    const posPixels = generateCirclePos(
-        particleParams.numParticle, particleParams.numGen);
+    // const posPixels = generateCirclePos(
+    //     particleParams.numParticle, particleParams.numGen);
+    const posPixels = generateCirclePosRandom(
+        particleParams.numParticle, particleParams.rate, particleParams.duration)
     posTexture.createTexture(
         gl, particleParams.numParticle, particleParams.numGen, posPixels);
 

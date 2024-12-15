@@ -110,7 +110,7 @@ export default class StaticEmitter extends Shape {
 
         for (let ii = 0; ii < numParticle; ++ii) {
             let pLifeTime = data.lifeTime;
-            let pStartTime = ii * data.duration / numParticle;
+            let pStartTime = data.duration / data.rate * ii;
             let pFrameStart = data.frameStart + plusMinus(data.frameStartRange);
             let pPosition = addVector(data.position, plusMinusVector(data.positionRange));
             let pVelocity = addVector(data.velocity, plusMinusVector(data.velocityRange));
@@ -135,7 +135,7 @@ export default class StaticEmitter extends Shape {
 
                 bufferSubData[NUM_PARTICLE_GEN_IDX + offset0] = numParticle;
                 bufferSubData[NUM_PARTICLE_GEN_IDX + offset1] = data.numGen;
-                bufferSubData[NUM_PARTICLE_GEN_IDX + offset2] = 0.0;
+                bufferSubData[NUM_PARTICLE_GEN_IDX + offset2] = pStartTime;
                 bufferSubData[NUM_PARTICLE_GEN_IDX + offset3] = 0.0;
 
                 bufferSubData[VELOCITY_START_SIZE_IDX + offset0] = pVelocity[0];

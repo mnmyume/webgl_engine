@@ -15,7 +15,7 @@ uniform sampler2D posSampler;
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
-attribute vec4 numParticleGen;       // numParticle.x, numGen.y
+attribute vec4 numParticleGen;       // numParticle.x, numGen.y, startTime.z
 attribute vec4 velocityStartSize;    // velocity.xyz, startSize
 attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize
 attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z
@@ -31,6 +31,7 @@ void main() {
   float frameStart = uvLifeTimeFrameStart.w;
   float numParticle = numParticleGen.x;
   float numGen = numParticleGen.y;
+  float startTime =numParticleGen.z;
   vec3 velocity = velocityStartSize.xyz;
   float startSize = velocityStartSize.w;
   vec3 acceleration = accelerationEndSize.xyz;
@@ -46,15 +47,14 @@ void main() {
   float numFrames = _ANI_TEX_0.w;
   float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
-  // TODO: startTime
-  float localTime = mod(time, duration); //  - startTime
+  float localTime = mod(time, duration) - startTime;
   float percentLife = localTime / lifeTime;
   float frame = mod(floor(localTime / frameDuration + frameStart),
                     numFrames);
-  float generation = floor((time) / duration);  //  - startTime
+  float generation = floor(time / duration) - startTime;
 
-  float posTexCoordU = particleID  / numParticle + 0.5/numParticle;
-  float posTexCoordV = 1.0 - (generation/numGen+0.5/numGen); //mod(generation, numParticle) / numGen;
+  float posTexCoordU = particleID / numParticle + 0.5 / numParticle;
+  float posTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
 
