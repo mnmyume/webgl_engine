@@ -15,10 +15,11 @@ uniform sampler2D posSampler;
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
-attribute vec4 numParticleGen;       // numParticle.x, numGen.y, startTime.z
-attribute vec4 velocityStartSize;    // velocity.xyz, startSize
-attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize
-attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z
+//attribute vec4 numParticleGen;       // numParticle.x, numGen.y, startTime.z
+attribute float startTime;
+//attribute vec4 velocityStartSize;    // velocity.xyz, startSize
+//attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize
+//attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z
 attribute vec4 colorMult;            // multiplies color and ramp textures
 
 // Outgoing variables to fragment shader
