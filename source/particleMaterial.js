@@ -8,10 +8,9 @@ export default class ParticleMaterial extends Material{
     constructor(params = {}) {
         super(params);
         this.numFrames = params.numFrames || 1;
-        this.frameDuration = params.frameDuration || 1;
+        this.numParticle = params.numParticle || 1;
+        this.numGen = params.numGen || 1;
         this.duration = params.duration || 1;
-        this.now_ = new Date();
-        this.timeBase_ = new Date();
         this.tileSize = params.tileSize || null;
         this.texWidth = params.texWidth || null;
         this.texHeight = params.texHeight || null;
@@ -33,6 +32,8 @@ export default class ParticleMaterial extends Material{
     draw(gl, time, camera, transform) {
 
         this.uniforms["duration"].value = this.duration;
+        this.uniforms["numParticle"].value = this.numParticle;
+        this.uniforms["numGen"].value = this.numGen;
 
         this.uniforms["_ANI_TEX_0"].value = [
             this.texWidth, this.texHeight, this.tileSize, this.numFrames];

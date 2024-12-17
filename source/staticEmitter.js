@@ -1,7 +1,7 @@
 import Shape from './shape.js';
 
 const UV_LIFE_TIME_FRAME_START_IDX = 0;
-const NUM_PARTICLE_GEN_IDX = 4;
+const START_TIME_POSITION_IDX = 4;
 const VELOCITY_START_SIZE_IDX = 8;
 const ACCELERATION_END_SIZE_IDX = 12;
 const SPIN_START_SPEED_INDEX_IDX = 16;
@@ -110,7 +110,7 @@ export default class StaticEmitter extends Shape {
 
         for (let ii = 0; ii < numParticle; ++ii) {
             let pLifeTime = data.lifeTime;
-            let pStartTime = data.duration / data.rate * ii;
+            let pStartTime = data.duration / numParticle * ii;
             let pFrameStart = data.frameStart + plusMinus(data.frameStartRange);
             let pPosition = addVector(data.position, plusMinusVector(data.positionRange));
             let pVelocity = addVector(data.velocity, plusMinusVector(data.velocityRange));
@@ -133,10 +133,10 @@ export default class StaticEmitter extends Shape {
                 bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset2] = pLifeTime;
                 bufferSubData[UV_LIFE_TIME_FRAME_START_IDX + offset3] = pFrameStart;
 
-                bufferSubData[NUM_PARTICLE_GEN_IDX + offset0] = numParticle;
-                bufferSubData[NUM_PARTICLE_GEN_IDX + offset1] = data.numGen;
-                bufferSubData[NUM_PARTICLE_GEN_IDX + offset2] = pStartTime;
-                bufferSubData[NUM_PARTICLE_GEN_IDX + offset3] = 0.0;
+                bufferSubData[START_TIME_POSITION_IDX + offset0] = pStartTime;
+                bufferSubData[START_TIME_POSITION_IDX + offset1] = 0.0;
+                bufferSubData[START_TIME_POSITION_IDX + offset2] = 0.0;
+                bufferSubData[START_TIME_POSITION_IDX + offset3] = 0.0;
 
                 bufferSubData[VELOCITY_START_SIZE_IDX + offset0] = pVelocity[0];
                 bufferSubData[VELOCITY_START_SIZE_IDX + offset1] = pVelocity[1];
@@ -179,11 +179,11 @@ export default class StaticEmitter extends Shape {
             material.dataLocation.attributes['uvLifeTimeFrameStart']);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['numParticleGen'], 
+            material.dataLocation.attributes['startTimePosition'], 
             4, gl.FLOAT, false, stride,
-            sizeofFloat * NUM_PARTICLE_GEN_IDX);
+            sizeofFloat * START_TIME_POSITION_IDX);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['numParticleGen']);
+            material.dataLocation.attributes['startTimePosition']);
 
         gl.vertexAttribPointer(
             material.dataLocation.attributes['velocityStartSize'], 

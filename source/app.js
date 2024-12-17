@@ -194,6 +194,8 @@ function generateCirclePosRandom(numParticle, rate, duration) {
         const y = Math.sin(angle) * radius;
 
         posPixels.push(x, y, 0.0, 0.0);
+        posPixels.push(0.0, 0.0, 0.0, 0.0);
+        posPixels.push(0.0, 0.0, 0.0, 0.0);
     }
 
     return posPixels;
@@ -202,7 +204,7 @@ function generateCirclePosRandom(numParticle, rate, duration) {
 function initParticles() {
 
     const particleParams =  {
-        numParticle: 32,
+        numParticle: 128,
         numGen: 1,
         rate: 60,  
         lifeTime: 10,   // 2
@@ -257,7 +259,7 @@ function initParticles() {
     const posPixels = generateCirclePosRandom(
         particleParams.numParticle, particleParams.rate, particleParams.duration)
     posTexture.createTexture(
-        gl, particleParams.numParticle, particleParams.numGen, posPixels);
+        gl, particleParams.numParticle * 3, particleParams.numGen, posPixels);
 
     particleMaterial = new ParticleMaterial({
         shader: particleShader,

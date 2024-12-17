@@ -6,7 +6,9 @@ uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uVInverseMatrix;
 uniform mat4 uMMatrix;
-uniform sampler2D posSampler;
+uniform float numParticle;
+uniform float numGen;
+uniform sampler2D posSampler; // pos.xyzw, linearVel.xyzw, angularVel.xyzw
 
 #define ANI_TEX
 /* MACRO */
@@ -15,11 +17,11 @@ uniform sampler2D posSampler;
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
-//attribute vec4 numParticleGen;       // numParticle.x, numGen.y, startTime.z
-attribute float startTime;
-//attribute vec4 velocityStartSize;    // velocity.xyz, startSize
-//attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize
-//attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z
+attribute vec4 numParticleGen;       // numParticle.x, numGen.y, startTime.z
+attribute vec4 startTimePosition;    // startTime.x
+attribute vec4 velocityStartSize;    // velocity.xyz, startSize
+attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize
+attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z
 attribute vec4 colorMult;            // multiplies color and ramp textures
 
 // Outgoing variables to fragment shader
@@ -30,9 +32,7 @@ void main() {
   vec2 uv = uvLifeTimeFrameStart.xy;
   float lifeTime = uvLifeTimeFrameStart.z;
   float frameStart = uvLifeTimeFrameStart.w;
-  float numParticle = numParticleGen.x;
-  float numGen = numParticleGen.y;
-  float startTime =numParticleGen.z;
+  float startTime =startTimePosition.x;
   vec3 velocity = velocityStartSize.xyz;
   float startSize = velocityStartSize.w;
   vec3 acceleration = accelerationEndSize.xyz;
@@ -54,10 +54,21 @@ void main() {
                     numFrames);
   float generation = floor(time / duration) - startTime;
 
-  float posTexCoordU = particleID / numParticle + 0.5 / numParticle;
+  float posTexCoordU = (particleID * 3.0 + 0.5) / (numParticle * 3.0);
   float posTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
+
+  // TODO
+  float linearVelTexCoordU = (particleID * 3.0 + 1.5) / (numParticle * 3.0);
+  float linearVelTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
+  vec2 linearVelTexCoord = vec2(linearVelTexCoordU, linearVelTexCoordV);
+  vec3 linearVelocity = texture2D(posSampler, linearVelTexCoord).xyz;
+
+  float angularVelTexCoordU = (particleID * 3.0 + 2.5) / (numParticle * 3.0);
+  float angularVelTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
+  vec2 angularVelTexCoord = vec2(angularVelTexCoordU, angularVelTexCoordV);
+  vec3 angularVelocity = texture2D(posSampler, angularVelTexCoord).xyz;
 
   _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame, uv);
 
@@ -75,7 +86,7 @@ void main() {
                             basisZ * rotatedPoint.y) * size +
                        velocity * localTime +
                        acceleration * localTime * localTime + 
-                       position;
+                       position;  // TEST: position, linearVelocity, angularVelocity
                        
   outputPercentLife = percentLife;
 
