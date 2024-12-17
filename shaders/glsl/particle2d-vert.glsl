@@ -28,6 +28,17 @@ attribute vec4 colorMult;            // multiplies color and ramp textures
 varying float outputPercentLife;
 varying vec4 outputColorMult;
 
+
+
+
+const float NUM_COMPONENTS = 3.0;
+float pidPixels(float pid){
+  return  pid*NUM_COMPONENTS;
+}
+float pidPixelsOffset(float pid, float offset){
+  return  pid*NUM_COMPONENTS + offset + 0.5;
+}
+
 void main() {
   vec2 uv = uvLifeTimeFrameStart.xy;
   float lifeTime = uvLifeTimeFrameStart.z;
@@ -54,18 +65,22 @@ void main() {
                     numFrames);
   float generation = floor(time / duration) - startTime;
 
-  float posTexCoordU = (particleID * 3.0 + 0.5) / (numParticle * 3.0);
+
+  float componentOffset = 0.0;
+  float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(numParticle);
   float posTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
 
-  // TODO
-  float linearVelTexCoordU = (particleID * 3.0 + 1.5) / (numParticle * 3.0);
+
+  componentOffset = 1.0;
+  float linearVelTexCoordU =  pidPixelsOffset(particleID, componentOffset) / pidPixels(numParticle);
   float linearVelTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 linearVelTexCoord = vec2(linearVelTexCoordU, linearVelTexCoordV);
   vec3 linearVelocity = texture2D(posSampler, linearVelTexCoord).xyz;
 
-  float angularVelTexCoordU = (particleID * 3.0 + 2.5) / (numParticle * 3.0);
+  componentOffset = 2.0;
+  float angularVelTexCoordU = pidPixelsOffset(particleID, componentOffset)  / pidPixels(numParticle);
   float angularVelTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 angularVelTexCoord = vec2(angularVelTexCoordU, angularVelTexCoordV);
   vec3 angularVelocity = texture2D(posSampler, angularVelTexCoord).xyz;
