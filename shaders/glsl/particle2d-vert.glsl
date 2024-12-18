@@ -1,13 +1,15 @@
 #include "./testFolder/aniTex.glsl"
 
-uniform float duration;
-uniform float time;
+// uniform
 uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uVInverseMatrix;
 uniform mat4 uMMatrix;
+uniform float duration;
+uniform float time;
 uniform float numParticle;
 uniform float numGen;
+uniform vec3 gravity;
 uniform sampler2D posSampler; // pos.xyzw, linearVel.xyzw, angularVel.xyzw
 
 #define ANI_TEX
@@ -15,21 +17,20 @@ uniform sampler2D posSampler; // pos.xyzw, linearVel.xyzw, angularVel.xyzw
 #ifdef ANI_TEX
 #endif  /* MACRO ANI_TEX*/
 
-// Incoming vertex attributes
-attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
-attribute vec4 numParticleGen;       // numParticle.x, numGen.y, startTime.z
-attribute vec4 startTimePosition;    // startTime.x
-attribute vec4 velocityStartSize;    // velocity.xyz, startSize
-attribute vec4 accelerationEndSize;  // acceleration.xyz, endSize
-attribute vec4 spinStartSpeedIndex;   // spinStart.x, spinSpeed.y, particleID.z
-attribute vec4 colorMult;            // multiplies color and ramp textures
+// attribute
+attribute vec2 uv;
+attribute float lifeTime;
+attribute float frameStart;
+attribute float startTime;
+attribute float startSize;
+attribute float endSize;
+attribute float spinStart;
+attribute float spinSpeed;
+attribute float particleID;
+attribute vec4 colorMult;
 
-// Outgoing variables to fragment shader
 varying float outputPercentLife;
 varying vec4 outputColorMult;
-
-
-
 
 const float NUM_COMPONENTS = 3.0;
 float pidPixels(float pid){
@@ -40,17 +41,6 @@ float pidPixelsOffset(float pid, float offset){
 }
 
 void main() {
-  vec2 uv = uvLifeTimeFrameStart.xy;
-  float lifeTime = uvLifeTimeFrameStart.z;
-  float frameStart = uvLifeTimeFrameStart.w;
-  float startTime =startTimePosition.x;
-  vec3 velocity = velocityStartSize.xyz;
-  float startSize = velocityStartSize.w;
-  vec3 acceleration = accelerationEndSize.xyz;
-  float endSize = accelerationEndSize.w;
-  float spinStart = spinStartSpeedIndex.x;
-  float spinSpeed = spinStartSpeedIndex.y;
-  float particleID = spinStartSpeedIndex.z;
   
   // aniTex
   float texWidth = _ANI_TEX_0.x;
@@ -97,10 +87,11 @@ void main() {
   float c = cos(spinStart + spinSpeed * localTime);
   vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, 
                            -uv.x * s + uv.y * c);
+  vec3 velocity = linearVelocity;
   vec3 localPosition = vec3(basisX * rotatedPoint.x +
                             basisZ * rotatedPoint.y) * size +
                        velocity * localTime +
-                       acceleration * localTime * localTime + 
+                       // acceleration * localTime * localTime + 
                        position;  // TEST: position, linearVelocity, angularVelocity
                        
   outputPercentLife = percentLife;

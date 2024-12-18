@@ -6,7 +6,7 @@ import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import Time from './time.js';
-import StaticEmitter from './staticemitter.js';
+import StaticEmitter from './staticEmitter.js';
 import ParticleMaterial from './particleMaterial.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
@@ -169,7 +169,6 @@ function generateCirclePos(numParticle, generation) {
             const x = radius * Math.cos(angle + offset);
             const y = radius * Math.sin(angle + offset);
 
-            debugger;
             posPixels.push(x, y, 0.0, 0.0);
         }
     }
@@ -177,24 +176,35 @@ function generateCirclePos(numParticle, generation) {
     return posPixels;
 }
 
-
-
-function generateCirclePosRandom(numParticle, rate, duration) {
+// 0--duration(1s)
+// 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
+// Math.Random()*2*PI ==> x,y
+// startTime: i*66.7/1000
+function generateCirclePosRandom(numParticle) {
     const posPixels = [];
     const radius = 50;
 
-    // 0--duration(1s)
-    // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
-    // Math.Random()*2*PI ==> x,y
-    // startTime: i*66.7/1000
-    
     for(let i = 0; i < numParticle; i++) {
+
+        // position
         const angle = Math.random() * 2 * Math.PI; 
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
 
         posPixels.push(x, y, 0.0, 0.0);
-        posPixels.push(0.0, 0.0, 0.0, 0.0);
+
+        // linearVelocity
+        // 计算切线方向的单位向量
+        const tangentX = Math.sin(angle); // 切线方向的x分量
+        const tangentY = -Math.cos(angle);  // 切线方向的y分量
+
+        // 线速度大小，随着角度从0到2π线性增大
+        const speed = (angle / (2 * Math.PI)) * 60;
+
+        // linearVelocity，按切线方向，速度大小随着位置逐渐增加
+        posPixels.push(tangentX * speed, tangentY * speed, 0.0, 0.0);
+
+        // angularVelocity
         posPixels.push(0.0, 0.0, 0.0, 0.0);
     }
 
@@ -204,18 +214,17 @@ function generateCirclePosRandom(numParticle, rate, duration) {
 function initParticles() {
 
     const particleParams =  {
-        numParticle: 128,
         numGen: 1,
-        rate: 60,  
+        rate: 30,
+        duration: 50,  
         lifeTime: 10,   // 2
         startSize: 5,  // 50
         endSize: 5,    // 90
         velocity: [0, 0, 0],   // [0, 60, 0]
         velocityRange: [0, 0, 0],    // [15, 15, 15]
-        spinSpeedRange: 0,
-        duration: 10,
         fps: 36
     }
+    const numParticle = particleParams.duration * particleParams.rate;
 
     // init particle shader
     particleShader = new Shader({
@@ -254,12 +263,9 @@ function initParticles() {
     };
 
     posTexture = new Texture2D('posTexture');
-    // const posPixels = generateCirclePos(
-    //     particleParams.numParticle, particleParams.numGen);
-    const posPixels = generateCirclePosRandom(
-        particleParams.numParticle, particleParams.rate, particleParams.duration)
-    posTexture.createTexture(
-        gl, particleParams.numParticle * 3, particleParams.numGen, posPixels);
+    // const posPixels = generateCirclePos(numParticle, particleParams.numGen);
+    const posPixels = generateCirclePosRandom(numParticle)
+    posTexture.createTexture(gl, numParticle * 3, particleParams.numGen, posPixels);
 
     particleMaterial = new ParticleMaterial({
         shader: particleShader,
@@ -268,6 +274,8 @@ function initParticles() {
         texWidth: 768,
         texHeight: 768,
         numFrames: 36,
+
+        numParticle, 
         
         ...particleParams,
     })
@@ -276,7 +284,7 @@ function initParticles() {
     particleMaterial.setTexture('colorSampler', colorTexture);
     particleMaterial.setTexture('posSampler', posTexture);
 
-    particleShape = new StaticEmitter({data:particleParams}, pseudoRandom)
+    particleShape = new StaticEmitter({data: {...particleParams, numParticle: numParticle}}, pseudoRandom);
     particleShape.initialize({ gl });
 
     drawParticles();
