@@ -8,7 +8,7 @@ uniform vec2 worldsize;
 varying vec2 index;
 
 float get(vec2 offset) {
-    vec2 p = index + offset / worldsize;
+    vec2 p = index + offset*vec2(5,5) / worldsize;
     return length((texture2D(background, p).xy - 0.5) * 2.0);
 }
 

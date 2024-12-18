@@ -27,7 +27,7 @@ function Particles(canvas, nparticles, size) {
     /* Drawing parameters. */
     this.size = size || 5;
     this.color = [0.14, 0.62, 1, 0.6];
-    this.obstacleColor = [0.45, 0.35, 0.25, 1.0];
+    this.obstacleColor = [1, 1,0.0, 1.0];
 
     /* Simulation parameters. */
     this.running = false;
@@ -64,7 +64,7 @@ function Particles(canvas, nparticles, size) {
     };
 
     this.setCount(nparticles, true);
-    this.addObstacle([w / 2, h / 2], 32);
+    this.addObstacle([w * 0.8, h / 2], 128);
 }
 
 /**
@@ -256,6 +256,7 @@ Particles.prototype.addObstacle = function(center, radius) {
         mode: gl.POINTS,
         length: 1
     };
+    debugger;
     this.obstacles.push(obstacle);
     this.updateObstacles();
     return obstacle;
@@ -319,6 +320,9 @@ Particles.prototype.draw = function() {
         .uniform('scale', this.scale)
         .uniform('color', this.color)
         .draw(gl.POINTS, this.statesize[0] * this.statesize[1]);
+
+
+
     this.textures.obstacles.bind(2);
     this.programs.flat.use()
         .attrib('quad', this.buffers.quad, 2)
@@ -336,7 +340,9 @@ Particles.prototype.draw = function() {
 Particles.prototype.frame = function() {
     window.requestAnimationFrame(function() {
         if (this.running) {
-            this.step().draw().frame();
+            this.updateObstacles();
+            this.frame();
+            // this.step().draw().frame();
             for (var i = 0; i < this.listeners.length; i++) {
                 this.listeners[i]();
             }
