@@ -49,11 +49,11 @@ void main() {
   float numFrames = _ANI_TEX_0.w;
   float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
-  float localTime = mod(time, duration) - startTime;
+  float localTime = mod(time - startTime, duration) ;
   float percentLife = localTime / lifeTime;
   float frame = mod(floor(localTime / frameDuration + frameStart),
                     numFrames);
-  float generation = floor(time / duration) - startTime;
+  float generation = floor((time - startTime) / duration);
 
 
   float componentOffset = 0.0;
@@ -88,13 +88,13 @@ void main() {
   vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, 
                            -uv.x * s + uv.y * c);
   vec3 velocity = linearVelocity;
-  vec3 localPosition = vec3(basisX * rotatedPoint.x +
-                            basisZ * rotatedPoint.y) * size +
+  vec3 localPosition = // vec3(basisX * rotatedPoint.x +
+                       //      basisZ * rotatedPoint.y) * size +
                        velocity * localTime +
                        // acceleration * localTime * localTime + 
                        position;  // TEST: position, linearVelocity, angularVelocity
                        
   outputPercentLife = percentLife;
-
+  gl_PointSize = size; 
   gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(localPosition, 1.);
 }

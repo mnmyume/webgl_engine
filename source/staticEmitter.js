@@ -118,37 +118,35 @@ export default class StaticEmitter extends Shape {
             let pEndSize = data.endSize + plusMinus(data.endSizeRange);
         
             // make each corner of the particle
-            for (var jj = 0; jj < 6; ++jj) {
-                var offset0 = LAST_IDX * jj;
-                var offset1 = offset0 + 1;
-                var offset2 = offset0 + 2;
-                var offset3 = offset0 + 3;
+            var offset0 = 0;
+            var offset1 = offset0 + 1;
+            var offset2 = offset0 + 2;
+            var offset3 = offset0 + 3;
 
-                bufferSubData[UV_IDX + offset0] = CORNERS_[jj][0];
-                bufferSubData[UV_IDX + offset1] = CORNERS_[jj][1];
+            bufferSubData[UV_IDX + offset0] = CORNERS_[0][0];
+            bufferSubData[UV_IDX + offset1] = CORNERS_[0][1];
 
-                bufferSubData[LIFE_TIME_IDX + offset0] = pLifeTime;
+            bufferSubData[LIFE_TIME_IDX + offset0] = pLifeTime;
 
-                bufferSubData[FRAME_START_IDX + offset0] = pFrameStart;
+            bufferSubData[FRAME_START_IDX + offset0] = pFrameStart;
 
-                bufferSubData[START_TIME_IDX + offset0] = pStartTime;
+            bufferSubData[START_TIME_IDX + offset0] = pStartTime;
 
-                bufferSubData[START_SIZE_IDX + offset0] = pStartSize; 
+            bufferSubData[START_SIZE_IDX + offset0] = pStartSize; 
 
-                bufferSubData[END_SIZE_IDX + offset0] = pEndSize;
+            bufferSubData[END_SIZE_IDX + offset0] = pEndSize;
 
-                bufferSubData[SPIN_START_IDX + offset0] = pSpinStart;
+            bufferSubData[SPIN_START_IDX + offset0] = pSpinStart;
 
-                bufferSubData[SPIN_SPEED_IDX + offset0] = pSpinSpeed;
+            bufferSubData[SPIN_SPEED_IDX + offset0] = pSpinSpeed;
 
-                bufferSubData[PARTICLE_ID_IDX + offset0] = ii;
+            bufferSubData[PARTICLE_ID_IDX + offset0] = ii;
 
-                bufferSubData[COLOR_MULT_IDX + offset0] = pColorMult[0];
-                bufferSubData[COLOR_MULT_IDX + offset1] = pColorMult[1];
-                bufferSubData[COLOR_MULT_IDX + offset2] = pColorMult[2];
-                bufferSubData[COLOR_MULT_IDX + offset3] = pColorMult[3];
-            }
-
+            bufferSubData[COLOR_MULT_IDX + offset0] = pColorMult[0];
+            bufferSubData[COLOR_MULT_IDX + offset1] = pColorMult[1];
+            bufferSubData[COLOR_MULT_IDX + offset2] = pColorMult[2];
+            bufferSubData[COLOR_MULT_IDX + offset3] = pColorMult[3];
+            
             gl.bufferSubData(gl.ARRAY_BUFFER,
                 bufferSubData.byteLength * (ii + firstParticleIndex),
                 bufferSubData);
@@ -232,7 +230,7 @@ export default class StaticEmitter extends Shape {
             material.dataLocation.attributes['colorMult']);
         
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
-        gl.drawArrays(gl.TRIANGLES, 0, this.data.numParticle * 6);
+        gl.drawArrays(gl.POINTS, 0, this.data.numParticle);
 
         gl.disableVertexAttribArray(material.dataLocation.attributes['uv']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['lifeTime']);

@@ -194,14 +194,10 @@ function generateCirclePosRandom(numParticle) {
         posPixels.push(x, y, 0.0, 0.0);
 
         // linearVelocity
-        // 计算切线方向的单位向量
-        const tangentX = Math.sin(angle); // 切线方向的x分量
-        const tangentY = -Math.cos(angle);  // 切线方向的y分量
-
-        // 线速度大小，随着角度从0到2π线性增大
+        const tangentX = Math.sin(angle); 
+        const tangentY = -Math.cos(angle);  
         const speed = (angle / (2 * Math.PI)) * 60;
 
-        // linearVelocity，按切线方向，速度大小随着位置逐渐增加
         posPixels.push(tangentX * speed, tangentY * speed, 0.0, 0.0);
 
         // angularVelocity
@@ -215,11 +211,11 @@ function initParticles() {
 
     const particleParams =  {
         numGen: 1,
-        rate: 30,
-        duration: 50,  
+        rate: 60,
+        duration: 10,  
         lifeTime: 10,   // 2
         startSize: 5,  // 50
-        endSize: 5,    // 90
+        endSize: 50,    // 90
         velocity: [0, 0, 0],   // [0, 60, 0]
         velocityRange: [0, 0, 0],    // [15, 15, 15]
         fps: 36
