@@ -18,7 +18,6 @@ uniform sampler2D posSampler; // pos.xyzw, linearVel.xyzw, angularVel.xyzw
 #endif  /* MACRO ANI_TEX*/
 
 // attribute
-attribute vec2 uv;
 attribute float lifeTime;
 attribute float frameStart;
 attribute float startTime;
@@ -75,24 +74,17 @@ void main() {
   vec2 angularVelTexCoord = vec2(angularVelTexCoordU, angularVelTexCoordV);
   vec3 angularVelocity = texture2D(posSampler, angularVelTexCoord).xyz;
 
-  _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame, uv);
+  _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
 
   outputColorMult = colorMult;
 
-  vec3 basisX = uVInverseMatrix[0].xyz;
-  vec3 basisZ = uVInverseMatrix[1].xyz;
   float size = mix(startSize, endSize, percentLife);
   size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
-  float s = sin(spinStart + spinSpeed * localTime);
-  float c = cos(spinStart + spinSpeed * localTime);
-  vec2 rotatedPoint = vec2(uv.x * c + uv.y * s, 
-                           -uv.x * s + uv.y * c);
+
   vec3 velocity = linearVelocity;
-  vec3 localPosition = // vec3(basisX * rotatedPoint.x +
-                       //      basisZ * rotatedPoint.y) * size +
-                       velocity * localTime +
+  vec3 localPosition = velocity * localTime +
                        // acceleration * localTime * localTime + 
-                       position;  // TEST: position, linearVelocity, angularVelocity
+                       position; 
                        
   outputPercentLife = percentLife;
   gl_PointSize = size; 

@@ -1,26 +1,13 @@
 import Shape from './shape.js';
 
-const UV_IDX = 0;
-const LIFE_TIME_IDX = 2;
-const FRAME_START_IDX = 3;
-const START_TIME_IDX = 4;
-const START_SIZE_IDX = 5;
-const END_SIZE_IDX = 6;
-const SPIN_START_IDX = 7;
-const SPIN_SPEED_IDX = 8;
-const PARTICLE_ID_IDX = 9;
-const COLOR_MULT_IDX = 10;
-const LAST_IDX = 14;
-
-const CORNERS_ = [
-    [-0.5, -0.5], 
-    [+0.5, -0.5],
-    [+0.5, +0.5],
-
-    [-0.5, -0.5], 
-    [+0.5, +0.5],
-    [-0.5, +0.5]
-];
+const LIFE_TIME_IDX = 0;
+const FRAME_START_IDX = 1;
+const START_TIME_IDX = 2;
+const START_SIZE_IDX = 3;
+const END_SIZE_IDX = 4;
+const PARTICLE_ID_IDX = 5;
+const COLOR_MULT_IDX = 6;
+const LAST_IDX = 10;
 
 export default class StaticEmitter extends Shape {
     static DEFAULT_DATA = {
@@ -36,10 +23,6 @@ export default class StaticEmitter extends Shape {
         startSizeRange: 0,
         endSize: 1,
         endSizeRange: 0,
-        spinStart: 0,
-        spinStartRange: 0,
-        spinSpeed: 0,
-        spinSpeedRange: 0,
         colorMult: [1, 1, 1, 1],
         colorMultRange: [0, 0, 0, 0]
     };
@@ -112,19 +95,13 @@ export default class StaticEmitter extends Shape {
             let pStartTime = data.duration / numParticle * ii;
             let pFrameStart = data.frameStart + plusMinus(data.frameStartRange);
             let pColorMult = addVector(data.colorMult, plusMinusVector(data.colorMultRange));
-            let pSpinStart = data.spinStart + plusMinus(data.spinStartRange);
-            let pSpinSpeed = data.spinSpeed + plusMinus(data.spinSpeedRange);
             let pStartSize = data.startSize + plusMinus(data.startSizeRange);
             let pEndSize = data.endSize + plusMinus(data.endSizeRange);
         
-            // make each corner of the particle
             var offset0 = 0;
             var offset1 = offset0 + 1;
             var offset2 = offset0 + 2;
             var offset3 = offset0 + 3;
-
-            bufferSubData[UV_IDX + offset0] = CORNERS_[0][0];
-            bufferSubData[UV_IDX + offset1] = CORNERS_[0][1];
 
             bufferSubData[LIFE_TIME_IDX + offset0] = pLifeTime;
 
@@ -135,10 +112,6 @@ export default class StaticEmitter extends Shape {
             bufferSubData[START_SIZE_IDX + offset0] = pStartSize; 
 
             bufferSubData[END_SIZE_IDX + offset0] = pEndSize;
-
-            bufferSubData[SPIN_START_IDX + offset0] = pSpinStart;
-
-            bufferSubData[SPIN_SPEED_IDX + offset0] = pSpinSpeed;
 
             bufferSubData[PARTICLE_ID_IDX + offset0] = ii;
 
@@ -158,13 +131,6 @@ export default class StaticEmitter extends Shape {
         const sizeofFloat = 4;
         const stride = sizeofFloat * LAST_IDX;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
-
-        gl.vertexAttribPointer(
-            material.dataLocation.attributes['uv'], 
-            2, gl.FLOAT, false, stride,
-            sizeofFloat * UV_IDX);
-        gl.enableVertexAttribArray(
-            material.dataLocation.attributes['uv']);
 
         gl.vertexAttribPointer(
             material.dataLocation.attributes['lifeTime'], 
@@ -202,20 +168,6 @@ export default class StaticEmitter extends Shape {
             material.dataLocation.attributes['endSize']);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['spinStart'], 
-            1, gl.FLOAT, false, stride,
-            sizeofFloat * SPIN_START_IDX);
-        gl.enableVertexAttribArray(
-            material.dataLocation.attributes['spinStart']);
-
-        gl.vertexAttribPointer(
-            material.dataLocation.attributes['spinSpeed'], 
-            1, gl.FLOAT, false, stride,
-            sizeofFloat * SPIN_SPEED_IDX);
-        gl.enableVertexAttribArray(
-            material.dataLocation.attributes['spinSpeed']);
-
-        gl.vertexAttribPointer(
             material.dataLocation.attributes['particleID'], 
             1, gl.FLOAT, false, stride,
             sizeofFloat * PARTICLE_ID_IDX);
@@ -232,14 +184,11 @@ export default class StaticEmitter extends Shape {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
         gl.drawArrays(gl.POINTS, 0, this.data.numParticle);
 
-        gl.disableVertexAttribArray(material.dataLocation.attributes['uv']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['lifeTime']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['frameStart']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['startTime']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['startSize']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['endSize']);
-        gl.disableVertexAttribArray(material.dataLocation.attributes['spinStart']);
-        gl.disableVertexAttribArray(material.dataLocation.attributes['spinSpeed']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['particleID']);
         gl.disableVertexAttribArray(material.dataLocation.attributes['colorMult']);
         

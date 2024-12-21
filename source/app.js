@@ -212,10 +212,10 @@ function initParticles() {
     const particleParams =  {
         numGen: 1,
         rate: 60,
-        duration: 10,  
+        duration: 20,  
         lifeTime: 10,   // 2
-        startSize: 5,  // 50
-        endSize: 50,    // 90
+        startSize: 70,  // 50
+        endSize: 150,    // 90
         velocity: [0, 0, 0],   // [0, 60, 0]
         velocityRange: [0, 0, 0],    // [15, 15, 15]
         fps: 36
