@@ -18,15 +18,15 @@ uniform sampler2D posSampler; // pos.xyzw, linearVel.xyzw, angularVel.xyzw
 #endif  /* MACRO ANI_TEX*/
 
 // attribute
-attribute float lifeTime;
-attribute float frameStart;
+//attribute float lifeTime;
 attribute float startTime;
-attribute float startSize;
-attribute float endSize;
-attribute float spinStart;
-attribute float spinSpeed;
+//attribute float frameStart;
+//attribute float startSize;
+//attribute float endSize;
+//attribute float spinStart;
+//attribute float spinSpeed;
 attribute float particleID;
-attribute vec4 colorMult;
+//attribute vec4 colorMult;
 
 varying float outputPercentLife;
 varying vec4 outputColorMult;
