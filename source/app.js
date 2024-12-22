@@ -35,10 +35,6 @@ let posTexture = null;
 
 const time = new Time();
 
-const floatTextures = gl.getExtension('OES_texture_float');
-if (!floatTextures) {
-    console.error('OES_texture_float is not supported');
-}
 const floatLinearTextures = gl.getExtension('OES_texture_float_linear');
 if (!floatLinearTextures) {
     console.warn('OES_texture_float_linear is not supported, using NEAREST filtering instead of LINEAR');
