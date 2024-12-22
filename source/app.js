@@ -163,7 +163,7 @@ function generateCirclePos(numParticle, generation) {
     const radius = 50;
 
     for(let row = 0; row < generation; row++) {
-        const offset = 2 * Math.PI / generation * row;// Math.random() *
+        const offset = 2 * Math.PI / generation * row;  // Math.random() *
         for (let col = 0; col < numParticle; col++) {
             const angle = 2 * Math.PI / (numParticle) * col;
             const x = radius * Math.cos(angle + offset);
@@ -180,7 +180,7 @@ function generateCirclePos(numParticle, generation) {
 // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
 // Math.Random()*2*PI ==> x,y
 // startTime: i*66.7/1000
-function generateCirclePosRandom(numParticle) {
+function generateCirclePosRandom(numParticle, startSize, endSize) {
     const posPixels = [];
     const radius = 50;
 
@@ -191,17 +191,15 @@ function generateCirclePosRandom(numParticle) {
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
 
-        posPixels.push(x, y, 0.0, 0.0);
+        posPixels.push(x, y, 0.0, startSize);
 
         // linearVelocity
         const tangentX = Math.sin(angle); 
         const tangentY = -Math.cos(angle);  
         const speed = (angle / (2 * Math.PI)) * 60;
 
-        posPixels.push(tangentX * speed, tangentY * speed, 0.0, 0.0);
+        posPixels.push(tangentX * speed, tangentY * speed, 0.0, endSize);
 
-        // angularVelocity
-        posPixels.push(0.0, 0.0, 0.0, 0.0);
     }
 
     return posPixels;
@@ -260,8 +258,9 @@ function initParticles() {
 
     posTexture = new Texture2D('posTexture');
     // const posPixels = generateCirclePos(numParticle, particleParams.numGen);
-    const posPixels = generateCirclePosRandom(numParticle)
-    posTexture.createTexture(gl, numParticle * 3, particleParams.numGen, posPixels);
+    const posPixels = generateCirclePosRandom(
+        numParticle, particleParams.startSize, particleParams.endSize);
+    posTexture.createTexture(gl, numParticle * 2, particleParams.numGen, posPixels);
 
     particleMaterial = new ParticleMaterial({
         shader: particleShader,
