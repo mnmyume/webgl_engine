@@ -35,10 +35,6 @@ let posTexture = null;
 
 const time = new Time();
 
-const floatLinearTextures = gl.getExtension('OES_texture_float_linear');
-if (!floatLinearTextures) {
-    console.warn('OES_texture_float_linear is not supported, using NEAREST filtering instead of LINEAR');
-}
 const g_fps = document.getElementById("fps");
 if (!g_fps) {
     console.log('fps error')

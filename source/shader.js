@@ -45,11 +45,11 @@ export default class Shader {
             // '#extension GL_EXT_draw_buffers:require', //https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_draw_buffers
             // 'precision mediump float;'
         ];
-        debugger;
-        for(const ext in this.extension){
+        for(const ext in this.extension)
             $assert( gl.getExtension(DERIVATIVES[ext]), {msg:`getExtension(${ext}) is not supported`})
-            directives.push(`#extension ${ext}:${this.extension[ext]}`)
-        }
+
+
+
         for(var i in (params.defines || [])){
             directives.push('#define ' + params.defines[i]);
         }
@@ -62,9 +62,14 @@ export default class Shader {
             {shader:this.vertex,source:this.vertSrc}
         ];
         for(let {shader,source} of shaders){
-            const {attributes, uniforms, code, file} = source
-            debugger;
-            gl.shaderSource(shader, (directives.join('\n') + '\n').concat(code));
+            const {attributes, uniforms, code, file} = source;
+
+            const extension = [];
+            for (const [key, value] of Object.entries(source.extension))
+                extension.push(`#extension ${key}:${value}`);
+
+
+            gl.shaderSource(shader, ([...directives,...extension].join('\n') + '\n').concat(code));
             gl.compileShader(shader);
             $assert(gl.getShaderParameter(shader, gl.COMPILE_STATUS), $getShaderInfo(this.name,gl,shader,file));
         }

@@ -1,5 +1,7 @@
 #include "./testFolder/aniTex.glsl"
 #extension GL_OES_texture_float : enable
+//https://registry.khronos.org/OpenGL/extensions/OES/OES_texture_float.txt
+#extension GL_OES_texture_float_linear : enable
 
 // uniform
 uniform mat4 uPMatrix;
