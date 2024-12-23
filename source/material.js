@@ -5,6 +5,7 @@ import Texture2D from './texture2d.js';
 export default class Material {
     textures = {};
     shaderProgram = null;
+    shader = null;
     dataLocation = {
         attributes: {},
         uniforms: {},
@@ -55,7 +56,6 @@ export default class Material {
 
         gl.bindTexture(gl.TEXTURE_2D, null);
         for(const [key,value] of Object.entries(this.textures)){
-            debugger;
             const texIndex = this.uniforms[key].value;
             gl.activeTexture(gl[`TEXTURE${texIndex}`]);
             gl.bindTexture(gl.TEXTURE_2D, value.texture);

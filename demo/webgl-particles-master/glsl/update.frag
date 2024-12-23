@@ -5,6 +5,8 @@ precision highp float;
 uniform sampler2D position;
 uniform sampler2D velocity;
 uniform sampler2D obstacles;
+
+
 uniform int derivative;
 uniform vec2 scale;
 uniform float random;

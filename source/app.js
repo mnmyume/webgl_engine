@@ -1,5 +1,6 @@
 import Shader from './shader.js';
 import Shape from './shape.js';
+import QuadShape from './quadShape.js';
 import Camera from './camera.js';
 import Material from './material.js';
 import Texture2D from './texture2d.js';
@@ -11,12 +12,7 @@ import ParticleMaterial from './particleMaterial.js';
 import {genPos, generateCirclePos, generateCirclePosRandom} from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag } from "../shaders/output.js";
-
-const canvas = document.getElementById('game-surface');
-const gl = canvas.getContext('webgl');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-gl.viewport(0, 0, canvas.width, canvas.height);
+import {quad} from "../shaders/glsl/index.js";
 
 // definite
 let quadShader = null;
@@ -32,7 +28,7 @@ let particleMaterial = null;
 let particleShape = null;
 let rampTexture = null;
 let colorTexture = null;
-let posTexture = null;
+let initPosValTexture = null;
 
 const time = new Time();
 
@@ -116,6 +112,47 @@ function initSimpleQuad() {
     drawSimpleQuad();
 }
 
+function initSolver(gl) {
+
+    // init quad shader
+    const quadShader = new Shader({
+        vertexSource: quad,
+        fragmentSource: basicFrag,
+    });
+    quadShader.initialize({ gl });
+
+
+    // init material
+    const quadMaterial = new Material({
+        shader: quadShader,
+    })
+    quadMaterial.initialize({ gl });
+
+
+    const quadShape = new QuadShape();
+    quadShape.initialize({ gl });
+
+    function drawScreenQuad() {
+
+        gl.clearColor(0.3, 0.3, 0.3, 1.0);
+        gl.colorMask(true, true, true, true);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.colorMask(true, true, true, false);
+
+        quadMaterial.draw(gl, camera, quadTransform);
+
+        quadShape.draw(gl, quadMaterial);
+
+        if (fpsCounter) {
+            fpsCounter.update();
+        }
+
+        requestAnimationFrame(drawScreenQuad);
+    }
+
+    drawScreenQuad();
+}
+
 function drawSimpleQuad() {
 
     gl.clearColor(0.3, 0.3, 0.3, 1.0);
@@ -185,11 +222,11 @@ function initParticles() {
         colorTexture.initialize({ gl });
     };
 
-    posTexture = new Texture2D('posTexture');
+    initPosValTexture = new Texture2D('initPosValTexture');
     // const posPixels = generateCirclePos(numParticle, particleParams.numGen);
     const posPixels = generateCirclePosRandom(
         numParticle, particleParams.startSize, particleParams.endSize);
-    posTexture.createTexture(gl, numParticle * 2, particleParams.numGen, posPixels);
+    initPosValTexture.createTexture(gl, numParticle * 2, particleParams.numGen, posPixels);
 
     particleMaterial = new ParticleMaterial({
         shader: particleShader,
@@ -206,7 +243,7 @@ function initParticles() {
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
     particleMaterial.setTexture('colorSampler', colorTexture);
-    particleMaterial.setTexture('posSampler', posTexture);
+    particleMaterial.setTexture('generatorSampler', initPosValTexture);
 
     particleShape = new StaticEmitter({data: {...particleParams, numParticle: numParticle}}, pseudoRandom);
     particleShape.initialize({ gl });
@@ -234,8 +271,17 @@ function drawParticles() {
 
 function main() {
 
+    const canvas = document.getElementById('game-surface');
+    const gl = canvas.getContext('webgl');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+
+
     // initSimpleQuad();
-    initParticles();
+    // initParticles();
+    initSolver(gl);
 }
 
 main();

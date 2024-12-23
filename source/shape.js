@@ -2,7 +2,7 @@ const GRID_INDEX_IDX = 0;
 const UV_IDX = 3;
 const LAST_IDX = 5;
 
-export default class Shape {
+export default class QuadShape {
     constructor(params = {}) {
         this.data = params.data;
         this.vertice = null;
@@ -18,7 +18,7 @@ export default class Shape {
     }
 
     setData(data) {
-        this.vertice = new Float32Array(data.vertice);
+        this.vertice = new Float32Array(data);
     }
 
     draw(gl, material) {
@@ -29,12 +29,12 @@ export default class Shape {
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['gridIndex'], 
+            material.dataLocation.attributes['vertex'],
             3, gl.FLOAT, false, stride, 
             sizeofFloat * GRID_INDEX_IDX
         );
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['gridIndex']);
+            material.dataLocation.attributes['vertex']);
 
         gl.vertexAttribPointer(
             material.dataLocation.attributes['uv'],
@@ -48,7 +48,7 @@ export default class Shape {
         gl.drawArrays(gl.TRIANGLES, 0, this.data.numParticle * 6); // TODO
 
         gl.disableVertexAttribArray(
-            material.dataLocation.attributes['gridIndex']);
+            material.dataLocation.attributes['vertex']);
         gl.disableVertexAttribArray(
             material.dataLocation.attributes['uv']);
     }

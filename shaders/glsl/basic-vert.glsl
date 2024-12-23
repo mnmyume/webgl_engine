@@ -1,6 +1,6 @@
 #include "./testFolder/aniTex.glsl"
 
-attribute vec3 gridIndex;
+attribute vec3 vertex;
 attribute vec2 uv;
 
 uniform mat4 uPMatrix;
@@ -11,9 +11,8 @@ varying vec2 vTexCoord;
 
 void main(void) {
 
-    vec3 origin = gridIndex;
     vec3 offset = vec3(uv.x, uv.y, 0);
-    vec3 position = origin + offset;
+    vec3 position = vertex + offset;
 
     gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(position, 1.0);
     vTexCoord = uv;

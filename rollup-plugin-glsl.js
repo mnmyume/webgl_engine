@@ -61,8 +61,8 @@ function addingLineNum(curFileIndex,srcPath, srcText){
 
 function filterSource(source){
 
-    source = source.replace(/#include[\s]+"(.+)"/gm, '');
-    source = source.replace(/#value[\s]+"(.+)"/gm, '');
+    source = source.replace(/#include[\s]+(.+)/gm, '');
+    source = source.replace(/#value[\s]+(.+)/gm, '');
     return source.replace(/#extension[\s]+(.+)/gm, '');
 }
 

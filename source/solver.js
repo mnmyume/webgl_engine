@@ -5,7 +5,11 @@ export class Solver{
 
 
     textures = [];
-    constructor() {
+    shader = null;
+    material = null;
+    constructor(params) {
+        this.shader = params.shader || null;
+        this.material = params.material || null;
     }
     initialize(gl){
 
