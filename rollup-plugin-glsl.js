@@ -9,7 +9,6 @@ const __filename = fileURLToPath(import.meta.url);
 // 👇️ "/home/john/Desktop/javascript"
 const __dirname = path.dirname(__filename);
 function compressShader(source) {
-    debugger;
     let needNewline = false;
     return source.replace(/\\(?:\r\n|\n\r|\n|\r)|\/\*.*?\*\/|\/\/(?:\\(?:\r\n|\n\r|\n|\r)|[^\n\r])*/g, "").split(/\n+/).reduce((result, line) => {
         line = line.trim().replace(/\s{2,}|\t/, " ");
@@ -46,8 +45,8 @@ function $match(regex, str) {
     return result;
 }
 
-function generateCode(attributes, uniforms, code) {
-    return `export default ${JSON.stringify({code,attributes,uniforms, file:Object.fromEntries(__FILE_MAP.entries())})}`;
+function generateCode(extension,attributes, uniforms, code) {
+    return `export default ${JSON.stringify({code,extension, attributes,uniforms, file:Object.fromEntries(__FILE_MAP.entries())})}`;
 }
 
 function addingLineNum(curFileIndex,srcPath, srcText){
@@ -60,10 +59,15 @@ function addingLineNum(curFileIndex,srcPath, srcText){
     return lines.join('');
 }
 
+function filterSource(source){
+
+    source = source.replace(/#include[\s]+"(.+)"/gm, '');
+    return source.replace(/#extension[\s]+(.+)/gm, '');
+}
+
 function addIncludeFiles(srcPath,source){
     const reg = /#include[\s]+"(.+)"/gm;
     const buffer =  $match(reg,source);
-    source = source.replace(reg, '');
 
     const result = [];
 
@@ -79,13 +83,21 @@ function addIncludeFiles(srcPath,source){
 
     return {
         includes: result.join(),
-        modifiedSource: source,
         curFileIndex:++fileIndex,
     }
 }
+function checkExt(source){
+    const buffer =  $match( /#extension[\s]+(\S+)[\s]*:[\s]*(\S+)/g, source);
+    const result = {};
+    for(let i = 0; i<buffer.length/3;i++)
+        result[buffer[3*i+1]] = buffer[3*i+2];
+    debugger;
 
-function checkKeyWordParams(key, source){
-    const buffer =  $match( new RegExp(`${key} (\\S+) (\\S+);`, 'g'), source);
+    return result;
+
+}
+function checkAttrUniformParams(key, source){
+    const buffer =  $match( new RegExp(`${key}[\\s]+(\\S+)[\\s]+(\\S+)[\\s]*;`, 'gm'), source);
     const result = {};
     for(let i = 0; i<buffer.length/3;i++)
         result[buffer[3*i+2]] = {type:buffer[3*i+1], value:null};
@@ -100,16 +112,24 @@ export default function glsl(options = {}) {
     return {
         name: 'glsl',
 
-        transform(source, id) {
+        transform(sourceRaw, id) {
             console.log(id);
             if (!filter(id)) return;
-            const {includes, modifiedSource,curFileIndex} = addIncludeFiles(path.dirname(id),source);
 
-            const attributeParmas = {...checkKeyWordParams('attribute', includes), ...checkKeyWordParams('attribute', modifiedSource)};
-            const uniformParams = {...checkKeyWordParams('uniform', includes), ...checkKeyWordParams('uniform', modifiedSource)};
-            const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,modifiedSource)}`;
-            const code = generateCode(attributeParmas, uniformParams, glslSrc),
-                    magicString = new MagicString(code);
+
+
+            const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
+
+
+            const extensionParmas = checkExt(sourceRaw);
+
+            const source = filterSource(sourceRaw);
+
+            const attributeParmas = {...checkAttrUniformParams('attribute', includes), ...checkAttrUniformParams('attribute', source)};
+            const uniformParams = {...checkAttrUniformParams('uniform', includes), ...checkAttrUniformParams('uniform', source)};
+            const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
+            const code = generateCode(extensionParmas,attributeParmas, uniformParams, glslSrc),
+                magicString = new MagicString(code);
             return { code: magicString.toString() };
         }
     };
