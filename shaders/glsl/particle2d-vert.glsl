@@ -14,7 +14,12 @@ uniform float numParticle;
 uniform float numGen;
 uniform vec3 gravity;
 uniform float lifeTime;
-uniform sampler2D posSampler; // pos.xyz, startSize.w, linearVel.xyz, endSize.w
+
+
+// PixelOne(pos.xyz, startSize.w) PixelTwo(linearVel.xyz, endSize.w)
+#value generatorSampler:2
+uniform sampler2D generatorSampler;
+
 
 #define ANI_TEX
 /* MACRO */
@@ -54,15 +59,15 @@ void main() {
   float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(numParticle);
   float posTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
-  vec3 position = texture2D(posSampler, posTexCoord).xyz;
-  float startSize = texture2D(posSampler, posTexCoord).w;
+  vec3 position = texture2D(generatorSampler, posTexCoord).xyz;
+  float startSize = texture2D(generatorSampler, posTexCoord).w;
 
   componentOffset = 1.0;
   float linearVelTexCoordU =  pidPixelsOffset(particleID, componentOffset) / pidPixels(numParticle);
   float linearVelTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 linearVelTexCoord = vec2(linearVelTexCoordU, linearVelTexCoordV);
-  vec3 linearVelocity = texture2D(posSampler, linearVelTexCoord).xyz;
-  float endSize = texture2D(posSampler, linearVelTexCoord).w;
+  vec3 linearVelocity = texture2D(generatorSampler, linearVelTexCoord).xyz;
+  float endSize = texture2D(generatorSampler, linearVelTexCoord).w;
 
   _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
 

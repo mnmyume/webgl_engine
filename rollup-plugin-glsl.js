@@ -62,6 +62,7 @@ function addingLineNum(curFileIndex,srcPath, srcText){
 function filterSource(source){
 
     source = source.replace(/#include[\s]+"(.+)"/gm, '');
+    source = source.replace(/#value[\s]+"(.+)"/gm, '');
     return source.replace(/#extension[\s]+(.+)/gm, '');
 }
 
@@ -86,12 +87,11 @@ function addIncludeFiles(srcPath,source){
         curFileIndex:++fileIndex,
     }
 }
-function checkExt(source){
-    const buffer =  $match( /#extension[\s]+(\S+)[\s]*:[\s]*(\S+)/g, source);
+function checkPreprocessor(key,source){
+    const buffer =  $match( new RegExp(`#${key}[\\s]+(\\S+)[\\s]*:[\\s]*(\\S+)`, 'gm'), source);
     const result = {};
     for(let i = 0; i<buffer.length/3;i++)
         result[buffer[3*i+1]] = buffer[3*i+2];
-    debugger;
 
     return result;
 
@@ -121,12 +121,16 @@ export default function glsl(options = {}) {
             const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
 
 
-            const extensionParmas = checkExt(sourceRaw);
-
+            const extensionParmas = checkPreprocessor('extension',sourceRaw);
             const source = filterSource(sourceRaw);
 
             const attributeParmas = {...checkAttrUniformParams('attribute', includes), ...checkAttrUniformParams('attribute', source)};
             const uniformParams = {...checkAttrUniformParams('uniform', includes), ...checkAttrUniformParams('uniform', source)};
+
+            const values = checkPreprocessor('value',sourceRaw);
+
+            for(const [key,value] of Object.entries(values))
+                uniformParams[key].value = value;
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
             const code = generateCode(extensionParmas,attributeParmas, uniformParams, glslSrc),
                 magicString = new MagicString(code);

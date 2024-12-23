@@ -1,6 +1,9 @@
 precision highp float;
 
+#value rampSampler:0
 uniform sampler2D rampSampler;
+
+#value colorSampler:1
 uniform sampler2D colorSampler;
 
 // Incoming variables from vertex shader

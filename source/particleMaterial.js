@@ -23,9 +23,7 @@ export default class ParticleMaterial extends Material{
     initialize({ gl }) {
         super.initialize({ gl });
 
-        this.uniforms["rampSampler"].value = 0;
-        this.uniforms["colorSampler"].value = 1;
-        this.uniforms["posSampler"].value = 2;
+
 
     }
 
