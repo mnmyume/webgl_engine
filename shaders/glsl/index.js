@@ -7,4 +7,4 @@ import particleFrag from './particle-frag.glsl';
 
 import quad from './quad.glsl';
 
-export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert,quad}
+export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, quad}

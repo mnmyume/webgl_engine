@@ -1,6 +1,6 @@
 
 
-export default class Shape {
+export default class QuadShape {
     constructor(params = {}) {
         this.vertice = null;
         this.verticeBuffer = null;
@@ -32,8 +32,7 @@ export default class Shape {
         gl.enableVertexAttribArray(
             material.dataLocation.attributes['quad']);
 
-
-
+            
         gl.drawArrays(gl.TRIANGLES, 0, 6);
 
         gl.disableVertexAttribArray(

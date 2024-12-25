@@ -35,7 +35,6 @@ export default class Shader {
         this.attributes = attributes;
         this.uniforms = uniforms;
         this.extension = extension;
-        debugger;
         this.compile(gl, this.params);
     }
     compile(gl,params){

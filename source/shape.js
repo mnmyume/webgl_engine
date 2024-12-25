@@ -1,8 +1,8 @@
-const GRID_INDEX_IDX = 0;
+const VERTEX_IDX = 0;
 const UV_IDX = 3;
 const LAST_IDX = 5;
 
-export default class QuadShape {
+export default class Shape {
     constructor(params = {}) {
         this.data = params.data;
         this.vertice = null;
@@ -31,7 +31,7 @@ export default class QuadShape {
         gl.vertexAttribPointer(
             material.dataLocation.attributes['vertex'],
             3, gl.FLOAT, false, stride, 
-            sizeofFloat * GRID_INDEX_IDX
+            sizeofFloat * VERTEX_IDX
         );
         gl.enableVertexAttribArray(
             material.dataLocation.attributes['vertex']);

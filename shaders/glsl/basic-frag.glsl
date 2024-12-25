@@ -1,4 +1,5 @@
 precision mediump float;
+
 varying vec2 vTexCoord;
 
 varying vec2 vUV;
