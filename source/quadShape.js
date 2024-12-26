@@ -1,17 +1,12 @@
+import Shape from './shape.js'
 
-
-export default class QuadShape {
+export default class QuadShape extends Shape {
     constructor(params = {}) {
-        this.vertice = null;
-        this.verticeBuffer = null;
+        super(params);
     }
 
     initialize({ gl }) {
-        this.verticeBuffer = gl.createBuffer();
-        this.setData();
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertice, gl.STATIC_DRAW); 
+        super.initialize({ gl });
     }
 
     setData() {
@@ -28,7 +23,7 @@ export default class QuadShape {
 
         gl.vertexAttribPointer(
             material.dataLocation.attributes['quad'],
-            3, gl.FLOAT, false, sizeofFloat * 2,0);
+            2, gl.FLOAT, false, sizeofFloat * 2, 0);
         gl.enableVertexAttribArray(
             material.dataLocation.attributes['quad']);
 

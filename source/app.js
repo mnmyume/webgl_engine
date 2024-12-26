@@ -53,14 +53,6 @@ function initSimpleQuad(gl, camera) {
     });
     quadShader.initialize({ gl });
 
-    // init texture
-    const quadImage = new Image();
-    quadImage.src = '../resources/crate.png';
-    const quadTexture = new Texture2D('crate', {
-        image: quadImage 
-    });
-    quadTexture.initialize({ gl });
-
     // init transform
     const quadTransform = new Transform();
     quadTransform.setPosition(0, 0, 0);
@@ -72,15 +64,10 @@ function initSimpleQuad(gl, camera) {
     quadMaterial.initialize({ gl });
     // quadMaterial.setTexture('uTexture', quadTexture); 
 
-    let posArray = genPos();
-    let outArray = [];
-    for (let pos of posArray) {
-        genQuadWithUV(outArray, pos);
-    }
-
     const quadShape = new Shape({
         data: {
-            vertice: outArray
+            vertice: [-1,-1,    1,-1,   -1,1,
+                      -1,1,     1,-1,   1,1  ]
         }
     });
     quadShape.initialize({ gl });
@@ -115,6 +102,10 @@ function initSolver(gl, camera) {
     });
     quadShader.initialize({ gl });
 
+    // init quad transform
+    const quadTransform = new Transform();
+    quadTransform.setPosition(0, 0, 0);
+
     // init material
     const quadMaterial = new Material({
         shader: quadShader,
@@ -125,13 +116,13 @@ function initSolver(gl, camera) {
     quadShape.initialize({ gl });
 
     function drawScreenQuad() {
-
+        time.update();
         gl.clearColor(0.3, 0.3, 0.3, 1.0);
         gl.colorMask(true, true, true, true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.colorMask(true, true, true, false);
 
-        quadMaterial.draw(gl, camera, quadTransform);
+        quadMaterial.draw(gl, time, camera, quadTransform);
 
         quadShape.draw(gl, quadMaterial);
 
@@ -258,9 +249,9 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    // initSimpleQuad(gl, camera);
-    initParticles(gl, camera);
+    initSimpleQuad(gl, camera);
     // initSolver(gl, camera);
+    // initParticles(gl, camera);
 }
 
 main();

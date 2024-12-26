@@ -48,9 +48,7 @@ export default class Material {
         this.textures[key] = texture;
     };
 
-    draw(gl, time, camera, transform) {
-
-        this.uniforms["time"].value = time.ElapsedTime;
+    draw(gl, camera, transform) {
 
         gl.useProgram(this.shaderProgram);
 

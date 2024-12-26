@@ -22,14 +22,13 @@ export default class ParticleMaterial extends Material{
 
     initialize({ gl }) {
         super.initialize({ gl });
-
-
-
     }
 
 
 
     draw(gl, time, camera, transform) {
+
+        this.uniforms["time"].value = time.ElapsedTime;
 
         this.uniforms["duration"].value = this.duration;
         this.uniforms["numParticle"].value = this.numParticle;
@@ -42,7 +41,7 @@ export default class ParticleMaterial extends Material{
 
         this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
 
-        super.draw(gl, time, camera, transform);
+        super.draw(gl, camera, transform);
 
     }
 }

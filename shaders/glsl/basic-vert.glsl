@@ -7,7 +7,7 @@ uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uMMatrix;
 
-varying vec2 vTexCoord;
+varying vec2 vUV;
 
 void main(void) {
 
@@ -15,5 +15,5 @@ void main(void) {
     vec3 position = vertex + offset;
 
     gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(position, 1.0);
-    vTexCoord = uv;
+    vUV = uv;
 }
