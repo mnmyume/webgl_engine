@@ -41,6 +41,10 @@ export default class ParticleMaterial extends Material{
 
         this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
 
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.blendEquation(gl.FUNC_ADD);
+
         super.draw(gl, camera, transform);
 
     }

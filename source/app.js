@@ -11,7 +11,7 @@ import StaticEmitter from './staticEmitter.js';
 import ParticleMaterial from './particleMaterial.js';
 import { genPos, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
-import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quad } from "../shaders/output.js";
+import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag} from "../shaders/output.js";
 
 const time = new Time();
 
@@ -95,9 +95,20 @@ function initSimpleQuad(gl, camera) {
 
 function initSolver(gl, camera) {
 
+    const solverShader = new Shader({
+        vertexSource: quadVert,
+        fragmentSource: solverFrag,
+    });
+    const solverMaterial = new Material({
+        shader: solverShader,
+    })
+    solverMaterial.initialize({ gl });
+
+    const solver = new Solver({material:solverMaterial});
+    solver.initialize({gl});
     // init quad shader
     const quadShader = new Shader({
-        vertexSource: quad,
+        vertexSource: quadVert,
         fragmentSource: basicFrag,
     });
     quadShader.initialize({ gl });
@@ -111,7 +122,7 @@ function initSolver(gl, camera) {
         shader: quadShader,
     })
     quadMaterial.initialize({ gl });
-
+    quadMaterial.setTexture(solver.frontBuffer[0]);
     const quadShape = new QuadShape();
     quadShape.initialize({ gl });
 
@@ -163,14 +174,26 @@ function initParticles(gl, camera) {
     particleTransform.setPosition(0, 0, 0);
 
     // init particle texture
-    const rampTexture = new Texture2D('rampTexture');
-    rampTexture.setColorRamp(gl,
-        [1, 1, 0, 1,
+    // const rampTexture = new Texture2D('rampTexture');
+    // rampTexture.setColorRamp(gl,
+    //     [1, 1, 0, 1,
+    //         1, 0, 0, 1,
+    //         0, 0, 0, 1,
+    //         0, 0, 0, 0.5,
+    //         0, 0, 0, 0
+    //     ]);
+
+    const rampTexture = new Texture2D('rampTexture', {
+        width:5,height:1,
+        data:[1, 1, 0, 1,
             1, 0, 0, 1,
             0, 0, 0, 1,
             0, 0, 0, 0.5,
             0, 0, 0, 0
-        ]);
+        ]});
+    rampTexture.initialize({gl});
+
+
 
     const colorTextureImage = new Image();
     const colorTexture = new Texture2D('colorTexture', {
@@ -249,8 +272,8 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    initSimpleQuad(gl, camera);
-    // initSolver(gl, camera);
+    // initSimpleQuad(gl, camera);
+    initSolver(gl, camera);
     // initParticles(gl, camera);
 }
 

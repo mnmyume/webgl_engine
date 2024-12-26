@@ -1,7 +1,6 @@
 #ifdef GL_ES
 precision highp float;
 #endif
-
 uniform sampler2D position;
 uniform sampler2D velocity;
 uniform sampler2D obstacles;

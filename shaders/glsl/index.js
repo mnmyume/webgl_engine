@@ -5,6 +5,7 @@ import particle3dVert from './particle3d-vert.glsl';
 import particle2dVert from './particle2d-vert.glsl';
 import particleFrag from './particle-frag.glsl';
 
-import quad from './quad.glsl';
+import quadVert from './quad-vert.glsl';
+import solverFrag from './solver-frag.glsl';
 
-export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, quad}
+export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, quadVert,solverFrag}

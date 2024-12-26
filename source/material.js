@@ -59,9 +59,9 @@ export default class Material {
             gl.bindTexture(gl.TEXTURE_2D, value.texture);
         }
 
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-        gl.blendEquation(gl.FUNC_ADD);
+        // gl.enable(gl.BLEND);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        // gl.blendEquation(gl.FUNC_ADD);
 
         for(var name in this.uniforms){
             const data = this.uniforms[name];
@@ -87,7 +87,7 @@ export default class Material {
         if (this.dataLocation.uniforms["uVInverseMatrix"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uVInverseMatrix"], false, camera.viewInverseMatrix);
         }
-        if (this.dataLocation.uniforms["uMMatrix"]) {
+        if (this.dataLocation.uniforms["uMMatrix"] && transform) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
         }
 
