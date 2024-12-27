@@ -185,36 +185,32 @@ function initParticles(gl, camera) {
 
     const rampTexture = new Texture2D('rampTexture', {
         width:5,height:1,
-        data:[1, 1, 0, 1,
+        data:new Float32Array([1, 1, 0, 1,
             1, 0, 0, 1,
             0, 0, 0, 1,
             0, 0, 0, 0.5,
             0, 0, 0, 0
-        ]});
+        ])});
     rampTexture.initialize({gl});
 
 
 
     const colorTextureImage = new Image();
+    colorTextureImage.src = '../resources/fire/7761.png';
     const colorTexture = new Texture2D('colorTexture', {
         image: colorTextureImage,
-        textureSetting: {
-            wrapS:'CLAMP_TO_EDGE',
-            wrapT:'CLAMP_TO_EDGE',
-            scaleDown:'LINEAR',
-            scaleUp:'LINEAR'
-        }
+        scaleDown:'LINEAR',
+        scaleUp:'LINEAR'
     });
-    colorTexture.params.image.src = '../resources/fire/7761.png';
-    colorTexture.params.image.onload = () => {
-        colorTexture.initialize({ gl });
-    };
+    colorTexture.initialize({ gl });
 
-    const initPosValTexture = new Texture2D('initPosValTexture');
-    // const posPixels = generateCirclePos(numParticle, particleParams.numGen);
     const posPixels = generateCirclePosRandom(
         numParticle, particleParams.startSize, particleParams.endSize);
-    initPosValTexture.createTexture(gl, numParticle * 2, particleParams.numGen, posPixels);
+    const initPosValTexture = new Texture2D('initPosValTexture', {
+        width: numParticle * 2, height: particleParams.numGen,
+        data: new Float32Array(posPixels)
+    });
+    initPosValTexture.initialize({ gl });
 
     const particleMaterial = new ParticleMaterial({
         shader: particleShader,
@@ -273,8 +269,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    initSolver(gl, camera);
-    // initParticles(gl, camera);
+    // initSolver(gl, camera);
+    initParticles(gl, camera);
 }
 
 main();
