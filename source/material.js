@@ -46,7 +46,7 @@ export default class Material {
         $assert(texture instanceof Texture2D);
         $assert(this.uniforms[key]);
         this.textures[key] = texture;
-    };
+    }
 
     preDraw(gl, camera, transform) {
 
@@ -90,8 +90,8 @@ export default class Material {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
         }
 
-
     }
+
     afterDraw(gl){
         gl.useProgram(null);
         for(const [key,value] of Object.entries(this.textures)){

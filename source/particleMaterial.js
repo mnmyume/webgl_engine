@@ -26,7 +26,7 @@ export default class ParticleMaterial extends Material{
 
 
 
-    draw(gl, time, camera, transform) {
+    preDraw(gl, time, camera, transform) {
 
         this.uniforms["time"].value = time.ElapsedTime;
 
@@ -45,7 +45,7 @@ export default class ParticleMaterial extends Material{
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         gl.blendEquation(gl.FUNC_ADD);
 
-        super.draw(gl, camera, transform);
+        super.preDraw(gl, camera, transform);
 
     }
 }

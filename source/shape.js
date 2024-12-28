@@ -3,9 +3,10 @@ const UV_IDX = 3;
 const LAST_IDX = 5;
 
 export default class Shape {
+    vertice = null;
+    verticeBuffer = null;
     constructor(params = {}) {
-        this.data = params.data;
-        this.vertice = null;
+        this.data = params.data || null;
         this.verticeBuffer = null;
     }
 
@@ -19,6 +20,7 @@ export default class Shape {
 
     setData(data) {
         this.vertice = new Float32Array(data);
+        console.log(this.vertice);
     }
 
     draw(gl, material) {
@@ -27,7 +29,6 @@ export default class Shape {
         const stride = sizeofFloat * LAST_IDX;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
         gl.vertexAttribPointer(
             material.dataLocation.attributes['vertex'],
             3, gl.FLOAT, false, stride, 

@@ -12,22 +12,20 @@ export default class StaticEmitter extends Shape {
         startTime: 0,
     };
     particleBuffer = null;
-    bufferSubData = new Float32Array(6 * LAST_IDX);
+    bufferSubData = new Float32Array(LAST_IDX);
 
-    constructor(params = {}, opt_randomFunction) {
+    constructor(params = {}) {
         super(params);
         this.data = {
             ...StaticEmitter.DEFAULT_DATA,  
             ...params.data,         
         };
-        this.randomFunction_ = opt_randomFunction || (() => Math.random());
     }
 
     initialize({ gl }) {
         
         this.particleBuffer = gl.createBuffer();
 
-        // Set data
         this.setData(gl, this.data);
 
     };
@@ -51,43 +49,15 @@ export default class StaticEmitter extends Shape {
     createParticles(gl, firstParticleIndex, numParticle) {
         const bufferSubData = this.bufferSubData;
         const data = this.data;
-        let random = this.randomFunction_;
-
-        let addVector = function(a, b) {
-            let r = [];
-            let aLength = a.length;
-            for(let i = 0; i < aLength; ++i)
-                r[i] = a[i] + b[i];
-            return r;
-        }
-        
-        let plusMinus = function(range) {
-            return (random() - 0.5) * range * 2;
-        };
-
-        let plusMinusVector = function(range) {
-            let v = [];
-            for (let ii = 0; ii < range.length; ++ii) {
-                v.push(plusMinus(range[ii]));
-            }
-            return v;
-        };
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
 
         for (let ii = 0; ii < numParticle; ++ii) {
             let pStartTime = data.duration / numParticle * ii;
-            // let pStartSize = data.startSize + plusMinus(data.startSizeRange);
-            // let pEndSize = data.endSize + plusMinus(data.endSizeRange);
-        
-            var offset0 = 0;
-            var offset1 = offset0 + 1;
-            var offset2 = offset0 + 2;
-            var offset3 = offset0 + 3;
 
-            bufferSubData[START_TIME_IDX + offset0] = pStartTime;
+            bufferSubData[START_TIME_IDX] = pStartTime;
 
-            bufferSubData[PARTICLE_ID_IDX + offset0] = ii;
+            bufferSubData[PARTICLE_ID_IDX] = ii;
             
             gl.bufferSubData(gl.ARRAY_BUFFER,
                 bufferSubData.byteLength * (ii + firstParticleIndex),

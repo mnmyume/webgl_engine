@@ -15,19 +15,11 @@ import { genPos, generateCirclePos, generateCirclePosRandom } from './generatorH
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag} from "../shaders/output.js";
 
 const time = new Time();
-
 const g_fps = document.getElementById("fps");
 if (!g_fps) {
     console.log('fps error')
 }
 const fpsCounter = new FPSCounter(g_fps);
-
-let g_randSeed = 0;
-let g_randRange = Math.pow(2, 32);
-function pseudoRandom() {
-    return (g_randSeed = (134775813 * g_randSeed + 1) % g_randRange) /
-        g_randRange;
-}
 
 function genQuadWithUV(out, index) {
     const uvCoordinates = [
@@ -63,13 +55,12 @@ function initSimpleQuad(gl, camera) {
         shader: quadShader,
     })
     quadMaterial.initialize({ gl });
-    // quadMaterial.setTexture('uTexture', quadTexture); 
 
+    // init shape
+    let pos = [];
+    genQuadWithUV(pos, [0,0,0]);
     const quadShape = new Shape({
-        data: {
-            vertice: [-1,-1,    1,-1,   -1,1,
-                      -1,1,     1,-1,   1,1  ]
-        }
+        data: pos
     });
     quadShape.initialize({ gl });
 
@@ -79,9 +70,11 @@ function initSimpleQuad(gl, camera) {
         gl.colorMask(true, true, true, true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
-        quadMaterial.draw(gl, camera, quadTransform);
+        quadMaterial.preDraw(gl, camera, quadTransform);
     
         quadShape.draw(gl, quadMaterial);
+
+        quadMaterial.afterDraw(gl);
     
         if (fpsCounter) {
             fpsCounter.update();
@@ -201,16 +194,14 @@ function initParticles(gl, camera) {
     //     ]);
 
     const rampTexture = new Texture2D('rampTexture', {
-        width:5,height:1,
+        width:5, height:1,
         data:new Float32Array([1, 1, 0, 1,
             1, 0, 0, 1,
             0, 0, 0, 1,
             0, 0, 0, 0.5,
             0, 0, 0, 0
         ])});
-    rampTexture.initialize({gl});
-
-
+    rampTexture.initialize({ gl });
 
     const colorTextureImage = new Image();
     colorTextureImage.src = '../resources/fire/7761.png';
@@ -231,14 +222,11 @@ function initParticles(gl, camera) {
 
     const particleMaterial = new ParticleMaterial({
         shader: particleShader,
-
         tileSize: 128,
         texWidth: 768,
         texHeight: 768,
         numFrames: 36,
-
         numParticle, 
-        
         ...particleParams,
     })
     particleMaterial.initialize({ gl });
@@ -246,7 +234,9 @@ function initParticles(gl, camera) {
     particleMaterial.setTexture('colorSampler', colorTexture);
     particleMaterial.setTexture('generatorSampler', initPosValTexture);
 
-    const particleShape = new StaticEmitter({data: {...particleParams, numParticle: numParticle}}, pseudoRandom);
+    const particleShape = new StaticEmitter({
+        data: {...particleParams, numParticle: numParticle}
+    });
     particleShape.initialize({ gl });
 
     function drawParticles() {
@@ -256,9 +246,11 @@ function initParticles(gl, camera) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.colorMask(true, true, true, false);
     
-        particleMaterial.draw(gl, time, camera, particleTransform);
+        particleMaterial.preDraw(gl, time, camera, particleTransform);
     
         particleShape.draw(gl, particleMaterial);
+
+        particleMaterial.afterDraw(gl);
     
         if (fpsCounter) {
             fpsCounter.update();
@@ -285,8 +277,8 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    // initSimpleQuad(gl, camera);
-    initSolver(gl, camera);
+    initSimpleQuad(gl, camera);
+    // initSolver(gl, camera);
     // initParticles(gl, camera);
 }
 
