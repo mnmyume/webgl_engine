@@ -65,7 +65,7 @@ export class Solver{
         );
     }
 
-    update(gl, frontBuffer){
+    update(gl){
         // gl.disable(gl.BLEND);
         const ext = this.ext;
 

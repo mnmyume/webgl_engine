@@ -1,10 +1,13 @@
 export function $assert(condition,msg){
     if(!condition){
 
-        for(const line of msg.replaceAll('\x00','').split('\n')){
-            if(line)
-                console.warn(line);
-        }
+        if(msg)
+            for(const line of msg.replaceAll('\x00','').split('\n')){
+                if(line)
+                    console.warn(line);
+            }
+        else
+            debugger;
 
         throw new Error(msg);
     }

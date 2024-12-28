@@ -1,3 +1,5 @@
+precision highp float;
+#extension GL_EXT_draw_buffers : require
 #value position:0
 uniform sampler2D position;
 #value velociy:1
