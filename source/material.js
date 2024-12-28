@@ -48,11 +48,10 @@ export default class Material {
         this.textures[key] = texture;
     };
 
-    draw(gl, camera, transform) {
+    preDraw(gl, camera, transform) {
 
         gl.useProgram(this.shaderProgram);
 
-        gl.bindTexture(gl.TEXTURE_2D, null);
         for(const [key,value] of Object.entries(this.textures)){
             const texIndex = this.uniforms[key].value;
             gl.activeTexture(gl[`TEXTURE${texIndex}`]);
@@ -91,5 +90,14 @@ export default class Material {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
         }
 
+
+    }
+    afterDraw(gl){
+        gl.useProgram(null);
+        for(const [key,value] of Object.entries(this.textures)){
+            const texIndex = this.uniforms[key].value;
+            gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+        }
     }
 }

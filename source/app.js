@@ -106,8 +106,7 @@ function initSolver(gl, camera) {
     })
     solverMaterial.initialize({ gl });
 
-    const solver = new Solver({material:solverMaterial});
-    solver.initialize({gl});
+
     // init quad shader
     const quadShader = new Shader({
         vertexSource: quadVert,
@@ -128,6 +127,14 @@ function initSolver(gl, camera) {
     quadShape.initialize({ gl });
 
 
+    const solver = new Solver({
+        shape:quadShape,
+        material:solverMaterial
+    }
+    );
+    solver.initialize({gl});
+
+
     function drawScreenQuad() {
         time.update();
 
@@ -135,17 +142,17 @@ function initSolver(gl, camera) {
         solver.update(gl);
         solver.swap();
 
-        quadMaterial.setTexture('texture',solver.backBuffer[0]);
-
-        gl.clearColor(0, 0, 0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.colorMask(true, true, true, true);
-
-
-
-        quadMaterial.draw(gl, time, camera, quadTransform);
-
-        quadShape.draw(gl, quadMaterial);
+        // quadMaterial.setTexture('texture',solver.backBuffer[0]);
+        //
+        // gl.clearColor(0, 0, 0, 1.0);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // gl.colorMask(true, true, true, true);
+        //
+        //
+        //
+        // quadMaterial.draw(gl, time, camera, quadTransform);
+        //
+        // quadShape.draw(gl, quadMaterial);
 
         if (fpsCounter) {
             fpsCounter.update();

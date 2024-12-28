@@ -13,6 +13,7 @@ export class Solver{
     ext = null;
     constructor(params) {
         this.shader = params.shader || null;
+        this.shape = params.shape || null;
         this.material = params.material || null;
     }
     initialize({gl}){
@@ -67,13 +68,6 @@ export class Solver{
             this.frontBuffer[3].texture,
             0,
         );
-    }
-
-    update(gl){
-        // gl.disable(gl.BLEND);
-        const ext = this.ext;
-
-        this.material.draw(gl);
 
         ext.drawBuffersWEBGL([
             ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
@@ -81,7 +75,14 @@ export class Solver{
             ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
             ext.COLOR_ATTACHMENT3_WEBGL, // gl_FragData[3]
         ]);
+    }
 
+    update(gl){
+        // gl.disable(gl.BLEND);
+
+        this.material.preDraw(gl);
+        this.shape.draw(gl, this.material);
+        this.material.afterDraw(gl);
     }
 
     swap(){

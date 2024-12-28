@@ -379,7 +379,6 @@ define([
         ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
         ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
       ]);
-
       if (!gl.isFramebuffer(buf.frameBuffer)) {
         console.error("Frame buffer failed");
       }
