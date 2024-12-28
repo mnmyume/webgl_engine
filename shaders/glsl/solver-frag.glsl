@@ -9,8 +9,8 @@ varying vec2 vUV;
 
 void main() {
 
-    vec4 psample = texture2D(position, vUV);
-    vec4 vsample = texture2D(velocity, vUV);
+    // vec4 psample = texture2D(position, vUV);
+    // vec4 vsample = texture2D(velocity, vUV);
 
 
     //STEP one

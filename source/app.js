@@ -9,6 +9,7 @@ import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import StaticEmitter from './staticEmitter.js';
 import ParticleMaterial from './particleMaterial.js';
+import { Solver } from './solver.js';
 import { genPos, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag} from "../shaders/output.js";
@@ -99,6 +100,8 @@ function initSolver(gl, camera) {
         vertexSource: quadVert,
         fragmentSource: solverFrag,
     });
+    solverShader.initialize({ gl })
+
     const solverMaterial = new Material({
         shader: solverShader,
     })
@@ -269,8 +272,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    // initSolver(gl, camera);
-    initParticles(gl, camera);
+    initSolver(gl, camera);
+    // initParticles(gl, camera);
 }
 
 main();
