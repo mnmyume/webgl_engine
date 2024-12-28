@@ -31,17 +31,18 @@ export default class Texture2D {
 
     initialize({ gl }) {
 
-        this.image = this.params.image??null;
-        this.data = this.params.data??null;
+        this.image = this.params?.image??null;
+        this.data = this.params?.data??null;
 
         $assert(
-            this.data instanceof Float32Array
-            ||(this.image instanceof Image ||
+            this.data == null||
+            this.data instanceof Float32Array||
+            (this.image instanceof Image ||
                 this.image instanceof HTMLCanvasElement));
 
 
-        this.width = this.params.width??512;
-        this.height = this.params.height??512;
+        this.width = this.params?.width??512;
+        this.height = this.params?.height??512;
        
 
         __textures[this.name] = {img:this.image, name:this.name};
@@ -82,7 +83,7 @@ export default class Texture2D {
     setData(gl,data){
         if(data instanceof Image || data instanceof HTMLCanvasElement)
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
-        else if(data instanceof Float32Array){
+        else{
             $assert(this.width && this.height);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.FLOAT, data);
 

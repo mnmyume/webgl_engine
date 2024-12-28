@@ -6,8 +6,7 @@ export class FrameBuffer extends Texture2D{
     texture = null;
     params = null;
     constructor(name = 'frameBuffer', params) {
-        super();
-
+        super(name,params);
     }
 
     swap(frameBuffer){

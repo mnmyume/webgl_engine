@@ -31,6 +31,10 @@ export class Solver{
             new FrameBuffer('bFrameBuff2'),
             new FrameBuffer('bFrameBuff3'),
         ];
+
+        for(const frameBuff of [...this.frontBuffer,...this.backBuffer])
+            frameBuff.initialize({gl});
+
         const ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(ext);
         const fb = gl.createFramebuffer();

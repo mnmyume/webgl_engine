@@ -78,7 +78,6 @@ function initSimpleQuad(gl, camera) {
         gl.clearColor(0.3, 0.3, 0.3, 1.0);
         gl.colorMask(true, true, true, true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.colorMask(true, true, true, false);
     
         quadMaterial.draw(gl, camera, quadTransform);
     
@@ -109,7 +108,6 @@ function initSolver(gl, camera) {
 
     const solver = new Solver({material:solverMaterial});
     solver.initialize({gl});
-    solver.update(gl);
     // init quad shader
     const quadShader = new Shader({
         vertexSource: quadVert,
@@ -126,32 +124,37 @@ function initSolver(gl, camera) {
         shader: quadShader,
     })
     quadMaterial.initialize({ gl });
-    quadMaterial.setTexture('texture',solver.frontBuffer[0]);
     const quadShape = new QuadShape();
     quadShape.initialize({ gl });
 
-    quadMaterial.draw(gl, time, camera, quadTransform);
-    quadShape.draw(gl, quadMaterial);
 
-    // function drawScreenQuad() {
-    //     time.update();
-    //     gl.clearColor(0.3, 0.3, 0.3, 1.0);
-    //     gl.colorMask(true, true, true, true);
-    //     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //     gl.colorMask(true, true, true, false);
-    //
-    //     quadMaterial.draw(gl, time, camera, quadTransform);
-    //
-    //     quadShape.draw(gl, quadMaterial);
-    //
-    //     if (fpsCounter) {
-    //         fpsCounter.update();
-    //     }
-    //
-    //     requestAnimationFrame(drawScreenQuad);
-    // }
+    function drawScreenQuad() {
+        time.update();
 
-    // drawScreenQuad();
+
+        solver.update(gl);
+        solver.swap();
+
+        quadMaterial.setTexture('texture',solver.backBuffer[0]);
+
+        gl.clearColor(0, 0, 0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.colorMask(true, true, true, true);
+
+
+
+        quadMaterial.draw(gl, time, camera, quadTransform);
+
+        quadShape.draw(gl, quadMaterial);
+
+        if (fpsCounter) {
+            fpsCounter.update();
+        }
+
+        requestAnimationFrame(drawScreenQuad);
+    }
+
+    drawScreenQuad();
 }
 
 function initParticles(gl, camera) {
