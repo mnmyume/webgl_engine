@@ -11,6 +11,7 @@ export class Solver{
     shader = null;
     material = null;
     ext = null;
+    framebuffer = null;
     constructor(params) {
         this.shader = params.shader || null;
         this.shape = params.shape || null;
@@ -36,11 +37,14 @@ export class Solver{
         for(const frameBuff of [...this.frontBuffer,...this.backBuffer])
             frameBuff.initialize({gl});
 
-
-        const ext = gl.getExtension("WEBGL_draw_buffers");
-        $assert(ext);
         const fb = gl.createFramebuffer();
-        gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+        this.framebuffer = fb;
+    }
+
+    attach(gl){
+        const ext = this.ext;
+        $assert(ext);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
             ext.COLOR_ATTACHMENT0_WEBGL,
@@ -78,12 +82,54 @@ export class Solver{
         ]);
     }
 
+    detach(gl){
+
+        const ext = this.ext;
+        $assert(ext);
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            ext.COLOR_ATTACHMENT0_WEBGL,
+            gl.TEXTURE_2D,
+            null,
+            0,
+        );
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            ext.COLOR_ATTACHMENT1_WEBGL,
+            gl.TEXTURE_2D,
+            null,
+            0,
+        );
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            ext.COLOR_ATTACHMENT2_WEBGL,
+            gl.TEXTURE_2D,
+            null,
+            0,
+        );
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            ext.COLOR_ATTACHMENT3_WEBGL,
+            gl.TEXTURE_2D,
+            null,
+            0,
+        );
+
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
     update(gl){
         // gl.disable(gl.BLEND);
-
+        this.attach(gl);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
         this.material.postDraw(gl);
+        gl.flush();
+
+
+        this.swap();
+        this.detach(gl);
     }
 
     swap(){

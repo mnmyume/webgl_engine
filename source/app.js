@@ -127,26 +127,30 @@ function initSolver(gl, camera) {
     );
     solver.initialize({gl});
 
-    solver.update(gl);
-    // solver.swap();
+    //
 
     function drawScreenQuad() {
         time.update();
 
-
-
-        // quadMaterial.setTexture('texture',solver.backBuffer[0]);
-
         gl.clearColor(0, 0, 0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.colorMask(true, true, true, true);
-        debugger;
+
+        solver.update(gl);
+
+        //({0.5}) ===> solver.backBuffer[0]
+
+
+        quadMaterial.setTexture('texture',solver.frontBuffer[1]);
+
+        // solver.swap();
+
 
         quadMaterial.preDraw(gl, time, camera, quadTransform);
 
         quadShape.draw(gl, quadMaterial);
         quadMaterial.postDraw(gl, time, camera, quadTransform);
-
+        //
         if (fpsCounter) {
             fpsCounter.update();
         }
