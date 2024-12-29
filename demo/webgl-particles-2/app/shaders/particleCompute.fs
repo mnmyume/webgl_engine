@@ -67,4 +67,5 @@ void main() {
 
   // write out data
   gl_FragData[0] = vec4(pos, 1.0);
-  gl_FragData[1] = vec4(vel, 1.0);ß
+  gl_FragData[1] = vec4(vel, 1.0);
+  }

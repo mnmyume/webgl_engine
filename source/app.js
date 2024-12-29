@@ -277,8 +277,8 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    initSimpleQuad(gl, camera);
-    // initSolver(gl, camera);
+    // initSimpleQuad(gl, camera);
+    initSolver(gl, camera);
     // initParticles(gl, camera);
 }
 
