@@ -74,7 +74,7 @@ function initSimpleQuad(gl, camera) {
     
         quadShape.draw(gl, quadMaterial);
 
-        quadMaterial.afterDraw(gl);
+        quadMaterial.postDraw(gl);
     
         if (fpsCounter) {
             fpsCounter.update();
@@ -127,25 +127,25 @@ function initSolver(gl, camera) {
     );
     solver.initialize({gl});
 
+    solver.update(gl);
+    // solver.swap();
 
     function drawScreenQuad() {
         time.update();
 
 
-        solver.update(gl);
-        solver.swap();
 
         // quadMaterial.setTexture('texture',solver.backBuffer[0]);
-        //
-        // gl.clearColor(0, 0, 0, 1.0);
-        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        // gl.colorMask(true, true, true, true);
-        //
-        //
-        //
-        // quadMaterial.draw(gl, time, camera, quadTransform);
-        //
-        // quadShape.draw(gl, quadMaterial);
+
+        gl.clearColor(0, 0, 0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.colorMask(true, true, true, true);
+        debugger;
+
+        quadMaterial.preDraw(gl, time, camera, quadTransform);
+
+        quadShape.draw(gl, quadMaterial);
+        quadMaterial.postDraw(gl, time, camera, quadTransform);
 
         if (fpsCounter) {
             fpsCounter.update();
@@ -250,7 +250,7 @@ function initParticles(gl, camera) {
     
         particleShape.draw(gl, particleMaterial);
 
-        particleMaterial.afterDraw(gl);
+        particleMaterial.postDraw(gl);
     
         if (fpsCounter) {
             fpsCounter.update();

@@ -92,7 +92,7 @@ export default class Material {
 
     }
 
-    afterDraw(gl){
+    postDraw(gl){
         gl.useProgram(null);
         for(const [key,value] of Object.entries(this.textures)){
             const texIndex = this.uniforms[key].value;

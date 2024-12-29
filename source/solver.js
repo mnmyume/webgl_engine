@@ -36,7 +36,7 @@ export class Solver{
         for(const frameBuff of [...this.frontBuffer,...this.backBuffer])
             frameBuff.initialize({gl});
 
-        debugger;
+
         const ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(ext);
         const fb = gl.createFramebuffer();
@@ -83,7 +83,7 @@ export class Solver{
 
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
-        this.material.afterDraw(gl);
+        this.material.postDraw(gl);
     }
 
     swap(){

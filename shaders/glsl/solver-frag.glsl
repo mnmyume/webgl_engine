@@ -1,5 +1,6 @@
 precision highp float;
 #extension GL_EXT_draw_buffers : require
+#extension GL_OES_texture_float : enable
 #value position:0
 uniform sampler2D position;
 #value velociy:1
