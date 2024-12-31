@@ -130,11 +130,12 @@ function initSolver(gl, camera) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.colorMask(true, true, true, true);
 
+
         solver.update(gl);
+
 
         // ({0.5}) ===> solver.backBuffer[0]
 
-        solverMaterial.setTexture('posSampler', solver.frontBuffer[0]);
         quadMaterial.setTexture('texture', solver.frontBuffer[0]);
 
         // solver.swap();

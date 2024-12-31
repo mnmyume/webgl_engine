@@ -1,6 +1,7 @@
 import Texture2D from "./texture2d.js";
 import {$assert} from "./common.js";
 import {FrameBuffer} from "./frameBuffer.js";
+import {testGenPos} from "./generatorHelper.js";
 
 export class Solver{
 
@@ -28,7 +29,7 @@ export class Solver{
             new FrameBuffer('fFrameBuff3'),
         ];
         this.backBuffer = [
-            new FrameBuffer('bFrameBuff0'),
+            new FrameBuffer('bFrameBuff0', {data:new Float32Array(testGenPos())}),
             new FrameBuffer('bFrameBuff1'),
             new FrameBuffer('bFrameBuff2'),
             new FrameBuffer('bFrameBuff3'),
@@ -40,7 +41,8 @@ export class Solver{
         const fb = gl.createFramebuffer();
         this.framebuffer = fb;
 
-        this.attach(gl)
+        // this.attach(gl);
+        // this.detach(gl);
     }
 
     attach(gl){
@@ -121,16 +123,21 @@ export class Solver{
     }
     update(gl){
         // gl.disable(gl.BLEND);
-        // this.attach(gl);
+        this.attach(gl);
+
+
+        this.material.setTexture('posSampler', this.backBuffer[0]);
+
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
         this.material.postDraw(gl);
-        gl.flush();
+
+        this.swap();
 
         this.detach(gl);
 
-        this.swap();
+        // gl.flush();
         
     }
 

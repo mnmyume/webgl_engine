@@ -1,7 +1,9 @@
-export function testGenPos() {
+export function testGenPos(width=512,height=512) {
     const posPixels = [];
-    
-    posPixels.push(0.5, 0.0, 0.0, 0.0);
+
+    for(let row = 0 ; row<height;row++)
+        for(let col = 0 ; col<width;col++)
+            posPixels.push(0.5, 0.0, 0.0, 1.0);
 
     return posPixels;
 }
