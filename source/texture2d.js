@@ -18,6 +18,11 @@ export default class Texture2D {
         this.scaleDown = params.scaleDown || 'NEAREST';
         this.scaleUp = params.scaleUp || 'NEAREST';
         this.generateMipMap = params.generateMipMap || false;
+
+        this.width = this.params?.width??512;
+        this.height = this.params?.height??512;
+
+
     }
     delete() {
         delete __textures[this.name];
@@ -41,21 +46,17 @@ export default class Texture2D {
                 this.image instanceof HTMLCanvasElement));
 
 
-        this.width = this.params?.width??512;
-        this.height = this.params?.height??512;
-       
-
         __textures[this.name] = {img:this.image, name:this.name};
 
         this.texture = gl.createTexture();
 
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
         this.setFilter(gl);
         this.setData(gl, this.image||this.data);
-        gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
     setFilter (gl) {
+
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
         $assert(this.texture);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
@@ -77,10 +78,14 @@ export default class Texture2D {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl[this.scaleDown]);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl[this.scaleUp]);
 
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
 
     };
 
     setData(gl,data){
+
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
         if(data instanceof Image || data instanceof HTMLCanvasElement)
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
         else{
@@ -88,6 +93,7 @@ export default class Texture2D {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.FLOAT, data);
 
         }
+        gl.bindTexture(gl.TEXTURE_2D, null);
 
     }
 }

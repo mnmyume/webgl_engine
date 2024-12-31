@@ -12,8 +12,9 @@ export class Solver{
     shader = null;
     material = null;
     ext = null;
-    framebuffer = null;
     constructor(params) {
+        this.width = params.width??512;
+        this.height = params.height??512;
         this.shader = params.shader || null;
         this.shape = params.shape || null;
         this.material = params.material || null;
@@ -22,118 +23,47 @@ export class Solver{
 
         this.ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(this.ext);
-        this.frontBuffer = [
-            new FrameBuffer('fFrameBuff0'),
-            new FrameBuffer('fFrameBuff1'),
-            new FrameBuffer('fFrameBuff2'),
-            new FrameBuffer('fFrameBuff3'),
-        ];
-        this.backBuffer = [
-            new FrameBuffer('bFrameBuff0', {data:new Float32Array(testGenPos())}),
-            new FrameBuffer('bFrameBuff1'),
-            new FrameBuffer('bFrameBuff2'),
-            new FrameBuffer('bFrameBuff3'),
-        ];
+        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
+        this.backBuffer = new FrameBuffer('bFrameBuff',{width:this.width,height:this.height});
 
-        for(const frameBuff of [...this.frontBuffer,...this.backBuffer])
-            frameBuff.initialize({gl});
 
-        const fb = gl.createFramebuffer();
-        this.framebuffer = fb;
 
-        // this.attach(gl);
-        // this.detach(gl);
+        this.frontBuffer.initialize({gl});
+        this.backBuffer .initialize({gl});
+
+        debugger;
+        this.backBuffer.textures[0].setData(gl, testGenPos());
+
+
+
     }
 
-    attach(gl){
-        const ext = this.ext;
-        $assert(ext);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT0_WEBGL,
-            gl.TEXTURE_2D,
-            this.frontBuffer[0].texture,
-            0,
-        );
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT1_WEBGL,
-            gl.TEXTURE_2D,
-            this.frontBuffer[1].texture,
-            0,
-        );
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT2_WEBGL,
-            gl.TEXTURE_2D,
-            this.frontBuffer[2].texture,
-            0,
-        );
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT3_WEBGL,
-            gl.TEXTURE_2D,
-            this.frontBuffer[3].texture,
-            0,
-        );
 
-        ext.drawBuffersWEBGL([
-            ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
-            ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
-            ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
-            ext.COLOR_ATTACHMENT3_WEBGL, // gl_FragData[3]
-        ]);
+
+    attach(gl){
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frontBuffer.framebuffer);
     }
 
     detach(gl){
-
-        const ext = this.ext;
-        $assert(ext);
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT0_WEBGL,
-            gl.TEXTURE_2D,
-            null,
-            0,
-        );
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT1_WEBGL,
-            gl.TEXTURE_2D,
-            null,
-            0,
-        );
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT2_WEBGL,
-            gl.TEXTURE_2D,
-            null,
-            0,
-        );
-        gl.framebufferTexture2D(
-            gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT3_WEBGL,
-            gl.TEXTURE_2D,
-            null,
-            0,
-        );
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
     update(gl){
         // gl.disable(gl.BLEND);
+        // this.attach(gl);
+
+        gl.viewport(0, 0, this.width, this.height);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
+
         this.attach(gl);
+        this.material.setTexture('posSampler', this.backBuffer.textures[0]);
 
-
-        this.material.setTexture('posSampler', this.backBuffer[0]);
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frontBuffer.framebuffer);
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
         this.material.postDraw(gl);
 
-        this.swap();
+        // this.swap();
 
         this.detach(gl);
 
@@ -142,7 +72,9 @@ export class Solver{
     }
 
     swap(){
-        for(const i in this.frontBuffer)
-            this.frontBuffer[i].swap(this.backBuffer[i]);
+
+        const tmp = this.frontBuffer;
+        this.frontBuffer = this.backBuffer;
+        this.backBuffer = tmp;
     }
 }

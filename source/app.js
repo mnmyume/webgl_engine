@@ -104,7 +104,7 @@ function initSolver(gl, camera) {
     const posPixels = testGenPos();
     const posTexture = new Texture2D('posTexture', {
         width: 1, height: 1,
-        data: new Float32Array(posPixels)
+        data: new Float32Array([0.5, 0.0, 0.0, 1.0])
     });
     posTexture.initialize({ gl });
 
@@ -136,7 +136,7 @@ function initSolver(gl, camera) {
 
         // ({0.5}) ===> solver.backBuffer[0]
 
-        quadMaterial.setTexture('texture', solver.frontBuffer[0]);
+        quadMaterial.setTexture('texture', solver.frontBuffer.textures[0]);
 
         // solver.swap();
 

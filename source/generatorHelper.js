@@ -3,9 +3,9 @@ export function testGenPos(width=512,height=512) {
 
     for(let row = 0 ; row<height;row++)
         for(let col = 0 ; col<width;col++)
-            posPixels.push(0.5, 0.0, 0.0, 1.0);
+            posPixels.push(1.0, 0.0, 0.0, 1.0);
 
-    return posPixels;
+    return new Float32Array(posPixels);
 }
 
 export function genQuadWithUV(out, index) {
