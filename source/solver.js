@@ -31,7 +31,7 @@ export class Solver{
         this.frontBuffer.initialize({gl});
         this.backBuffer .initialize({gl});
 
-        debugger;
+
         this.backBuffer.textures[0].setData(gl, testGenPos());
 
 
@@ -56,14 +56,35 @@ export class Solver{
         gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
 
         this.attach(gl);
+
         this.material.setTexture('posSampler', this.backBuffer.textures[0]);
 
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frontBuffer.framebuffer);
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
+
+
+        const pixels = new Float32Array(
+            this.width * this.height * 4,
+        );
+        gl.readPixels(
+            0,
+            0,
+            this.width,
+            this.height,
+            gl.RGBA,
+            gl.FLOAT,
+            pixels,
+        );
+
         this.material.postDraw(gl);
 
-        // this.swap();
+
+
+
+
+
+
+        this.swap();
 
         this.detach(gl);
 

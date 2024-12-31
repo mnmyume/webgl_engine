@@ -70,7 +70,7 @@ function initSimpleQuad(gl, camera) {
     drawSimpleQuad();
 }
 
-function initSolver(gl, camera) {
+function initSolver(gl, canvas, camera) {
 
     // init quad shader
     const quadShader = new Shader({
@@ -126,15 +126,21 @@ function initSolver(gl, camera) {
     function drawScreenQuad() {
         time.update();
 
-        gl.clearColor(0, 0, 0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.colorMask(true, true, true, true);
 
 
         solver.update(gl);
 
 
-        // ({0.5}) ===> solver.backBuffer[0]
+
+
+
+        gl.viewport(0, 0, canvas.width, canvas.height);
+
+        gl.clearColor(0, 0, 0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.colorMask(true, true, true, true);
+
+
 
         quadMaterial.setTexture('texture', solver.frontBuffer.textures[0]);
 
@@ -267,7 +273,7 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    initSolver(gl, camera);
+    initSolver(gl, canvas,camera);
     // initParticles(gl, camera);
 }
 
