@@ -13,7 +13,6 @@ export class FrameBuffer extends Texture2D{
         const buff = this.texture;
         this.texture = frameBuffer.texture;
         frameBuffer.texture = buff;
-
     }
 
 }

@@ -39,6 +39,8 @@ export class Solver{
 
         const fb = gl.createFramebuffer();
         this.framebuffer = fb;
+
+        this.attach(gl)
     }
 
     attach(gl){
@@ -115,21 +117,21 @@ export class Solver{
             0,
         );
 
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
     update(gl){
         // gl.disable(gl.BLEND);
-        this.attach(gl);
+        // this.attach(gl);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
         this.material.postDraw(gl);
         gl.flush();
 
+        this.detach(gl);
 
         this.swap();
-        this.detach(gl);
+        
     }
 
     swap(){

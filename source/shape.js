@@ -20,7 +20,6 @@ export default class Shape {
 
     setData(data) {
         this.vertice = new Float32Array(data);
-        console.log(this.vertice);
     }
 
     draw(gl, material) {

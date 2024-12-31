@@ -1,18 +1,25 @@
-export function genPos() {
-    let posArray = [];
-    const startX = -8;
-    const startY = -8;
-    const spacing = 2;
+export function testGenPos() {
+    const posPixels = [];
     
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            const posX = startX + j * spacing;
-            const posY = startY + i * spacing;
-            posArray.push([posX, posY, -1.0]);
-        }
-    }
+    posPixels.push(0.5, 0.0, 0.0, 0.0);
 
-    return posArray;
+    return posPixels;
+}
+
+export function genQuadWithUV(out, index) {
+    const uvCoordinates = [
+        [0, 0],
+        [0, 1],
+        [1, 1],
+        [0, 0],
+        [1, 1],
+        [1, 0]
+    ];
+
+    for (let i = 0; i < uvCoordinates.length; i++) {
+        const uv = uvCoordinates[i];
+        out.push(...index, ...uv);
+    }
 }
 
 export function generateCirclePos(numParticle, generation) { 

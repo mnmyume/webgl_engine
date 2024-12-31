@@ -10,7 +10,7 @@ import Time from './time.js';
 import StaticEmitter from './staticEmitter.js';
 import ParticleMaterial from './particleMaterial.js';
 import { Solver } from './solver.js';
-import { genPos, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
+import { testGenPos, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag} from "../shaders/output.js";
 
@@ -20,22 +20,6 @@ if (!g_fps) {
     console.log('fps error')
 }
 const fpsCounter = new FPSCounter(g_fps);
-
-function genQuadWithUV(out, index) {
-    const uvCoordinates = [
-        [0, 0],
-        [0, 1],
-        [1, 1],
-        [0, 0],
-        [1, 1],
-        [1, 0]
-    ];
-
-    for (let i = 0; i < uvCoordinates.length; i++) {
-        const uv = uvCoordinates[i];
-        out.push(...index, ...uv);
-    }
-}
 
 function initSimpleQuad(gl, camera) { 
 
@@ -88,18 +72,6 @@ function initSimpleQuad(gl, camera) {
 
 function initSolver(gl, camera) {
 
-    const solverShader = new Shader({
-        vertexSource: quadVert,
-        fragmentSource: solverFrag,
-    });
-    solverShader.initialize({ gl })
-
-    const solverMaterial = new Material({
-        shader: solverShader,
-    })
-    solverMaterial.initialize({ gl });
-
-
     // init quad shader
     const quadShader = new Shader({
         vertexSource: quadVert,
@@ -111,23 +83,45 @@ function initSolver(gl, camera) {
     const quadTransform = new Transform();
     quadTransform.setPosition(0, 0, 0);
 
-    // init material
+    // init quad material
     const quadMaterial = new Material({
         shader: quadShader,
     })
     quadMaterial.initialize({ gl });
+
+    // init quad shape
     const quadShape = new QuadShape();
     quadShape.initialize({ gl });
 
+    // init solver shader
+    const solverShader = new Shader({
+        vertexSource: quadVert,
+        fragmentSource: solverFrag,
+    });
+    solverShader.initialize({ gl });
 
+    // init texture
+    const posPixels = testGenPos();
+    const posTexture = new Texture2D('posTexture', {
+        width: 1, height: 1,
+        data: new Float32Array(posPixels)
+    });
+    posTexture.initialize({ gl });
+
+    // init solver material
+    const solverMaterial = new Material({
+        shader: solverShader,
+    })
+    solverMaterial.initialize({ gl });
+    solverMaterial.setTexture('posSampler', posTexture);
+
+    // init solver
     const solver = new Solver({
         shape:quadShape,
         material:solverMaterial
     }
     );
     solver.initialize({gl});
-
-    //
 
     function drawScreenQuad() {
         time.update();
@@ -138,19 +132,18 @@ function initSolver(gl, camera) {
 
         solver.update(gl);
 
-        //({0.5}) ===> solver.backBuffer[0]
+        // ({0.5}) ===> solver.backBuffer[0]
 
-
-        quadMaterial.setTexture('texture',solver.frontBuffer[1]);
+        solverMaterial.setTexture('posSampler', solver.frontBuffer[0]);
+        quadMaterial.setTexture('texture', solver.frontBuffer[0]);
 
         // solver.swap();
-
 
         quadMaterial.preDraw(gl, time, camera, quadTransform);
 
         quadShape.draw(gl, quadMaterial);
         quadMaterial.postDraw(gl, time, camera, quadTransform);
-        //
+
         if (fpsCounter) {
             fpsCounter.update();
         }
@@ -188,15 +181,6 @@ function initParticles(gl, camera) {
     particleTransform.setPosition(0, 0, 0);
 
     // init particle texture
-    // const rampTexture = new Texture2D('rampTexture');
-    // rampTexture.setColorRamp(gl,
-    //     [1, 1, 0, 1,
-    //         1, 0, 0, 1,
-    //         0, 0, 0, 1,
-    //         0, 0, 0, 0.5,
-    //         0, 0, 0, 0
-    //     ]);
-
     const rampTexture = new Texture2D('rampTexture', {
         width:5, height:1,
         data:new Float32Array([1, 1, 0, 1,
@@ -218,11 +202,11 @@ function initParticles(gl, camera) {
 
     const posPixels = generateCirclePosRandom(
         numParticle, particleParams.startSize, particleParams.endSize);
-    const initPosValTexture = new Texture2D('initPosValTexture', {
+    const initPosVelTexture = new Texture2D('initPosVelTexture', {
         width: numParticle * 2, height: particleParams.numGen,
         data: new Float32Array(posPixels)
     });
-    initPosValTexture.initialize({ gl });
+    initPosVelTexture.initialize({ gl });
 
     const particleMaterial = new ParticleMaterial({
         shader: particleShader,
@@ -236,7 +220,7 @@ function initParticles(gl, camera) {
     particleMaterial.initialize({ gl });
     particleMaterial.setTexture('rampSampler', rampTexture);
     particleMaterial.setTexture('colorSampler', colorTexture);
-    particleMaterial.setTexture('generatorSampler', initPosValTexture);
+    particleMaterial.setTexture('generatorSampler', initPosVelTexture);
 
     const particleShape = new StaticEmitter({
         data: {...particleParams, numParticle: numParticle}
