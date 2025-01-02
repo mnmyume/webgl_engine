@@ -17,11 +17,12 @@ void main() {
 
 
     // STEP one
-    // gl_FragData[0] = vec4(psample/10+0.01);
-    gl_FragData[0] = position + vec4(0.0,10.2,0.0,0.0); // vec4(0.25, 0, 0.25, 1);
-//    gl_FragData[1] = vec4(0,0.5,0,1);
-//    gl_FragData[2] = vec4(0,0,0.75,1);
-//    gl_FragData[3] = vec4(0.0,0,0,1);
+    position = position + vec4(0.0,0.002,0.0,0.0);
+    position.y = mod(position.y, 1.0);
+    gl_FragData[0] = position;
+    gl_FragData[1] = vec4(0,0.5,0,1);
+    gl_FragData[2] = vec4(0,0,0.75,1);
+    gl_FragData[3] = vec4(0.0,0,0,1);
 
 
     // STEP two
@@ -31,4 +32,10 @@ void main() {
     //     gl_FragData[1] = vec4(1.0, 0.0,0.0,1.0 );
     // else
     //     gl_FragData[1] = vec4(1.0, 1.0,0.0,1.0 );
+    // position = position + vec4(0.0,0.02,0.0,0.0);
+    // position = mod(position, 1.0); 
+    // gl_FragData[0] = position;
+    // gl_FragData[1] = vec4(0,0.5,0,1);
+    // gl_FragData[2] = vec4(0,0,0.75,1);
+    // gl_FragData[3] = vec4(0.0,0,0,1);
 }
