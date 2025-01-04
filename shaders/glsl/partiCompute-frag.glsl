@@ -10,16 +10,22 @@ uniform sampler2D velSampler;
 uniform float deltaTime;
 varying vec2 vUV;
 
-vec2 velocityField(vec2 position) {
-    
-    float distance = length(position); 
-    float angle = atan(position.y, position.x);  
 
-    float speed = 0.1 * distance; 
-    float vx = -speed * sin(angle);  
-    float vy = speed * cos(angle);   
+#value center vec2(300,300):
+uniform vec2 center;
+
+vec2 velocityField(vec2 position) {
+
+     vec2 r = normalize(position - center);
     
-    return vec2(vx, vy); 
+//    float distance = length(position);
+//    float angle = atan(position.y, position.x);
+//
+//    float speed = 0.1 * distance;
+//    float vx = -speed * sin(angle);
+//    float vy = speed * cos(angle);
+    
+    return vec2(-r.y, r.x);
 }
 
 vec2 rotateAroundCenter(vec2 position, float time) {
@@ -46,7 +52,8 @@ void main() {
 
 
 
-    vec2 newPos = rotateAroundCenter(vec2(position.x, position.y), deltaTime);
+    vec2 newPos =  position + deltaTime*velocityField(position);
+    //rotateAroundCenter(vec2(position.x, position.y), deltaTime);
 
 
 
