@@ -8,57 +8,31 @@ uniform sampler2D velSampler;
 
 #value deltaTime:0.01666
 uniform float deltaTime;
-varying vec2 vUV;
 
-
-#value center vec2(300,300):
+#value center:vec2(0,0)
 uniform vec2 center;
+
+varying vec2 vUV;
 
 vec2 velocityField(vec2 position) {
 
-     vec2 r = normalize(position - center);
+    vec2 r = normalize(position - center);
+
     
-//    float distance = length(position);
-//    float angle = atan(position.y, position.x);
-//
-//    float speed = 0.1 * distance;
-//    float vx = -speed * sin(angle);
-//    float vy = speed * cos(angle);
     
-    return vec2(-r.y, r.x);
-}
-
-vec2 rotateAroundCenter(vec2 position, float time) {
-    
-    float angle = time * 2.0 * 3.14159265359 * 0.3;  // 2π * time 
-    float cosAngle = cos(angle);
-    float sinAngle = sin(angle);
-
-    // center is (0, 0)
-    vec2 offset = position;
-
-    // rotation matrix
-    vec2 newPosition;
-    newPosition.x = cosAngle * offset.x - sinAngle * offset.y;
-    newPosition.y = sinAngle * offset.x + cosAngle * offset.y;
-
-    return newPosition;
+    return vec2(-position.y, position.x);
 }
 
 void main() {
 
     vec4 position = texture2D(posSampler, vUV);
     vec4 velocity = texture2D(velSampler, vUV);
-
-
-
-    vec2 newPos =  position + deltaTime*velocityField(position);
-    //rotateAroundCenter(vec2(position.x, position.y), deltaTime);
-
-
+    vec2 pos = vec2(position.x, position.y);
+    vec2 vel = velocityField(pos);
+    vec2 newPos =  pos + deltaTime * vel;
 
     gl_FragData[0] = vec4(newPos,0,1);
-    gl_FragData[1] = vec4(newPos,0,1); 
+    gl_FragData[1] = vec4(vel,0,1); 
     gl_FragData[2] = vec4(deltaTime*100.0, 0, 0, 1);
     gl_FragData[3] = vec4(0, 0.7, 0,1);
 

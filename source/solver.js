@@ -29,10 +29,11 @@ export class Solver{
 
 
         this.frontBuffer.initialize({gl});
-        this.backBuffer .initialize({gl});
+        this.backBuffer.initialize({gl});
 
 
         this.backBuffer.textures[0].setData(gl, testGenPos());
+        //this.backBuffer.textures[1].setData(gl, testGenPos());
 
     }
 
@@ -56,10 +57,10 @@ export class Solver{
         this.attach(gl);
 
         this.material.setTexture('posSampler', this.backBuffer.textures[0]);
+        //this.material.setTexture('velSampler', this.backBuffer.textures[1]);
 
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
-
 
         const pixels = new Float32Array(
             this.width * this.height * 4,
@@ -75,12 +76,6 @@ export class Solver{
         );
 
         this.material.postDraw(gl);
-
-
-
-
-
-
 
         this.swap();
 

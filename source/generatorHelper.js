@@ -15,7 +15,7 @@ export function testGenPos(width=512,height=512) {
 
     for(let row = 0 ; row<height;row++)
         for(let col = 0 ; col<width;col++)
-            posPixels.push(50.0, 0.0, 0.0, 1.0);
+            posPixels.push(20, 0.0, 0.0, 1.0);
 
     return new Float32Array(posPixels);
 }

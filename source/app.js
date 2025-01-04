@@ -154,7 +154,7 @@ function initSolver(gl, canvas, camera) {
 
         quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
 
-        particleMaterial.setTexture('posSampler', solver.frontBuffer.textures[1]);
+        particleMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
 
         // draw screen quad
         quadMaterial.preDraw(gl, camera, quadTransform);
