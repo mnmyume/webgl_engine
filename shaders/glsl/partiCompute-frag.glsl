@@ -16,9 +16,8 @@ varying vec2 vUV;
 
 vec2 velocityField(vec2 position) {
 
-    vec2 r = normalize(position - center);
-
-    
+    vec2 offset = position - center;
+    vec2 r = normalize(offset);
     
     return vec2(-position.y, position.x);
 }
@@ -33,7 +32,7 @@ void main() {
 
     gl_FragData[0] = vec4(newPos,0,1);
     gl_FragData[1] = vec4(vel,0,1); 
-    gl_FragData[2] = vec4(deltaTime*100.0, 0, 0, 1);
+    gl_FragData[2] = vec4(0.0, 0.5, 0.5, 1);
     gl_FragData[3] = vec4(0, 0.7, 0,1);
 
 }

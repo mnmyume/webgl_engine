@@ -13,8 +13,8 @@ export function genUVData(width, height) {
 export function testGenPos(width=512,height=512) {
     const posPixels = [];
 
-    for(let row = 0 ; row<height;row++)
-        for(let col = 0 ; col<width;col++)
+    for(let row = 0; row < height; row++)
+        for(let col = 0; col < width; col++)
             posPixels.push(20, 0.0, 0.0, 1.0);
 
     return new Float32Array(posPixels);

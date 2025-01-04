@@ -33,7 +33,7 @@ export class Solver{
 
 
         this.backBuffer.textures[0].setData(gl, testGenPos());
-        //this.backBuffer.textures[1].setData(gl, testGenPos());
+        this.backBuffer.textures[1].setData(gl, testGenPos());
 
     }
 
@@ -57,7 +57,7 @@ export class Solver{
         this.attach(gl);
 
         this.material.setTexture('posSampler', this.backBuffer.textures[0]);
-        //this.material.setTexture('velSampler', this.backBuffer.textures[1]);
+        this.material.setTexture('velSampler', this.backBuffer.textures[1]);
 
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
