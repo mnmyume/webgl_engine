@@ -24,7 +24,7 @@ export class Solver{
         this.ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(this.ext);
         this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
-        this.backBuffer = new FrameBuffer('bFrameBuff',{width:this.width,height:this.height});
+        this.backBuffer = new FrameBuffer('bFrameBuff', {width:this.width,height:this.height});
 
 
 
@@ -33,8 +33,6 @@ export class Solver{
 
 
         this.backBuffer.textures[0].setData(gl, testGenPos());
-
-
 
     }
 

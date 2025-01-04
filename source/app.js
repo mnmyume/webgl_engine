@@ -1,18 +1,19 @@
 import Shader from './shader.js';
 import Shape from './shape.js';
 import QuadShape from './quadShape.js';
+import StaticEmitter from './staticEmitter.js';
+import PartiShape from './partiShape.js';
 import Camera from './camera.js';
 import Material from './material.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import Time from './time.js';
-import StaticEmitter from './staticEmitter.js';
 import ParticleMaterial from './particleMaterial.js';
 import { Solver } from './solver.js';
-import { testGenPos, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
+import { genUVData, testGenPos, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
-import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag} from "../shaders/output.js";
+import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag} from "../shaders/output.js";
 
 const time = new Time();
 const g_fps = document.getElementById("fps");
@@ -72,6 +73,7 @@ function initSimpleQuad(gl, camera) {
 
 function initSolver(gl, canvas, camera) {
 
+    // ----------------------------------------
     // init quad shader
     const quadShader = new Shader({
         vertexSource: quadVert,
@@ -93,27 +95,19 @@ function initSolver(gl, canvas, camera) {
     const quadShape = new QuadShape();
     quadShape.initialize({ gl });
 
+    // -----------------------------------------------
     // init solver shader
     const solverShader = new Shader({
-        vertexSource: quadVert,
-        fragmentSource: solverFrag,
+        vertexSource: partiComputeVert,     // quadVert
+        fragmentSource: partiComputeFrag, // solverFrag
     });
     solverShader.initialize({ gl });
-
-    // init texture
-    const posPixels = testGenPos();
-    const posTexture = new Texture2D('posTexture', {
-        width: 1, height: 1,
-        data: new Float32Array([0.5, 0.0, 0.0, 1.0])
-    });
-    posTexture.initialize({ gl });
 
     // init solver material
     const solverMaterial = new Material({
         shader: solverShader,
     })
     solverMaterial.initialize({ gl });
-    solverMaterial.setTexture('posSampler', posTexture);
 
     // init solver
     const solver = new Solver({
@@ -123,16 +117,34 @@ function initSolver(gl, canvas, camera) {
     );
     solver.initialize({gl});
 
+    //--------------------------------------------------
+    // init particle shader
+    const particleShader = new Shader({
+        vertexSource: partiVert,
+        fragmentSource: partiFrag,
+    });
+    particleShader.initialize({ gl });
+
+    // init transform
+    const particleTransform = new Transform();
+    particleTransform.setPosition(0, 0, 0);
+
+    // init material
+    const particleMaterial = new Material({
+        shader: particleShader,
+    })
+    particleMaterial.initialize({ gl });
+
+    // init shape
+    const particleShape = new PartiShape({
+        data: genUVData(solver.frontBuffer.width, solver.frontBuffer.height)
+    });
+    particleShape.initialize({ gl });
+
     function drawScreenQuad() {
         time.update();
 
-
-
         solver.update(gl);
-
-
-
-
 
         gl.viewport(0, 0, canvas.width, canvas.height);
 
@@ -140,16 +152,20 @@ function initSolver(gl, canvas, camera) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.colorMask(true, true, true, true);
 
+        quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
 
+        particleMaterial.setTexture('posSampler', solver.frontBuffer.textures[1]);
 
-        quadMaterial.setTexture('texture', solver.frontBuffer.textures[0]);
-
-        // solver.swap();
-
-        quadMaterial.preDraw(gl, time, camera, quadTransform);
-
+        // draw screen quad
+        quadMaterial.preDraw(gl, camera, quadTransform);
         quadShape.draw(gl, quadMaterial);
-        quadMaterial.postDraw(gl, time, camera, quadTransform);
+        quadMaterial.postDraw(gl, camera, quadTransform);
+
+        // draw particles
+        particleMaterial.preDraw(gl, camera, particleTransform);
+        particleShape.draw(gl, quadMaterial);
+        particleMaterial.postDraw(gl, camera, particleTransform);
+
 
         if (fpsCounter) {
             fpsCounter.update();

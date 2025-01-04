@@ -1,9 +1,21 @@
+export function genUVData(width, height) {
+    let uvArray = [];
+    for (var y=0; y<height; ++y) {
+        for (var x=0; x<width; ++x) {
+          uvArray.push(x/width);
+          uvArray.push(y/height);
+        }
+    }
+
+    return new Float32Array(uvArray);
+}
+
 export function testGenPos(width=512,height=512) {
     const posPixels = [];
 
     for(let row = 0 ; row<height;row++)
         for(let col = 0 ; col<width;col++)
-            posPixels.push(1.0, 0.0, 0.0, 1.0);
+            posPixels.push(50.0, 0.0, 0.0, 1.0);
 
     return new Float32Array(posPixels);
 }

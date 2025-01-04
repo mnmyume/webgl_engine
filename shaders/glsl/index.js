@@ -8,4 +8,10 @@ import particleFrag from './particle-frag.glsl';
 import quadVert from './quad-vert.glsl';
 import solverFrag from './solver-frag.glsl';
 
-export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, quadVert,solverFrag}
+import partiComputeVert from './partiCompute-vert.glsl';
+import partiComputeFrag from './partiCompute-frag.glsl';
+
+import partiVert from './parti-vert.glsl';
+import partiFrag from './parti-frag.glsl';
+
+export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag}
