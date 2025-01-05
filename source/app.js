@@ -117,11 +117,13 @@ function initSolver(gl, canvas, camera) {
     );
     solver.initialize({gl});
 
-    //--------------------------------------------------
-    // init particle shader
     const fbWidth = solver.width;
     const fbHeight = solver.height;
     const partiCount = fbWidth * fbHeight;
+    solverMaterial.uniforms['resolution'].value = [fbWidth,fbHeight];
+
+    //--------------------------------------------------
+    // init particle shader
 
     const particleShader = new Shader({
         vertexSource: partiVert,

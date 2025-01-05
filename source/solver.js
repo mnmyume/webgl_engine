@@ -13,8 +13,8 @@ export class Solver{
     material = null;
     ext = null;
     constructor(params) {
-        this.width = params.width??512;
-        this.height = params.height??512;
+        this.width = params.width??12;
+        this.height = params.height??12;
         this.shader = params.shader || null;
         this.shape = params.shape || null;
         this.material = params.material || null;

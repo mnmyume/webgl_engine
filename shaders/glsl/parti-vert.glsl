@@ -11,7 +11,7 @@ void main(void) {
 
     vec3 position = texture2D(posSampler, aUV).rgb;
 
-    float size = 1.0;   //TODO: uniform
+    float size = 5.0;   
 
     gl_PointSize = size; 
     gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(position, 1.0);
