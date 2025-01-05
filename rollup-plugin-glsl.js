@@ -129,12 +129,83 @@ export default function glsl(options = {}) {
 
             const values = checkPreprocessor('value',sourceRaw);
 
-            for(const [key,value] of Object.entries(values))
-                uniformParams[key].value = value;
+            assignValues(uniformParams, values);
+
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
             const code = generateCode(extensionParmas,attributeParmas, uniformParams, glslSrc),
                 magicString = new MagicString(code);
             return { code: magicString.toString() };
         }
     };
+}
+
+function parseVec(input,dim=2){
+    const result = [];
+    let inputLength = 0;
+    if(typeof input === 'string'){
+        const buffer = $match(/(\d+),?/gm, input);
+        inputLength = buffer.length/2;
+        for(let i=0;i<inputLength;i++)
+            result[i] = parseFloat(buffer[2*i+1]);
+    }
+    debugger;
+
+    const padding = [];
+    padding.length = Math.max(dim - inputLength, 0);
+    padding.fill(0);
+    return [...result,...padding];
+}
+
+function assignValues(uniformParams, values){
+
+    for(const [key,value] of Object.entries(values)){
+        const {type} = uniformParams[key];
+        switch (type){
+            case "sampler2D":
+                uniformParams[key].value = parseInt(value);
+                break;
+            case "float":
+                uniformParams[key].value = parseFloat(value);
+                break;
+            case "vec2":
+                uniformParams[key].value = parseVec(value,2);
+                break;
+
+            case "vec3":
+                uniformParams[key].value = parseVec(value,3);
+                break;
+            case "vec4":
+                uniformParams[key].value = parseVec(value,4);
+                break;
+
+
+
+            // mat2(
+            //     float, float,   // first column
+            //     float, float);  // second column
+            //
+
+            // mat3(
+            //     vec2, float,    // first column
+            //     vec2, float,    // second column
+            //     vec2, float);   // third column
+
+
+            // mat4(
+            //     vec4,           // first column
+            //     vec4,           // second column
+            //     vec4,           // third column
+            //     vec4);          // fourth column
+            //
+            case "mat2":
+                break;
+            case "mat3":
+                break;
+            case "mat4":
+                break;
+
+
+        }
+
+    }
 }

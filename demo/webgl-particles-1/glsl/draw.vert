@@ -5,6 +5,7 @@ precision highp float;
 attribute vec2 index;
 uniform sampler2D positions;
 uniform sampler2D velocities;
+uniform sampler2D obstacles;
 uniform vec2 statesize;
 uniform vec2 worldsize;
 uniform float size;

@@ -46,6 +46,11 @@ export class Solver{
     detach(gl){
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
+
+    addObstacles(){
+
+    }
+
     update(gl){
         // gl.disable(gl.BLEND);
         // this.attach(gl);
