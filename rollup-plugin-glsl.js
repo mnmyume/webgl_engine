@@ -148,7 +148,6 @@ function parseVec(input,dim=2){
         for(let i=0;i<inputLength;i++)
             result[i] = parseFloat(buffer[2*i+1]);
     }
-    debugger;
 
     const padding = [];
     padding.length = Math.max(dim - inputLength, 0);

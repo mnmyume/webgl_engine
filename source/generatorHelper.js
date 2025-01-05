@@ -10,12 +10,27 @@ export function genUVData(width, height) {
     return new Float32Array(uvArray);
 }
 
-export function testGenPos(width=512,height=512) {
+export function testGenVel(width,height) {
+    const posPixels = [];
+
+    for(let row = 0; row < height; row++)
+        for(let col = 0; col < width; col++){
+            const r = 100*(Math.random() * 2 - 1); // Random value between 0 and 1
+            const g = 100*(Math.random() * 2 - 1); // Random value between 0 and 1
+            const b = Math.random(); // Random value between 0 and 1
+            const a = 1;
+            posPixels.push(r, g, 0, 1);
+        }
+
+    return new Float32Array(posPixels);
+}
+
+export function testGenPos(width,height) {
     const posPixels = [];
 
     for(let row = 0; row < height; row++)
         for(let col = 0; col < width; col++)
-            posPixels.push(20, 0.0, 0.0, 1.0);
+            posPixels.push(0, 20, 0, 1);
 
     return new Float32Array(posPixels);
 }

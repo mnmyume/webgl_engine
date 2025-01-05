@@ -3,17 +3,16 @@ import Shape from './shape.js'
 export default class PartiShape extends Shape {
     constructor(params = {}) {
         super(params);
+        this.partiCount = params.partiCount || null;
     }
 
     initialize({ gl }) {
         super.initialize({ gl });
     }
 
-    setData() {
-        this.vertice = new Float32Array([
-            -1,-1,      1,-1,       -1,1,
-            -1,1,       1,-1,       1,1
-        ]);
+    setData(data) {
+        this.vertice = data;
+        
     }
 
     draw(gl, material) {
@@ -21,14 +20,14 @@ export default class PartiShape extends Shape {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['quad'],
-            2, gl.FLOAT, false, sizeofFloat * 2, 0);
+            material.dataLocation.attributes['aUV'],
+            2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['quad']);
+            material.dataLocation.attributes['aUV']);
     
-        gl.drawArrays(gl.POINTS, 0, 1);
+        gl.drawArrays(gl.POINTS, 0, this.partiCount);
 
         gl.disableVertexAttribArray(
-            material.dataLocation.attributes['quad']);
+            material.dataLocation.attributes['aUV']);
     }
 }

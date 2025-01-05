@@ -1,7 +1,7 @@
 import Texture2D from "./texture2d.js";
 import {$assert} from "./common.js";
 import {FrameBuffer} from "./frameBuffer.js";
-import {testGenPos} from "./generatorHelper.js";
+import {testGenPos, testGenVel} from "./generatorHelper.js";
 
 export class Solver{
 
@@ -21,6 +21,9 @@ export class Solver{
     }
     initialize({gl}){
 
+        const width = this.width;
+        const height = this.height;
+
         this.ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(this.ext);
         this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
@@ -31,9 +34,8 @@ export class Solver{
         this.frontBuffer.initialize({gl});
         this.backBuffer.initialize({gl});
 
-
-        this.backBuffer.textures[0].setData(gl, testGenPos());
-        this.backBuffer.textures[1].setData(gl, testGenPos());
+        this.backBuffer.textures[0].setData(gl, testGenPos(width,height));
+        this.backBuffer.textures[1].setData(gl, testGenVel(width,height));
 
     }
 

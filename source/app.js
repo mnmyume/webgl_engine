@@ -11,7 +11,7 @@ import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import ParticleMaterial from './particleMaterial.js';
 import { Solver } from './solver.js';
-import { genUVData, testGenPos, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
+import { genUVData, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag} from "../shaders/output.js";
 
@@ -119,6 +119,10 @@ function initSolver(gl, canvas, camera) {
 
     //--------------------------------------------------
     // init particle shader
+    const fbWidth = solver.width;
+    const fbHeight = solver.height;
+    const partiCount = fbWidth * fbHeight;
+
     const particleShader = new Shader({
         vertexSource: partiVert,
         fragmentSource: partiFrag,
@@ -137,7 +141,8 @@ function initSolver(gl, canvas, camera) {
 
     // init shape
     const particleShape = new PartiShape({
-        data: genUVData(solver.frontBuffer.width, solver.frontBuffer.height)
+        partiCount: partiCount, 
+        data: genUVData(fbWidth, fbHeight)
     });
     particleShape.initialize({ gl });
 
