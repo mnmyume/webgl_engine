@@ -27,8 +27,11 @@ void main() {
     vec4 position = texture2D(posSampler, vUV);
     vec4 velocity = texture2D(velSampler, vUV);
     vec2 pos = vec2(position.x, position.y);
-    vec2 vel = velocityField(pos);
-    vec2 newPos =  pos + deltaTime * vel;
+    //vec2 vel = velocityField(pos);
+    //vec2 newPos =  pos + deltaTime * vel;
+
+    vec2 newPos = center;
+    vec2 vel = vec2(0);
 
     gl_FragData[0] = vec4(newPos,0,1);
     gl_FragData[1] = vec4(vel,0,1); 
