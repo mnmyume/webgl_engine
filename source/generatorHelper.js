@@ -10,27 +10,39 @@ export function genUVData(width, height) {
     return new Float32Array(uvArray);
 }
 
-export function testGenVel(width,height) {
+export function testGenVel(fbWidth,fbHeight) {
     const posPixels = [];
 
-    for(let row = 0; row < height; row++)
-        for(let col = 0; col < width; col++){
-            const r = 100*(Math.random() * 2 - 1); // Random value between 0 and 1
-            const g = 100*(Math.random() * 2 - 1); // Random value between 0 and 1
-            const b = Math.random(); // Random value between 0 and 1
-            const a = 1;
-            posPixels.push(r, g, 0, 1);
+    for(let row = 0; row < fbHeight; row++)
+        for(let col = 0; col < fbWidth; col++){
+            const vx = 5*(Math.random() * 2 - 1); // Random value between -1 and 1
+            const vy = 100*(-Math.random()); // Random value between -1 and 0
+
+            posPixels.push(vx, vy, 0, 1);
         }
 
     return new Float32Array(posPixels);
 }
 
-export function testGenPos(width,height) {
+export function testGenRandPos(width,height,fbWidth,fbHeight) {
     const posPixels = [];
 
-    for(let row = 0; row < height; row++)
-        for(let col = 0; col < width; col++)
-            posPixels.push(0, 20, 0, 1);
+    for(let row = 0; row < fbHeight; row++)
+        for(let col = 0; col < fbWidth; col++){
+            const px = (Math.random() * 2 - 1) * width/2;
+            const py = (Math.random() * 2 - 1) * height/2;
+            posPixels.push(px, py, 0, 1);
+        }
+
+    return new Float32Array(posPixels);
+}
+
+export function testGenPos(fbWidth,fbHeight) {
+    const posPixels = [];
+
+    for(let row = 0; row < fbHeight; row++)
+        for(let col = 0; col < fbWidth; col++)
+            posPixels.push(0, 0, 0, 1);
 
     return new Float32Array(posPixels);
 }

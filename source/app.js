@@ -11,7 +11,7 @@ import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import ParticleMaterial from './particleMaterial.js';
 import { Solver } from './solver.js';
-import { genUVData, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
+import { testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag} from "../shaders/output.js";
 
@@ -112,7 +112,8 @@ function initSolver(gl, canvas, camera) {
     // init solver
     const solver = new Solver({
         shape:quadShape,
-        material:solverMaterial
+        material:solverMaterial,
+        width:128, height:128
     }
     );
     solver.initialize({gl});
@@ -120,6 +121,11 @@ function initSolver(gl, canvas, camera) {
     const fbWidth = solver.width;
     const fbHeight = solver.height;
     const partiCount = fbWidth * fbHeight;
+
+    solver.backBuffer.textures[0].setData(gl, testGenRandPos(canvas.width,canvas.height, fbWidth,fbHeight));
+    solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
+
+    solverMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
     solverMaterial.uniforms['resolution'].value = [fbWidth,fbHeight];
 
     //--------------------------------------------------
@@ -140,6 +146,7 @@ function initSolver(gl, canvas, camera) {
         shader: particleShader,
     })
     particleMaterial.initialize({ gl });
+    particleMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
 
     // init shape
     const particleShape = new PartiShape({
@@ -284,13 +291,13 @@ function main() {
 
     const canvas = document.getElementById('game-surface');
     const gl = canvas.getContext('webgl');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;   
+    canvas.height = window.innerHeight; 
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     // init camera
-    const camera = new Camera({aspect:canvas.width /canvas.height});
-    camera.setPosition([0, 0, 300]);
+    const camera = new Camera({aspect: canvas.width/canvas.height});
+    camera.setPosition([0, 0, 800]);
     camera.updateProjection();
     camera.updateView();
     camera.updateViewInverse();

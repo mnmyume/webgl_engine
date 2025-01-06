@@ -13,8 +13,8 @@ export class Solver{
     material = null;
     ext = null;
     constructor(params) {
-        this.width = params.width??12;
-        this.height = params.height??12;
+        this.width = params.width??128;
+        this.height = params.height??128;
         this.shader = params.shader || null;
         this.shape = params.shape || null;
         this.material = params.material || null;
@@ -33,9 +33,6 @@ export class Solver{
 
         this.frontBuffer.initialize({gl});
         this.backBuffer.initialize({gl});
-
-        this.backBuffer.textures[0].setData(gl, testGenPos(width,height));
-        this.backBuffer.textures[1].setData(gl, testGenVel(width,height));
 
     }
 
@@ -65,6 +62,7 @@ export class Solver{
 
         this.material.setTexture('posSampler', this.backBuffer.textures[0]);
         this.material.setTexture('velSampler', this.backBuffer.textures[1]);
+        this.material.uniforms['randSeed'].value = Math.random() * 2 - 1;
 
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
