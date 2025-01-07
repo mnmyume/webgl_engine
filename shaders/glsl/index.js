@@ -14,4 +14,7 @@ import partiComputeFrag from './partiCompute-frag.glsl';
 import partiVert from './parti-vert.glsl';
 import partiFrag from './parti-frag.glsl';
 
-export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag}
+import obstacleVert from './obstacle-vert.glsl';
+import obstacleFrag from './obstacle-frag.glsl';
+
+export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag, obstacleVert, obstacleFrag}

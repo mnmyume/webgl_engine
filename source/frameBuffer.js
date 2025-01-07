@@ -1,7 +1,7 @@
 import Texture2D from "./texture2d.js";
 import {$assert} from "./common.js";
 
-export class FrameBuffer{
+export default class FrameBuffer{
 
     textures = [];
     constructor(name = 'frameBuffer', params) {
@@ -11,7 +11,7 @@ export class FrameBuffer{
         this.height = params.height??512;
     }
 
-    initialize({gl}) {
+    initialize({ gl }) {
         this.framebuffer = gl.createFramebuffer();
 
         this.textures = [

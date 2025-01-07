@@ -63,7 +63,7 @@ void main() {
     vec4 vsample = texture2D(velocity, index);
     vec2 p = vec2(decode(psample.rg, scale.x), decode(psample.ba, scale.x));
     vec2 v = vec2(decode(vsample.rg, scale.y), decode(vsample.ba, scale.y));
-    vec2 obstacle = (texture2D(obstacles, p / worldsize).xy - 0.5) * 2.0;
+    vec2 obstacle = (texture2D(obstacles, p / worldsize).xy-0.5)*2.0;
     vec2 result;
     float s;
     if (derivative == 0) {

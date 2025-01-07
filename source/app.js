@@ -3,6 +3,7 @@ import Shape from './shape.js';
 import QuadShape from './quadShape.js';
 import StaticEmitter from './staticEmitter.js';
 import PartiShape from './partiShape.js';
+import ObstacleShape from './obstacleShape.js';
 import Camera from './camera.js';
 import Material from './material.js';
 import Texture2D from './texture2d.js';
@@ -10,10 +11,10 @@ import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import ParticleMaterial from './particleMaterial.js';
-import { Solver } from './solver.js';
+import Solver from './solver.js';
 import { testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
-import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag} from "../shaders/output.js";
+import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
 
 const time = new Time();
 const g_fps = document.getElementById("fps");
@@ -88,12 +89,38 @@ function initSolver(gl, canvas, camera) {
     // init quad material
     const quadMaterial = new Material({
         shader: quadShader,
-    })
+    });
     quadMaterial.initialize({ gl });
 
     // init quad shape
     const quadShape = new QuadShape();
     quadShape.initialize({ gl });
+
+    // -----------------------------------------------
+    // init obstacle shader
+    const obstacleShader = new Shader({
+        vertexSource: obstacleVert,
+        fragmentSource: obstacleFrag,
+    });
+    obstacleShader.initialize({ gl });
+
+    // init obstacle transform
+    const obstacleTransform = new Transform();
+    obstacleTransform.setPosition(0, 0, 0);
+
+    // init obstacle material
+    const obstacleMaterial = new Material({
+        shader: obstacleShader,
+    });
+    obstacleMaterial.initialize({ gl });
+    obstacleMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
+
+    // init obstacle shape
+    const obstacleShape = new ObstacleShape({
+        obstacleCount: 1, 
+        data: new Float32Array([0,0])
+    });
+    obstacleShape.initialize({ gl });
 
     // -----------------------------------------------
     // init solver shader
@@ -111,9 +138,10 @@ function initSolver(gl, canvas, camera) {
 
     // init solver
     const solver = new Solver({
-        shape:quadShape,
-        material:solverMaterial,
-        width:128, height:128
+        shape:[quadShape, obstacleShape],
+        material:[solverMaterial, obstacleMaterial],
+        width:128, height:128,
+        screenWidth: canvas.width, screenHeight: canvas.height
     }
     );
     solver.initialize({gl});
@@ -130,7 +158,6 @@ function initSolver(gl, canvas, camera) {
 
     //--------------------------------------------------
     // init particle shader
-
     const particleShader = new Shader({
         vertexSource: partiVert,
         fragmentSource: partiFrag,
@@ -169,6 +196,7 @@ function initSolver(gl, canvas, camera) {
         quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
 
         particleMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
+        particleMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
 
         // draw screen quad
         quadMaterial.preDraw(gl, camera, quadTransform);
@@ -177,9 +205,8 @@ function initSolver(gl, canvas, camera) {
 
         // draw particles
         particleMaterial.preDraw(gl, camera, particleTransform);
-        particleShape.draw(gl, quadMaterial);
+        particleShape.draw(gl, particleMaterial);
         particleMaterial.postDraw(gl, camera, particleTransform);
-
 
         if (fpsCounter) {
             fpsCounter.update();

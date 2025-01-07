@@ -1,9 +1,9 @@
 import Shape from './shape.js'
 
-export default class PartiShape extends Shape {
+export default class ObstacleShape extends Shape {
     constructor(params = {}) {
         super(params);
-        this.partiCount = params.partiCount || null;
+        this.obstacleCount = params.obstacleCount || null;
     }
 
     initialize({ gl }) {
@@ -19,14 +19,14 @@ export default class PartiShape extends Shape {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['aUV'],
+            material.dataLocation.attributes['vert'],
             2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['aUV']);
+            material.dataLocation.attributes['vert']);
     
-        gl.drawArrays(gl.POINTS, 0, this.partiCount);
+        gl.drawArrays(gl.POINTS, 0, this.obstacleCount);
 
         gl.disableVertexAttribArray(
-            material.dataLocation.attributes['aUV']);
+            material.dataLocation.attributes['vert']);
     }
 }
