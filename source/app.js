@@ -14,7 +14,7 @@ import ParticleMaterial from './particleMaterial.js';
 import Solver from './solver.js';
 import { testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
-import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
+import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiVert, partiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
 
 const time = new Time();
 const g_fps = document.getElementById("fps");
@@ -125,8 +125,8 @@ function initSolver(gl, canvas, camera) {
     // -----------------------------------------------
     // init solver shader
     const solverShader = new Shader({
-        vertexSource: partiComputeVert,     // quadVert
-        fragmentSource: partiComputeFrag, // solverFrag
+        vertexSource: quadVert,     // quadVert
+        fragmentSource: solverFrag, // solverFrag
     });
     solverShader.initialize({ gl });
 
