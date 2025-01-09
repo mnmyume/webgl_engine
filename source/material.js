@@ -69,12 +69,18 @@ export default class Material {
                 gl.uniform1i(this.dataLocation.uniforms[name], data.value);
             else if(data.type=="float")
                 gl.uniform1f(this.dataLocation.uniforms[name], data.value);
-            else if(data.type=="vec2")
-                gl.uniform2f(this.dataLocation.uniforms[name], data.value[0],data.value[1]);
-            else if(data.type=="vec3")
-                gl.uniform3f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2]);
-            else if(data.type=="vec4")
-                gl.uniform4f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2],data.value[3]);
+            else{
+
+                if(/vec/.test(data.type))
+                    $assert(data.value, 'empty uniform vec');
+
+                if(data.type=="vec2")
+                    gl.uniform2f(this.dataLocation.uniforms[name], data.value[0],data.value[1]);
+                else if(data.type=="vec3")
+                    gl.uniform3f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2]);
+                else if(data.type=="vec4")
+                    gl.uniform4f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2],data.value[3]);
+            }
         };
 
         if (this.dataLocation.uniforms["uPMatrix"] && camera) {

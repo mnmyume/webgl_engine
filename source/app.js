@@ -1,6 +1,6 @@
 import Shader from './shader.js';
 import Shape from './shape.js';
-import QuadShape from './quadShape.js';
+import ScreenQuad from './screenQuad.js';
 import StaticEmitter from './staticEmitter.js';
 import PartiShape from './partiShape.js';
 import ObstacleShape from './obstacleShape.js';
@@ -14,7 +14,22 @@ import ParticleMaterial from './particleMaterial.js';
 import Solver from './solver.js';
 import { testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
-import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiComputeVert, partiComputeFrag, partiVert, partiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
+import {
+    basicVert,
+    basicFrag,
+    particle3dVert,
+    particle2dVert,
+    particleFrag,
+    screenQuadVert,
+    solverFrag,
+    partiComputeVert,
+    partiComputeFrag,
+    partiVert,
+    partiFrag,
+    obstacleVert,
+    obstacleFrag,
+    snow
+} from "../shaders/output.js";
 
 const time = new Time();
 const g_fps = document.getElementById("fps");
@@ -72,12 +87,56 @@ function initSimpleQuad(gl, camera) {
     drawSimpleQuad();
 }
 
+function initPostEffect(gl, camera) {
+
+    // init quad shader
+    const quadShader = new Shader({
+        vertexSource: screenQuadVert,
+        fragmentSource: snow,
+    });
+    quadShader.initialize({ gl });
+
+    // init transform
+    const quadTransform = new Transform();
+    quadTransform.setPosition(0, 0, 0);
+
+    // init material
+    const quadMaterial = new Material({
+        shader: quadShader,
+    })
+    quadMaterial.initialize({ gl });
+
+    // init shape
+    const quadShape = new ScreenQuad();
+    quadShape.initialize({ gl });
+
+    function drawSimpleQuad() {
+
+        gl.clearColor(0.3, 0.3, 0.3, 1.0);
+        gl.colorMask(true, true, true, true);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        quadMaterial.preDraw(gl, camera, quadTransform);
+
+        quadShape.draw(gl, quadMaterial);
+
+        quadMaterial.postDraw(gl);
+
+        if (fpsCounter) {
+            fpsCounter.update();
+        }
+
+        requestAnimationFrame(drawSimpleQuad);
+    }
+
+    drawSimpleQuad();
+}
 function initSolver(gl, canvas, camera) {
 
     // ----------------------------------------
     // init quad shader
     const quadShader = new Shader({
-        vertexSource: quadVert,
+        vertexSource: screenQuadVert,
         fragmentSource: basicFrag,
     });
     quadShader.initialize({ gl });
@@ -93,7 +152,7 @@ function initSolver(gl, canvas, camera) {
     quadMaterial.initialize({ gl });
 
     // init quad shape
-    const quadShape = new QuadShape();
+    const quadShape = new ScreenQuad();
     quadShape.initialize({ gl });
 
     // -----------------------------------------------
@@ -125,7 +184,7 @@ function initSolver(gl, canvas, camera) {
     // -----------------------------------------------
     // init solver shader
     const solverShader = new Shader({
-        vertexSource: partiComputeVert,     // quadVert
+        vertexSource: partiComputeVert,     // screenQuadVert
         fragmentSource: partiComputeFrag, // solverFrag
     });
     solverShader.initialize({ gl });
@@ -332,6 +391,7 @@ function main() {
     // initSimpleQuad(gl, camera);
     initSolver(gl, canvas,camera);
     // initParticles(gl, camera);
+    //initPostEffect(gl, camera);
 }
 
 main();

@@ -1,6 +1,6 @@
 import Shape from './shape.js'
 
-export default class QuadShape extends Shape {
+export default class ScreenQuad extends Shape {
     constructor(params = {}) {
         super(params);
     }
