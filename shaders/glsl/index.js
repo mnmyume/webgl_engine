@@ -14,12 +14,5 @@ import partiFrag from './parti-frag.glsl';
 import obstacleVert from './obstacle-vert.glsl';
 import obstacleFrag from './obstacle-frag.glsl';
 
-import snow from './postEffect/snow-frag.glsl';
+export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, screenQuadVert, solverFrag, partiVert, partiFrag, obstacleVert, obstacleFrag}
 
-export {
-    snow,
-    basicFrag, basicVert,
-    particleFrag, particle2dVert,
-    particle3dVert, screenQuadVert, solverFrag,
-    partiComputeVert, partiComputeFrag,
-    partiVert, partiFrag, obstacleVert, obstacleFrag}

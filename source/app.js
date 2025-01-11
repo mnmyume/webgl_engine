@@ -1,6 +1,6 @@
 import Shader from './shader.js';
 import Shape from './shape.js';
-import QuadShape from './quadShape.js';
+import ScreenQuad from './screenQuad.js';
 import StaticEmitter from './staticEmitter.js';
 import PartiShape from './partiShape.js';
 import ObstacleShape from './obstacleShape.js';
@@ -14,7 +14,7 @@ import ParticleMaterial from './particleMaterial.js';
 import Solver from './solver.js';
 import { testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosRandom } from './generatorHelper.js';
 
-import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, quadVert, solverFrag, partiVert, partiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
+import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, screenQuadVert, solverFrag, partiVert, partiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
 
 const time = new Time();
 const g_fps = document.getElementById("fps");
@@ -77,7 +77,7 @@ function initSolver(gl, canvas, camera) {
     // ----------------------------------------
     // init quad shader
     const quadShader = new Shader({
-        vertexSource: quadVert,
+        vertexSource: screenQuadVert,
         fragmentSource: basicFrag,
     });
     quadShader.initialize({ gl });
@@ -93,7 +93,7 @@ function initSolver(gl, canvas, camera) {
     quadMaterial.initialize({ gl });
 
     // init quad shape
-    const quadShape = new QuadShape();
+    const quadShape = new ScreenQuad();
     quadShape.initialize({ gl });
 
     // -----------------------------------------------
@@ -125,7 +125,7 @@ function initSolver(gl, canvas, camera) {
     // -----------------------------------------------
     // init solver shader
     const solverShader = new Shader({
-        vertexSource: quadVert,     // quadVert
+        vertexSource: screenQuadVert,     // quadVert
         fragmentSource: solverFrag, // solverFrag
     });
     solverShader.initialize({ gl });
@@ -173,7 +173,6 @@ function initSolver(gl, canvas, camera) {
         shader: particleShader,
     })
     particleMaterial.initialize({ gl });
-    particleMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
 
     // init shape
     const particleShape = new PartiShape({
@@ -182,7 +181,10 @@ function initSolver(gl, canvas, camera) {
     });
     particleShape.initialize({ gl });
 
+    solver.addObstacles(gl);
     function drawScreenQuad() {
+
+
         time.update();
 
         solver.update(gl);
@@ -330,8 +332,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    initSolver(gl, canvas,camera);
-    // initParticles(gl, camera);
+    //initSolver(gl, canvas,camera);
+     initParticles(gl, camera);
 }
 
 main();
