@@ -8,9 +8,6 @@ import particleFrag from './particle-frag.glsl';
 import screenQuadVert from './quad-vert.glsl';
 import solverFrag from './solver-frag.glsl';
 
-import partiComputeVert from './partiCompute-vert.glsl';
-import partiComputeFrag from './partiCompute-frag.glsl';
-
 import partiVert from './parti-vert.glsl';
 import partiFrag from './parti-frag.glsl';
 
