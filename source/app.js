@@ -232,7 +232,6 @@ function initSolver(gl, canvas, camera) {
         shader: particleShader,
     })
     particleMaterial.initialize({ gl });
-    particleMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
 
     // init shape
     const particleShape = new PartiShape({
@@ -241,7 +240,10 @@ function initSolver(gl, canvas, camera) {
     });
     particleShape.initialize({ gl });
 
+    solver.addObstacles(gl);
     function drawScreenQuad() {
+
+
         time.update();
 
         solver.update(gl);

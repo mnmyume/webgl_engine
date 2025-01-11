@@ -45,8 +45,8 @@ export default class Solver{
     addObstacles(gl){
 
         gl.viewport(0, 0, this.screenWidth, this.screenHeight);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.blendFunc(gl.ONE, gl.ZERO);
+        gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
+        //gl.blendFunc(gl.ONE, gl.ZERO);
 
         // attach
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.obstacleBuffer.framebuffer);
@@ -63,13 +63,13 @@ export default class Solver{
         // gl.disable(gl.BLEND);
         // this.attach(gl);
 
-        this.addObstacles(gl);
+        //this.addObstacles(gl);
 
+        this.attach(gl);
         gl.viewport(0, 0, this.width, this.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
 
-        this.attach(gl);
 
         this.material[0].setTexture('posSampler', this.backBuffer.textures[0]);
         this.material[0].setTexture('velSampler', this.backBuffer.textures[1]);

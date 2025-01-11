@@ -7,6 +7,7 @@ void main() {
     if(length(p) < 1.0){
         vec2 norm = normalize(p * vec2(1, -1));
         gl_FragData[0] = vec4((norm + 1.0) / 2.0, 0, 1);
+        //gl_FragColor= vec4((norm + 1.0) / 2.0, 0, 1);
     } else {
         discard;
     }

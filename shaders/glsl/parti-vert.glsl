@@ -1,7 +1,6 @@
 uniform mat4 uPMatrix;
 uniform mat4 uVMatrix;
 uniform mat4 uMMatrix;
-uniform vec2 worldSize;
 
 attribute vec2 aUV;
 
