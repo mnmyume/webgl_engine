@@ -85,7 +85,7 @@ export function generateCirclePos(numParticle, generation) {
 // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
 // Math.Random()*2*PI ==> x,y
 // startTime: i*66.7/1000
-export function generateCirclePosRandom(numParticle, startSize, endSize) {
+export function generateCirclePosVelRandom(numParticle, startSize, endSize) {
     const posPixels = [];
     const radius = 50;
 
@@ -101,7 +101,9 @@ export function generateCirclePosRandom(numParticle, startSize, endSize) {
         // linearVelocity
         const tangentX = Math.sin(angle); 
         const tangentY = -Math.cos(angle);  
-        const speed = (angle / (2 * Math.PI)) * 60;
+        const
+            speedLength = 0,
+            speed = (angle / (2 * Math.PI)) * speedLength;
 
         posPixels.push(tangentX * speed, tangentY * speed, 0.0, endSize);
 
@@ -109,3 +111,4 @@ export function generateCirclePosRandom(numParticle, startSize, endSize) {
 
     return posPixels;
 }
+

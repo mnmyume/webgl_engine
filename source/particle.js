@@ -420,14 +420,7 @@ export class ParticleEmitter {
         let curTime = this.timeSource_(); 
         gl.uniform1f(material.dataLocation.uniforms["time"], curTime);
         
-        // TODO: Set up textures
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.rampTexture_);
-        gl.uniform1i(material.dataLocation.uniforms["rampSampler"], 0);
-        gl.activeTexture(gl.TEXTURE1);
-        gl.bindTexture(gl.TEXTURE_2D, this.colorTexture_);
-        gl.uniform1i(material.dataLocation.uniforms["colorSampler"], 1);
-        gl.activeTexture(gl.TEXTURE0);
+
 
         // Set up vertex attributes
         const sizeofFloat = 4;

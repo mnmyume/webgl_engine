@@ -65,20 +65,22 @@ export default class Material {
         for(var name in this.uniforms){
             const data = this.uniforms[name];
 
-            if(data.type=="bool" || data.type=="int" || data.type == 'sampler2D' || data.type == 'samplerCube')
+            if(data.type === "bool" ||
+                data.type === "int" ||
+                data.type === 'sampler2D' || data.type === 'samplerCube')
                 gl.uniform1i(this.dataLocation.uniforms[name], data.value);
-            else if(data.type=="float")
+            else if(data.type === "float")
                 gl.uniform1f(this.dataLocation.uniforms[name], data.value);
             else{
 
                 if(/vec/.test(data.type))
                     $assert(data.value, 'empty uniform vec');
 
-                if(data.type=="vec2")
+                if(data.type === "vec2")
                     gl.uniform2f(this.dataLocation.uniforms[name], data.value[0],data.value[1]);
-                else if(data.type=="vec3")
+                else if(data.type === "vec3")
                     gl.uniform3f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2]);
-                else if(data.type=="vec4")
+                else if(data.type === "vec4")
                     gl.uniform4f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2],data.value[3]);
             }
         };
