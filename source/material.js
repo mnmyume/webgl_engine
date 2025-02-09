@@ -55,7 +55,14 @@ export default class Material {
         for(const [key,value] of Object.entries(this.textures)){
             const texIndex = this.uniforms[key].value;
             gl.activeTexture(gl[`TEXTURE${texIndex}`]);
-            gl.bindTexture(gl.TEXTURE_2D, value.texture);
+            let TYPE;
+            if(value.type === "2DTexture")
+                TYPE = gl.TEXTURE_2D;
+            else if(value.type === "3DTexture")
+                TYPE = gl.TEXTURE_CUBE_MAP;
+            else
+                $assert(false);
+            gl.bindTexture(TYPE, value.texture);
         }
 
         // gl.enable(gl.BLEND);
@@ -96,6 +103,36 @@ export default class Material {
         }
         if (this.dataLocation.uniforms["uMMatrix"] && transform) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
+        }
+
+        if(this.dataLocation.uniforms["uNMatrix"]){
+            //transform
+            //http://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal
+            //http://www.lighthouse3d.com/tutorials/glsl-tutorial/the-normal-matrix/
+
+            // mat4.multiply(tmpMat4, cam.GetViewMatrix(), this.worldMatrix);
+            // mat4.invert(tmpMat4,tmpMat4);
+            // mat3.fromMat4(tmpMat3,tmpMat4);
+            // mat3.transpose(tmpMat3,tmpMat3);
+
+            //((camMat * worldMat)^-1)^T
+            //(worldMat^-1 * camMat^T)^T
+            //camMat * ((RS)^-1)^T
+            //camMat * R * S^-1
+            const tmpMat3 = math.mat3.create(),
+                viewMat3 = math.mat3.create();
+            math.mat3.fromMat4(viewMat3,cam.viewMatrix);
+            math.mat3.multiply(tmpMat3, viewMat3, transform.rotationMatrix);
+
+            let [sx, sy, sz]  = transform.scale;
+            const sxInv = sx==0?Math.maxInt:1/sx,
+                syInv = sy==0?Math.maxInt:1/sy,
+                szInv = sz==0?Math.maxInt:1/sz;
+            tmpMat3[0]*=sxInv;
+            tmpMat3[4]*=syInv;
+            tmpMat3[8]*=szInv;
+
+            gl.uniformMatrix3fv(this.dataLocation.uniforms["uNMatrix"], false, tmpMat3);
         }
 
     }

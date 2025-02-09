@@ -446,8 +446,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    //initSolver(gl, canvas,camera);
-     initBlastParticle(gl, camera);
+    initSolver(gl, canvas,camera);
+    //initBlastParticle(gl, camera);
 }
 
 main();
