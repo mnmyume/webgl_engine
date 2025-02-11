@@ -91,7 +91,6 @@ export default class Texture2D {
             this.width = data.width;
             this.height = data.height;
         }else{
-            debugger;
             $assert(this.width && this.height);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.FLOAT, data);
 

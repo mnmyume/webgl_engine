@@ -1,6 +1,6 @@
-uniform mat4 uPMatrix;
-uniform mat4 uVMatrix;
-uniform mat4 uMMatrix;
+uniform mat4 _uni_projMat;
+uniform mat4 _uni_viewMat;
+uniform mat4 _uni_modelMat;
 
 attribute vec3 vertex;
 attribute vec2 uv;
@@ -12,6 +12,6 @@ void main(void) {
     vec3 offset = size * vec3(uv.x, uv.y, 0);
     vec3 position = vertex + offset;
 
-    gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(position, 1.0);
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
     vUV = uv;
 }

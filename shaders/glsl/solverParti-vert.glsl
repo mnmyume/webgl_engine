@@ -1,6 +1,7 @@
-uniform mat4 uPMatrix;
-uniform mat4 uVMatrix;
-uniform mat4 uMMatrix;
+uniform mat4 _uni_projMat;
+uniform mat4 _uni_viewMat;
+uniform mat4 _uni_modelMat;
+uniform float uSize;
 
 attribute vec2 aUV;
 
@@ -16,8 +17,6 @@ void main(void) {
     vec2 position = texture2D(posSampler, aUV).rg;
     velocity = texture2D(velSampler, aUV).rg;
 
-    float size = 2.0;   
-
-    gl_PointSize = size; 
-    gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(position, 0.0, 1.0);
+    gl_PointSize = uSize; 
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 0.0, 1.0);
 }

@@ -10,6 +10,29 @@ export function genUVData(width, height) {
     return new Float32Array(uvArray);
 }
 
+export function genSquareRandPos() {
+
+}
+
+export function genSquareGridPos(width,height,fbWidth,fbHeight) {
+    const posPixels = [];
+    
+    const stepX = width / 4 / (fbWidth - 1);   
+    const stepY = height / 4 / (fbHeight - 1);  
+
+    const xCenter = 0; 
+    
+    for (let row = 0; row < fbHeight; row++) {
+        for (let col = 0; col < fbWidth; col++) {
+            const px = xCenter + col * stepX - (width / 8); 
+            const py = height / 2 - row * stepY;            
+            posPixels.push(px, py, 0, 1); 
+        }
+    }
+
+    return new Float32Array(posPixels);
+}
+
 export function testGenVel(fbWidth,fbHeight) {
     const posPixels = [];
 

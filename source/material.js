@@ -92,20 +92,20 @@ export default class Material {
             }
         };
 
-        if (this.dataLocation.uniforms["uPMatrix"] && camera) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uPMatrix"], false, camera.projectionMatrix);
+        if (this.dataLocation.uniforms["_uni_projMat"] && camera) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_projMat"], false, camera.projectionMatrix);
         }
-        if (this.dataLocation.uniforms["uVMatrix"] && camera) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uVMatrix"], false, camera.viewMatrix);
+        if (this.dataLocation.uniforms["_uni_viewMat"] && camera) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_viewMat"], false, camera.viewMatrix);
         }
         if (this.dataLocation.uniforms["uVInverseMatrix"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uVInverseMatrix"], false, camera.viewInverseMatrix);
         }
-        if (this.dataLocation.uniforms["uMMatrix"] && transform) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
+        if (this.dataLocation.uniforms["_uni_modelMat"] && transform) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_modelMat"], false, transform.getMatrix());
         }
 
-        if(this.dataLocation.uniforms["uNMatrix"]){
+        if(this.dataLocation.uniforms["_uni_normalMat"]){
             //transform
             //http://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal
             //http://www.lighthouse3d.com/tutorials/glsl-tutorial/the-normal-matrix/
@@ -132,7 +132,7 @@ export default class Material {
             tmpMat3[4]*=syInv;
             tmpMat3[8]*=szInv;
 
-            gl.uniformMatrix3fv(this.dataLocation.uniforms["uNMatrix"], false, tmpMat3);
+            gl.uniformMatrix3fv(this.dataLocation.uniforms["_uni_normalMat"], false, tmpMat3);
         }
 
     }

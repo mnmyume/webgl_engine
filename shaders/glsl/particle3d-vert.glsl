@@ -2,9 +2,9 @@ uniform float duration;
 uniform float time;
 uniform float frameDuration;
 uniform float numFrames;
-uniform mat4 uPMatrix;
-uniform mat4 uVMatrix;
-uniform mat4 uMMatrix;
+uniform mat4 _uni_projMat;
+uniform mat4 _uni_viewMat;
+uniform mat4 _uni_modelMat;
 
 // Incoming vertex attributes
 attribute vec4 uvLifeTimeFrameStart; // uv, lifeTime, frameStart
@@ -75,5 +75,5 @@ void main(void) {
 
     outputPercentLife = percentLife;
 
-    gl_Position = uPMatrix * uVMatrix * uMMatrix * rotatedPoint;
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * rotatedPoint;
 }

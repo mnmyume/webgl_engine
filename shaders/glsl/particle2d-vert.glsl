@@ -4,10 +4,10 @@
 #extension GL_OES_texture_float_linear : enable
 
 // uniform
-uniform mat4 uPMatrix;
-uniform mat4 uVMatrix;
+uniform mat4 _uni_projMat;
+uniform mat4 _uni_viewMat;
 uniform mat4 uVInverseMatrix;
-uniform mat4 uMMatrix;
+uniform mat4 _uni_modelMat;
 uniform float duration;
 uniform float time;
 uniform float numParticle;
@@ -81,5 +81,5 @@ void main() {
                        
   outputPercentLife = percentLife;
   gl_PointSize = size; 
-  gl_Position = uPMatrix * uVMatrix * uMMatrix * vec4(localPosition, 1.);
+  gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(localPosition, 1.);
 }

@@ -12,7 +12,7 @@ import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import ParticleMaterial from './particleMaterial.js';
 import Solver from './solver.js';
-import { testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosVelRandom } from './generatorHelper.js';
+import { genSquareRandPos, genSquareGridPos, testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosVelRandom } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, screenQuadVert, solverFrag, solverPartiVert, solverPartiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
 
@@ -140,7 +140,7 @@ function initSolver(gl, canvas, camera) {
     const solver = new Solver({
         shape:[quadShape, obstacleShape],
         material:[solverMaterial, obstacleMaterial],
-        width:128, height:128,
+        width:16, height:16,
         screenWidth: canvas.width, screenHeight: canvas.height
     }
     );
@@ -150,7 +150,7 @@ function initSolver(gl, canvas, camera) {
     const fbHeight = solver.height;
     const partiCount = fbWidth * fbHeight;
 
-    solver.backBuffer.textures[0].setData(gl, testGenRandPos(canvas.width,canvas.height, fbWidth,fbHeight));
+    solver.backBuffer.textures[0].setData(gl, genSquareGridPos(canvas.width,canvas.height, fbWidth,fbHeight));
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
 
     solverMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
@@ -168,59 +168,73 @@ function initSolver(gl, canvas, camera) {
     const particleTransform = new Transform();
     particleTransform.setPosition(0, 0, 0);
 
-    // init material
-    const particleMaterial = new Material({
-        shader: particleShader,
-    })
-    particleMaterial.initialize({ gl });
+    // init texture
+    const colorTextureImage = new Image();
+    colorTextureImage.src = '../resources/whiteCircle.png';
+    colorTextureImage.onload = _=>{
+            const colorTexture = new Texture2D('colorTexture', {
+                image: colorTextureImage,
+                scaleDown:'LINEAR',
+                scaleUp:'LINEAR'
+            });
+            colorTexture.initialize({ gl });
 
-    // init shape
-    const particleShape = new PartiShape({
-        partiCount: partiCount, 
-        data: genUVData(fbWidth, fbHeight)
-    });
-    particleShape.initialize({ gl });
+        // init material
+        const particleMaterial = new Material({
+            shader: particleShader,
+        })
+        particleMaterial.initialize({ gl });
+        particleMaterial.setTexture('colorSampler', colorTexture);
+        particleMaterial.uniforms['uSize'].value = 10;
 
-    solver.addObstacles(gl);
-    function drawScreenQuad() {
+        // init shape
+        const particleShape = new PartiShape({
+            partiCount: partiCount, 
+            data: genUVData(fbWidth, fbHeight)
+        });
+        particleShape.initialize({ gl });
+
+        // solver.addObstacles(gl);
+        function drawScreenQuad() {
 
 
-        time.update();
+            time.update();
 
-        solver.update(gl);
+            solver.update(gl);
 
-        gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.viewport(0, 0, canvas.width, canvas.height);
 
-        gl.clearColor(0, 0, 0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.colorMask(true, true, true, true);
+            gl.clearColor(0, 0, 0, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.colorMask(true, true, true, true);
 
-        quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
+            quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
 
-        particleMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
-        particleMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
+            particleMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
+            particleMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
 
-        // draw screen quad
-        quadMaterial.preDraw(gl, camera, quadTransform);
-        quadShape.draw(gl, quadMaterial);
-        quadMaterial.postDraw(gl, camera, quadTransform);
+            // draw screen quad
+            quadMaterial.preDraw(gl, camera, quadTransform);
+            quadShape.draw(gl, quadMaterial);
+            quadMaterial.postDraw(gl, camera, quadTransform);
 
-        // draw particles
-        particleMaterial.preDraw(gl, camera, particleTransform);
-        particleShape.draw(gl, particleMaterial);
-        particleMaterial.postDraw(gl, camera, particleTransform);
+            // draw particles
+            particleMaterial.preDraw(gl, camera, particleTransform);
+            particleShape.draw(gl, particleMaterial);
+            particleMaterial.postDraw(gl, camera, particleTransform);
 
-        if (fpsCounter) {
-            fpsCounter.update();
+            if (fpsCounter) {
+                fpsCounter.update();
+            }
+
+            requestAnimationFrame(drawScreenQuad);
         }
 
-        requestAnimationFrame(drawScreenQuad);
+        drawScreenQuad();
     }
-
-    drawScreenQuad();
 }
 
-function      initBlastParticle(gl, camera) {
+function initBlastParticle(gl, camera) {
 
     const particleParams =  {
         numGen: 1,
@@ -441,12 +455,13 @@ function main() {
         cos45 = Math.cos(45*Math.PI/180),
         sin35 = Math.sin(35*Math.PI/180);
     camera.setPosition([r*cos45, r*sin35, r*cos45]);
+    camera.setPosition([0, 0, 800]);
     camera.updateProjection();
     camera.updateView();
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    initSolver(gl, canvas,camera);
+    initSolver(gl, canvas, camera);
     //initBlastParticle(gl, camera);
 }
 
