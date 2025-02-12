@@ -33,6 +33,7 @@ vec2 circleVelocityField(vec2 position) {
 float halton(int base, int index) {
     float result = 0.0;
     float digitWeight = 1.0;
+    digitWeight = digitWeight / float(base); 
     int nominator;
     
     for (int i = 0; i < 10; i++) {
@@ -49,7 +50,7 @@ float halton(int base, int index) {
         }
     }
 
-    return result - floor(result);
+    return result;
 }
 
 void updatePosVel(inout vec2 pos, inout vec2 vel, vec2 acc, vec2 obs, vec2 index) {
