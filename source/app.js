@@ -12,7 +12,7 @@ import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import ParticleMaterial from './particleMaterial.js';
 import Solver from './solver.js';
-import { genSquareRandPos, genSquareGridPos, testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosVelRandom } from './generatorHelper.js';
+import { genRectHaltonPos, genRectGridPos, testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosVelRandom } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, screenQuadVert, solverFrag, solverPartiVert, solverPartiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
 
@@ -150,11 +150,16 @@ function initSolver(gl, canvas, camera) {
     const fbHeight = solver.height;
     const partiCount = fbWidth * fbHeight;
 
-    solver.backBuffer.textures[0].setData(gl, genSquareGridPos(canvas.width,canvas.height, fbWidth,fbHeight));
+    const gridWidth = 200;
+    const gridHeight = 200;
+    const gridCorner = [0,0];
+
+    solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth,gridHeight,gridCorner,fbWidth,fbHeight));
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
 
-    solverMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
-    solverMaterial.uniforms['resolution'].value = [fbWidth,fbHeight];
+    solverMaterial.uniforms['worldSize'].value = [canvas.width, canvas.height];
+    solverMaterial.uniforms['resolution'].value = [fbWidth, fbHeight];
+    solverMaterial.uniforms['grid'].value = [gridWidth, gridHeight, ...gridCorner];
 
     //--------------------------------------------------
     // init particle shader
@@ -170,7 +175,7 @@ function initSolver(gl, canvas, camera) {
 
     // init texture
     const colorTextureImage = new Image();
-    colorTextureImage.src = '../resources/whiteCircle.png';
+    colorTextureImage.src = '../resources/whiteCircle.jpg';
     colorTextureImage.onload = _=>{
             const colorTexture = new Texture2D('colorTexture', {
                 image: colorTextureImage,

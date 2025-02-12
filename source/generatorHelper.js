@@ -10,27 +10,61 @@ export function genUVData(width, height) {
     return new Float32Array(uvArray);
 }
 
-export function genSquareRandPos() {
-
+function halton(base, index) {
+    let result = 0.0;
+    let digitWeight = 1.0;
+    
+    while (index > 0) {
+        digitWeight = digitWeight / base;
+        let nominator = index - Math.floor(index / base) * base;  // mod
+        result += nominator * digitWeight;
+        index = Math.floor(index / base);  
+    }
+    
+    return result;
 }
 
-export function genSquareGridPos(width,height,fbWidth,fbHeight) {
+
+export function genRectHaltonPos(width, height, corner, fbWidth, fbHeight) {
     const posPixels = [];
     
-    const stepX = width / 4 / (fbWidth - 1);   
-    const stepY = height / 4 / (fbHeight - 1);  
+    const xStart = corner[0];  
+    const yStart = corner[1];  
 
-    const xCenter = 0; 
-    
+    const stepX = width / fbWidth;  
+    const stepY = height / fbHeight;  
+
     for (let row = 0; row < fbHeight; row++) {
         for (let col = 0; col < fbWidth; col++) {
-            const px = xCenter + col * stepX - (width / 8); 
-            const py = height / 2 - row * stepY;            
-            posPixels.push(px, py, 0, 1); 
+            const haltonX = halton(2, row * fbWidth + col);  
+            const haltonY = halton(3, row * fbWidth + col);  
+            const px = xStart + col * stepX + haltonX * stepX;  
+            const py = yStart + row * stepY + haltonY * stepY;  
+            posPixels.push(px, py, 0, 1);  
         }
     }
 
-    return new Float32Array(posPixels);
+    return new Float32Array(posPixels);  
+}
+
+export function genRectGridPos(width, height, corner, fbWidth, fbHeight) {
+    const posPixels = [];
+    
+    const stepX = width / (fbWidth - 1);  
+    const stepY = height / (fbHeight - 1);  
+
+    const xStart = corner[0];  
+    const yStart = corner[1];  
+    
+    for (let row = 0; row < fbHeight; row++) {
+        for (let col = 0; col < fbWidth; col++) {
+            const px = xStart + col * stepX;  
+            const py = yStart + row * stepY;  
+            posPixels.push(px, py, 0, 1);  
+        }
+    }
+
+    return new Float32Array(posPixels);  
 }
 
 export function testGenVel(fbWidth,fbHeight) {
