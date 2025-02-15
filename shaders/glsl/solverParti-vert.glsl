@@ -14,9 +14,9 @@ varying vec2 velocity;
 
 void main(void) {
 
-    vec2 position = texture2D(posSampler, aUV).rg;
+    vec3 position = texture2D(posSampler, aUV).rgb;
     velocity = texture2D(velSampler, aUV).rg;
 
     gl_PointSize = uSize; 
-    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 0.0, 1.0);
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
 }

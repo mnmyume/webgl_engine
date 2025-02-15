@@ -204,6 +204,7 @@ function initSolver(gl, canvas, camera) {
 
 
             time.update();
+            solverMaterial.uniforms['time'].value = time.ElapsedTime;
 
             solver.update(gl);
 
@@ -460,7 +461,7 @@ function main() {
         cos45 = Math.cos(45*Math.PI/180),
         sin35 = Math.sin(35*Math.PI/180);
     camera.setPosition([r*cos45, r*sin35, r*cos45]);
-    camera.setPosition([0, 0, 800]);
+    // camera.setPosition([0, 0, 800]);
     camera.updateProjection();
     camera.updateView();
     camera.updateViewInverse();

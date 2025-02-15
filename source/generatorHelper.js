@@ -29,18 +29,18 @@ export function genRectHaltonPos(width, height, corner, fbWidth, fbHeight) {
     const posPixels = [];
     
     const xStart = corner[0];  
-    const yStart = corner[1];  
+    const zStart = corner[1];  
 
     const stepX = width / fbWidth;  
-    const stepY = height / fbHeight;  
+    const stepZ = width / fbHeight;  
 
     for (let row = 0; row < fbHeight; row++) {
         for (let col = 0; col < fbWidth; col++) {
             const haltonX = halton(2, row * fbWidth + col);  
-            const haltonY = halton(3, row * fbWidth + col);  
+            const haltonZ = halton(3, row * fbWidth + col);  
             const px = xStart + col * stepX + haltonX * stepX;  
-            const py = yStart + row * stepY + haltonY * stepY;  
-            posPixels.push(px, py, 0, 1);  
+            const pz = zStart + row * stepZ + haltonZ * stepZ;  
+            posPixels.push(px, height, pz, 1);  
         }
     }
 
@@ -59,8 +59,8 @@ export function genRectGridPos(width, height, corner, fbWidth, fbHeight) {
     for (let row = 0; row < fbHeight; row++) {
         for (let col = 0; col < fbWidth; col++) {
             const px = xStart + col * stepX;  
-            const py = yStart + row * stepY;  
-            posPixels.push(px, py, 0, 1);  
+            const pz = yStart + row * stepY;  
+            posPixels.push(px, 0, pz, 1);  
         }
     }
 
