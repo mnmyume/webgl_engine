@@ -46,12 +46,12 @@ float halton(int base, int index) {
     return result;
 }
 
-vec3 velField(vec3 pos) {
+vec3 velField(vec3 pos, vec3 scalar) {
     float x = fract(sin(dot2(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
     float y = fract(sin(dot2(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
-    float z = 0.0;
+    float z = fract(sin(dot2(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
 
-    return vec3(x,y,z);
+    return scalar*normalize(vec3(x,y,z));
 }
 
 void updatePosVel(inout vec3 pos, inout vec3 vel, vec3 acc, vec2 obs, vec2 index) {
@@ -96,7 +96,7 @@ void main() {
     vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
 
     updatePosVel(pos, vel, gravity, obs, gl_FragCoord.xy);
-    vel = vel+velField(pos);
+    vel = vel+velField(pos,vec3(0.5,.2,0.5));
 
     gl_FragData[0] = vec4(pos,1);
     gl_FragData[1] = vec4(vel,1); 
