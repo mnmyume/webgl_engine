@@ -1,22 +1,47 @@
+// uniform
 uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
 uniform mat4 _uni_modelMat;
-uniform float uSize;
 
-attribute vec2 aUV;
+uniform float duration;
+uniform float time;
+uniform float partiCount;
+uniform float geneCount;
+uniform float lifeTime;
 
 #value posSampler:0
 uniform sampler2D posSampler;
 #value velSampler:1
 uniform sampler2D velSampler;
 
-varying vec2 velocity;
+// attribute
+attribute float startTime;
+attribute float particleID;
+
+const float NUM_COMPONENTS = 2.0;
+float pidPixels(float pid){
+  return  pid*NUM_COMPONENTS;
+}
+float pidPixelsOffset(float pid, float offset){
+  return  pid*NUM_COMPONENTS + offset + 0.5;
+}
 
 void main(void) {
 
-    vec3 position = texture2D(posSampler, aUV).rgb;
-    velocity = texture2D(velSampler, aUV).rg;
+    float localTime = mod(time - startTime, duration) ;
+    float percentLife = localTime / lifeTime;
+    float generation = floor((time - startTime) / duration);
 
-    gl_PointSize = uSize; 
+    float componentOffset = 0.0;
+    float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
+    float posTexCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);  
+    vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
+
+    vec3 position = texture2D(posSampler, posTexCoord).rgb;
+
+    float size = texture2D(posSampler, posTexCoord).a;
+    size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
+
+    gl_PointSize = size; 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
 }

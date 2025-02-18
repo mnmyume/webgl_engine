@@ -6,13 +6,14 @@ import PartiShape from './partiShape.js';
 import ObstacleShape from './obstacleShape.js';
 import Camera from './camera.js';
 import Material from './material.js';
+import ParticleMaterial from './particleMaterial.js';
+import PartiMaterial from './partiMaterial.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import Time from './time.js';
-import ParticleMaterial from './particleMaterial.js';
 import Solver from './solver.js';
-import { genRectHaltonPos, genRectGridPos, testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosVelRandom } from './generatorHelper.js';
+import { genRectHaltonPos, testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosVelRandom } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, screenQuadVert, solverFrag, solverPartiVert, solverPartiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
 
@@ -73,6 +74,20 @@ function initSimpleQuad(gl, camera) {
 }
 
 function initSolver(gl, canvas, camera) {
+
+    // set params
+    const partiParams = {
+        geneCount: 16,
+        rate: 10,
+        duration: 10,
+        lifeTime: 10,
+        size: 10,
+    }
+    const partiCount = partiParams.duration * partiParams.rate;
+    
+    const gridWidth = 200;
+    const gridHeight = 200;
+    const gridCorner = [0,0];
 
     // ----------------------------------------
     // init quad shader
@@ -140,7 +155,7 @@ function initSolver(gl, canvas, camera) {
     const solver = new Solver({
         shape:[quadShape, obstacleShape],
         material:[solverMaterial, obstacleMaterial],
-        width:16, height:16,
+        width: partiCount, height: partiParams.geneCount,
         screenWidth: canvas.width, screenHeight: canvas.height
     }
     );
@@ -148,13 +163,8 @@ function initSolver(gl, canvas, camera) {
 
     const fbWidth = solver.width;
     const fbHeight = solver.height;
-    const partiCount = fbWidth * fbHeight;
 
-    const gridWidth = 200;
-    const gridHeight = 200;
-    const gridCorner = [0,0];
-
-    solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth,gridHeight,gridCorner,fbWidth,fbHeight));
+    solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth, gridHeight, gridCorner, fbWidth, fbHeight, partiParams.size));
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
 
     solverMaterial.uniforms['worldSize'].value = [canvas.width, canvas.height];
@@ -163,80 +173,80 @@ function initSolver(gl, canvas, camera) {
 
     //--------------------------------------------------
     // init particle shader
-    const particleShader = new Shader({
+    const partiShader = new Shader({
         vertexSource: solverPartiVert,
         fragmentSource: solverPartiFrag,
     });
-    particleShader.initialize({ gl });
+    partiShader.initialize({ gl });
 
     // init transform
-    const particleTransform = new Transform();
-    particleTransform.setPosition(0, 0, 0);
+    const partiTransform = new Transform();
+    partiTransform.setPosition(0, 0, 0);
 
     // init texture
     const colorTextureImage = new Image();
     colorTextureImage.src = '../resources/whiteCircle.jpg';
     colorTextureImage.onload = _=>{
-            const colorTexture = new Texture2D('colorTexture', {
-                image: colorTextureImage,
-                scaleDown:'LINEAR',
-                scaleUp:'LINEAR'
-            });
-            colorTexture.initialize({ gl });
+    const colorTexture = new Texture2D('colorTexture', {
+        image: colorTextureImage,
+        scaleDown:'LINEAR',
+        scaleUp:'LINEAR'
+    });
+    colorTexture.initialize({ gl });
 
-        // init material
-        const particleMaterial = new Material({
-            shader: particleShader,
-        })
-        particleMaterial.initialize({ gl });
-        particleMaterial.setTexture('colorSampler', colorTexture);
-        particleMaterial.uniforms['uSize'].value = 10;
+    // init material
+    const partiMaterial = new PartiMaterial({
+        shader: partiShader,
+        partiCount,
+        ...partiParams,
+    })
+    partiMaterial.initialize({ gl });
+    partiMaterial.setTexture('colorSampler', colorTexture);
 
-        // init shape
-        const particleShape = new PartiShape({
-            partiCount: partiCount, 
-            data: genUVData(fbWidth, fbHeight)
-        });
-        particleShape.initialize({ gl });
+    // init shape
+    const partiShape = new StaticEmitter({
+        data: {...partiParams, partiCount: partiCount}
+    });
+    partiShape.initialize({ gl });
 
-        // solver.addObstacles(gl);
-        function drawScreenQuad() {
+    // solver.addObstacles(gl);
+    function drawScreenQuad() {
 
 
-            time.update();
-            solverMaterial.uniforms['time'].value = time.ElapsedTime;
+        time.update();
+        solverMaterial.uniforms['time'].value = time.ElapsedTime;
 
-            solver.update(gl);
+        solver.update(gl);
 
-            gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.viewport(0, 0, canvas.width, canvas.height);
 
-            gl.clearColor(0, 0, 0, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            gl.colorMask(true, true, true, true);
+        gl.clearColor(0, 0, 0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.colorMask(true, true, true, true);
 
-            quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
+        quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
 
-            particleMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
-            particleMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
+        partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
+        partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
 
-            // draw screen quad
-            quadMaterial.preDraw(gl, camera, quadTransform);
-            quadShape.draw(gl, quadMaterial);
-            quadMaterial.postDraw(gl, camera, quadTransform);
+        // draw screen quad
+        quadMaterial.preDraw(gl, camera, quadTransform);
+        quadShape.draw(gl, quadMaterial);
+        quadMaterial.postDraw(gl);
 
-            // draw particles
-            particleMaterial.preDraw(gl, camera, particleTransform);
-            particleShape.draw(gl, particleMaterial);
-            particleMaterial.postDraw(gl, camera, particleTransform);
+        // draw particles
+        partiMaterial.preDraw(gl, time, camera, partiTransform);
+        partiShape.draw(gl, partiMaterial);
+        partiMaterial.postDraw(gl);
 
-            if (fpsCounter) {
-                fpsCounter.update();
-            }
-
-            requestAnimationFrame(drawScreenQuad);
+        if (fpsCounter) {
+            fpsCounter.update();
         }
 
-        drawScreenQuad();
+        requestAnimationFrame(drawScreenQuad);
+    }
+
+    drawScreenQuad();
     }
 }
 
@@ -253,7 +263,7 @@ function initBlastParticle(gl, camera) {
         velocityRange: [0, 0, 0],    // [15, 15, 15]
         fps: 36
     }
-    const numParticle = particleParams.duration * particleParams.rate;
+    const partiCount = particleParams.duration * particleParams.rate;
 
     // init particle shader
     const particleShader = new Shader({
@@ -288,9 +298,9 @@ function initBlastParticle(gl, camera) {
         colorTexture.initialize({ gl });
 
         const posPixels = generateCirclePosVelRandom(
-            numParticle, particleParams.startSize, particleParams.endSize);
+            partiCount, particleParams.startSize, particleParams.endSize);
         const initPosVelTexture = new Texture2D('initPosVelTexture', {
-            width: numParticle * 2, height: particleParams.numGen,
+            width: partiCount * 2, height: particleParams.numGen,
             data: new Float32Array(posPixels)
         });
         initPosVelTexture.initialize({ gl });
@@ -301,7 +311,7 @@ function initBlastParticle(gl, camera) {
             texWidth: 768,
             texHeight: 768,
             numFrames: 36,
-            numParticle,
+            partiCount,
             ...particleParams,
         })
         particleMaterial.initialize({ gl });
@@ -310,7 +320,7 @@ function initBlastParticle(gl, camera) {
         particleMaterial.setTexture('generatorSampler', initPosVelTexture);
 
         const particleShape = new StaticEmitter({
-            data: {...particleParams, numParticle: numParticle}
+            data: {...particleParams, partiCount: partiCount}
         });
         particleShape.initialize({ gl });
         function drawParticles() {
@@ -359,7 +369,7 @@ function initSnowParticle(gl, camera) {
         velocityRange: [0, 0, 0],    // [15, 15, 15]
         fps: 36
     }
-    const numParticle = particleParams.duration * particleParams.rate;
+    const partiCount = particleParams.duration * particleParams.rate;
 
     // init particle shader
     const particleShader = new Shader({
@@ -394,9 +404,9 @@ function initSnowParticle(gl, camera) {
         colorTexture.initialize({ gl });
 
         const posPixels = generateCirclePosVelRandom(
-            numParticle, particleParams.startSize, particleParams.endSize);
+            partiCount, particleParams.startSize, particleParams.endSize);
         const initPosVelTexture = new Texture2D('initPosVelTexture', {
-            width: numParticle * 2, height: particleParams.numGen,
+            width: partiCount * 2, height: particleParams.numGen,
             data: new Float32Array(posPixels)
         });
         initPosVelTexture.initialize({ gl });
@@ -407,7 +417,7 @@ function initSnowParticle(gl, camera) {
             texWidth: 768,
             texHeight: 768,
             numFrames: 36,
-            numParticle,
+            partiCount,
             ...particleParams,
         })
         particleMaterial.initialize({ gl });
@@ -416,7 +426,7 @@ function initSnowParticle(gl, camera) {
         particleMaterial.setTexture('generatorSampler', initPosVelTexture);
 
         const particleShape = new StaticEmitter({
-            data: {...particleParams, numParticle: numParticle}
+            data: {...particleParams, partiCount: partiCount}
         });
         particleShape.initialize({ gl });
         function drawParticles() {
@@ -468,7 +478,7 @@ function main() {
 
     // initSimpleQuad(gl, camera);
     initSolver(gl, canvas, camera);
-    //initBlastParticle(gl, camera);
+    // initBlastParticle(gl, camera);
 }
 
 main();

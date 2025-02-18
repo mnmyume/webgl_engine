@@ -25,42 +25,19 @@ function halton(base, index) {
 }
 
 
-export function genRectHaltonPos(width, height, corner, fbWidth, fbHeight) {
+export function genRectHaltonPos(width, height, corner, fbWidth, fbHeight, size) {
     const posPixels = [];
     
     const xStart = corner[0];  
     const zStart = corner[1];  
 
-    const stepX = width / fbWidth;  
-    const stepZ = width / fbHeight;  
-
     for (let row = 0; row < fbHeight; row++) {
         for (let col = 0; col < fbWidth; col++) {
             const haltonX = halton(2, row * fbWidth + col);  
             const haltonZ = halton(3, row * fbWidth + col);  
-            const px = xStart + col * stepX + haltonX * stepX;  
-            const pz = zStart + row * stepZ + haltonZ * stepZ;  
-            posPixels.push(px, height, pz, 1);  
-        }
-    }
-
-    return new Float32Array(posPixels);  
-}
-
-export function genRectGridPos(width, height, corner, fbWidth, fbHeight) {
-    const posPixels = [];
-    
-    const stepX = width / (fbWidth - 1);  
-    const stepY = height / (fbHeight - 1);  
-
-    const xStart = corner[0];  
-    const yStart = corner[1];  
-    
-    for (let row = 0; row < fbHeight; row++) {
-        for (let col = 0; col < fbWidth; col++) {
-            const px = xStart + col * stepX;  
-            const pz = yStart + row * stepY;  
-            posPixels.push(px, 0, pz, 1);  
+            const px = xStart + haltonX * width;  
+            const pz = zStart + haltonZ * width;  
+            posPixels.push(px, height, pz, size);  
         }
     }
 
@@ -75,7 +52,8 @@ export function testGenVel(fbWidth,fbHeight) {
             const vx = 5*(Math.random() * 2 - 1); // Random value between -1 and 1
             const vy = 100*(-Math.random()); // Random value between -1 and 0
 
-            posPixels.push(vx, vy, 0, 1);
+            // posPixels.push(vx, vy, 0, 1);
+            posPixels.push(0,0,0,1)
         }
 
     return new Float32Array(posPixels);
@@ -120,14 +98,14 @@ export function genQuadWithUV(out, index) {
     }
 }
 
-export function generateCirclePos(numParticle, generation) { 
+export function generateCirclePos(partiCount, generation) { 
     const posPixels = [];
     const radius = 50;
 
     for(let row = 0; row < generation; row++) {
         const offset = 2 * Math.PI / generation * row;  // Math.random() *
-        for (let col = 0; col < numParticle; col++) {
-            const angle = 2 * Math.PI / (numParticle) * col;
+        for (let col = 0; col < partiCount; col++) {
+            const angle = 2 * Math.PI / (partiCount) * col;
             const x = radius * Math.cos(angle + offset);
             const y = radius * Math.sin(angle + offset);
 
@@ -142,11 +120,11 @@ export function generateCirclePos(numParticle, generation) {
 // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
 // Math.Random()*2*PI ==> x,y
 // startTime: i*66.7/1000
-export function generateCirclePosVelRandom(numParticle, startSize, endSize) {
+export function generateCirclePosVelRandom(partiCount, startSize, endSize) {
     const posPixels = [];
     const radius = 50;
 
-    for(let i = 0; i < numParticle; i++) {
+    for(let i = 0; i < partiCount; i++) {
 
         // position
         const angle = Math.random() * 2 * Math.PI; 

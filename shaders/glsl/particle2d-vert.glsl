@@ -10,7 +10,7 @@ uniform mat4 uVInverseMatrix;
 uniform mat4 _uni_modelMat;
 uniform float duration;
 uniform float time;
-uniform float numParticle;
+uniform float partiCount;
 uniform float numGen;
 uniform vec3 gravity;
 uniform float lifeTime;
@@ -56,14 +56,14 @@ void main() {
   float generation = floor((time - startTime) / duration);
 
   float componentOffset = 0.0;
-  float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(numParticle);
+  float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
   float posTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
   vec3 position = texture2D(generatorSampler, posTexCoord).xyz;
   float startSize = texture2D(generatorSampler, posTexCoord).w;
 
   componentOffset = 1.0;
-  float linearVelTexCoordU =  pidPixelsOffset(particleID, componentOffset) / pidPixels(numParticle);
+  float linearVelTexCoordU =  pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
   float linearVelTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
   vec2 linearVelTexCoord = vec2(linearVelTexCoordU, linearVelTexCoordV);
   vec3 linearVelocity = texture2D(generatorSampler, linearVelTexCoord).xyz;

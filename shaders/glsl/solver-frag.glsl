@@ -10,8 +10,6 @@ uniform sampler2D obsSampler;
 
 #value deltaTime:0.01666
 uniform float deltaTime;
-#value center:(0,0)
-uniform vec2 center;
 
 uniform vec4 grid;  // width.r, height.g, corner.ba
 uniform vec2 resolution;
@@ -87,18 +85,17 @@ void main() {
 
     vec2 uv = gl_FragCoord.xy / resolution;    
 
-    vec4 position = texture2D(posSampler, uv);
-    vec4 velocity = texture2D(velSampler, uv);
-    vec3 pos = vec3(position.x, position.y, position.z);
-    vec3 vel = vec3(velocity.x, velocity.y, velocity.z);
+    vec3 pos = texture2D(posSampler, uv).xyz;
+    vec3 vel = texture2D(velSampler, uv).xyz;
+    float size = texture2D(posSampler, uv).w;
 
     vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
     vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
 
     updatePosVel(pos, vel, gravity, obs, gl_FragCoord.xy);
-    vel = vel+velField(pos,vec3(0.5,.2,0.5));
+    // vel = vel+velField(pos,vec3(0.5,.2,0.5));
 
-    gl_FragData[0] = vec4(pos,1);
+    gl_FragData[0] = vec4(pos,size);
     gl_FragData[1] = vec4(vel,1); 
     gl_FragData[2] = vec4(0, 1, 0, 1);
     gl_FragData[3] = vec4(0.01, 0.01, 0.02,1);

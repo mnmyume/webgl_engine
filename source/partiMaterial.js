@@ -3,20 +3,14 @@ import Texture2D from './texture2d.js';
 import Material from "./material.js";
 
 
-export default class ParticleMaterial extends Material{
+export default class PartiMaterial extends Material{
 
     constructor(params = {}) {
         super(params);
-        this.numFrames = params.numFrames || 1;
         this.partiCount = params.partiCount || 1;
-        this.numGen = params.numGen || 1;
+        this.geneCount = params.geneCount || 1;
         this.duration = params.duration || 1;
-        this.gravity = [0, -9.8, 0];
         this.lifeTime = params.lifeTime || 1;
-        this.tileSize = params.tileSize || null;
-        this.texWidth = params.texWidth || null;
-        this.texHeight = params.texHeight || null;
-        this.fps = params.fps || 60;
     }
 
 
@@ -32,14 +26,8 @@ export default class ParticleMaterial extends Material{
 
         this.uniforms["duration"].value = this.duration;
         this.uniforms["partiCount"].value = this.partiCount;
-        this.uniforms["numGen"].value = this.numGen;
-        this.uniforms["gravity"].value = this.gravity;
+        this.uniforms["geneCount"].value = this.geneCount;
         this.uniforms["lifeTime"].value = this.lifeTime;
-
-        this.uniforms["_ANI_TEX_0"].value = [
-            this.texWidth, this.texHeight, this.tileSize, this.numFrames];
-
-        this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
 
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
