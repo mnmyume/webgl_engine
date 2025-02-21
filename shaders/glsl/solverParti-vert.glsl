@@ -26,22 +26,27 @@ float pidPixelsOffset(float pid, float offset){
   return  pid*NUM_COMPONENTS + offset + 0.5;
 }
 
+varying float teststartTime;
+
 void main(void) {
 
-    float localTime = mod(time - startTime, duration) ;
-    float percentLife = localTime / lifeTime;
-    float generation = floor((time - startTime) / duration);
+  // float localTime = mod(time - startTime, duration);
+  float localTime = time - startTime;
+  float percentLife = localTime / lifeTime;
+  float generation = floor((time - startTime) / duration);
 
-    float componentOffset = 0.0;
-    float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
-    float posTexCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);  
-    vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
+  float componentOffset = 0.0;
+  float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
+  float posTexCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);  
+  vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
 
-    vec3 position = texture2D(posSampler, posTexCoord).rgb;
+  vec3 position = texture2D(posSampler, posTexCoord).rgb;
 
-    float size = texture2D(posSampler, posTexCoord).a;
-    size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
+  float size = texture2D(posSampler, posTexCoord).a;
+  size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
 
-    gl_PointSize = size; 
-    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
+  teststartTime = startTime;
+
+  gl_PointSize = size; 
+  gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
 }

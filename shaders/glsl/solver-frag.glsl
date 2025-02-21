@@ -60,13 +60,13 @@ void updatePosVel(inout vec3 pos, inout vec3 vel, vec3 acc, vec2 obs, vec2 index
     int n = int(index.x+1.0 + index.y*resolution.x);
     vec2 random = vec2(halton(2, n), halton(3, n));
     // reset pos if particle out
-    if(abs(pos.x) > width || abs(pos.y) > height){
-        pos.y = grid.g; 
-        pos.z = grid.a + grid.r * random.y;
-        pos.x = grid.b + grid.r * random.x; 
-        vel.x = 0.0;    // randSeed * 5.0;
-        vel.y = 0.0;    // (randSeed - 1.0 + index.y/resolution.y)*60.0;
-    }
+    // if(abs(pos.x) > width || abs(pos.y) > height){
+    //     pos.y = grid.g; 
+    //     pos.z = grid.a + grid.r * random.y;
+    //     pos.x = grid.b + grid.r * random.x; 
+    //     vel.x = 0.0;    // randSeed * 5.0;
+    //     vel.y = 0.0;    // (randSeed - 1.0 + index.y/resolution.y)*60.0;
+    // }
     // obstacle
     if (obs.y > 0.0) {
         pos.xy = pos.xy - vel.xy * deltaTime;

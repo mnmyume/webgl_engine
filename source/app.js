@@ -81,7 +81,7 @@ function initSolver(gl, canvas, camera) {
         rate: 10,
         duration: 10,
         lifeTime: 10,
-        size: 10,
+        size: 15,
     }
     const partiCount = partiParams.duration * partiParams.rate;
     
