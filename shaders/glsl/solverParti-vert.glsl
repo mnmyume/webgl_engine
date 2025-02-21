@@ -3,8 +3,8 @@ uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
 uniform mat4 _uni_modelMat;
 
-uniform float duration;
 uniform float time;
+uniform float duration;
 uniform float partiCount;
 uniform float geneCount;
 uniform float lifeTime;
@@ -18,6 +18,8 @@ uniform sampler2D velSampler;
 attribute float startTime;
 attribute float particleID;
 
+varying float outputPercentLife;
+
 const float NUM_COMPONENTS = 2.0;
 float pidPixels(float pid){
   return  pid*NUM_COMPONENTS;
@@ -25,8 +27,6 @@ float pidPixels(float pid){
 float pidPixelsOffset(float pid, float offset){
   return  pid*NUM_COMPONENTS + offset + 0.5;
 }
-
-varying float teststartTime;
 
 void main(void) {
 
@@ -44,8 +44,8 @@ void main(void) {
 
   float size = texture2D(posSampler, posTexCoord).a;
   size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
-
-  teststartTime = startTime;
+  
+  outputPercentLife = percentLife;
 
   gl_PointSize = size; 
   gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);

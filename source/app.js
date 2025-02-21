@@ -13,7 +13,7 @@ import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import Solver from './solver.js';
-import { genRectHaltonPos, testGenRandPos, testGenPos, testGenVel, genUVData, genQuadWithUV, generateCirclePos, generateCirclePosVelRandom } from './generatorHelper.js';
+import { genPartiInfo, genRectHaltonPos, testGenPos, testGenVel, generateCirclePos, generateCirclePosVelRandom, genUVData, genQuadWithUV, } from './generatorHelper.js';
 
 import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, screenQuadVert, solverFrag, solverPartiVert, solverPartiFrag, obstacleVert, obstacleFrag} from "../shaders/output.js";
 
@@ -77,7 +77,7 @@ function initSolver(gl, canvas, camera) {
 
     // set params
     const partiParams = {
-        geneCount: 16,
+        geneCount: 1,
         rate: 10,
         duration: 10,
         lifeTime: 10,
@@ -166,10 +166,15 @@ function initSolver(gl, canvas, camera) {
 
     solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth, gridHeight, gridCorner, fbWidth, fbHeight, partiParams.size));
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
+    solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiParams.duration));
 
+    solverMaterial.uniforms['grid'].value = [gridWidth, gridHeight, ...gridCorner];
     solverMaterial.uniforms['worldSize'].value = [canvas.width, canvas.height];
     solverMaterial.uniforms['resolution'].value = [fbWidth, fbHeight];
-    solverMaterial.uniforms['grid'].value = [gridWidth, gridHeight, ...gridCorner];
+    solverMaterial.uniforms['duration'].value = partiParams.duration;
+    solverMaterial.uniforms['partiCount'].value = partiCount;
+    solverMaterial.uniforms['geneCount'].value = partiParams.geneCount;
+    solverMaterial.uniforms['lifeTime'].value = partiParams.lifeTime;
 
     //--------------------------------------------------
     // init particle shader
@@ -223,8 +228,6 @@ function initSolver(gl, canvas, camera) {
         gl.clearColor(0, 0, 0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.colorMask(true, true, true, true);
-
-        quadMaterial.setTexture('texture', solver.frontBuffer.textures[3]);
 
         partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
         partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
