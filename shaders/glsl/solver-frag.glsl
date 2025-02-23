@@ -8,8 +8,8 @@ uniform sampler2D posSampler;
 uniform sampler2D velSampler;
 #value obsSampler:2
 uniform sampler2D obsSampler;
-#value generatorSampler:3
-uniform sampler2D generatorSampler; // particleID.x, startTime.y, percentLife.z, generation.w
+#value propertySampler:3
+uniform sampler2D propertySampler; // particleID.x, startTime.y, percentLife.z, generation.w
 
 #value deltaTime:0.01666
 uniform float deltaTime;
@@ -18,7 +18,9 @@ uniform vec4 grid;  // width.r, height.g, corner.ba
 uniform vec2 worldSize;
 uniform vec2 resolution;
 uniform float time;
-uniform float duration;
+
+#value duration:-1
+uniform float duration; // -1 infinite
 uniform float partiCount;
 uniform float geneCount;
 uniform float lifeTime;
@@ -95,22 +97,31 @@ void main() {
     vec3 vel = texture2D(velSampler, uv).xyz;
     float size = texture2D(posSampler, uv).w;
 
-    float particleID = texture2D(generatorSampler, uv).x;
-    float startTime = texture2D(generatorSampler, uv).y;
-    float percentLife = texture2D(generatorSampler, uv).z;
-    float generation = texture2D(generatorSampler, uv).w;
+    float particleID = texture2D(propertySampler, uv).x;
+    float startTime = texture2D(propertySampler, uv).y;
+    float percentLife = texture2D(propertySampler, uv).z;
+    float generation = texture2D(propertySampler, uv).w;
 
     vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
     vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
 
-    float emitterTime = duration + lifeTime;
-    float localTime = time - startTime;
+    //float emitterTime = duration + lifeTime;
+    //float localTime = time - startTime;
+
+    float localTime = mod(time - startTime, lifeTime) ;
+
     percentLife = localTime / lifeTime;
 
-    if(localTime > 0.0) {
+    if(localTime > 0.0 && percentLife<1.0) {
         updatePosVel(pos, vel, gravity, obs, gl_FragCoord.xy);
     }
     // vel = vel+velField(pos,vec3(0.5,.2,0.5));
+
+    bool isEmitterActive = duration>0.0&& time < duration;
+    if(percentLife > 1.0 && isEmitterActive){ // particle is dead
+        //read emitter texture map
+    }
+
 
     gl_FragData[0] = vec4(pos,size);
     gl_FragData[1] = vec4(vel,1); 

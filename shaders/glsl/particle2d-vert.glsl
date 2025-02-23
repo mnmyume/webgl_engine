@@ -49,7 +49,7 @@ void main() {
   float numFrames = _ANI_TEX_0.w;
   float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
-  float localTime = mod(time - startTime, duration) ;
+  float localTime = mod(time - startTime, lifeTime) ;
   float percentLife = localTime / lifeTime;
   float frame = mod(floor(localTime / frameDuration),
                     numFrames);
