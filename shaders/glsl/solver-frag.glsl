@@ -103,6 +103,7 @@ void main() {
     vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
     vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
 
+    float emitterTime = duration + lifeTime;
     float localTime = time - startTime;
     percentLife = localTime / lifeTime;
 

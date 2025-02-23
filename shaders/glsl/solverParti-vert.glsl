@@ -30,6 +30,7 @@ float pidPixelsOffset(float pid, float offset){
 
 void main(void) {
 
+  float emitterTime = duration + lifeTime;
   // float localTime = mod(time - startTime, duration);
   float localTime = time - startTime;
   float percentLife = localTime / lifeTime;
