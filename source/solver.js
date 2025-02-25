@@ -73,7 +73,7 @@ export default class Solver{
 
         this.material[0].setTexture('posSampler', this.backBuffer.textures[0]);
         this.material[0].setTexture('velSampler', this.backBuffer.textures[1]);
-        this.material[0].setTexture('generatorSampler', this.backBuffer.textures[2]);
+        this.material[0].setTexture('propertySampler', this.backBuffer.textures[2]);
 
         this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 

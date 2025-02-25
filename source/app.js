@@ -77,13 +77,14 @@ function initSolver(gl, canvas, camera) {
 
     // set params
     const partiParams = {
-        geneCount: 1,
+        geneCount: 16,
         rate: 10,
-        duration: 10,
+        duration: 20,
         lifeTime: 10,
         size: 15,
     }
-    const partiCount = partiParams.duration * partiParams.rate;
+    // const partiCount = partiParams.duration * partiParams.rate;
+    const partiCount = 128;
     
     const gridWidth = 200;
     const gridHeight = 200;
@@ -166,7 +167,7 @@ function initSolver(gl, canvas, camera) {
 
     solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth, gridHeight, gridCorner, fbWidth, fbHeight, partiParams.size));
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
-    solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiParams.duration));
+    solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
 
     solverMaterial.uniforms['grid'].value = [gridWidth, gridHeight, ...gridCorner];
     solverMaterial.uniforms['worldSize'].value = [canvas.width, canvas.height];
@@ -209,7 +210,7 @@ function initSolver(gl, canvas, camera) {
     partiMaterial.setTexture('colorSampler', colorTexture);
 
     // init shape
-    const partiShape = new StaticEmitter({
+    const partiShape = new PartiShape({
         data: {...partiParams, partiCount: partiCount}
     });
     partiShape.initialize({ gl });
@@ -231,6 +232,7 @@ function initSolver(gl, canvas, camera) {
 
         partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
         partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
+        partiMaterial.setTexture('propertySampler', solver.frontBuffer.textures[2]);
 
         // draw screen quad
         quadMaterial.preDraw(gl, camera, quadTransform);

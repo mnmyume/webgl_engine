@@ -1,6 +1,6 @@
 precision mediump float;
 
-#value colorSampler:2
+#value colorSampler:3
 uniform sampler2D colorSampler;
 
 varying float outputPercentLife;

@@ -1,11 +1,11 @@
 import { halton } from "./mathHelper.js";
 
-export function genPartiInfo(partiCount, geneCount, duration) {
+export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     const posPixels = [];  
     const deltaTime = duration / partiCount;
 
-    for (let row = 0; row < geneCount; row++) {
-        for (let col = 0; col < partiCount; col++) {
+    for (let row = 0; row < fbHeight; row++) {
+        for (let col = 0; col < fbWidth; col++) {
             const px = col; // particle ID  
             const py = deltaTime * col;    // startTime  
             posPixels.push(px, py, 0, 0);  

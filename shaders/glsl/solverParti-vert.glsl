@@ -13,14 +13,15 @@ uniform float lifeTime;
 uniform sampler2D posSampler;
 #value velSampler:1
 uniform sampler2D velSampler;
+#value propertySampler:2
+uniform sampler2D propertySampler;  // particleID.x, startTime.y, percentLife.z, generation.w
 
 // attribute
-attribute float startTime;
 attribute float particleID;
 
 varying float outputPercentLife;
 
-const float NUM_COMPONENTS = 2.0;
+const float NUM_COMPONENTS = 1.0;
 float pidPixels(float pid){
   return  pid*NUM_COMPONENTS;
 }
@@ -30,20 +31,25 @@ float pidPixelsOffset(float pid, float offset){
 
 void main(void) {
 
-  float emitterTime = duration + lifeTime;
-  // float localTime = mod(time - startTime, duration);
-  float localTime = time - startTime;
-  float percentLife = localTime / lifeTime;
-  float generation = floor((time - startTime) / duration);
+  // read property from texture
+  float propOffset = 0.0;
+  float propTexCoordU = pidPixelsOffset(particleID, propOffset) / pidPixels(partiCount);
+  float propTexCoordV = 0.5;
+  vec2 propTexCoord = vec2(propTexCoordU, propTexCoordV);
 
+  float startTime = texture2D(propertySampler, propTexCoord).y;
+  float percentLife = texture2D(propertySampler, propTexCoord).z;
+  float generation = texture2D(propertySampler, propTexCoord).w;
+
+  // read position from texture
   float componentOffset = 0.0;
   float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
   float posTexCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
 
-  vec3 position = texture2D(posSampler, posTexCoord).rgb;
+  vec3 position = texture2D(posSampler, posTexCoord).xyz;
 
-  float size = texture2D(posSampler, posTexCoord).a;
+  float size = texture2D(posSampler, posTexCoord).w;
   size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
   
   outputPercentLife = percentLife;
