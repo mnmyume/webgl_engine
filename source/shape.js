@@ -7,6 +7,7 @@ export default class Shape {
     verticeBuffer = null;
     constructor(params = {}) {
         this.data = params.data || null;
+        this.count = params.count || 0;
         this.verticeBuffer = null;
     }
 
@@ -45,7 +46,7 @@ export default class Shape {
             material.dataLocation.attributes['uv']);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticeBuffer);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        gl.drawArrays(gl.TRIANGLES, 0, this.count);
 
         gl.disableVertexAttribArray(
             material.dataLocation.attributes['vertex']);
