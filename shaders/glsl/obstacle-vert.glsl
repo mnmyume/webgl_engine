@@ -2,7 +2,9 @@
 precision highp float;
 #endif
 
+#buffer vert:obstacleBuffer size:2 stride:8 offset:0
 attribute vec2 vert;
+
 uniform vec2 worldSize;
 
 void main() {

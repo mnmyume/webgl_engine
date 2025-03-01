@@ -3,7 +3,10 @@ uniform mat4 _uni_viewMat;
 uniform mat4 _uni_modelMat;
 uniform float size;
 
+#buffer vertex:quadBuffer size:3 stride:20 offset:0
 attribute vec3 vertex;
+
+#buffer uv:quadBuffer size:2 stride:20 offset:12
 attribute vec2 uv;
 
 varying vec2 vUV;

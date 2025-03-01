@@ -2,6 +2,7 @@
 precision highp float;
 #endif
 
+#buffer quad:quadBuffer size:2 stride:8 offset:0
 attribute vec2 quad;
 
 void main() {

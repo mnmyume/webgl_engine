@@ -17,6 +17,7 @@ uniform sampler2D velSampler;
 uniform sampler2D propertySampler;  // particleID.x, startTime.y, percentLife.z, generation.w
 
 // attribute
+#buffer particleID:partiBuffer size:1 stride:4 offset:0
 attribute float particleID;
 
 varying float outputPercentLife;
