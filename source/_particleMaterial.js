@@ -3,7 +3,7 @@ import Texture2D from './texture2d.js';
 import Material from "./material.js";
 
 
-export default class ParticleMaterial extends Material{
+export default class _particleMaterial extends Material{
 
     constructor(params = {}) {
         super(params);

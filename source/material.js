@@ -48,6 +48,11 @@ export default class Material {
         this.textures[key] = texture;
     }
 
+    setUniform(key, value){
+        this.uniforms[key].value = value;
+    }
+
+
     preDraw(gl, camera, transform) {
 
         gl.useProgram(this.shaderProgram);

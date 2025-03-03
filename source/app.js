@@ -6,7 +6,7 @@ import PartiShape from './partiShape.js';
 import ObstacleShape from './obstacleShape.js';
 import Camera from './camera.js';
 import Material from './material.js';
-import ParticleMaterial from './particleMaterial.js';
+import _particleMaterial from './_particleMaterial.js';
 import PartiMaterial from './partiMaterial.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
@@ -82,12 +82,12 @@ function initSolver(gl, canvas, camera) {
     const partiParams = {
         geneCount: 16,
         rate: 10,
-        duration: 20,
+        duration: 1,
         lifeTime: 10,
         size: 15,
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 128;
+    const partiCount = 1;
     
     const gridWidth = 200;
     const gridHeight = 200;
@@ -215,8 +215,15 @@ function initSolver(gl, canvas, camera) {
         shader: partiShader,
         partiCount,
         ...partiParams,
-    })
+    });
     partiMaterial.initialize({ gl });
+        partiMaterial.setUniform('geneCount', 16);
+        partiMaterial.setUniform('rate', 10);
+        partiMaterial.setUniform('duration', 1);
+        partiMaterial.setUniform('lifeTime', 10);
+        partiMaterial.setUniform('size', 15);
+
+
     partiMaterial.setTexture('colorSampler', colorTexture);
 
     // init particle shape
@@ -261,8 +268,11 @@ function initSolver(gl, canvas, camera) {
     emitterQuadShape.update(gl, 'quadBuffer', [...emitterQuadData, ...lowerQuadData]);
 
     // solver.addObstacles(gl);
-    function drawScreenQuad() {
+    function drawSolver() {
 
+        // const startTime = Date.now();
+
+        const t0 = performance.now();
 
         time.update();
         solverMaterial.uniforms['time'].value = time.ElapsedTime;
@@ -284,24 +294,46 @@ function initSolver(gl, canvas, camera) {
         screenQuadShape.draw(gl, screenQuadMaterial);
         screenQuadMaterial.postDraw(gl);
 
+
+        partiMaterial.setUniform('time', time.ElapsedTime);
+
+        // partiMaterial.uniforms["time"].value = time.ElapsedTime;
         // draw particles
-        partiMaterial.preDraw(gl, time, camera, partiTransform);
+        partiMaterial.preDraw(gl,  camera, partiTransform);
         partiShape.draw(gl, partiMaterial);
         partiMaterial.postDraw(gl);
+
+
+
+
+        //gl.enable(gl.BLEND);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        // gl.blendEquation(gl.FUNC_ADD);
 
         // draw emitter quad
         emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
         emitterQuadShape.draw(gl, emitterQuadMaterial);
         emitterQuadMaterial.postDraw(gl);
+        // gl.disable(gl.BLEND);
 
         if (fpsCounter) {
             fpsCounter.update();
         }
+        // console.log(Date.now()-startTime);
 
-        requestAnimationFrame(drawScreenQuad);
+
+
+        const t1 = performance.now();
+        console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
+
+
+        partiMaterial.setUniform('deltaTime', (t1 - t0)/1000);
+
+        requestAnimationFrame(drawSolver);
     }
 
-    drawScreenQuad();
+    drawSolver();
+
     }
 }
 
@@ -360,7 +392,7 @@ function initBlastParticle(gl, camera) {
         });
         initPosVelTexture.initialize({ gl });
 
-        const particleMaterial = new ParticleMaterial({
+        const particleMaterial = new _particleMaterial({
             shader: particleShader,
             tileSize: 128,
             texWidth: 768,
@@ -459,7 +491,7 @@ function initSnowParticle(gl, camera) {
         });
         initPosVelTexture.initialize({ gl });
 
-        const particleMaterial = new ParticleMaterial({
+        const particleMaterial = new _particleMaterial({
             shader: particleShader,
             tileSize: 128,
             texWidth: 768,

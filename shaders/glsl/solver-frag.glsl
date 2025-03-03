@@ -133,7 +133,7 @@ void main() {
 
     if(localTime > 0.0 && percentLife < 1.0) {
         vel = gravityField(vel);
-        vel = vel + velField(pos, vec3(1.0,1.0,1.0));
+        vel = vel + velField(pos, vec3(.0,.0,.0));
         updatePosVel(pos, vel, obs, gl_FragCoord.xy);
     }
     

@@ -25,9 +25,9 @@ export default function FPSCounter(outputElement, opt_numSamples) {
  */
 FPSCounter.prototype.update = function() {
     if (++this.curSample_ >= this.numSamples_) {
-        var curTime = new Date();
-        var startTime = this.startTime_;
-        var diff = curTime.getTime() - startTime.getTime();
+        const curTime = new Date();
+        const startTime = this.startTime_;
+        const diff = curTime.getTime() - startTime.getTime();
         this.curFPS_ = (1000.0 * this.numSamples_ / diff);
         var str = "" + this.curFPS_.toFixed(2) + " frames per second";
         this.outputElement_.innerHTML = str;
