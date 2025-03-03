@@ -16,13 +16,16 @@ export default class Camera {
     }
 
     updateView() {
-        this.viewMatrix = new Float32Array(mat4.lookAt(
+         this.viewMatrix = new Float32Array(mat4.lookAt(
             this.viewMatrix, this.position, this.target, this.up));
     }
 
     updateProjection() {
-        this.projectionMatrix = new Float32Array(mat4.perspective(
-            this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far));
+        this.projectionMatrix = new Float32Array(mat4.ortho(
+            this.projectionMatrix, -200, 200, -100, 100, this.near, this.far
+        ));
+        // this.projectionMatrix = new Float32Array(mat4.perspective(
+        //     this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far));
     }
 
     updateViewInverse() {
