@@ -46,22 +46,34 @@ float halton(int base, int index) {
     return result;
 }
 
+vec3 gravityField(vec3 vel) {
+    vec3 gravity = vec3(0, -10, 0);
+    vel = vel + gravity * deltaTime;
+    
+    return vel;
+}
+
 vec3 velField(vec3 pos, vec3 scalar) {
     float x = fract(sin(dot2(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
     float y = fract(sin(dot2(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
     float z = fract(sin(dot2(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
 
-    return scalar*normalize(vec3(x,y,z));
+    float randomMagnitude1 = sin(time*2.5)*0.7;
+    float randomMagnitude2 = cos(time*2.5)*0.7;
+
+    vec3 d = vec3(x*sin(y),y,z)*randomMagnitude1 + vec3(y,x,z)*randomMagnitude2;
+
+    return scalar*normalize(d);
 }
 
-void updatePosVel(inout vec3 pos, inout vec3 vel, vec3 acc, vec2 obs, vec2 index) {
+void updatePosVel(inout vec3 pos, inout vec3 vel, vec2 obs, vec2 index) {
     pos = pos + vel * deltaTime;
-    vel = vel + acc * deltaTime;
-    float width = worldSize.x / 2.0;
-    float height = worldSize.y / 2.0;
-    int n = int(index.x+1.0 + index.y*resolution.x);
-    vec2 random = vec2(halton(2, n), halton(3, n));
-    // reset pos if particle out
+    
+    // reset pos if particle out boundary
+    // float width = worldSize.x / 2.0;
+    // float height = worldSize.y / 2.0;
+    // int n = int(index.x+1.0 + index.y*resolution.x);
+    // vec2 random = vec2(halton(2, n), halton(3, n));
     // if(abs(pos.x) > width || abs(pos.y) > height){
     //     pos.y = grid.g; 
     //     pos.z = grid.a + grid.r * random.y;
@@ -69,6 +81,7 @@ void updatePosVel(inout vec3 pos, inout vec3 vel, vec3 acc, vec2 obs, vec2 index
     //     vel.x = 0.0;    
     //     vel.y = 0.0;    
     // }
+
     // obstacle
     if (obs.y > 0.0) {
         pos.xy = pos.xy - vel.xy * deltaTime;
@@ -90,8 +103,6 @@ float pidPixelsOffset(float pid, float offset){
 }
 
 void main() {
-
-    vec3 gravity = vec3(0, -10, 0);
 
     vec2 uv = gl_FragCoord.xy / resolution;    
 
@@ -121,9 +132,11 @@ void main() {
     percentLife = localTime / lifeTime;
 
     if(localTime > 0.0 && percentLife < 1.0) {
-        updatePosVel(pos, vel, gravity, obs, gl_FragCoord.xy);
+        vel = gravityField(vel);
+        vel = vel + velField(pos, vec3(1.0,-1.0,1.0));
+        updatePosVel(pos, vel, obs, gl_FragCoord.xy);
     }
-    // vel = vel + velField(pos, vec3(0.5,.2,0.5));
+    
 
     bool isEmitterActive = duration > 0.0 && time < duration;
     if(percentLife > 1.0 && isEmitterActive){   // particle is dead
