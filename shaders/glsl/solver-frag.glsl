@@ -21,9 +21,9 @@ uniform float time;
 
 // #value duration:-1
 uniform float duration; // -1 infinite
-uniform float partiCount;
 uniform float geneCount;
 uniform float lifeTime;
+uniform float partiCount;
 
 float dot2(vec2 a, vec2 b) {
     return a.x * b.x + a.y * b.y;

@@ -3,11 +3,9 @@ import Shape from './shape.js';
 import ScreenQuad from './screenQuad.js';
 import StaticEmitter from './staticEmitter.js';
 import PartiShape from './partiShape.js';
-import ObstacleShape from './obstacleShape.js';
 import Camera from './camera.js';
 import Material from './material.js';
 import _particleMaterial from './_particleMaterial.js';
-import PartiMaterial from './partiMaterial.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
@@ -19,9 +17,7 @@ import { basicVert, basicFrag, particle3dVert, particle2dVert, particleFrag, scr
 
 const time = new Time();
 const g_fps = document.getElementById("fps");
-if (!g_fps) {
-    console.log('fps error')
-}
+if (!g_fps) { console.log('fps error') };
 const fpsCounter = new FPSCounter(g_fps);
 
 function initSimpleQuad(gl, camera) { 
@@ -81,24 +77,24 @@ function initSolver(gl, canvas, camera) {
     // set params
     const partiParams = {
         geneCount: 16,
-        rate: 10,
+        rate: 1,
         duration: 1,
         lifeTime: 10,
         size: 15,
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 1;
-    
+    const partiCount = 10;
+    // set emitter grid
     const gridWidth = 200;
     const gridHeight = 200;
     const gridCorner = [0,0];
+    const groundHeight = 0;
 
     // ----------------------------------------
     // init screen quad shader
     const screenQuadShader = new Shader({
         vertexSource: screenQuadVert,
-        fragmentSource: screenQuadFrag,
-    });
+        fragmentSource: screenQuadFrag });
     screenQuadShader.initialize({ gl });
 
     // init screen quad transform
@@ -107,15 +103,13 @@ function initSolver(gl, canvas, camera) {
 
     // init screen quad material
     const screenQuadMaterial = new Material({
-        shader: screenQuadShader,
-    });
+        shader: screenQuadShader });
     screenQuadMaterial.initialize({ gl });
 
     // init screen quad shape
     const screenQuadShape = new ScreenQuad(
         'screenQuad',
-        {count:6, schema:readAttrSchema(screenQuadVert.attribute)}
-    );
+        {count:6, schema:readAttrSchema(screenQuadVert.attribute)});
     screenQuadShape.initialize({ gl });
     screenQuadShape.update(gl, 'quadBuffer')
 
@@ -123,8 +117,7 @@ function initSolver(gl, canvas, camera) {
     // init obstacle shader
     const obstacleShader = new Shader({
         vertexSource: obstacleVert,
-        fragmentSource: obstacleFrag,
-    });
+        fragmentSource: obstacleFrag });
     obstacleShader.initialize({ gl });
 
     // init obstacle transform
@@ -133,33 +126,29 @@ function initSolver(gl, canvas, camera) {
 
     // init obstacle material
     const obstacleMaterial = new Material({
-        shader: obstacleShader,
-    });
+        shader: obstacleShader });
     obstacleMaterial.initialize({ gl });
-    obstacleMaterial.uniforms['worldSize'].value = [canvas.width,canvas.height];
+    obstacleMaterial.setUniform('worldSize', [canvas.width,canvas.height]);
 
     // init obstacle shape
     const obstacleShape = new Shape(
         'obstacle', 
         {count:1, 
          schema:readAttrSchema(obstacleVert.attribute),
-         state:3}
-    );
+         state:3});
     obstacleShape.initialize({ gl });
     obstacleShape.update(gl, 'obstacleBuffer', [0,0])
 
     // -----------------------------------------------
     // init solver shader
     const solverShader = new Shader({
-        vertexSource: screenQuadVert,     // quadVert
-        fragmentSource: solverFrag, // solverFrag
-    });
+        vertexSource: screenQuadVert, 
+        fragmentSource: solverFrag });
     solverShader.initialize({ gl });
 
     // init solver material
     const solverMaterial = new Material({
-        shader: solverShader,
-    })
+        shader: solverShader })
     solverMaterial.initialize({ gl });
 
     // init solver
@@ -167,9 +156,7 @@ function initSolver(gl, canvas, camera) {
         shape:[screenQuadShape, obstacleShape],
         material:[solverMaterial, obstacleMaterial],
         width: partiCount, height: partiParams.geneCount,
-        screenWidth: canvas.width, screenHeight: canvas.height
-    }
-    );
+        screenWidth: canvas.width, screenHeight: canvas.height });
     solver.initialize({gl});
 
     const fbWidth = solver.width;
@@ -179,20 +166,19 @@ function initSolver(gl, canvas, camera) {
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
     solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
 
-    solverMaterial.uniforms['grid'].value = [gridWidth, gridHeight, ...gridCorner];
-    solverMaterial.uniforms['worldSize'].value = [canvas.width, canvas.height];
-    solverMaterial.uniforms['resolution'].value = [fbWidth, fbHeight];
-    solverMaterial.uniforms['duration'].value = partiParams.duration;
-    solverMaterial.uniforms['partiCount'].value = partiCount;
-    solverMaterial.uniforms['geneCount'].value = partiParams.geneCount;
-    solverMaterial.uniforms['lifeTime'].value = partiParams.lifeTime;
+    solverMaterial.setUniform('grid', [gridWidth, gridHeight, ...gridCorner]);
+    solverMaterial.setUniform('worldSize', [canvas.width, canvas.height]);
+    solverMaterial.setUniform('resolution', [fbWidth, fbHeight]);
+    solverMaterial.setUniform('duration', partiParams.duration);
+    solverMaterial.setUniform('partiCount', partiCount);
+    solverMaterial.setUniform('geneCount', partiParams.geneCount);
+    solverMaterial.setUniform('lifeTime',partiParams.lifeTime);
 
     //--------------------------------------------------
     // init particle shader
     const partiShader = new Shader({
         vertexSource: solverPartiVert,
-        fragmentSource: solverPartiFrag,
-    });
+        fragmentSource: solverPartiFrag });
     partiShader.initialize({ gl });
 
     // init particle transform
@@ -206,23 +192,15 @@ function initSolver(gl, canvas, camera) {
     const colorTexture = new Texture2D('colorTexture', {
         image: colorTextureImage,
         scaleDown:'LINEAR',
-        scaleUp:'LINEAR'
-    });
+        scaleUp:'LINEAR' });
     colorTexture.initialize({ gl });
 
     // init particle material
-    const partiMaterial = new PartiMaterial({
-        shader: partiShader,
-        partiCount,
-        ...partiParams,
-    });
+    const partiMaterial = new Material({
+        shader: partiShader });
     partiMaterial.initialize({ gl });
-        partiMaterial.setUniform('geneCount', 16);
-        partiMaterial.setUniform('rate', 10);
-        partiMaterial.setUniform('duration', 1);
-        partiMaterial.setUniform('lifeTime', 10);
-        partiMaterial.setUniform('size', 15);
-
+    partiMaterial.setUniform('geneCount', partiParams.geneCount);
+    partiMaterial.setUniform('partiCount', partiCount)
 
     partiMaterial.setTexture('colorSampler', colorTexture);
 
@@ -231,17 +209,15 @@ function initSolver(gl, canvas, camera) {
         'particle',
         {count:partiCount, 
          schema:readAttrSchema(solverPartiVert.attribute),
-         state:3}
-    );
+         state:3 });
     partiShape.initialize({ gl });
-    partiShape.update(gl, 'partiBuffer')
+    partiShape.update(gl, 'partiBuffer');
 
     // -----------------------------------------
-    // init emitter quad
+    // init emitter quad shader
     const emitterQuadShader = new Shader({
         vertexSource: basicVert,
-        fragmentSource: basicFrag,
-    });
+        fragmentSource: basicFrag });
     emitterQuadShader.initialize({ gl });
 
     // init emitter quad transform
@@ -250,32 +226,52 @@ function initSolver(gl, canvas, camera) {
 
     //init emitter quad material
     const emitterQuadMaterial = new Material({
-        shader: emitterQuadShader,
-    });
+        shader: emitterQuadShader });
     emitterQuadMaterial.initialize({ gl });
-    emitterQuadMaterial.uniforms['size'].value = gridWidth;
+    emitterQuadMaterial.setUniform('size', gridWidth);
 
     // init emitter quad shape
     let emitterQuadData = [];
-    let lowerQuadData = [];
     genQuadWithUV(emitterQuadData, [gridCorner[0], gridHeight, gridCorner[1]]);
-    genQuadWithUV(lowerQuadData, [gridCorner[0], 0, gridCorner[1]])
     const emitterQuadShape = new Shape(
         'emitterQuad',
-        {count:12, schema:readAttrSchema(basicVert.attribute)}
-    );
+        {count:6, schema:readAttrSchema(basicVert.attribute)});
     emitterQuadShape.initialize({ gl });
-    emitterQuadShape.update(gl, 'quadBuffer', [...emitterQuadData, ...lowerQuadData]);
+    emitterQuadShape.update(gl, 'quadBuffer', emitterQuadData);
+
+    // -----------------------------------------------------
+    // init ground quad shader
+    const groundQuadShader = new Shader({
+        vertexSource: basicVert,
+        fragmentSource: basicFrag });
+    groundQuadShader.initialize({ gl });
+
+    // init emitter quad transform
+    const groundQuadTransform = new Transform();
+    groundQuadTransform.setPosition(0, 0, 0);
+
+    //init emitter quad material
+    const groundQuadMaterial = new Material({
+        shader: groundQuadShader });
+    groundQuadMaterial.initialize({ gl });
+    groundQuadMaterial.setUniform('size', gridWidth);
+
+    // init emitter quad shape
+    let groundQuadData = [];
+    genQuadWithUV(groundQuadData, [gridCorner[0], groundHeight, gridCorner[1]]);
+    const groundQuadShape = new Shape(
+        'groundQuad',
+        {count:6, schema:readAttrSchema(basicVert.attribute)});
+    groundQuadShape.initialize({ gl });
+    groundQuadShape.update(gl, 'quadBuffer', groundQuadData);    
 
     // solver.addObstacles(gl);
     function drawSolver() {
 
-        // const startTime = Date.now();
-
         const t0 = performance.now();
 
         time.update();
-        solverMaterial.uniforms['time'].value = time.ElapsedTime;
+        solverMaterial.setUniform('time', time.ElapsedTime);
 
         solver.update(gl);
 
@@ -294,19 +290,12 @@ function initSolver(gl, canvas, camera) {
         screenQuadShape.draw(gl, screenQuadMaterial);
         screenQuadMaterial.postDraw(gl);
 
-
-        partiMaterial.setUniform('time', time.ElapsedTime);
-
-        // partiMaterial.uniforms["time"].value = time.ElapsedTime;
         // draw particles
         partiMaterial.preDraw(gl,  camera, partiTransform);
         partiShape.draw(gl, partiMaterial);
         partiMaterial.postDraw(gl);
 
-
-
-
-        //gl.enable(gl.BLEND);
+        // gl.enable(gl.BLEND);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         // gl.blendEquation(gl.FUNC_ADD);
 
@@ -314,20 +303,20 @@ function initSolver(gl, canvas, camera) {
         emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
         emitterQuadShape.draw(gl, emitterQuadMaterial);
         emitterQuadMaterial.postDraw(gl);
+        //draw ground quad
+        groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
+        groundQuadShape.draw(gl, groundQuadMaterial);
+        groundQuadMaterial.postDraw(gl);
+
         // gl.disable(gl.BLEND);
 
         if (fpsCounter) {
             fpsCounter.update();
         }
-        // console.log(Date.now()-startTime);
-
-
 
         const t1 = performance.now();
         console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
-
-
-        partiMaterial.setUniform('deltaTime', (t1 - t0)/1000);
+        solverMaterial.setUniform('deltaTime', (t1 - t0)/1000);
 
         requestAnimationFrame(drawSolver);
     }

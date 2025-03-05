@@ -3,11 +3,8 @@ uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
 uniform mat4 _uni_modelMat;
 
-uniform float time;
-uniform float duration;
-uniform float partiCount;
 uniform float geneCount;
-uniform float lifeTime;
+uniform float partiCount;
 
 #value posSampler:0
 uniform sampler2D posSampler;
