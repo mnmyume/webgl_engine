@@ -14,6 +14,9 @@ uniform sampler2D obsSampler;
 #value deltaTime:0.01666
 uniform float deltaTime;
 
+#value emitter_transform:mat4(1.0)
+uniform mat4 emitter_transform;
+
 uniform vec4 grid;  // width.r, height.g, corner.ba
 uniform vec2 worldSize;
 uniform vec2 resolution;

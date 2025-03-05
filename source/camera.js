@@ -1,7 +1,7 @@
 // import { mat4 } from 'gl-matrix';
 
 export default class Camera {
-    constructor({position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], fov = 45, aspect = 1, near = 0.1, far = 1000}) {
+    constructor({position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], fov = 45, aspect = 1, near = 0.1, far = 9000}) {
         this.position = position;
         this.target = target;
         this.up = up;
@@ -21,8 +21,13 @@ export default class Camera {
     }
 
     updateProjection() {
+
+        const width = 100,
+            height = width/this.aspect;
+
+
         this.projectionMatrix = new Float32Array(mat4.ortho(
-            this.projectionMatrix, -200, 200, -100, 100, this.near, this.far
+            this.projectionMatrix, -0.5*width, 0.5*width, -0.2*height, 0.8*height, this.near, this.far
         ));
         // this.projectionMatrix = new Float32Array(mat4.perspective(
         //     this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far));

@@ -135,3 +135,15 @@ export function genQuadWithUV(out, index) {
         out.push(...index, ...uv);
     }
 }
+
+export function genQuad(size){
+    const halfSize = 0.5*size;
+    return [
+        -halfSize,      0,    -halfSize,         0, 0,
+        -halfSize,      0,    halfSize,         0, 1,
+        halfSize,       0,     halfSize,        1, 1,
+        -halfSize,      0,    -halfSize,        0, 0,
+        halfSize,       0,    halfSize,         1, 1,
+        halfSize,       0,     -halfSize,       1, 0,
+    ]
+}

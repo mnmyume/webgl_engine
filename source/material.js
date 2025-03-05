@@ -83,10 +83,9 @@ export default class Material {
                 gl.uniform1i(this.dataLocation.uniforms[name], data.value);
             else if(data.type === "float")
                 gl.uniform1f(this.dataLocation.uniforms[name], data.value);
-            else{
+            else if(/vec/.test(data.type)){
 
-                if(/vec/.test(data.type))
-                    $assert(data.value, 'empty uniform vec');
+                $assert(data.value, 'empty uniform vec');
 
                 if(data.type === "vec2")
                     gl.uniform2f(this.dataLocation.uniforms[name], data.value[0],data.value[1]);
@@ -94,6 +93,7 @@ export default class Material {
                     gl.uniform3f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2]);
                 else if(data.type === "vec4")
                     gl.uniform4f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2],data.value[3]);
+                
             }
         };
 
