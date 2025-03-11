@@ -15,7 +15,7 @@ export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     return new Float32Array(posPixels);  
 }
 
-export function genRectHaltonPos(width, corner, fbWidth, fbHeight, size) {
+export function genRectHaltonPos(scale, corner, fbWidth, fbHeight, size) {
     const posPixels = [];
     
     const localXStart = corner[0];  
@@ -25,8 +25,8 @@ export function genRectHaltonPos(width, corner, fbWidth, fbHeight, size) {
         for (let col = 0; col < fbWidth; col++) {
             const haltonX = halton(2, row * fbWidth + col);  
             const haltonY = halton(3, row * fbWidth + col);  
-            const localX = localXStart + haltonX * width;  
-            const localZ = localYStart + haltonY * width;  
+            const localX = localXStart + haltonX * scale;
+            const localZ = localYStart + haltonY * scale;
             posPixels.push(localX, localZ, size, 0);  
         }
     }

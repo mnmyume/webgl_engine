@@ -86,14 +86,14 @@ function initSolver(gl, canvas, camera) {
 
         // set params
         const partiParams = {
-            geneCount: 16,
+            geneCount: 1,
             rate: 1,
             duration: 1,
             lifeTime: 10,
             size: 15,
         }
         // const partiCount = partiParams.duration * partiParams.rate;
-        const partiCount = 10;
+        const partiCount = 1;
 
         // set emitter grid
         const gridWidth = 60;
@@ -169,7 +169,10 @@ function initSolver(gl, canvas, camera) {
         const fbWidth = solver.width;
         const fbHeight = solver.height;
 
-        solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth, gridCorner, fbWidth, fbHeight, partiParams.size));
+        const initPos = new Float32Array([0, 1, 15, 0]);
+            //genRectHaltonPos(gridWidth, gridCorner, fbWidth, fbHeight, partiParams.size);
+
+        solver.backBuffer.textures[0].setData(gl, initPos);
         solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
         solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
 

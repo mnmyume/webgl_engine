@@ -122,7 +122,7 @@ void main() {
 
     vec2 emitterPos = texture2D(posSampler, texCoord).xy;
     //vec4 position = emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1);
-    vec3 pos = vec3(0.0,1.0,0.0);
+    vec3 pos = vec3(emitterPos.x, 0, emitterPos.y);
     vec3 vel = texture2D(velSampler, texCoord).xyz;
     float size = texture2D(posSampler, texCoord).z;
 
@@ -154,7 +154,7 @@ void main() {
 //    }
 
 
-    gl_FragData[0] = vec4(pos,size);
+    gl_FragData[0] = vec4(0.0,emitterPos,1.0);
     gl_FragData[1] = vec4(vel,1); 
     gl_FragData[2] = vec4(particleID, startTime, percentLife, generation);
     gl_FragData[3] = vec4(0.01, 0.01, 0.02,1);
