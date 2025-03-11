@@ -295,18 +295,6 @@ function initSolver(gl, canvas, camera) {
         partiShape.draw(gl, partiMaterial);
         partiMaterial.postDraw(gl);
 
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-        // gl.blendEquation(gl.FUNC_ADD);
-
-        // draw emitter quad
-        emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
-        emitterQuadShape.draw(gl, emitterQuadMaterial);
-        emitterQuadMaterial.postDraw(gl);
-        //draw ground quad
-        groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
-        groundQuadShape.draw(gl, groundQuadMaterial);
-        groundQuadMaterial.postDraw(gl);
 
         // gl.disable(gl.BLEND);
 
