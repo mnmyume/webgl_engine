@@ -163,8 +163,8 @@ function initSolver(gl, canvas, camera) {
     const fbHeight = solver.height;
 
     solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth, gridHeight, gridCorner, fbWidth, fbHeight, partiParams.size));
-    solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
-    solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
+    // solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
+    // solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
 
     solverMaterial.setUniform('grid', [gridWidth, gridHeight, ...gridCorner]);
     solverMaterial.setUniform('worldSize', [canvas.width, canvas.height]);

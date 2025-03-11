@@ -8,7 +8,7 @@ export default class Solver{
     frontBuffer = [];
     backBuffer = [];
     backBufferTextures = [];
-    obstacleBuffer = [];
+    // obstacleBuffer = [];
     shape = [];
     material = [];
     ext = null;
@@ -24,14 +24,14 @@ export default class Solver{
 
         this.ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(this.ext);
-        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
         this.backBuffer = new FrameBuffer('bFrameBuff', {width:this.width,height:this.height});
+        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
 
-        this.frontBuffer.initialize({gl});
         this.backBuffer.initialize({gl});
+        this.frontBuffer.initialize({gl});
 
-        this.obstacleBuffer = new FrameBuffer('oFrameBuff', {width:this.screenWidth,height:this.screenHeight});
-        this.obstacleBuffer.initialize({gl});
+        // this.obstacleBuffer = new FrameBuffer('oFrameBuff', {width:this.screenWidth,height:this.screenHeight});
+        // this.obstacleBuffer.initialize({gl});
     }
 
     attach(gl){
@@ -49,7 +49,7 @@ export default class Solver{
         gl.blendFunc(gl.ONE, gl.ZERO);
 
         // attach
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.obstacleBuffer.framebuffer);
+        // gl.bindFramebuffer(gl.FRAMEBUFFER, this.obstacleBuffer.framebuffer);
 
         this.material[1].preDraw(gl);
         this.shape[1].draw(gl, this.material[1]);
@@ -72,10 +72,10 @@ export default class Solver{
         this.attach(gl);
 
         this.material[0].setTexture('posSampler', this.backBuffer.textures[0]);
-        this.material[0].setTexture('velSampler', this.backBuffer.textures[1]);
-        this.material[0].setTexture('propertySampler', this.backBuffer.textures[2]);
+        // this.material[0].setTexture('velSampler', this.backBuffer.textures[1]);
+        // this.material[0].setTexture('propertySampler', this.backBuffer.textures[2]);
 
-        this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
+        // this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 
         this.material[0].preDraw(gl);
         this.shape[0].draw(gl, this.material[0]);
@@ -95,7 +95,7 @@ export default class Solver{
 
         this.material[0].postDraw(gl);
 
-        // this.swap();
+        this.swap();
 
         this.detach(gl);
 
