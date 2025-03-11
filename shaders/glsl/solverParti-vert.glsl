@@ -52,6 +52,6 @@ void main(void) {
   
   outputPercentLife = percentLife;
 
-  gl_PointSize = size; 
-  gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
+  gl_PointSize = 10.0;//size;
+  gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(0.0,10.0,0.0, 1.0);
 }

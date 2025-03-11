@@ -173,12 +173,12 @@ function initSolver(gl, canvas, camera) {
         const fbWidth = solver.width;
         const fbHeight = solver.height;
 
-        const initPos = new Float32Array([1.0,0.0,  15, 0]);
+        const initPos = new Float32Array([1.0,1.0,  15, 0]);
             //genRectHaltonPos(gridWidth, gridCorner, fbWidth, fbHeight, partiParams.size);
 
         solver.backBuffer.textures[0].setData(gl, initPos);
-        solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
-        solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
+        // solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
+        // solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
 
         solverMaterial.setUniform('grid', [gridWidth, emitterHeight, ...gridCorner]);
         solverMaterial.setUniform('worldSize', [canvas.width, canvas.height]);
@@ -266,11 +266,11 @@ function initSolver(gl, canvas, camera) {
         const groundQuadMaterial = new Material({
             shader: groundQuadShader });
         groundQuadMaterial.initialize({ gl });
-        groundQuadMaterial.setUniform('size', gridWidth);
+        // groundQuadMaterial.setUniform('size', gridWidth);
         groundQuadMaterial.setUniform('color', [1,0,0]);
 
         // init ground quad shape
-        const groundQuadData = genQuad(gridWidth);
+        const groundQuadData = genQuad(1.0);
         const groundQuadShape = new Shape(
             'groundQuad',
             {count:6, schema:readAttrSchema(basicVert.attribute)});
@@ -287,13 +287,13 @@ function initSolver(gl, canvas, camera) {
 
                 solver.update(gl);
 
-                // gl.viewport(0, 0, canvas.width, canvas.height);
-                //
-                // gl.clearColor(0, 0, 0, 1.0);
-                // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-                // gl.colorMask(true, true, true, true);
-                //
-                // partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
+                gl.viewport(0, 0, canvas.width, canvas.height);
+
+                gl.clearColor(0, 0, 0, 1.0);
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                gl.colorMask(true, true, true, true);
+
+                partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
                 // partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
                 // partiMaterial.setTexture('propertySampler', solver.frontBuffer.textures[2]);
                 // //
@@ -302,20 +302,20 @@ function initSolver(gl, canvas, camera) {
                 // // screenQuadShape.draw(gl, screenQuadMaterial);
                 // // screenQuadMaterial.postDraw(gl);
                 //
-                // // draw particles
-                // partiMaterial.preDraw(gl,  camera);
-                // partiShape.draw(gl, partiMaterial);
-                // partiMaterial.postDraw(gl);
+                // draw particles
+                partiMaterial.preDraw(gl,  camera);
+                partiShape.draw(gl, partiMaterial);
+                partiMaterial.postDraw(gl);
                 //
-                // // // draw emitter quad
-                // // emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
-                // // emitterQuadShape.draw(gl, emitterQuadMaterial);
-                // // emitterQuadMaterial.postDraw(gl);
-                // //
-                // // //draw ground quad
-                // // groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
-                // // groundQuadShape.draw(gl, groundQuadMaterial);
-                // // groundQuadMaterial.postDraw(gl);
+                // draw emitter quad
+                emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
+                emitterQuadShape.draw(gl, emitterQuadMaterial);
+                emitterQuadMaterial.postDraw(gl);
+
+                //draw ground quad
+                groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
+                groundQuadShape.draw(gl, groundQuadMaterial);
+                groundQuadMaterial.postDraw(gl);
                 //
                 // if (fpsCounter) {
                 //     fpsCounter.update();
