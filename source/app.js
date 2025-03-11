@@ -301,15 +301,15 @@ function initSolver(gl, canvas, camera) {
                 partiShape.draw(gl, partiMaterial);
                 partiMaterial.postDraw(gl);
 
-                // draw emitter quad
-                emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
-                emitterQuadShape.draw(gl, emitterQuadMaterial);
-                emitterQuadMaterial.postDraw(gl);
-
-                //draw ground quad
-                groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
-                groundQuadShape.draw(gl, groundQuadMaterial);
-                groundQuadMaterial.postDraw(gl);
+                // // draw emitter quad
+                // emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
+                // emitterQuadShape.draw(gl, emitterQuadMaterial);
+                // emitterQuadMaterial.postDraw(gl);
+                //
+                // //draw ground quad
+                // groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
+                // groundQuadShape.draw(gl, groundQuadMaterial);
+                // groundQuadMaterial.postDraw(gl);
 
                 if (fpsCounter) {
                     fpsCounter.update();

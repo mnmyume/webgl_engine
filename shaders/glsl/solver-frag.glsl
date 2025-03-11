@@ -121,37 +121,37 @@ void main() {
     vec2 texCoord = vec2(texCoordU, texCoordV);
 
     vec2 emitterPos = texture2D(posSampler, texCoord).xy;
-    vec4 position = emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1);
-    vec3 pos = position.xyz;
+    //vec4 position = emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1);
+    vec3 pos = vec3(0.0,1.0,0.0);
     vec3 vel = texture2D(velSampler, texCoord).xyz;
     float size = texture2D(posSampler, texCoord).z;
 
-    vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
-    vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
+//    vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
+//    vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
 
-    float localTime = 0.0;
-    if(time - startTime > 0.0) {
-        localTime = mod(time - startTime, lifeTime);
-    }
-
-    percentLife = localTime / lifeTime;
-
-    if(localTime > 0.0 && percentLife < 1.0) {
-        vel = gravityField(vel);
-        vel = vel + velField(pos, vec3(.0,.0,.0));
-        updatePosVel(pos, vel, obs, gl_FragCoord.xy);
-    }
-    
-
-    bool isEmitterActive = duration > 0.0 && time < duration;
-    if(percentLife > 1.0 && isEmitterActive){   // particle is dead
-        //read emitter texture map
-        generation = floor((time - startTime)/lifeTime);
-        texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
-        texCoord = vec2(texCoordU, texCoordV);
-        pos = texture2D(posSampler, texCoord).xyz;
-        vel = texture2D(velSampler, texCoord).xyz;
-    }
+//    float localTime = 0.0;
+//    if(time - startTime > 0.0) {
+//        localTime = mod(time - startTime, lifeTime);
+//    }
+//
+//    percentLife = localTime / lifeTime;
+//
+//    if(localTime > 0.0 && percentLife < 1.0) {
+//        vel = gravityField(vel);
+//        vel = vel + velField(pos, vec3(.0,.0,.0));
+//        updatePosVel(pos, vel, obs, gl_FragCoord.xy);
+//    }
+//
+//
+//    bool isEmitterActive = duration > 0.0 && time < duration;
+//    if(percentLife > 1.0 && isEmitterActive){   // particle is dead
+//        //read emitter texture map
+//        generation = floor((time - startTime)/lifeTime);
+//        texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
+//        texCoord = vec2(texCoordU, texCoordV);
+//        pos = texture2D(posSampler, texCoord).xyz;
+//        vel = texture2D(velSampler, texCoord).xyz;
+//    }
 
 
     gl_FragData[0] = vec4(pos,size);
