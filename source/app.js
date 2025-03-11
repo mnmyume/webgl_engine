@@ -169,7 +169,7 @@ function initSolver(gl, canvas, camera) {
         const fbWidth = solver.width;
         const fbHeight = solver.height;
 
-        const initPos = new Float32Array([0, 1, 15, 0]);
+        const initPos = new Float32Array([0.0, 1.0, 15, 0]);
             //genRectHaltonPos(gridWidth, gridCorner, fbWidth, fbHeight, partiParams.size);
 
         solver.backBuffer.textures[0].setData(gl, initPos);
