@@ -65,11 +65,11 @@ export default class Solver{
 
         // this.addObstacles(gl);
 
+        this.attach(gl);
         gl.viewport(0, 0, this.width, this.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
+        //gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
 
-        this.attach(gl);
 
         this.material[0].setTexture('posSampler', this.backBuffer.textures[0]);
         this.material[0].setTexture('velSampler', this.backBuffer.textures[1]);
@@ -95,7 +95,7 @@ export default class Solver{
 
         this.material[0].postDraw(gl);
 
-        this.swap();
+        // this.swap();
 
         this.detach(gl);
 
