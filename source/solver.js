@@ -24,11 +24,11 @@ export default class Solver{
 
         this.ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(this.ext);
-        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
         this.backBuffer = new FrameBuffer('bFrameBuff', {width:this.width,height:this.height});
+        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
 
-        this.frontBuffer.initialize({gl});
         this.backBuffer.initialize({gl});
+        this.frontBuffer.initialize({gl});
 
         this.obstacleBuffer = new FrameBuffer('oFrameBuff', {width:this.screenWidth,height:this.screenHeight});
         this.obstacleBuffer.initialize({gl});
