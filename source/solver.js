@@ -67,7 +67,7 @@ export default class Solver{
 
         gl.viewport(0, 0, this.width, this.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        // gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
+        gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
 
         this.attach(gl);
 

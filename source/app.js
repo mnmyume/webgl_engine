@@ -107,15 +107,19 @@ function initSolver(gl, canvas, camera) {
 
         // ----------------------------------------
         // init screen quad shader
-        const screenQuadShader = new Shader({
-            vertexSource: screenQuadVert,
-            fragmentSource: screenQuadFrag });
-        screenQuadShader.initialize({ gl });
-
-        // init screen quad material
-        const screenQuadMaterial = new Material({
-            shader: screenQuadShader });
-        screenQuadMaterial.initialize({ gl });
+        // const screenQuadShader = new Shader({
+        //     vertexSource: screenQuadVert,
+        //     fragmentSource: screenQuadFrag });
+        // screenQuadShader.initialize({ gl });
+        //
+        //
+        // // init screen quad transform
+        // const screenQuadTransform = new Transform();
+        // screenQuadTransform.setPosition(0, 0, 0);
+        // // init screen quad material
+        // const screenQuadMaterial = new Material({
+        //     shader: screenQuadShader });
+        // screenQuadMaterial.initialize({ gl });
 
         // init screen quad shape
         const screenQuadShape = new ScreenQuad(
@@ -285,16 +289,15 @@ function initSolver(gl, canvas, camera) {
 
                 gl.viewport(0, 0, canvas.width, canvas.height);
 
-                gl.enable(gl.DEPTH_TEST);
                 gl.clearColor(0, 0, 0, 1.0);
-                gl.clear(gl.COLOR_BUFFER_BIT );
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
                 gl.colorMask(true, true, true, true);
 
                 partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
                 partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
                 partiMaterial.setTexture('propertySampler', solver.frontBuffer.textures[2]);
-
-                // draw screen quad
+                //
+                // // draw screen quad
                 // screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
                 // screenQuadShape.draw(gl, screenQuadMaterial);
                 // screenQuadMaterial.postDraw(gl);
