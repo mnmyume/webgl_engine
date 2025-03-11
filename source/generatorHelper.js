@@ -15,19 +15,19 @@ export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     return new Float32Array(posPixels);  
 }
 
-export function genRectHaltonPos(width, height, corner, fbWidth, fbHeight, size) {
+export function genRectHaltonPos(width, corner, fbWidth, fbHeight, size) {
     const posPixels = [];
     
-    const xStart = corner[0];  
-    const zStart = corner[1];  
+    const localXStart = corner[0];  
+    const localYStart = corner[1];  
 
     for (let row = 0; row < fbHeight; row++) {
         for (let col = 0; col < fbWidth; col++) {
             const haltonX = halton(2, row * fbWidth + col);  
-            const haltonZ = halton(3, row * fbWidth + col);  
-            const px = xStart + haltonX * width;  
-            const pz = zStart + haltonZ * width;  
-            posPixels.push(px, height, pz, size);  
+            const haltonY = halton(3, row * fbWidth + col);  
+            const localX = localXStart + haltonX * width;  
+            const localZ = localYStart + haltonY * width;  
+            posPixels.push(localX, localZ, size, 0);  
         }
     }
 

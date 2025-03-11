@@ -120,9 +120,11 @@ void main() {
     float texCoordV = 0.5;  
     vec2 texCoord = vec2(texCoordU, texCoordV);
 
-    vec3 pos = texture2D(posSampler, texCoord).xyz;
+    vec2 emitterPos = texture2D(posSampler, texCoord).xy;
+    vec4 position = emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1);
+    vec3 pos = position.xyz;
     vec3 vel = texture2D(velSampler, texCoord).xyz;
-    float size = texture2D(posSampler, texCoord).w;
+    float size = texture2D(posSampler, texCoord).z;
 
     vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
     vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;

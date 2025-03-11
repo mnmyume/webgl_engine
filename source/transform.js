@@ -7,7 +7,6 @@ export default class Transform {
 
     setPosition(x, y, z) {
         this.position = [x, y, z];
-        // mat4.translate(this.matrix, this.matrix, [x, y, z]);
         this.matrix[12] = x;
         this.matrix[13] = y;
         this.matrix[14] = z;
