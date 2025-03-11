@@ -274,49 +274,49 @@ function initSolver(gl, canvas, camera) {
         solverMaterial.setUniform('time', time.ElapsedTime);
 
         solver.update(gl);
-
-        gl.viewport(0, 0, canvas.width, canvas.height);
-
-        gl.clearColor(0, 0, 0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.colorMask(true, true, true, true);
-
-        partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
-        partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
-        partiMaterial.setTexture('propertySampler', solver.frontBuffer.textures[2]);
-
-        // draw screen quad
-        screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
-        screenQuadShape.draw(gl, screenQuadMaterial);
-        screenQuadMaterial.postDraw(gl);
-
-        // draw particles
-        partiMaterial.preDraw(gl,  camera, partiTransform);
-        partiShape.draw(gl, partiMaterial);
-        partiMaterial.postDraw(gl);
-
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-        // gl.blendEquation(gl.FUNC_ADD);
-
-        // draw emitter quad
-        emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
-        emitterQuadShape.draw(gl, emitterQuadMaterial);
-        emitterQuadMaterial.postDraw(gl);
-        //draw ground quad
-        groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
-        groundQuadShape.draw(gl, groundQuadMaterial);
-        groundQuadMaterial.postDraw(gl);
-
-        // gl.disable(gl.BLEND);
-
-        if (fpsCounter) {
-            fpsCounter.update();
-        }
-
-        const t1 = performance.now();
-        console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
-        solverMaterial.setUniform('deltaTime', (t1 - t0)/1000);
+        //
+        // gl.viewport(0, 0, canvas.width, canvas.height);
+        //
+        // gl.clearColor(0, 0, 0, 1.0);
+        // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        // gl.colorMask(true, true, true, true);
+        //
+        // partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
+        // partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
+        // partiMaterial.setTexture('propertySampler', solver.frontBuffer.textures[2]);
+        //
+        // // draw screen quad
+        // screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
+        // screenQuadShape.draw(gl, screenQuadMaterial);
+        // screenQuadMaterial.postDraw(gl);
+        //
+        // // draw particles
+        // partiMaterial.preDraw(gl,  camera, partiTransform);
+        // partiShape.draw(gl, partiMaterial);
+        // partiMaterial.postDraw(gl);
+        //
+        // // gl.enable(gl.BLEND);
+        // // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        // // gl.blendEquation(gl.FUNC_ADD);
+        //
+        // // draw emitter quad
+        // emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
+        // emitterQuadShape.draw(gl, emitterQuadMaterial);
+        // emitterQuadMaterial.postDraw(gl);
+        // //draw ground quad
+        // groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
+        // groundQuadShape.draw(gl, groundQuadMaterial);
+        // groundQuadMaterial.postDraw(gl);
+        //
+        // // gl.disable(gl.BLEND);
+        //
+        // if (fpsCounter) {
+        //     fpsCounter.update();
+        // }
+        //
+        // const t1 = performance.now();
+        // console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
+        // solverMaterial.setUniform('deltaTime', (t1 - t0)/1000);
 
         requestAnimationFrame(drawSolver);
     }

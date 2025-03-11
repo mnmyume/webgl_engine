@@ -95,7 +95,7 @@ export default class Solver{
 
         this.material[0].postDraw(gl);
 
-        this.swap();
+        // this.swap();
 
         this.detach(gl);
 
