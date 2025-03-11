@@ -99,7 +99,6 @@ function initSolver(gl, canvas, camera) {
         const gridWidth = 60;
         const emitterHeight = 40;
         const gridCorner = [0,0];
-        const groundHeight = 0;
 
         // emitter transform
         const emitterTransform = new Transform();
@@ -260,7 +259,6 @@ function initSolver(gl, canvas, camera) {
 
         // init ground quad transform
         const groundQuadTransform = new Transform();
-        groundQuadTransform.setPosition(0, groundHeight, 0);
 
         //init ground quad material
         const groundQuadMaterial = new Material({
@@ -283,9 +281,9 @@ function initSolver(gl, canvas, camera) {
                 const t0 = performance.now();
 
                 time.update();
-                solverMaterial.setUniform('time', time.ElapsedTime);
-
-                solver.update(gl);
+                // solverMaterial.setUniform('time', time.ElapsedTime);
+                //
+                // solver.update(gl);
 
                 gl.viewport(0, 0, canvas.width, canvas.height);
 
@@ -307,10 +305,10 @@ function initSolver(gl, canvas, camera) {
                 partiShape.draw(gl, partiMaterial);
                 partiMaterial.postDraw(gl);
                 //
-                // draw emitter quad
-                emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
-                emitterQuadShape.draw(gl, emitterQuadMaterial);
-                emitterQuadMaterial.postDraw(gl);
+                // // draw emitter quad
+                // emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
+                // emitterQuadShape.draw(gl, emitterQuadMaterial);
+                // emitterQuadMaterial.postDraw(gl);
 
                 //draw ground quad
                 groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);

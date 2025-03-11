@@ -1,5 +1,6 @@
 uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
+#value _uni_modelMat:mat4(1.0)
 uniform mat4 _uni_modelMat;
 uniform float size;
 

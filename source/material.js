@@ -74,6 +74,8 @@ export default class Material {
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         // gl.blendEquation(gl.FUNC_ADD);
 
+        const PRESERVED_UNIFORM = ["_uni_projMat", "_uni_viewMat", "_uni_modelMat"];
+
         for(var name in this.uniforms){
             const data = this.uniforms[name];
 
@@ -87,14 +89,20 @@ export default class Material {
 
                 $assert(data.value, 'empty uniform vec');
 
-                if(data.type === "vec2")
-                    gl.uniform2f(this.dataLocation.uniforms[name], data.value[0],data.value[1]);
-                else if(data.type === "vec3")
-                    gl.uniform3f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2]);
-                else if(data.type === "vec4")
-                    gl.uniform4f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2],data.value[3]);
+                const [,dim] = data.type.match(/vec(\d+)/);
+                gl[`uniform${dim}f`](this.dataLocation.uniforms[name], ...data.value);
                 
+            }else if(/mat/.test(data.type)){
+                if(!PRESERVED_UNIFORM.includes(name))
+                    $assert(data.value, 'empty uniform vec');
+
+                if(data.value){
+                    const [,dim] = data.type.match(/mat(\d+)/);
+                    gl[`uniformMatrix${dim}fv`](this.dataLocation.uniforms[name], false, data.value);
+                }
+
             }
+
         };
 
         if (this.dataLocation.uniforms["_uni_projMat"] && camera) {
@@ -103,11 +111,16 @@ export default class Material {
         if (this.dataLocation.uniforms["_uni_viewMat"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_viewMat"], false, camera.viewMatrix);
         }
-        if (this.dataLocation.uniforms["uVInverseMatrix"] && camera) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uVInverseMatrix"], false, camera.viewInverseMatrix);
-        }
         if (this.dataLocation.uniforms["_uni_modelMat"] && transform) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_modelMat"], false, transform.getMatrix());
+        }
+
+
+
+
+
+        if (this.dataLocation.uniforms["uVInverseMatrix"] && camera) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["uVInverseMatrix"], false, camera.viewInverseMatrix);
         }
 
         if(this.dataLocation.uniforms["_uni_normalMat"]){

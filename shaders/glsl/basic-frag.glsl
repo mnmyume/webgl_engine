@@ -1,7 +1,9 @@
 precision highp float;
 
 
-// #value color:vec3(0,1,0)
+//#value color:vec3(0,1,0)
+
+#value color:vec3(0,1,0)
 uniform vec3 color;
 
 

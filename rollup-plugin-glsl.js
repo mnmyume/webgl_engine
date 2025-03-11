@@ -88,7 +88,7 @@ function addIncludeFiles(srcPath,source){
     }
 }
 function checkPreprocessor(key,source){
-    const buffer =  $match( new RegExp(`#${key}[\\s]+(.+)`, 'gm'), source);
+    const buffer =  $match( new RegExp(`^(?!\\/\\/).*?#${key}[\\s]+(.+)`, 'gm'), source);
     const result = [];
 
     for(let i = 0; i<buffer.length/2;i++){
@@ -171,7 +171,6 @@ export default function glsl(options = {}) {
             checkPreprocessor('buffer',sourceRaw);
             initExtension(extensionParmas, extensions);
             initUniforms(uniformParams, values);
-            debugger;
             assignValues(uniformParams, values);
             initAttributes(attributeParmas, buffers);
 
@@ -183,19 +182,31 @@ export default function glsl(options = {}) {
     };
 }
 
-function parseVec(input,dim=2){
+function parseVecMat(input){
     const result = [];
-    let inputLength = 0;
-    if(typeof input === 'string'){
-        const buffer = input.match(new RegExp(`vec${dim}\\((.+)\\)`))
-        buffer[1].split(',').forEach((value,i)=>result[i] = parseFloat(value))
-    }
+    const buffer = $match(/\b(?:vec|mat)(.+)\(([\d,\.]+)\)/gm, input);
+    let [, dim, arrayStr] = buffer;
+    arrayStr.split(',').forEach((value,i)=>result[i] = parseFloat(value))
 
+
+    if(result.length === 1){
+        if(/mat/.test(input)){
+            for(let row=0; row<dim; row++)
+                for(let col=0; col<dim; col++) {
+                    const i = col + row * dim;
+                    if (row === col)
+                        result[i] = result[0];
+                    else
+                        result[i] = 0;
+                }
+
+        } else if(/vec/.test(input)){
+            for(let i=1; i<dim; i++)
+                result[i] = result[0];
+        }
+
+    }
     return result;
-    // const padding = [];
-    // padding.length = Math.max(dim - inputLength, 0);
-    // padding.fill(0);
-    // return [...result,...padding];
 }
 
 function assignValues(uniformParams, values){
@@ -203,52 +214,14 @@ function assignValues(uniformParams, values){
     for(const obj of values){
         for(const [key, value] of Object.entries(obj)){
             const {type} = uniformParams[key];
-            switch (type){
-                case "sampler2D":
-                    uniformParams[key].value = parseInt(value);
-                    break;
-                case "float":
-                    uniformParams[key].value = parseFloat(value);
-                    break;
-                case "vec2":
-                    uniformParams[key].value = parseVec(value,2);
-                    break;
 
-                case "vec3":
-                    uniformParams[key].value = parseVec(value,3);
-                    break;
-                case "vec4":
-                    uniformParams[key].value = parseVec(value,4);
-                    break;
+            if(type === 'sampler2D')
+                uniformParams[key].value = parseInt(value);
+            else if(type === 'float')
+                uniformParams[key].value = parseFloat(value);
+            else if(/vec/.test(type) || /mat/.test(type))
+                uniformParams[key].value = parseVecMat(value);
 
-
-
-                // mat2(
-                //     float, float,   // first column
-                //     float, float);  // second column
-                //
-
-                // mat3(
-                //     vec2, float,    // first column
-                //     vec2, float,    // second column
-                //     vec2, float);   // third column
-
-
-                // mat4(
-                //     vec4,           // first column
-                //     vec4,           // second column
-                //     vec4,           // third column
-                //     vec4);          // fourth column
-                //
-                case "mat2":
-                    break;
-                case "mat3":
-                    break;
-                case "mat4":
-                    break;
-
-
-            }
         }
 
     }
