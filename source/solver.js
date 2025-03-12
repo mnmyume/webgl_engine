@@ -4,6 +4,9 @@ import FrameBuffer from "./frameBuffer.js";
 import {testGenPos, testGenVel} from "./generatorHelper.js";
 
 export default class Solver{
+    static MODE = {init:1, play:2}
+
+    mode = 0;
 
     frontBuffer = [];
     backBuffer = [];
@@ -12,6 +15,17 @@ export default class Solver{
     shape = [];
     material = [];
     ext = null;
+
+
+    get Mode(){return this.mode}
+
+    set Mode(value){
+        this.mode = value;
+    }
+
+
+
+
     constructor(params) {
         this.width = params.width??128;
         this.height = params.height??128;
@@ -32,7 +46,11 @@ export default class Solver{
 
         this.obstacleBuffer = new FrameBuffer('oFrameBuff', {width:this.screenWidth,height:this.screenHeight});
         this.obstacleBuffer.initialize({gl});
+
+
     }
+
+
 
     attach(gl){
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.frontBuffer.framebuffer);
@@ -59,7 +77,16 @@ export default class Solver{
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+
     update(gl){
+
+
+
+        if(!(this.mode & Solver.MODE.play || this.mode & Solver.MODE.init ))
+            return;
+
+
+
         // gl.disable(gl.BLEND);
         // this.attach(gl);
 
@@ -67,35 +94,36 @@ export default class Solver{
 
         gl.viewport(0, 0, this.width, this.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        //gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
+        // gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
 
         this.attach(gl);
+        debugger;
+        this.material[0].setUniform('state',      this.mode);
+        this.material[0].setTexture('emitterSampler',       this.backBuffer.textures[0]);
+        // this.material[0].setTexture('velSampler',       this.backBuffer.textures[1]);
+        // this.material[0].setTexture('stateFB',  this.backBuffer.textures[2]);
 
-        this.material[0].setTexture('posSampler',       this.backBuffer.textures[0]);
-        this.material[0].setTexture('velSampler',       this.backBuffer.textures[1]);
-        this.material[0].setTexture('propertySampler',  this.backBuffer.textures[2]);
-
-        this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
+        // this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 
         this.material[0].preDraw(gl);
         this.shape[0].draw(gl, this.material[0]);
 
-        const pixels = new Float32Array(
-            this.width * this.height * 4,
-        );
-        gl.readPixels(
-            0,
-            0,
-            this.width,
-            this.height,
-            gl.RGBA,
-            gl.FLOAT,
-            pixels,
-        );
+        // const pixels = new Float32Array(
+        //     this.width * this.height * 4,
+        // );
+        // gl.readPixels(
+        //     0,
+        //     0,
+        //     this.width,
+        //     this.height,
+        //     gl.RGBA,
+        //     gl.FLOAT,
+        //     pixels,
+        // );
 
         this.material[0].postDraw(gl);
 
-        // this.swap();
+        this.swap();
 
         this.detach(gl);
 

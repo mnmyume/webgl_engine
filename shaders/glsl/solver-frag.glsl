@@ -2,14 +2,13 @@ precision highp float;
 #extension GL_EXT_draw_buffers : require
 #extension GL_OES_texture_float : enable
 
-#value posSampler:0
-uniform sampler2D posSampler;
-#value velSampler:1
-uniform sampler2D velSampler;
-#value propertySampler:2
-uniform sampler2D propertySampler; // particleID.x, startTime.y, percentLife.z, generation.w
-#value obsSampler:3
-uniform sampler2D obsSampler;
+#value emitterSampler:0
+uniform sampler2D emitterSampler;      // X: posX,   Y: posZ,    Z: size,      w:startTime
+
+#value posFB:1                      //// x:posX,        y:posY,         z:posZ          w:size
+uniform sampler2D posFB;
+#value velFB:2                       //// x:velX,        y:velY,         z:velZ          w:alpha
+uniform sampler2D velFB;
 
 #value deltaTime:0.01666
 uniform float deltaTime;
@@ -20,8 +19,10 @@ uniform mat4 emitter_transform;
 uniform vec4 grid;  // width.r, height.g, corner.ba
 uniform vec2 worldSize;
 uniform vec2 resolution;
-uniform float time;
-
+uniform float time;         //gameTime
+#value state:0
+uniform int state;  // state = 1, init mode
+                    // state = 2, play mode
 // #value duration:-1
 uniform float duration; // -1 infinite
 uniform float geneCount;
@@ -101,30 +102,73 @@ const float NUM_COMPONENTS = 1.0;
 float pidPixels(float pid){
   return  pid*NUM_COMPONENTS;
 }
-float pidPixelsOffset(float pid, float offset){
-  return  pid*NUM_COMPONENTS + offset + 0.5;
+//vec2 getPropertyCoord(float pid, float offset){
+//  return  vec2(pid*NUM_COMPONENTS + offset + 0.5, 0.5);
+//}
+vec2 getEmitterCoord(float pid, float generation){
+    return vec2(0.0);
 }
+vec2 getEmitterStartTimeCoord(float pid, float MAXCOL){
+    return vec2( pid/ (1.0/MAXCOL)       ,0.0);
+}
+vec2 getSolverCoord(int pid, int MAXCOL){
+    return vec2(pid%MAXCOL,   floor(pid/MAXCOL));
+}
+int getPID(uv){
+    return 0;
+}
+
 
 void main() {
 
     vec2 uv = vec2(0.5,0.5);//gl_FragCoord.xy / resolution;
 
-    float particleID = texture2D(propertySampler, uv).x;
-    float startTime = texture2D(propertySampler, uv).y;
-    float percentLife = texture2D(propertySampler, uv).z;
-    float generation = texture2D(propertySampler, uv).w;
+    int particleID = getPID(uv);
+    vec2 solverUV = getSolverCoord();
+
 
     // read position and velocity from texture
-    float componentOffset = 0.0;
-    float texCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
-    float texCoordV = 0.5;  
-    vec2 texCoord = vec2(0.5,0.5); // vec2(texCoordU, texCoordV);
+//    float componentOffset = 0.0;
+//    vec2 particlePropertyCoord = getPropertyCoord(particleID, componentOffset) / pidPixels(partiCount);
+    
+    
+    vec3 pos = vec3(0.0);
 
-    vec2 emitterPos = texture2D(posSampler, texCoord).xy;
-    float size = texture2D(posSampler, texCoord).z;
-    vec4 position = emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1);
+    if(state == 1){//emit
+
+
+        float generation = 0.0;
+        vec2 coord = vec2(0.5,0.5);//getEmitterCoord(generation);
+        vec2 emitterPos =   texture2D(emitterSampler, coord).xy;
+        float emitterSize =        texture2D(emitterSampler, coord).z;
+
+        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+    }else if(state == 2){ //solver
+
+        pos = texture2D(posFB, solverUV).xyz;
+
+        if(1){ //restart
+            float startTime =   texture2D(emitterSampler, getEmitterStartTimeCoord).w;
+            float localTime = mod(time - startTime, lifeTime) ;
+            float percentLife = localTime / lifeTime;
+            float frame = mod(floor(localTime / frameDuration), numFrames);
+            float generation = 0; // floor((time - startTime) / duration);
+
+            vec2 coord = vec2(0.5,0.5);//getEmitterCoord(generation);
+            vec2 emitterPos =   texture2D(emitterSampler, coord).xy;
+            float emitterSize =        texture2D(emitterSampler, coord).z;
+            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+
+        }
+
+
+
+    }
+
     vec3 pos = position.xyz;
-    vec3 vel = texture2D(velSampler, texCoord).xyz;
+
+    
+    vec3 vel = texture2D(velFB, texCoord).xyz;
 
     vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
     vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
@@ -149,14 +193,14 @@ void main() {
         generation = floor((time - startTime)/lifeTime);
         texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
         texCoord = vec2(texCoordU, texCoordV);
-        pos = texture2D(posSampler, texCoord).xyz;
-        vel = texture2D(velSampler, texCoord).xyz;
+        pos = texture2D(emitterSampler, texCoord).xyz;
+        vel = texture2D(velFB, texCoord).xyz;
     }
 
 
-    gl_FragData[0] = vec4(0,10,0, size);
+    gl_FragData[0] = vec4(0,10,0, emitterSize);
     gl_FragData[1] = vec4(vel, 1);
     gl_FragData[2] = vec4(particleID, startTime, percentLife, generation);
-    gl_FragData[3] = vec4(1.0,.0,1.0,1.0);
+    gl_FragData[3] = vec4(1.0,.0,.0,1.0);
 
 }

@@ -170,9 +170,22 @@ function initSolver(gl, canvas, camera) {
         const fbWidth = solver.width;
         const fbHeight = solver.height;
 
-        solver.backBuffer.textures[0].setData(gl, genRectHaltonPos(gridWidth, gridCorner, fbWidth, fbHeight, partiParams.size));
-        solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
-        solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
+        const initPos = new Float32Array([1.0,1.0,  15, 20]);
+
+
+        const emitterTex = new Texture2D('emitterTex', {
+            data: initPos,
+            scaleDown:'LINEAR',
+            scaleUp:'LINEAR' });
+        emitterTex.initialize({ gl });
+
+        solverMaterial.setTexture('emitterSampler', emitterTex);
+
+        //genRectHaltonPos(gridWidth, gridCorner, fbWidth, fbHeight, partiParams.size)
+
+        // solver.backBuffer.textures[0].setData(gl, initPos);
+        // solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));
+        // solver.backBuffer.textures[2].setData(gl, genPartiInfo(partiCount, partiParams.geneCount, partiCount, partiParams.duration));
 
         solverMaterial.setUniform('grid', [gridWidth, emitterHeight, ...gridCorner]);
         solverMaterial.setUniform('worldSize', [canvas.width, canvas.height]);
@@ -269,6 +282,7 @@ function initSolver(gl, canvas, camera) {
         groundQuadShape.update(gl, 'quadBuffer', groundQuadData);
 
         // solver.addObstacles(gl);
+        solver.Mode = Solver.MODE.init;
         function drawSolver() {
 
                 const t0 = performance.now();
@@ -280,13 +294,13 @@ function initSolver(gl, canvas, camera) {
 
                 gl.viewport(0, 0, canvas.width, canvas.height);
 
-                gl.clearColor(0, 0, 0, 1.0);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                gl.clearColor(0, 0.3, 0.1, 1.0);
                 gl.colorMask(true, true, true, true);
 
-                partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
-                partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
-                partiMaterial.setTexture('propertySampler', solver.frontBuffer.textures[2]);
+                partiMaterial.setTexture('emitterSampler', solver.frontBuffer.textures[0]);
+                // partiMaterial.setTexture('velSampler', solver.frontBuffer.textures[1]);
+                // partiMaterial.setTexture('stateFB', solver.frontBuffer.textures[2]);
 
                 // draw screen quad
                 screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
@@ -316,8 +330,13 @@ function initSolver(gl, canvas, camera) {
                 //console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
                 solverMaterial.setUniform('deltaTime', (t1 - t0)/1000);
 
+                if(solver.Mode === Solver.MODE.init){
+                    solver.Mode = Solver.MODE.play;
+                }
+
                 requestAnimationFrame(drawSolver);
         }
+
 
         drawSolver();
 

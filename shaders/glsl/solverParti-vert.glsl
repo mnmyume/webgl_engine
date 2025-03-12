@@ -8,12 +8,12 @@ uniform mat4 _uni_modelMat;
 uniform float geneCount;
 uniform float partiCount;
 
-#value posSampler:0
-uniform sampler2D posSampler;
+#value emitterSampler:0
+uniform sampler2D emitterSampler;
 #value velSampler:1
 uniform sampler2D velSampler;
-#value propertySampler:2
-uniform sampler2D propertySampler;  // particleID.x, startTime.y, percentLife.z, generation.w
+#value stateFB:2
+uniform sampler2D stateFB;  // particleID.x, startTime.y, percentLife.z, generation.w
 
 // attribute
 #buffer particleID:partiBuffer size:1 stride:4 offset:0
@@ -37,9 +37,9 @@ void main(void) {
   float propTexCoordV = 0.5;
   vec2 propTexCoord = vec2(propTexCoordU, propTexCoordV);
 
-  float startTime = texture2D(propertySampler, propTexCoord).y;
-  float percentLife = texture2D(propertySampler, propTexCoord).z;
-  float generation = texture2D(propertySampler, propTexCoord).w;
+  float startTime = texture2D(stateFB, propTexCoord).y;
+  float percentLife = texture2D(stateFB, propTexCoord).z;
+  float generation = texture2D(stateFB, propTexCoord).w;
 
   // read position from texture
   float componentOffset = 0.0;
@@ -47,9 +47,9 @@ void main(void) {
   float posTexCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
 
-  vec3 position = texture2D(posSampler, posTexCoord).xyz;
+  vec3 position = texture2D(emitterSampler, posTexCoord).xyz;
 
-  float size = texture2D(posSampler, posTexCoord).w;
+  float size = texture2D(emitterSampler, posTexCoord).w;
   size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
   
   outputPercentLife = percentLife;
