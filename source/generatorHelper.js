@@ -8,7 +8,7 @@ export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
         for (let col = 0; col < fbWidth; col++) {
             const px = col; // particle ID  
             const py = deltaTime * col;    // startTime  
-            posPixels.push(px, py, 0, 0);  
+            posPixels.push(px, py, 0, 0);
         }
     }
 

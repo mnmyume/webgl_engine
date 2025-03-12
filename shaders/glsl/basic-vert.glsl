@@ -2,7 +2,6 @@ uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
 #value _uni_modelMat:mat4(1.0)
 uniform mat4 _uni_modelMat;
-uniform float size;
 
 #buffer vertex:quadBuffer size:3 stride:20 offset:0
 attribute vec3 vertex;
@@ -14,7 +13,6 @@ varying vec2 vUV;
 
 void main(void) {
 
-//    vec3 offset = size * vec3(uv.x, 0, uv.y);
     vec3 position = vertex;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
