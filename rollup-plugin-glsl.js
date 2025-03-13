@@ -87,8 +87,9 @@ function addIncludeFiles(srcPath,source){
         curFileIndex:++fileIndex,
     }
 }
+
 function checkPreprocessor(key,source){
-    const buffer =  $match( new RegExp(`^(?!\\/\\/).*?#${key}[\\s]+(.+)`, 'gm'), source);
+    const buffer =  $match( new RegExp(`^(?!\\/\\/).*?#${key}[\\s]+([^\\/\\r\\n]+)`, 'gm'), source);
     const result = [];
 
     for(let i = 0; i<buffer.length/2;i++){
@@ -182,9 +183,9 @@ export default function glsl(options = {}) {
     };
 }
 
-function parseVecMat(input){
+function parseVecMat(input){//
     const result = [];
-    const buffer = $match(/\b(?:vec|mat)(.+)\(([\d,\.]+)\)/gm, input);
+    const buffer = $match(/\b(?:vec|mat)(.+)\(([-\d,.]+)\)/gm, input);
     let [, dim, arrayStr] = buffer;
     arrayStr.split(',').forEach((value,i)=>result[i] = parseFloat(value))
 
