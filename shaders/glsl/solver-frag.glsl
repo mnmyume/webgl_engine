@@ -106,8 +106,8 @@ float pidPixels(float pid){
   return  pid*NUM_COMPONENTS;
 }
 
-vec2 getEmitterCoord(float pid, float MAXCOL, float generation){
-    return vec2(pid/MAXCOL, generation/MAXCOL);
+vec2 getEmitterCoord(float pid, float generation, float partiCount, float geneCount){
+    return vec2(pid/partiCount+0.5, generation/geneCount+0.5);
 }
 vec2 getSolverCoord(float pid, float MAXCOL){
     return vec2(mod(pid,MAXCOL), floor(pid/MAXCOL));
@@ -133,7 +133,7 @@ void main() {
 
 
         generation = 0.0;
-        vec2 emitterUV = getEmitterCoord(particleID, MAXCOL, generation);
+        vec2 emitterUV = getEmitterCoord(particleID, generation, partiCount, geneCount);
         vec2 emitterPos = texture2D(emitterSampler, emitterUV).xy;
         size = texture2D(emitterSampler, emitterUV).z;
         startTime = texture2D(emitterSampler, emitterUV).w;
