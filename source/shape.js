@@ -27,6 +27,7 @@ export default class Shape {
 
         finder.data = data;
 
+        debugger;
         gl.bindBuffer(gl.ARRAY_BUFFER, finder.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl[type]);
 
@@ -41,6 +42,7 @@ export default class Shape {
 
 
         for(const [key,value] of Object.entries(material.dataLocation.attributes)){
+            $assert(value>=0);
             gl.enableVertexAttribArray(value);
             const dataBuffer = this.dataBuffer.find(ele=>ele.value.find(({attribute})=>attribute === key));
             const {size,stride,offset} = dataBuffer.value.find(({attribute})=>attribute === key);

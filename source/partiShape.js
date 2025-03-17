@@ -17,11 +17,12 @@ export default class PartiShape extends Shape {
     }
 
     update(gl, key, data=this.data, type='STATIC_DRAW') {
+
         super.update(gl, key, data, type='STATIC_DRAW');
     }
 
     draw(gl, material) {
-
+        debugger;
         super.draw(gl, material);
     }
 }

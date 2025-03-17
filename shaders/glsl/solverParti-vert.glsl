@@ -18,6 +18,9 @@ attribute float particleID;
 
 varying float outputSize;
 
+
+varying float debug;
+
 const float NUM_COMPONENTS = 1.0;
 float pidPixels(float pid){
   return  pid*NUM_COMPONENTS;
@@ -27,13 +30,15 @@ float pidPixelsOffset(float pid, float offset){
 }
 
 vec2 getSolverCoord(float pid, float MAXCOL){
-  return vec2(mod(pid,MAXCOL), floor(pid/MAXCOL));
+  vec2 uv =  vec2(mod(pid,MAXCOL), floor(pid/MAXCOL)) / MAXCOL;
+  return uv;
 }
 
 void main() {
-
   // read position from texture
   vec2 posTexCoord = getSolverCoord(particleID, MAXCOL);
+
+//  debug = posTexCoord.x;
 
   vec3 position = texture2D(posSampler, posTexCoord).xyz;
 

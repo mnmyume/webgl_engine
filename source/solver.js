@@ -95,18 +95,19 @@ export default class Solver{
         this.material[0].preDraw(gl);
         this.shape[0].draw(gl, this.material[0]);
 
-        // const pixels = new Float32Array(
-        //     this.width * this.height * 4,
-        // );
-        // gl.readPixels(
-        //     0,
-        //     0,
-        //     this.width,
-        //     this.height,
-        //     gl.RGBA,
-        //     gl.FLOAT,
-        //     pixels,
-        // );
+        const pixels = new Float32Array(
+            this.width * this.height * 4,
+        );
+        gl.readPixels(
+            0,
+            0,
+            this.width,
+            this.height,
+            gl.RGBA,
+            gl.FLOAT,
+            pixels,
+        );
+        debugger;
 
         this.material[0].postDraw(gl);
 

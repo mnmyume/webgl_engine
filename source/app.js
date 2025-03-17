@@ -94,7 +94,7 @@ function initSolver(gl, canvas, camera) {
             size: 15,
         }
         // const partiCount = partiParams.duration * partiParams.rate;
-        const partiCount = 9;
+        const partiCount = 16;
 
         // set framebuffer size
         const MAXCOL = sqrtFloor(partiCount);
@@ -102,7 +102,7 @@ function initSolver(gl, canvas, camera) {
         const fbHeight = MAXCOL;
 
         // set emitter grid
-        const gridWidth = 60;
+        const gridWidth = 16;
         const emitterHeight = 40;
         const gridCorner = [0,0];
 
@@ -181,7 +181,9 @@ function initSolver(gl, canvas, camera) {
             scaleDown:'LINEAR',
             scaleUp:'LINEAR' });
         emitterTexture.initialize({ gl });
-        emitterTexture.setData(gl, genRectHaltonPos(gridWidth, gridCorner, partiCount, partiParams.geneCount, partiParams.size, partiParams.duration));
+        const texData = genRectHaltonPos(gridWidth, gridCorner, partiCount, partiParams.geneCount, partiParams.size, partiParams.duration);
+        debugger;
+        emitterTexture.setData(gl, texData);
 
         solverMaterial.setTexture('emitterSampler', emitterTexture);
 
@@ -286,9 +288,10 @@ function initSolver(gl, canvas, camera) {
 
         // solver.addObstacles(gl);
         // solver.Mode = Solver.MODE.init;
-        function drawSolver() {
 
-                const t0 = performance.now();
+
+        let lastTime;
+        function drawSolver() {
 
                 time.update();
                 solverMaterial.setUniform('time', time.ElapsedTime);
@@ -324,13 +327,9 @@ function initSolver(gl, canvas, camera) {
                 groundQuadShape.draw(gl, groundQuadMaterial);
                 groundQuadMaterial.postDraw(gl);
 
-                if (fpsCounter) {
-                    fpsCounter.update();
-                }
 
-                const t1 = performance.now();
-                //console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
-                solverMaterial.setUniform('deltaTime', (t1 - t0)/1000);
+                // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
+                solverMaterial.setUniform('deltaTime', time.Interval);
 
                 if(solver.Mode === Solver.MODE.init){
                     solver.Mode = Solver.MODE.play;

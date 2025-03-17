@@ -110,10 +110,14 @@ vec2 getEmitterCoord(float pid, float generation, float partiCount, float geneCo
     return vec2(pid/partiCount+0.5, generation/geneCount+0.5);
 }
 vec2 getSolverCoord(float pid, float MAXCOL){
-    return vec2(mod(pid,MAXCOL), floor(pid/MAXCOL));
+    return vec2(mod(pid,MAXCOL), floor(pid/MAXCOL))/MAXCOL;
 }
+
+
+//https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml
+// lower-left origin
 float getPID(vec2 fragCoord, float MAXCOL){
-    return fragCoord.y * MAXCOL + fragCoord.x;
+    return (MAXCOL-1.0-fragCoord.y) * MAXCOL + fragCoord.x;
 }
 
 
