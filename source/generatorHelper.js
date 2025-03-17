@@ -1,5 +1,9 @@
 import { halton } from "./mathHelper.js";
 
+export function sqrtFloor(num) {
+    return Math.floor(Math.sqrt(num));
+}
+
 export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     const posPixels = [];  
     const deltaTime = duration / partiCount;
@@ -15,19 +19,20 @@ export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     return new Float32Array(posPixels);  
 }
 
-export function genRectHaltonPos(scale, corner, fbWidth, fbHeight, size) {
+export function genRectHaltonPos(scale, corner, partiCount, geneCount, size, duration) {
     const posPixels = [];
     
     const localXStart = corner[0];  
     const localYStart = corner[1];  
 
-    for (let row = 0; row < fbHeight; row++) {
-        for (let col = 0; col < fbWidth; col++) {
-            const haltonX = halton(2, row * fbWidth + col);  
-            const haltonY = halton(3, row * fbWidth + col);  
+    for (let row = 0; row < geneCount; row++) {
+        for (let col = 0; col < partiCount; col++) {
+            const haltonX = halton(2, row * partiCount + col);
+            const haltonY = halton(3, row * partiCount + col);
             const localX = localXStart + haltonX * scale;
             const localZ = localYStart + haltonY * scale;
-            posPixels.push(localX, localZ, size, 0);  
+            const startTime = (row * partiCount + col) * duration / partiCount;
+            posPixels.push(localX, localZ, size, startTime);
         }
     }
 

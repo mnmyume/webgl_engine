@@ -7,19 +7,16 @@ uniform mat4 _uni_modelMat;
 
 uniform float geneCount;
 uniform float partiCount;
+uniform float MAXCOL;
 
-#value emitterSampler:0
-uniform sampler2D emitterSampler;
-#value velSampler:1
-uniform sampler2D velSampler;
-#value stateFB:2
-uniform sampler2D stateFB;  // particleID.x, startTime.y, percentLife.z, generation.w
+#value posSampler:0
+uniform sampler2D posSampler;
 
 // attribute
 #buffer particleID:partiBuffer size:1 stride:4 offset:0
 attribute float particleID;
 
-varying float outputPercentLife;
+varying float outputSize;
 
 const float NUM_COMPONENTS = 1.0;
 float pidPixels(float pid){
@@ -29,31 +26,21 @@ float pidPixelsOffset(float pid, float offset){
   return  pid*NUM_COMPONENTS + offset + 0.5;
 }
 
-void main(void) {
+vec2 getSolverCoord(float pid, float MAXCOL){
+  return vec2(mod(pid,MAXCOL), floor(pid/MAXCOL));
+}
 
-  // read property from texture
-  float propOffset = 0.0;
-  float propTexCoordU = pidPixelsOffset(particleID, propOffset) / pidPixels(partiCount);
-  float propTexCoordV = 0.5;
-  vec2 propTexCoord = vec2(propTexCoordU, propTexCoordV);
-
-  float startTime = texture2D(stateFB, propTexCoord).y;
-  float percentLife = texture2D(stateFB, propTexCoord).z;
-  float generation = texture2D(stateFB, propTexCoord).w;
+void main() {
 
   // read position from texture
-  float componentOffset = 0.0;
-  float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
-  float posTexCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);  
-  vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
+  vec2 posTexCoord = getSolverCoord(particleID, MAXCOL);
 
-  vec3 position = texture2D(emitterSampler, posTexCoord).xyz;
+  vec3 position = texture2D(posSampler, posTexCoord).xyz;
 
-  float size = texture2D(emitterSampler, posTexCoord).w;
-  size = (percentLife < 0. || percentLife > 1.) ? 0. : size;
+  float size = texture2D(posSampler, posTexCoord).w;
   
-  outputPercentLife = percentLife;
+  outputSize = size;
 
   gl_PointSize = size;
-  gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
+  gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
 }

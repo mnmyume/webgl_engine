@@ -5,9 +5,6 @@ import {testGenPos, testGenVel} from "./generatorHelper.js";
 
 export default class Solver{
     static MODE = {init:1, play:2}
-
-    mode = 0;
-
     frontBuffer = [];
     backBuffer = [];
     backBufferTextures = [];
@@ -16,15 +13,11 @@ export default class Solver{
     material = [];
     ext = null;
 
-
     get Mode(){return this.mode}
 
     set Mode(value){
         this.mode = value;
     }
-
-
-
 
     constructor(params) {
         this.width = params.width??128;
@@ -33,6 +26,7 @@ export default class Solver{
         this.screenHeight = params.screenHeight??null;
         this.shape = params.shape || null;
         this.material = params.material || null;
+        this.mode = params.mode || 0;
     }
     initialize({gl}){
 
@@ -47,10 +41,7 @@ export default class Solver{
         this.obstacleBuffer = new FrameBuffer('oFrameBuff', {width:this.screenWidth,height:this.screenHeight});
         this.obstacleBuffer.initialize({gl});
 
-
     }
-
-
 
     attach(gl){
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.frontBuffer.framebuffer);
@@ -73,7 +64,7 @@ export default class Solver{
         this.shape[1].draw(gl, this.material[1]);
         this.material[1].postDraw(gl);
 
-        // dettach
+        // detach
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
@@ -81,11 +72,8 @@ export default class Solver{
     update(gl){
 
 
-
         if(!(this.mode & Solver.MODE.play || this.mode & Solver.MODE.init ))
             return;
-
-
 
         // gl.disable(gl.BLEND);
         // this.attach(gl);
@@ -97,11 +85,10 @@ export default class Solver{
         // gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
 
         this.attach(gl);
-        debugger;
-        this.material[0].setUniform('state',      this.mode);
-        this.material[0].setTexture('emitterSampler',       this.backBuffer.textures[0]);
-        // this.material[0].setTexture('velSampler',       this.backBuffer.textures[1]);
-        // this.material[0].setTexture('stateFB',  this.backBuffer.textures[2]);
+
+        this.material[0].setUniform('state', this.mode);
+        this.material[0].setTexture('posFB', this.backBuffer.textures[0]);
+        this.material[0].setTexture('velFB', this.backBuffer.textures[1]);
 
         // this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 
