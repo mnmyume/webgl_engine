@@ -133,17 +133,18 @@ function initUniforms(uniformParams, values){
         for(const [key,value] of Object.entries(entry)) {
             const isArr = /\[[^\]]*\]/.test(key);
             if(isArr) {
-                const [,varNm, index] = $match(/(.+)\[(\d+)\]/gm,key);
-                if(!clearGrp.includes(varNm))
-                    clearGrp.push(varNm);
+                const [,varNm, index] = $match(/(.+)\[(\d+)\]/gm,key),
+                        finder = clearGrp.find(({key})=>key===varNm);
+                if(!finder)
+                    clearGrp.push({key:varNm,children:[key]});
+                else
+                    finder.children.push(key);
 
                 uniformParams[key] = {type:uniformParams[varNm].type,value};
             }else
                 uniformParams[key].value = value;
         }
 
-    for(const key of clearGrp)
-        delete uniformParams[key];
 
     for(let [key,{type,value}] of Object.entries(uniformParams)) {
         if(!value) continue;
@@ -167,6 +168,28 @@ function initUniforms(uniformParams, values){
             uniformParams[key].value = parseFloat(value);
         else if(isVecMat(type))
             uniformParams[key].value = parseVecMat(value);
+    }
+
+
+    for(const {key,children} of clearGrp){
+
+        const maxIndex = children.reduce((acc,cur)=>{
+            const index = parseInt($match(/\[(\d+)\]/gm, cur)[1]);
+            return Math.max(acc, index);
+        },0)
+
+        uniformParams[key].value = uniformParams[key].value??[];
+
+        for(let i=0;i<maxIndex;i++){
+            const childEntry = uniformParams[`${key}[${i}]`];
+            if(childEntry)
+                uniformParams[key].value[i] = childEntry.value;
+            else
+                uniformParams[key].value[i] = null;
+        }
+
+        for(const child of children)
+            delete uniformParams[child];
     }
 
 }

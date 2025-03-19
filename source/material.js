@@ -98,39 +98,47 @@ export default class Material {
 
         const PRESERVED_UNIFORM = ["_uni_projMat", "_uni_viewMat", "_uni_modelMat"];
 
-        for(var name in this.uniforms){
-            const data = this.uniforms[name];
+        for(const name in this.uniforms){
+            const {type, value} = this.uniforms[name];
             debugger;
             const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
-                    isArr = input=>/\[\]/.test(input);
+                    isArr = input=>/\[\]/.test(input),
 
-            if(/vec/.test(data.type)){
+                 setGLValue = (type, value)=>{
+                        if(/vec/.test(type)){
 
-                $assert(data.value, 'empty uniform vec');
+                             $assert(value, 'empty uniform vec');
 
-                const [,dim] = data.type.match(/vec(\d+)/);
-                gl[`uniform${dim}f`](this.dataLocation.uniforms[name], ...data.value);
+                             const [,dim] = type.match(/vec(\d+)/);
+                             gl[`uniform${dim}f`](this.dataLocation.uniforms[name], ...value);
 
-            }else if(/mat/.test(data.type)){
-                if(!PRESERVED_UNIFORM.includes(name))
-                    $assert(data.value, 'empty uniform vec');
+                        }else if(/mat/.test(type)){
+                             if(!PRESERVED_UNIFORM.includes(name))
+                                 $assert(value, 'empty uniform vec');
 
-                if(data.value){
-                    const [,dim] = data.type.match(/mat(\d+)/);
-                    gl[`uniformMatrix${dim}fv`](this.dataLocation.uniforms[name], false, data.value);
+                             if(value){
+                                 const [,dim] = type.match(/mat(\d+)/);
+                                 gl[`uniformMatrix${dim}fv`](this.dataLocation.uniforms[name], false, value);
+                             }
+
+                        } else { //if(isSingleVar(type))
+                             const fncName = `uniform1${type === 'float'?'f':'i'}`;
+
+                             gl[fncName](this.dataLocation.uniforms[name], value);
+
+
+                        }
+                };
+
+
+            if(isArr(type)){
+                for(const childValue of value){
+                    setGLValue(type, childValue);
                 }
+            }else
+                setGLValue(type, value);
 
-            } else if(isSingleVar(data.type)) {
-                let fncName = `uniform1${data.type === 'float'?'f':'i'}`;
-                if(isArr(data.type))
-                    fncName +='v';
-
-                gl[fncName](this.dataLocation.uniforms[name], data.value);
-
-
-            }
-
-        };
+        }
 
         if (this.dataLocation.uniforms["_uni_projMat"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_projMat"], false, camera.projectionMatrix);
