@@ -14,7 +14,8 @@ export default class Time{
         return getTime()-this.start;
     }
     get Interval(){ //since last update
-        return this.interval;
+        // return this.interval??0;
+        return 0.01666;
     }
 
     get FPS(){

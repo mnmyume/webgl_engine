@@ -22,7 +22,6 @@ export default class PartiShape extends Shape {
     }
 
     draw(gl, material) {
-        debugger;
         super.draw(gl, material);
     }
 }

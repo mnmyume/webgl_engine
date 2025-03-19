@@ -1,4 +1,4 @@
-import {$assert} from "./common.js";
+import {$assert,$match} from "./common.js";
 import Texture2D from './texture2d.js';
 
 
@@ -44,8 +44,19 @@ export default class Material {
 
     setTexture(key, texture){
         $assert(texture instanceof Texture2D);
+
+
+        if(/\[(\d)+\]/.test(key)){
+            let index;
+            [,key, index] = $match(/(.+)\[(\d+)\]/gm,key);
+            this.textures[key] = this.textures[key]??[];
+            this.textures[key][index] = texture;
+        }else
+
+            this.textures[key] = texture;
+
+        debugger;
         $assert(this.uniforms[key]);
-        this.textures[key] = texture;
     }
 
     setUniform(key, value){
@@ -56,18 +67,29 @@ export default class Material {
     preDraw(gl, camera, transform) {
 
         gl.useProgram(this.shaderProgram);
-
+        const setTex =
+            (value, texIndex)=>{
+                    gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+                    let TYPE;
+                    if(value.type === "2DTexture")
+                        TYPE = gl.TEXTURE_2D;
+                    else if(value.type === "3DTexture")
+                        TYPE = gl.TEXTURE_CUBE_MAP;
+                    else
+                        $assert(false);
+                    gl.bindTexture(TYPE, value.texture);
+                };
         for(const [key,value] of Object.entries(this.textures)){
-            const texIndex = this.uniforms[key].value;
-            gl.activeTexture(gl[`TEXTURE${texIndex}`]);
-            let TYPE;
-            if(value.type === "2DTexture")
-                TYPE = gl.TEXTURE_2D;
-            else if(value.type === "3DTexture")
-                TYPE = gl.TEXTURE_CUBE_MAP;
-            else
-                $assert(false);
-            gl.bindTexture(TYPE, value.texture);
+            if(Array.isArray(value)){
+                for(const index in value){
+                    const texIndex = this.uniforms[key].value[index];
+                    setTex(value[index], texIndex);
+                }
+
+            }else{
+                const texIndex = this.uniforms[key].value;
+                setTex(value, texIndex);
+            }
         }
 
         // gl.enable(gl.BLEND);
@@ -78,20 +100,17 @@ export default class Material {
 
         for(var name in this.uniforms){
             const data = this.uniforms[name];
+            debugger;
+            const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
+                    isArr = input=>/\[\]/.test(input);
 
-            if(data.type === "bool" ||
-                data.type === "int" ||
-                data.type === 'sampler2D' || data.type === 'samplerCube')
-                gl.uniform1i(this.dataLocation.uniforms[name], data.value);
-            else if(data.type === "float")
-                gl.uniform1f(this.dataLocation.uniforms[name], data.value);
-            else if(/vec/.test(data.type)){
+            if(/vec/.test(data.type)){
 
                 $assert(data.value, 'empty uniform vec');
 
                 const [,dim] = data.type.match(/vec(\d+)/);
                 gl[`uniform${dim}f`](this.dataLocation.uniforms[name], ...data.value);
-                
+
             }else if(/mat/.test(data.type)){
                 if(!PRESERVED_UNIFORM.includes(name))
                     $assert(data.value, 'empty uniform vec');
@@ -100,6 +119,14 @@ export default class Material {
                     const [,dim] = data.type.match(/mat(\d+)/);
                     gl[`uniformMatrix${dim}fv`](this.dataLocation.uniforms[name], false, data.value);
                 }
+
+            } else if(isSingleVar(data.type)) {
+                let fncName = `uniform1${data.type === 'float'?'f':'i'}`;
+                if(isArr(data.type))
+                    fncName +='v';
+
+                gl[fncName](this.dataLocation.uniforms[name], data.value);
+
 
             }
 

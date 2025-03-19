@@ -182,10 +182,9 @@ function initSolver(gl, canvas, camera) {
             scaleUp:'LINEAR' });
         emitterTexture.initialize({ gl });
         const texData = genRectHaltonPos(gridWidth, gridCorner, partiCount, partiParams.geneCount, partiParams.size, partiParams.duration);
-        debugger;
         emitterTexture.setData(gl, texData);
 
-        solverMaterial.setTexture('emitterSampler', emitterTexture);
+        solverMaterial.setTexture('emitterArr[0]', emitterTexture);
 
         solver.backBuffer.textures[0].setData(gl, null);
         solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth,fbHeight));

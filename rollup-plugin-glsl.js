@@ -3,6 +3,7 @@ import MagicString from 'magic-string'
 import path from 'path';
 import fs from "fs";
 import {fileURLToPath} from 'url';
+import {$assert} from "./source/common.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -93,7 +94,7 @@ function checkPreprocessor(key,source){
     const result = [];
 
     for(let i = 0; i<buffer.length/2;i++){
-        const params = $match( new RegExp(`(\\S+)[\\s]*:[\\s]*(\\S+)`, 'gm'), buffer[2*i+1]);
+        const params = $match( /(\S+)[\s]*:[\s]*(vec\d\([^\)]*\)|mat\d\([^\)]*\)|\[[^\]]*\]|[^,\s]+)/gm, buffer[2*i+1]);
         const pair = {};
         for(let j=0; j<params.length/3;j++){
 
@@ -111,18 +112,63 @@ function checkPreprocessor(key,source){
 function checkAttrUniformParams(key, source){
     const buffer =  $match( new RegExp(`${key}[\\s]+(\\S+)[\\s]+(\\S+)[\\s]*;`, 'gm'), source);
     const result = {};
-    for(let i = 0; i<buffer.length/3;i++)
-        result[buffer[3*i+2]] = {type:buffer[3*i+1], value:null};
+    for(let i = 0; i<buffer.length/3;i++) {
+        let varName = buffer[3*i+2];
+        const isArr = /\[[^\]]*\]/.test(varName);
+        if(isArr)
+            varName = varName.match(/(.+)\[[^\]]*\]/)[1];
+        const type = buffer[3 * i + 1];
+        result[varName] = {type:isArr?`${type}[]`:type , value: null};
 
+    }
     return buffer.length?result:null;
 
 }
 const __FILE_MAP = new Map();
 
 function initUniforms(uniformParams, values){
+
+    const clearGrp = [];
     for(const entry of values)
-        for(const [key,value] of Object.entries(entry))
-            uniformParams[key].value = value;
+        for(const [key,value] of Object.entries(entry)) {
+            const isArr = /\[[^\]]*\]/.test(key);
+            if(isArr) {
+                const [,varNm, index] = $match(/(.+)\[(\d+)\]/gm,key);
+                if(!clearGrp.includes(varNm))
+                    clearGrp.push(varNm);
+
+                uniformParams[key] = {type:uniformParams[varNm].type,value};
+            }else
+                uniformParams[key].value = value;
+        }
+
+    for(const key of clearGrp)
+        delete uniformParams[key];
+
+    for(let [key,{type,value}] of Object.entries(uniformParams)) {
+        if(!value) continue;
+
+        // if(/(.+)\[\]\[\]$/.test(type))//double arr
+        //     uniformParams[key].value = JSON.parse(`[${value.join()}]`);
+
+        const isVecMat = input=>/vec/.test(input) || /mat/.test(input),
+                isArrStr = input=>/^\[[-.,\d\s]+\]$/.test(input)
+
+       if(/(.+)\[\]$/.test(type)){//arr
+           if(isVecMat(value))
+               uniformParams[key].value = parseVecMat(value);
+           else if(isArrStr(value))
+                uniformParams[key].value = JSON.parse(value);
+           else
+               $assert(false);
+        }else  if(type === 'sampler2D' || type === 'int'){
+            uniformParams[key].value = parseInt(value);
+        }else if(type === 'float')
+            uniformParams[key].value = parseFloat(value);
+        else if(isVecMat(type))
+            uniformParams[key].value = parseVecMat(value);
+    }
+
 }
 
 function initExtension(extensionParmas, extensions){
@@ -163,6 +209,7 @@ export default function glsl(options = {}) {
             const extensions = checkPreprocessor('extension',sourceRaw);
             const source = filterSource(sourceRaw);
 
+
             const extensionParmas = {};
             const attributeParmas = {...checkAttrUniformParams('attribute', includes), ...checkAttrUniformParams('attribute', source)};
             const uniformParams = {...checkAttrUniformParams('uniform', includes), ...checkAttrUniformParams('uniform', source)};
@@ -171,8 +218,12 @@ export default function glsl(options = {}) {
             const buffers = checkPreprocessor('buffer',sourceRaw);
             checkPreprocessor('buffer',sourceRaw);
             initExtension(extensionParmas, extensions);
+
+            if(/solver-frag/.test(id)){
+                debugger;
+
+            }
             initUniforms(uniformParams, values);
-            assignValues(uniformParams, values);
             initAttributes(attributeParmas, buffers);
 
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
@@ -185,9 +236,10 @@ export default function glsl(options = {}) {
 
 function parseVecMat(input){//
     const result = [];
-    const buffer = $match(/\b(?:vec|mat)(.+)\(([-\d,.]+)\)/gm, input);
+    const buffer = $match(/\b(?:vec|mat)(\d+)\(([-\d,.\s]+)\)/gm, input); //mat(1.0)
     let [, dim, arrayStr] = buffer;
-    arrayStr.split(',').forEach((value,i)=>result[i] = parseFloat(value))
+    if(!arrayStr) debugger;
+    arrayStr.split(',').forEach((value,i)=>result[i] = parseFloat(value));
 
 
     if(result.length === 1){
@@ -213,15 +265,33 @@ function parseVecMat(input){//
 function assignValues(uniformParams, values){
 
     for(const obj of values){
-        for(const [key, value] of Object.entries(obj)){
-            const {type} = uniformParams[key];
+        for(let [key, value] of Object.entries(obj)){
 
-            if(type === 'sampler2D')
-                uniformParams[key].value = parseInt(value);
-            else if(type === 'float')
-                uniformParams[key].value = parseFloat(value);
-            else if(/vec/.test(type) || /mat/.test(type))
-                uniformParams[key].value = parseVecMat(value);
+
+            const isValueArr = /\[[^\]]*\]/.test(value);
+            const isKeyArr = /\[[^\]]*\]/.test(key);
+            if(isKeyArr){
+
+            }else{
+
+                const {type} = uniformParams[key];
+
+                if(isValueArr){
+                    try{
+                        value =  JSON.parse(value);
+                    }catch (e){
+                        console.error(e, `cannot parse ${value}`);
+                    }
+                }
+
+
+                if(type === 'sampler2D' || type === 'int'){
+                    uniformParams[key].value = isValueArr?value:parseInt(value);
+                }else if(type === 'float')
+                    uniformParams[key].value = isValueArr?value:parseFloat(value);
+                else if(/vec/.test(type) || /mat/.test(type))
+                    uniformParams[key].value = isValueArr?value:parseVecMat(value);
+            }
 
         }
 

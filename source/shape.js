@@ -27,7 +27,6 @@ export default class Shape {
 
         finder.data = data;
 
-        debugger;
         gl.bindBuffer(gl.ARRAY_BUFFER, finder.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl[type]);
 
