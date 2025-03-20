@@ -19,11 +19,37 @@ export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     return new Float32Array(posPixels);  
 }
 
-export function genRectHaltonPos(scale, corner, partiCount, geneCount, size, duration) {
-    const posPixels = [];
-    
+export function genRectHaltonPos(scale, corner, MAXCOL, geneCount, size, duration) {
+
     const localXStart = corner[0];  
-    const localYStart = corner[1];  
+    const localYStart = corner[1];
+    const partiCount = MAXCOL*MAXCOL;
+    const result = [];
+
+    for (let index = 0; index < geneCount; index++) {
+        const posPixels = [];
+        for (let row = 0; row < MAXCOL; row++) {
+            for (let col = 0; col < MAXCOL; col++) {
+                const haltonX = halton(2, row * MAXCOL + col);
+                const haltonY = halton(3, row * MAXCOL + col);
+                const localX = localXStart + haltonX * scale;
+                const localZ = localYStart + haltonY * scale;
+                const startTime = (row * MAXCOL + col) * duration / partiCount;
+                posPixels.push(localX, localZ, size, startTime);
+            }
+        }
+        result.push(new Float32Array(posPixels))
+    }
+
+    return result;
+
+}
+
+export function genRectHaltonPosOLD(scale, corner, partiCount, geneCount, size, duration) {
+    const posPixels = [];
+
+    const localXStart = corner[0];
+    const localYStart = corner[1];
 
     for (let row = 0; row < geneCount; row++) {
         for (let col = 0; col < partiCount; col++) {
@@ -36,8 +62,10 @@ export function genRectHaltonPos(scale, corner, partiCount, geneCount, size, dur
         }
     }
 
-    return new Float32Array(posPixels);  
+    return new Float32Array(posPixels);
 }
+
+
 
 export function testGenVel(fbWidth,fbHeight) {
     const posPixels = [];

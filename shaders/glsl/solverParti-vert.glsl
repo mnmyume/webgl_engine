@@ -31,6 +31,7 @@ float pidPixelsOffset(float pid, float offset){
 
 vec2 getSolverCoord(float pid, float MAXCOL){
   vec2 uv =  vec2(mod(pid,MAXCOL), floor(pid/MAXCOL)) / MAXCOL;
+  uv += vec2(1.0/MAXCOL*0.5); //offset to center of pixel
   return uv;
 }
 

@@ -43,19 +43,23 @@ export default class Material {
     }
 
     setTexture(key, texture){
-        $assert(texture instanceof Texture2D);
 
 
         if(/\[(\d)+\]/.test(key)){
+            $assert(texture instanceof Texture2D);
             let index;
             [,key, index] = $match(/(.+)\[(\d+)\]/gm,key);
             this.textures[key] = this.textures[key]??[];
             this.textures[key][index] = texture;
-        }else
+        }else if(Array.isArray(texture)){
+            for(const index in texture)
+                this.textures[key][index] = texture[index];
 
+        }else{
+            $assert(texture instanceof Texture2D);
             this.textures[key] = texture;
+        }
 
-        debugger;
         $assert(this.uniforms[key]);
     }
 
@@ -100,7 +104,6 @@ export default class Material {
 
         for(const name in this.uniforms){
             const {type, value} = this.uniforms[name];
-            debugger;
             const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
                     isArr = input=>/\[\]/.test(input),
 

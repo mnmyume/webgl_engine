@@ -4,8 +4,8 @@ precision highp float;
 
 #define GEN_SIZE 4
 
-#value emitterArr:[0, 1, 2, 3]
-uniform sampler2D emitterArr[GEN_SIZE];      // posX, posZ, size, startTime
+#value emitterArr:0
+uniform sampler2D emitterArr;//[GEN_SIZE]      // posX, posZ, size, startTime
 
 
 #value test[0]:vec4( -1.0)
@@ -115,11 +115,13 @@ float pidPixels(float pid){
   return  pid*NUM_COMPONENTS;
 }
 
-vec2 getEmitterCoord(float pid, float generation, float partiCount, float geneCount){
-    return vec2(pid/partiCount+0.5, generation/geneCount+0.5);
-}
+//vec2 getEmitterCoord(float pid, float generation, float partiCount, float geneCount){
+//    return vec2(pid/partiCount+0.5, generation/geneCount+0.5);
+//}
 vec2 getSolverCoord(float pid, float MAXCOL){
-    return vec2(mod(pid,MAXCOL), floor(pid/MAXCOL))/MAXCOL;
+    vec2 uv = vec2(mod(pid,MAXCOL), floor(pid/MAXCOL))/MAXCOL;
+    uv += vec2(1.0/MAXCOL*0.5); //offset to center of pixel
+    return uv;
 }
 
 
@@ -134,7 +136,7 @@ void main() {
 
     vec2 uv = gl_FragCoord.xy / resolution;
 
-    float generation = 0.0;
+    int generation = 0;
     float particleID = getPID(gl_FragCoord.xy, MAXCOL);
 
     vec3 pos = vec3(0,0,0);
@@ -142,14 +144,17 @@ void main() {
     float startTime = 0.0;
     float size = 0.0;
 
+    vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
+
+    vec2 emitterPos = texture2D(emitterArr, emitterUV).xy;
     if(state == 1){//emit
 
 
-        generation = 0.0;
-        vec2 emitterUV = getEmitterCoord(particleID, generation, partiCount, geneCount);
-        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-        size = texture2D(emitterArr[0], emitterUV).z;
-        startTime = texture2D(emitterArr[0], emitterUV).w;
+//        vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
+//
+//        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
+        size = texture2D(emitterArr, emitterUV).z;
+        startTime = texture2D(emitterArr, emitterUV).w;
 
         pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
 
@@ -198,12 +203,12 @@ void main() {
         float texCoordU = 0.5;
         float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
         vec2 texCoord = vec2(texCoordU, texCoordV);
-        pos = texture2D(emitterArr[0], texCoord).xyz;
+        pos = texture2D(emitterArr, texCoord).xyz;
         vel = texture2D(velFB, texCoord).xyz;
     }
 
 
-    gl_FragData[0] = vec4(pos, 15)+test[0];
+    gl_FragData[0] = vec4(pos, 15);
     gl_FragData[1] = vec4(vel, 1);
     gl_FragData[2] = vec4(0.0, 1.0, 0.0, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);

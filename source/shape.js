@@ -46,7 +46,7 @@ export default class Shape {
             const dataBuffer = this.dataBuffer.find(ele=>ele.value.find(({attribute})=>attribute === key));
             const {size,stride,offset} = dataBuffer.value.find(({attribute})=>attribute === key);
             gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer.buffer);
-            gl.vertexAttribPointer(value,size, gl.FLOAT, false, stride, offset);
+            gl.vertexAttribPointer(value,parseInt(size), gl.FLOAT, false, parseInt(stride), parseInt(offset));
         }
 
 
