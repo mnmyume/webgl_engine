@@ -212,8 +212,9 @@ function initSolver(gl, canvas, camera) {
         emitterTextureArr.push(emitterTexture);
     }
 
-    solverMaterial.setTexture('emitterArr[0]', emitterTextureArr[0]);
-    // solverMaterial.setTexture('emitterArr', emitterTextureArr);
+    // solverMaterial.setTexture('emitterArr[0]', emitterTextureArr[0]);
+    debugger;
+    solverMaterial.setTexture('emitterArr', emitterTextureArr);
 
     solver.backBuffer.textures[0].setData(gl, null);
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth, fbHeight));

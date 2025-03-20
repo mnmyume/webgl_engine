@@ -110,7 +110,7 @@ function checkPreprocessor(key,source){
 
 }
 function checkAttrUniformParams(key, source){
-    const buffer =  $match( new RegExp(`${key}[\\s]+(\\S+)[\\s]+(\\S+)[\\s]*;`, 'gm'), source);
+    const buffer =  $match( new RegExp(`^(?!\\/\\/)${key}[\\s]+(\\S+)[\\s]+(\\S+)[\\s]*;`, 'gm'), source);
     const result = {};
     for(let i = 0; i<buffer.length/3;i++) {
         let varName = buffer[3*i+2];

@@ -37,7 +37,16 @@ export default class Material {
             this.dataLocation.attributes[attr] = gl.getAttribLocation(this.shaderProgram, attr);
         }
         
-        for (const name in this.uniforms) {
+        for (let name in this.uniforms) {
+            const {type, value} = this.uniforms[name];
+            const isArr = /\[\]/.test(type);
+            if(isArr){
+                for(const index in value){
+                    const key = `${name}[${index}]`
+                    this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
+                }
+            }
+
             this.dataLocation.uniforms[name] = gl.getUniformLocation(this.shaderProgram, name);
         }
     }
@@ -52,6 +61,7 @@ export default class Material {
             this.textures[key] = this.textures[key]??[];
             this.textures[key][index] = texture;
         }else if(Array.isArray(texture)){
+            this.textures[key] = this.textures[key]??[];
             for(const index in texture)
                 this.textures[key][index] = texture[index];
 
@@ -107,7 +117,7 @@ export default class Material {
             const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
                     isArr = input=>/\[\]/.test(input),
 
-                 setGLValue = (type, value)=>{
+                 setGLValue = (name, type, value)=>{
                         if(/vec/.test(type)){
 
                              $assert(value, 'empty uniform vec');
@@ -135,11 +145,11 @@ export default class Material {
 
 
             if(isArr(type)){
-                for(const childValue of value){
-                    setGLValue(type, childValue);
+                for(const index in value){
+                    setGLValue(`${name}[${index}]`,type, value[index]);
                 }
             }else
-                setGLValue(type, value);
+                setGLValue(name,type, value);
 
         }
 
