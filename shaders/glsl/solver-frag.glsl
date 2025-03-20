@@ -4,8 +4,8 @@ precision highp float;
 
 #define GEN_SIZE 4
 
-#value emitterArr:0
-uniform sampler2D emitterArr;//[GEN_SIZE]      // posX, posZ, size, startTime
+#value emitterArr:[0,1,2,3]
+uniform sampler2D emitterArr[GEN_SIZE];//      // posX, posZ, size, startTime
 
 
 #value test[0]:vec4( -1.0)
@@ -146,15 +146,15 @@ void main() {
 
     vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
 
-    vec2 emitterPos = texture2D(emitterArr, emitterUV).xy;
+    vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
     if(state == 1){//emit
 
 
 //        vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
 //
 //        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-        size = texture2D(emitterArr, emitterUV).z;
-        startTime = texture2D(emitterArr, emitterUV).w;
+        size = texture2D(emitterArr[0], emitterUV).z;
+        startTime = texture2D(emitterArr[0], emitterUV).w;
 
         pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
 
@@ -203,7 +203,7 @@ void main() {
         float texCoordU = 0.5;
         float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
         vec2 texCoord = vec2(texCoordU, texCoordV);
-        pos = texture2D(emitterArr, texCoord).xyz;
+        pos = texture2D(emitterArr[0], texCoord).xyz;
         vel = texture2D(velFB, texCoord).xyz;
     }
 
