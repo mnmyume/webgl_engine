@@ -206,9 +206,18 @@ export default class Material {
     postDraw(gl){
         gl.useProgram(null);
         for(const [key,value] of Object.entries(this.textures)){
-            const texIndex = this.uniforms[key].value;
-            gl.activeTexture(gl[`TEXTURE${texIndex}`]);
-            gl.bindTexture(gl.TEXTURE_2D, null);
+            if(Array.isArray(value)){
+                for(const index in value){
+                    const texIndex = this.uniforms[key].value[index];
+                    gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+                    gl.bindTexture(gl.TEXTURE_2D, null);
+                }
+            }else{
+                const texIndex = this.uniforms[key].value;
+                gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+                gl.bindTexture(gl.TEXTURE_2D, null);
+            }
+
         }
     }
 }

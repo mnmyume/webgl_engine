@@ -120,10 +120,9 @@ float pidPixels(float pid){
 //}
 vec2 getSolverCoord(float pid, float MAXCOL){
     vec2 uv = vec2(mod(pid,MAXCOL), floor(pid/MAXCOL))/MAXCOL;
-    uv += vec2(1.0/MAXCOL*0.5); //offset to center of pixel
+    uv += vec2(1.0/MAXCOL*0.5); //  offset to center of pixel
     return uv;
 }
-
 
 //https://registry.khronos.org/OpenGL-Refpages/gl4/html/gl_FragCoord.xhtml
 // lower-left origin
@@ -141,12 +140,12 @@ void main() {
 
     vec3 pos = vec3(0,0,0);
     vec3 vel = vec3(0,0,0);
-    float startTime = 0.0;
-    float size = 0.0;
-
     vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
+    float size = 0.0;
+    float startTime = texture2D(emitterArr[0], emitterUV).w;
 
     vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
+
     if(state == 1){//emit
 
 
@@ -184,7 +183,8 @@ void main() {
 
     float localTime = 0.0;
     if(time - startTime > 0.0) {
-        localTime = mod(time - startTime, lifeTime);
+        // localTime = mod(time - startTime, lifeTime);
+        localTime = time - startTime;
     }
 
     float percentLife = localTime / lifeTime;
@@ -193,24 +193,24 @@ void main() {
         vel = gravityField(vel);
         vel = vel + velField(pos, vec3(.0,.0,.0));
         updatePosVel(pos, vel);
+        size = texture2D(emitterArr[0], emitterUV).z;
     }
 
+//    bool isEmitterActive = duration > 0.0 && time < duration;
+//    if(percentLife > 1.0 && isEmitterActive){   // particle is dead
+//        //read emitter texture map
+//        float generation = floor((time - startTime)/lifeTime);
+//        float texCoordU = 0.5;
+//        float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
+//        vec2 texCoord = vec2(texCoordU, texCoordV);
+//        pos = texture2D(emitterArr[0], texCoord).xyz;
+//        vel = texture2D(velFB, texCoord).xyz;
+//    }
 
-    bool isEmitterActive = duration > 0.0 && time < duration;
-    if(percentLife > 1.0 && isEmitterActive){   // particle is dead
-        //read emitter texture map
-        float generation = floor((time - startTime)/lifeTime);
-        float texCoordU = 0.5;
-        float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
-        vec2 texCoord = vec2(texCoordU, texCoordV);
-        pos = texture2D(emitterArr[0], texCoord).xyz;
-        vel = texture2D(velFB, texCoord).xyz;
-    }
 
-
-    gl_FragData[0] = vec4(pos, 15);
+    gl_FragData[0] = vec4(pos, size);
     gl_FragData[1] = vec4(vel, 1);
-    gl_FragData[2] = vec4(0.0, 1.0, 0.0, 1.0);
+    gl_FragData[2] = vec4(startTime, 0.0, 0.0, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);
 
 }
