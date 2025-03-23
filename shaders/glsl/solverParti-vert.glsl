@@ -13,7 +13,7 @@ uniform float MAXCOL;
 uniform sampler2D posSampler;
 
 // attribute
-#buffer particleID:partiBuffer size:1 stride:4 offset:0
+#buffer particleID:partiBuffer, size:1, stride:4, offset:0
 attribute float particleID;
 
 varying float outputSize;
