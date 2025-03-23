@@ -58,7 +58,7 @@ export default class Texture2D {
 
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         $assert(this.texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         //WARPPing
         //doesnt work with non-power of 2

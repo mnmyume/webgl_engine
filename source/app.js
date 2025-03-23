@@ -199,6 +199,10 @@ function initSolver(gl, canvas, camera) {
     const initPos = new Float32Array([1, 1, 15, 20]);
     //
     const texDataArr = genRectHaltonPos(gridWidth, gridCorner, MAXCOL, MAXGENSIZE, partiParams.size, partiParams.duration);
+
+    texDataArr[0] = new Float32Array([0, 0, 15, 0, 8, 5, 15, 2, 4, 10, 15, 5, 12, 1, 15, 7,]);
+    debugger;
+
     const emitterTextureArr = [];
     for (let genIndex = 0; genIndex < 1; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {

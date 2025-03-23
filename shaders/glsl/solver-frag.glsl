@@ -118,7 +118,7 @@ float pidPixels(float pid){
 //vec2 getEmitterCoord(float pid, float generation, float partiCount, float geneCount){
 //    return vec2(pid/partiCount+0.5, generation/geneCount+0.5);
 //}
-vec2 getSolverCoord(float pid, float MAXCOL){
+vec2 getEmitterCoord(float pid, float MAXCOL){
     vec2 uv = vec2(mod(pid,MAXCOL), floor(pid/MAXCOL))/MAXCOL;
     uv += vec2(1.0/MAXCOL*0.5); //  offset to center of pixel
     return uv;
@@ -139,29 +139,30 @@ void main() {
 
     vec3 pos = vec3(0,0,0);
     vec3 vel = vec3(0,0,0);
-    vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
+    vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
     float size = texture2D(emitterArr[0], emitterUV).z;
     float startTime = texture2D(emitterArr[0], emitterUV).w;
-
     float localTime = time - startTime;
+    float percentLife = localTime / lifeTime;
 
     if(state == 1){
         vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
         pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
     }else{
-        vec2 solverUV = getSolverCoord(particleID, MAXCOL);
-        pos = texture2D(posFB, solverUV).xyz;
+        pos = texture2D(posFB, uv).xyz;
 //        vel = texture2D(velFB, solverUV).xyz;
 //
 //        vel = gravityField(vel);
 //        vel = vel + velField(pos, vec3(.0,.0,.0));
-        updatePosVel(pos, vec3(.0,-10.0,.0));
+        if(localTime > 0.0 && percentLife < 1.0)
+            updatePosVel(pos, vec3(.0,-10.0,.0));
+
     }
 
 //    if(state == 1){//emit
 //
 //
-////        vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
+////        vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
 ////
 ////        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
 ////        size = texture2D(emitterArr[0], emitterUV).z;
@@ -172,7 +173,7 @@ void main() {
 //    }
 //    else if(state == 2){ //solver
 //
-//        vec2 solverUV = getSolverCoord(particleID, MAXCOL);
+//        vec2 solverUV = getEmitterCoord(particleID, MAXCOL);
 //        pos = texture2D(posFB, solverUV).xyz;
 //        vel = texture2D(velFB, solverUV).xyz;
 //
