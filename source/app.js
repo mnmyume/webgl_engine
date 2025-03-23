@@ -106,12 +106,12 @@ function initSolver(gl, canvas, camera) {
     const partiParams = {
         geneCount: MAXGENSIZE,
         rate: 1,
-        duration: 20,
+        duration: 10,
         lifeTime: 20,
         size: 15,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 16;
+    const partiCount = 4;
     //
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
