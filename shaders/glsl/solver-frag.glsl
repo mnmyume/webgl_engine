@@ -82,7 +82,7 @@ vec3 velField(vec3 pos, vec3 scalar) {
     return scalar*normalize(d);
 }
 
-void updatePosVel(inout vec3 pos, inout vec3 vel) { // vec2 obs, vec2 index
+void updatePosVel(inout vec3 pos, vec3 vel) { // vec2 obs, vec2 index
     pos = pos + vel * deltaTime;
     
 //    // reset pos if particle out boundary
@@ -132,7 +132,6 @@ float getPID(vec2 fragCoord, float MAXCOL){
 
 
 void main() {
-
     vec2 uv = gl_FragCoord.xy / resolution;
 
     int generation = 0;
@@ -144,66 +143,80 @@ void main() {
     float size = texture2D(emitterArr[0], emitterUV).z;
     float startTime = texture2D(emitterArr[0], emitterUV).w;
 
-    vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-
-    if(state == 1){//emit
-
-
-//        vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
-//
-//        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-//        size = texture2D(emitterArr[0], emitterUV).z;
-//        startTime = texture2D(emitterArr[0], emitterUV).w;
-
-        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-
-    }else if(state == 2){ //solver
-
-        vec2 solverUV = getSolverCoord(particleID, MAXCOL);
-        pos = texture2D(posFB, solverUV).xyz;
-        vel = texture2D(velFB, solverUV).xyz;
-
-        if(false){ //restart
-//            float startTime = texture2D(emitterArr[0], emitterUV).w;
-//            float localTime = mod(time - startTime, lifeTime) ;
-//            float percentLife = localTime / lifeTime;
-//            // float frame = mod(floor(localTime / frameDuration), numFrames);
-//            float generation = 0.0; // floor((time - startTime) / duration);
-//
-//            vec2 coord = vec2(0.5,0.5);//getEmitterCoord(generation);
-//            vec2 emitterPos =   texture2D(emitterArr[0], coord).xy;
-//            float emitterSize =        texture2D(emitterArr[0], coord).z;
-//            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-
-        }
-    }
-
-//    vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
-//    vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
-
     float localTime = time - startTime;
 
-    float percentLife = localTime / lifeTime;
-
-    if(localTime > 0.0 && percentLife < 1.0) {
-        vel = gravityField(vel);
-        vel = vel + velField(pos, vec3(.0,.0,.0));
-        updatePosVel(pos, vel);
+    if(state == 1){
+        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
+        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+    }else{
+        vec2 solverUV = getSolverCoord(particleID, MAXCOL);
+        pos = texture2D(posFB, solverUV).xyz;
+//        vel = texture2D(velFB, solverUV).xyz;
+//
+//        vel = gravityField(vel);
+//        vel = vel + velField(pos, vec3(.0,.0,.0));
+        updatePosVel(pos, vec3(.0,-10.0,.0));
     }
 
-//    bool isEmitterActive = duration > 0.0 && time < duration;
-//    if(percentLife > 1.0 && isEmitterActive){   // particle is dead
-//        //read emitter texture map
-//        float generation = floor((time - startTime)/lifeTime);
-//        float texCoordU = 0.5;
-//        float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
-//        vec2 texCoord = vec2(texCoordU, texCoordV);
-//        pos = texture2D(emitterArr[0], texCoord).xyz;
-//        vel = texture2D(velFB, texCoord).xyz;
+//    if(state == 1){//emit
+//
+//
+////        vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
+////
+////        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
+////        size = texture2D(emitterArr[0], emitterUV).z;
+////        startTime = texture2D(emitterArr[0], emitterUV).w;
+//
+//        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+//
 //    }
+//    else if(state == 2){ //solver
+//
+//        vec2 solverUV = getSolverCoord(particleID, MAXCOL);
+//        pos = texture2D(posFB, solverUV).xyz;
+//        vel = texture2D(velFB, solverUV).xyz;
+//
+//        if(false){ //restart
+////            float startTime = texture2D(emitterArr[0], emitterUV).w;
+////            float localTime = mod(time - startTime, lifeTime) ;
+////            float percentLife = localTime / lifeTime;
+////            // float frame = mod(floor(localTime / frameDuration), numFrames);
+////            float generation = 0.0; // floor((time - startTime) / duration);
+////
+////            vec2 coord = vec2(0.5,0.5);//getEmitterCoord(generation);
+////            vec2 emitterPos =   texture2D(emitterArr[0], coord).xy;
+////            float emitterSize =        texture2D(emitterArr[0], coord).z;
+////            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+//
+//        }
+//    }
+//
+////    vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
+////    vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
+//
+
+//
+//    float percentLife = localTime / lifeTime;
+//
+//    if(localTime > 0.0 && percentLife < 1.0) {
+//        vel = gravityField(vel);
+//        vel = vel + velField(pos, vec3(.0,.0,.0));
+//        updatePosVel(pos, vel);
+//    }
+//
+////    bool isEmitterActive = duration > 0.0 && time < duration;
+////    if(percentLife > 1.0 && isEmitterActive){   // particle is dead
+////        //read emitter texture map
+////        float generation = floor((time - startTime)/lifeTime);
+////        float texCoordU = 0.5;
+////        float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
+////        vec2 texCoord = vec2(texCoordU, texCoordV);
+////        pos = texture2D(emitterArr[0], texCoord).xyz;
+////        vel = texture2D(velFB, texCoord).xyz;
+////    }
 
 
-    gl_FragData[0] = vec4(pos.x,pos.y,pos.z, startTime);
+    gl_FragData[0] = vec4(pos, startTime);
     gl_FragData[1] = vec4(vel, 1);
     gl_FragData[2] = vec4(startTime, 0.0, 0.0, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);

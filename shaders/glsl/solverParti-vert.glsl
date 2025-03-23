@@ -47,6 +47,6 @@ void main() {
   
   outputSize = size;
 
-  gl_PointSize = size;
+  gl_PointSize = 30.0;
   gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
 }
