@@ -107,7 +107,7 @@ function initSolver(gl, canvas, camera) {
         geneCount: MAXGENSIZE,
         rate: 1,
         duration: 20,
-        lifeTime: 10,
+        lifeTime: 20,
         size: 15,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
@@ -213,7 +213,6 @@ function initSolver(gl, canvas, camera) {
     }
 
     // solverMaterial.setTexture('emitterArr[0]', emitterTextureArr[0]);
-    debugger;
     solverMaterial.setTexture('emitterArr', emitterTextureArr);
 
     solver.backBuffer.textures[0].setData(gl, null);
@@ -359,8 +358,6 @@ function initSolver(gl, canvas, camera) {
             partiMaterial.postDraw(gl);
 
             // draw emitter quad
-            // debugger;
-
             emitterQuadMaterial.setTexture('tex', emitterTextureArr[0]);
             emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
             emitterQuadShape.draw(gl, emitterQuadMaterial);
