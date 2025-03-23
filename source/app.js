@@ -358,8 +358,6 @@ function initSolver(gl, canvas, camera) {
             partiMaterial.postDraw(gl);
 
             // draw emitter quad
-            // debugger;
-
             emitterQuadMaterial.setTexture('tex', emitterTextureArr[0]);
             emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
             emitterQuadShape.draw(gl, emitterQuadMaterial);

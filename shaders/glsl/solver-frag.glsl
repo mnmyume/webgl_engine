@@ -141,7 +141,7 @@ void main() {
     vec3 pos = vec3(0,0,0);
     vec3 vel = vec3(0,0,0);
     vec2 emitterUV = getSolverCoord(particleID,MAXCOL);
-    float size = 0.0;
+    float size = texture2D(emitterArr[0], emitterUV).z;
     float startTime = texture2D(emitterArr[0], emitterUV).w;
 
     vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
@@ -181,11 +181,7 @@ void main() {
 //    vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
 //    vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
 
-    float localTime = 0.0;
-    if(time - startTime > 0.0) {
-        // localTime = mod(time - startTime, lifeTime);
-        localTime = time - startTime;
-    }
+    float localTime = time - startTime;
 
     float percentLife = localTime / lifeTime;
 
@@ -193,7 +189,6 @@ void main() {
         vel = gravityField(vel);
         vel = vel + velField(pos, vec3(.0,.0,.0));
         updatePosVel(pos, vel);
-        size = texture2D(emitterArr[0], emitterUV).z;
     }
 
 //    bool isEmitterActive = duration > 0.0 && time < duration;
@@ -208,7 +203,7 @@ void main() {
 //    }
 
 
-    gl_FragData[0] = vec4(pos, size);
+    gl_FragData[0] = vec4(pos.x,pos.y,pos.z, size);
     gl_FragData[1] = vec4(vel, 1);
     gl_FragData[2] = vec4(startTime, 0.0, 0.0, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);
