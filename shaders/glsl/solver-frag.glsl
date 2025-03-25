@@ -82,7 +82,7 @@ vec3 velField(vec3 pos, vec3 scalar) {
     return scalar*normalize(d);
 }
 
-void updatePosVel(inout vec3 pos, vec3 vel) { // vec2 obs, vec2 index
+void updatePosVel(inout vec3 pos, inout vec3 vel) { // vec2 obs, vec2 index
     pos = pos + vel * deltaTime;
     
 //    // reset pos if particle out boundary
@@ -134,6 +134,8 @@ float getPID(vec2 fragCoord, float MAXCOL){
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
 
+    bool loop = false;
+
     int generation = 0;
     float particleID = getPID(gl_FragCoord.xy, MAXCOL);
 
@@ -145,19 +147,24 @@ void main() {
     float localTime = time - startTime;
     float percentLife = localTime / lifeTime;
 
-    if(state == 1){
-        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-    }else{
-        pos = texture2D(posFB, uv).xyz;
-//        vel = texture2D(velFB, solverUV).xyz;
-//
-//        vel = gravityField(vel);
-//        vel = vel + velField(pos, vec3(.0,.0,.0));
-        if(localTime > 0.0 && percentLife < 1.0)
-            updatePosVel(pos, vec3(.0,-10.0,.0));
+    if(!loop) {
+        if(state == 1){
+            vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
+            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+        }else{
+            pos = texture2D(posFB, uv).xyz;
+            vel = texture2D(velFB, uv).xyz;
+        }
+
+        if(localTime > 0.0 && percentLife < 1.0) {
+            vel = gravityField(vel);
+            vel = vel + velField(pos, vec3(.0,.0,.0));
+            updatePosVel(pos, vel);
+        }
+    } else {
 
     }
+
 
 //    if(state == 1){//emit
 //
@@ -216,10 +223,9 @@ void main() {
 ////        vel = texture2D(velFB, texCoord).xyz;
 ////    }
 
-
-    gl_FragData[0] = vec4(pos, startTime);
+    gl_FragData[0] = vec4(pos, size);
     gl_FragData[1] = vec4(vel, 1);
-    gl_FragData[2] = vec4(startTime, 0.0, 0.0, 1.0);
+    gl_FragData[2] = vec4(0.0, 0.0, 0.0, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);
 
 }

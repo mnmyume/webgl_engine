@@ -19,14 +19,14 @@ export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     return new Float32Array(posPixels);  
 }
 
-export function genRectHaltonPos(scale, corner, MAXCOL, geneCount, size, duration) {
+export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
 
     const localXStart = corner[0];  
     const localYStart = corner[1];
     const partiCount = MAXCOL*MAXCOL;
     const result = [];
 
-    for (let index = 0; index < geneCount; index++) {
+    for (let index = 0; index < MAXCOL; index++) {
         const posPixels = [];
         for (let row = 0; row < MAXCOL; row++) {
             for (let col = 0; col < MAXCOL; col++) {

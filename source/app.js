@@ -119,7 +119,7 @@ function initSolver(gl, canvas, camera) {
     const fbHeight = MAXCOL;
     //
     // set emitter grid
-    const gridWidth = 16;
+    const emitterSize = 16;
     const emitterHeight = 40;
     const gridCorner = [0, 0];
     //
@@ -196,15 +196,9 @@ function initSolver(gl, canvas, camera) {
     });
     solver.initialize({gl});
 
-    const initPos = new Float32Array([1, 1, 15, 20]);
-    //
-    const texDataArr = genRectHaltonPos(gridWidth, gridCorner, MAXCOL, MAXGENSIZE, partiParams.size, partiParams.duration);
-
-    texDataArr[0] = new Float32Array([0, 0, 15, 0, 8, 5, 15, 2, 4, 10, 15, 5, 12, 1, 15, 7,]);
-    debugger;
-
+    const texDataArr = genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration);;
     const emitterTextureArr = [];
-    for (let genIndex = 0; genIndex < 1; genIndex++) {
+    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
             width: MAXCOL, height: MAXCOL,
             scaleDown: 'LINEAR',
@@ -222,7 +216,7 @@ function initSolver(gl, canvas, camera) {
     solver.backBuffer.textures[0].setData(gl, null);
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth, fbHeight));
 
-    solverMaterial.setUniform('grid', [gridWidth, emitterHeight, ...gridCorner]);
+    solverMaterial.setUniform('grid', [emitterSize, emitterHeight, ...gridCorner]);
     solverMaterial.setUniform('worldSize', [canvas.width, canvas.height]);
     solverMaterial.setUniform('resolution', [fbWidth, fbHeight]);
     solverMaterial.setUniform('duration', partiParams.duration);
@@ -329,10 +323,8 @@ function initSolver(gl, canvas, camera) {
         groundQuadShape.update(gl, 'quadBuffer', groundQuadData);
 
         // solver.addObstacles(gl);
-        // solver.Mode = Solver.MODE.init;
 
-
-        let lastTime;
+        solver.Mode = Solver.MODE.init;
 
         function drawSolver() {
 
