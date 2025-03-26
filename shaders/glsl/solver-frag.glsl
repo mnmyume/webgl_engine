@@ -147,23 +147,33 @@ void main() {
     float localTime = time - startTime;
     float percentLife = localTime / lifeTime;
 
-    if(!loop) {
-        if(state == 1){
-            vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-        }else{
-            pos = texture2D(posFB, uv).xyz;
-            vel = texture2D(velFB, uv).xyz;
-        }
 
-        if(localTime > 0.0 && percentLife < 1.0) {
-            vel = gravityField(vel);
-            vel = vel + velField(pos, vec3(.0,.0,.0));
-            updatePosVel(pos, vel);
-        }
-    } else {
 
+    if(state == 1){
+        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
+        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+    }else{
+        pos = texture2D(posFB, uv).xyz;
+        vel = texture2D(velFB, uv).xyz;
     }
+
+    bool alive = localTime > 0.0 && percentLife < 1.0;
+    bool dead = percentLife >= 1.0;
+    if(localTime > 0.0 && percentLife < 1.0) {
+        vel = gravityField(vel);
+        vel = vel + velField(pos, vec3(.0,.0,.0));
+        updatePosVel(pos, vel);
+    }else if(dead){
+        if(!loop) {
+            size = 0.0;
+        } else {
+            int emitterIndex = 0;
+            vec2 emitterPos = texture2D(emitterArr[emitterIndex], emitterUV).xy;
+            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+        }
+    }
+
+
 
 
 //    if(state == 1){//emit
