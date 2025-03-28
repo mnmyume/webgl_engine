@@ -7,17 +7,18 @@ precision highp float;
 #value emitterArr:[0,1,2,3]
 uniform sampler2D emitterArr[GEN_SIZE];      // posX, posZ, size, startTime
 
-//uniform sampler2DArray emitterArrTest;
-#value test[0]:vec4( -1.0)
-#value test[1]:[4, 5, 6, 7]
-#value test[2]:[8, 9, 10, 11]
-#value test[3]:[12, 13, 14, 15]
-uniform vec4 test[GEN_SIZE];      // posX, posZ, size, startTime
+//#value test[0]:vec4( -1.0)
+//#value test[1]:[4, 5, 6, 7]
+//#value test[2]:[8, 9, 10, 11]
+//#value test[3]:[12, 13, 14, 15]
+//uniform vec4 test[GEN_SIZE];      // posX, posZ, size, startTime
+
+
 
 #value posFB:4
 uniform sampler2D posFB;    // posX, posY, posZ, size
 #value velFB:5
-uniform sampler2D velFB;    // velX, velY, velZ, alpha
+uniform sampler2D velFB;    // velX, velY, velZ, _____
 
 #value deltaTime:0.01666
 uniform float deltaTime;
@@ -143,34 +144,16 @@ void main() {
     vec3 pos = vec3(0,0,0);
     vec3 vel = vec3(0,0,0);
     vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
-    float size = texture2D(emitterArr[0], emitterUV).z;
     float startTime = texture2D(emitterArr[0], emitterUV).w;
-    float localTime = 0.0;
-    if(time - startTime > 0.0)
-        localTime = mod(time - startTime, lifeTime);
+    float localTime = time - startTime > 0.0 ? mod(time - startTime, lifeTime):0.0;
     float percentLife = localTime / lifeTime;
 
-    if(state == 1){
-        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-    }else{
-        pos = texture2D(posFB, uv).xyz;
-        vel = texture2D(velFB, uv).xyz;
-    }
+    generation = int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE)));
 
-    bool alive = localTime > 0.0 && time - startTime <= lifeTime;
-    bool dead = time - startTime >= lifeTime;
-    if(alive) {
-        vel = gravityField(vel);
-        vel = vel + velField(pos, vec3(.0,.0,.0));
-        updatePosVel(pos, vel);
-    }else if(dead){
-        if(!loop) {
-            size = 0.0;
-        } else {
+    float size = texture2D(posFB, uv).w;
+    if(size == 0.0){//emitter state
+        if(state == 1 || loop){
             vec2 emitterPos = vec2(0,0);
-            generation = int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE)));
-            generation = 1;
             if(generation == 0)
                 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
             else if(generation == 1)
@@ -180,9 +163,19 @@ void main() {
             else if(generation == 3)
                 emitterPos = texture2D(emitterArr[3], emitterUV).xy;
 
+            size = texture2D(emitterArr[0], emitterUV).z;
             pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
         }
+
+    }else{
+        vel = gravityField(vel);
+        vel = vel + velField(pos, vec3(.0,.0,.0));
+        updatePosVel(pos, vel);
     }
+
+
+    if(time - startTime > lifeTime * float(generation))
+        size = 0.0;
 
 
 //    if(state == 1){//emit
