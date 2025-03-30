@@ -18,7 +18,7 @@ uniform sampler2D emitterArr[GEN_SIZE];      // posX, posZ, size, startTime
 #value posFB:4
 uniform sampler2D posFB;    // posX, posY, posZ, size
 #value velFB:5
-uniform sampler2D velFB;    // velX, velY, velZ, _____
+uniform sampler2D velFB;    // velX, velY, velZ, generation
 
 #value deltaTime:0.01666
 uniform float deltaTime;
@@ -137,21 +137,22 @@ void main() {
 
     bool loop = true;
 
-    int generation = 0;
+    int generation = GEN_SIZE + 1;
 
     float particleID = getPID(gl_FragCoord.xy, MAXCOL);
 
-    vec3 pos = vec3(0,0,0);
-    vec3 vel = vec3(0,0,0);
+    vec3 pos = texture2D(posFB, uv).xyz;
+    vec3 vel = texture2D(velFB, uv).xyz;
+    int lastGene = int(texture2D(velFB, uv).w);
     vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
     float startTime = texture2D(emitterArr[0], emitterUV).w;
-    float localTime = time - startTime > 0.0 ? mod(time - startTime, lifeTime):0.0;
+    float localTime = time - startTime > 0.0 ? mod(time - startTime, lifeTime) : 0.0;
     float percentLife = localTime / lifeTime;
 
-    generation = int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE)));
+    generation = time - startTime > 0.0 ? int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE))) : 0;
 
     float size = texture2D(posFB, uv).w;
-    if(size == 0.0){//emitter state
+    if(generation == GEN_SIZE+1 || generation != lastGene){    // emitter state
         if(state == 1 || loop){
             vec2 emitterPos = vec2(0,0);
             if(generation == 0)
@@ -165,17 +166,17 @@ void main() {
 
             size = texture2D(emitterArr[0], emitterUV).z;
             pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+            vel = vec3(0.0);
         }
 
-    }else{
+    } else if(localTime>0.0){
         vel = gravityField(vel);
         vel = vel + velField(pos, vec3(.0,.0,.0));
         updatePosVel(pos, vel);
     }
 
-
-    if(time - startTime > lifeTime * float(generation))
-        size = 0.0;
+//    if(time - startTime >= lifeTime * (float(generation)+1.0))
+//        size = 0.0;
 
 
 //    if(state == 1){//emit
@@ -236,7 +237,7 @@ void main() {
 ////    }
 
     gl_FragData[0] = vec4(pos, size);
-    gl_FragData[1] = vec4(vel, 1);
+    gl_FragData[1] = vec4(vel, generation);
     gl_FragData[2] = vec4(generation/4, 0.0, 0.0, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);
 

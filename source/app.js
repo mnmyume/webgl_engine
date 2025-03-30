@@ -44,7 +44,6 @@ const g_fps = document.getElementById("fps");
 if (!g_fps) {
     console.log('fps error')
 }
-;
 const fpsCounter = new FPSCounter(g_fps);
 
 function initSimpleQuad(gl, camera) {
@@ -354,7 +353,7 @@ function initSolver(gl, canvas, camera) {
             partiMaterial.postDraw(gl);
 
             // draw emitter quad
-            emitterQuadMaterial.setTexture('tex', solver.frontBuffer.textures[2]);
+            emitterQuadMaterial.setTexture('tex', emitterTextureArr[0]);
             emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
             emitterQuadShape.draw(gl, emitterQuadMaterial);
             emitterQuadMaterial.postDraw(gl);
