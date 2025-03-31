@@ -21,7 +21,7 @@ import {
     generateCirclePosVelRandom,
     genUVData,
     genQuadWithUV,
-    genQuad,
+    genQuad, genRandCol,
 } from './generatorHelper.js';
 import {readAttrSchema} from './shapeHelper.js';
 import {
@@ -100,14 +100,14 @@ function initSimpleQuad(gl, camera) {
 
 function initSolver(gl, canvas, camera) {
 
-    const MAXGENSIZE = 4;
+    const MAXGENSIZE = 2;
     // set params
     const partiParams = {
         geneCount: MAXGENSIZE,
         rate: 1,
         duration: 10,
         lifeTime: 10,
-        size: 4,
+        size: 16,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
     const partiCount = 128*128;
@@ -195,8 +195,7 @@ function initSolver(gl, canvas, camera) {
     });
     solver.initialize({gl});
 
-    const texDataArr = genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration);
-    const emitterTextureArr = [];
+    const emitterSlot0 = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
             width: MAXCOL, height: MAXCOL,
@@ -205,12 +204,30 @@ function initSolver(gl, canvas, camera) {
             scaleUp: 'LINEAR'
         });
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, texDataArr[genIndex]);
-        emitterTextureArr.push(emitterTexture);
+        emitterTexture.setData(gl, genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration));
+        emitterSlot0.push(emitterTexture);
     }
 
-    // solverMaterial.setTexture('emitterArr[0]', emitterTextureArr[0]);
-    solverMaterial.setTexture('emitterArr', emitterTextureArr);
+    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
+    solverMaterial.setTexture('emitterSlot0', emitterSlot0);
+
+
+    const emitterSlot1 = [];
+    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
+        const emitterTexture = new Texture2D('emitterTexture', {
+            width: MAXCOL, height: MAXCOL,
+            scaleDown: 'LINEAR',
+            // data: texDataArr[genIndex],
+            scaleUp: 'LINEAR'
+        });
+        emitterTexture.initialize({gl});
+        emitterTexture.setData(gl, genRandCol(MAXCOL));
+        emitterSlot1.push(emitterTexture);
+    }
+
+    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
+    solverMaterial.setTexture('emitterSlot1', emitterSlot1);
+
 
     solver.backBuffer.textures[0].setData(gl, null);
     solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth, fbHeight));
@@ -331,16 +348,19 @@ function initSolver(gl, canvas, camera) {
             solverMaterial.setUniform('time', time.ElapsedTime);
             solverMaterial.setUniform('state', solver.mode);
 
-            // solverMaterial.setTexture('emitterArr', emitterTextureArr[0]);
+            // solverMaterial.setTexture('emitterSlot0', emitterSlot0[0]);
             solver.update(gl);
             //
             gl.viewport(0, 0, canvas.width, canvas.height);
 
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            gl.clearColor(1, 0, 0, 1.0);
+            gl.clearColor(1, 1, 1, 1.0);
             gl.colorMask(true, true, true, true);
 
-            partiMaterial.setTexture('posSampler', solver.frontBuffer.textures[0]);
+            partiMaterial.setTexture('dataSlot0', solver.frontBuffer.textures[0]);
+            partiMaterial.setTexture('dataSlot1', solver.frontBuffer.textures[1]);
+            partiMaterial.setTexture('dataSlot2', solver.frontBuffer.textures[2]);
+            partiMaterial.setTexture('dataSlot3', solver.frontBuffer.textures[3]);
 
             // // draw screen quad
             // screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
@@ -348,16 +368,16 @@ function initSolver(gl, canvas, camera) {
             // screenQuadMaterial.postDraw(gl);
 
             // draw particles
-            gl.enable(gl.BLEND);
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-            gl.blendEquation(gl.FUNC_ADD);
+            // gl.enable(gl.BLEND);
+            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            // gl.blendEquation(gl.FUNC_ADD);
             partiMaterial.preDraw(gl, camera);
             partiShape.draw(gl, partiMaterial);
             partiMaterial.postDraw(gl);
-            gl.disable(gl.BLEND);
+            // gl.disable(gl.BLEND);
 
             // draw emitter quad
-            emitterQuadMaterial.setTexture('tex', emitterTextureArr[0]);
+            emitterQuadMaterial.setTexture('tex', emitterSlot0[0]);
             emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
             emitterQuadShape.draw(gl, emitterQuadMaterial);
             emitterQuadMaterial.postDraw(gl);

@@ -89,8 +89,10 @@ export default class Solver{
 
         this.material[0].setUniform('state', this.mode);
         this.material[0].setUniform('loop', this.loop);
-        this.material[0].setTexture('posFB', this.backBuffer.textures[0]);
-        this.material[0].setTexture('velFB', this.backBuffer.textures[1]);
+        this.material[0].setTexture('dataSlot0', this.backBuffer.textures[0]);
+        this.material[0].setTexture('dataSlot1', this.backBuffer.textures[1]);
+        this.material[0].setTexture('dataSlot2', this.backBuffer.textures[2]);
+        this.material[0].setTexture('dataSlot3', this.backBuffer.textures[3]);
 
         // this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 

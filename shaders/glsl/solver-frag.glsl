@@ -2,10 +2,12 @@ precision highp float;
 #extension GL_EXT_draw_buffers : require
 #extension GL_OES_texture_float : enable
 
-#define GEN_SIZE 4
+#define GEN_SIZE 2
 
-#value emitterArr:[0,1,2,3]
-uniform sampler2D emitterArr[GEN_SIZE];      // posX, posZ, size, startTime
+#value emitterSlot0:[0,1]
+uniform sampler2D emitterSlot0[GEN_SIZE];      // posX, posZ, size, startTime
+#value emitterSlot1:[2,3]
+uniform sampler2D emitterSlot1[GEN_SIZE];      // colX, colY, colZ, _empty
 
 //#value test[0]:vec4( -1.0)
 //#value test[1]:[4, 5, 6, 7]
@@ -13,10 +15,14 @@ uniform sampler2D emitterArr[GEN_SIZE];      // posX, posZ, size, startTime
 //#value test[3]:[12, 13, 14, 15]
 //uniform vec4 test[GEN_SIZE];      // posX, posZ, size, startTime
 
-#value posFB:4
-uniform sampler2D posFB;    // posX, posY, posZ, size
-#value velFB:5
-uniform sampler2D velFB;    // velX, velY, velZ, generation
+#value dataSlot0:4
+uniform sampler2D dataSlot0;    // posX, posY, posZ, size
+#value dataSlot1:5
+uniform sampler2D dataSlot1;    // velX, velY, velZ, generation
+#value dataSlot2:6
+uniform sampler2D dataSlot2;    // colX, colY, colZ, _____
+#value dataSlot3:7
+uniform sampler2D dataSlot3;        // _____, _____, _____, _____
 
 #value deltaTime:0.01666
 uniform float deltaTime;
@@ -154,12 +160,12 @@ void main() {
 
     float particleID = getPID(gl_FragCoord.xy, MAXCOL);
 
-    vec3 pos = texture2D(posFB, uv).xyz;
-    vec3 vel = texture2D(velFB, uv).xyz;
+    vec3 pos, vel;
     float size = 0.0;
-    int lastGene = int(texture2D(velFB, uv).w);
+    int lastGene = int(texture2D(dataSlot1, uv).w);
     vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
-    float startTime = texture2D(emitterArr[0], emitterUV).w;
+    float startTime = texture2D(emitterSlot0[0], emitterUV).w;
+    vec3 partiCol = texture2D(emitterSlot1[0], emitterUV).rgb;
     float localTime = time - startTime > 0.0 ? mod(time - startTime, lifeTime) : 0.0;
     float percentLife = localTime / lifeTime;
     int generation = time - startTime > 0.0 ? int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE))) : -1;
@@ -171,20 +177,31 @@ void main() {
     if(!hibernate && emit){
         if(state == 1 || loop){
             vec2 emitterPos = vec2(0,0);
-            if(generation == 0)
-                emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-            else if(generation == 1)
-                emitterPos = texture2D(emitterArr[1], emitterUV).xy;
-            else if(generation == 2)
-                emitterPos = texture2D(emitterArr[2], emitterUV).xy;
-            else if(generation == 3)
-                emitterPos = texture2D(emitterArr[3], emitterUV).xy;
+            if(generation == 0){
+                emitterPos = texture2D(emitterSlot0[0], emitterUV).xy;
+                partiCol = texture2D(emitterSlot1[0], emitterUV).rgb;
+            }else if(generation == 1){
+                emitterPos = texture2D(emitterSlot0[1], emitterUV).xy;
+                partiCol = texture2D(emitterSlot1[1], emitterUV).rgb;
+            }
+//            else if(generation == 2)
+//                emitterPos = texture2D(emitterSlot0[2], emitterUV).xy;
+//            else if(generation == 3)
+//                emitterPos = texture2D(emitterSlot0[3], emitterUV).xy;
 
             pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
             vel = vec3(0.0);
         }
-    } else if(!hibernate && localTime>0.0){
-        size = texture2D(emitterArr[0], emitterUV).z;
+
+    }
+
+    ////////////////////////////INTEGRATION-----UPDATE
+    else if(!hibernate && localTime>0.0){
+
+        pos = texture2D(dataSlot0, uv).xyz;
+        vel = texture2D(dataSlot1, uv).xyz;
+        partiCol = texture2D(dataSlot2, uv).xyz;
+        size = texture2D(emitterSlot0[0], emitterUV).z;
         vel = gravityField(vel);
         vel  += velField(pos, vec3(.2));
 //        vel += velDamp(newVel-vel, 0.5);
@@ -197,9 +214,9 @@ void main() {
 //
 ////        vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
 ////
-////        vec2 emitterPos = texture2D(emitterArr[0], emitterUV).xy;
-////        size = texture2D(emitterArr[0], emitterUV).z;
-////        startTime = texture2D(emitterArr[0], emitterUV).w;
+////        vec2 emitterPos = texture2D(emitterSlot0[0], emitterUV).xy;
+////        size = texture2D(emitterSlot0[0], emitterUV).z;
+////        startTime = texture2D(emitterSlot0[0], emitterUV).w;
 //
 //        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
 //
@@ -207,19 +224,19 @@ void main() {
 //    else if(state == 2){ //solver
 //
 //        vec2 solverUV = getEmitterCoord(particleID, MAXCOL);
-//        pos = texture2D(posFB, solverUV).xyz;
-//        vel = texture2D(velFB, solverUV).xyz;
+//        pos = texture2D(dataSlot0, solverUV).xyz;
+//        vel = texture2D(dataSlot1, solverUV).xyz;
 //
 //        if(false){ //restart
-////            float startTime = texture2D(emitterArr[0], emitterUV).w;
+////            float startTime = texture2D(emitterSlot0[0], emitterUV).w;
 ////            float localTime = mod(time - startTime, lifeTime) ;
 ////            float percentLife = localTime / lifeTime;
 ////            // float frame = mod(floor(localTime / frameDuration), numFrames);
 ////            float generation = 0.0; // floor((time - startTime) / duration);
 ////
 ////            vec2 coord = vec2(0.5,0.5);//getEmitterCoord(generation);
-////            vec2 emitterPos =   texture2D(emitterArr[0], coord).xy;
-////            float emitterSize =        texture2D(emitterArr[0], coord).z;
+////            vec2 emitterPos =   texture2D(emitterSlot0[0], coord).xy;
+////            float emitterSize =        texture2D(emitterSlot0[0], coord).z;
 ////            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
 //
 //        }
@@ -245,13 +262,13 @@ void main() {
 ////        float texCoordU = 0.5;
 ////        float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
 ////        vec2 texCoord = vec2(texCoordU, texCoordV);
-////        pos = texture2D(emitterArr[0], texCoord).xyz;
-////        vel = texture2D(velFB, texCoord).xyz;
+////        pos = texture2D(emitterSlot0[0], texCoord).xyz;
+////        vel = texture2D(dataSlot1, texCoord).xyz;
 ////    }
 
     gl_FragData[0] = vec4(pos, size);
     gl_FragData[1] = vec4(vel, generation);
-    gl_FragData[2] = vec4(generation/4, 0.0, 0.0, 1.0);
+    gl_FragData[2] = vec4(partiCol, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);
 
 }

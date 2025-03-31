@@ -9,15 +9,21 @@ uniform float geneCount;
 uniform float partiCount;
 uniform float MAXCOL;
 
-#value posSampler:0
-uniform sampler2D posSampler;
+#value dataSlot0:0
+uniform sampler2D dataSlot0;
+#value dataSlot1:1
+uniform sampler2D dataSlot1;
+#value dataSlot2:2
+uniform sampler2D dataSlot2;
+#value dataSlot3:3
+uniform sampler2D dataSlot3;
 
 // attribute
 #buffer particleID:partiBuffer, size:1, stride:4, offset:0
 attribute float particleID;
 
 varying float outputSize;
-
+varying vec3 outputCol;
 
 varying float debug;
 
@@ -41,12 +47,11 @@ void main() {
 
 //  debug = posTexCoord.x;
 
-  vec3 position = texture2D(posSampler, posTexCoord).xyz;
-
-  float size = texture2D(posSampler, posTexCoord).w;
+  vec3 position = texture2D(dataSlot0, posTexCoord).xyz;
   
-  outputSize = size;
+  outputSize = texture2D(dataSlot0, posTexCoord).w;
+  outputCol = texture2D(dataSlot2, posTexCoord).rgb;
 
-  gl_PointSize = size;
+  gl_PointSize = outputSize;
   gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
 }
