@@ -186,9 +186,9 @@ void main() {
     } else if(!hibernate && localTime>0.0){
         size = texture2D(emitterArr[0], emitterUV).z;
         vel = gravityField(vel);
-        vec3 newVel = vel + velField(pos, vec3(10.0));
+        vel  += velField(pos, vec3(1.0));
 //        vel += velDamp(newVel-vel, 0.5);
-        vel = airDrag(vel, 0.001, deltaTime);
+        vel = airDrag(vel, 0.1, deltaTime);
         updatePosVel(pos, vel);
     }
 
