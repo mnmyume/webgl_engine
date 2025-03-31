@@ -140,6 +140,7 @@ void main() {
 
     vec3 pos = texture2D(posFB, uv).xyz;
     vec3 vel = texture2D(velFB, uv).xyz;
+    float size = 0.0;
     int lastGene = int(texture2D(velFB, uv).w);
     vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
     float startTime = texture2D(emitterArr[0], emitterUV).w;
@@ -148,7 +149,6 @@ void main() {
 
     generation = time - startTime > 0.0 ? int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE))) : 0;
 
-    float size = texture2D(posFB, uv).w;
     if(generation == GEN_SIZE+1 || generation != lastGene){    // emitter state
         if(state == 1 || loop){
             vec2 emitterPos = vec2(0,0);
@@ -161,11 +161,11 @@ void main() {
             else if(generation == 3)
                 emitterPos = texture2D(emitterArr[3], emitterUV).xy;
 
-            size = texture2D(emitterArr[0], emitterUV).z;
             pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
             vel = vec3(0.0);
         }
     } else if(localTime>0.0){
+        size = texture2D(emitterArr[0], emitterUV).z;
         vel = gravityField(vel);
         vel = vel + velField(pos, vec3(.0,.0,.0));
         updatePosVel(pos, vel);
