@@ -1,7 +1,19 @@
 // import { mat4 } from 'gl-matrix';
+function  $ortho(left, right, bottom, top, near, far) {
+    const   lr = 1 / (left - right),
+        bt = 1 / (bottom - top),
+        nf = 1 / (near - far);
 
+    const out =
+        [-2 * lr,                       0,                   0,                 0,
+            0,                      -2 * bt,                 0,                 0,
+            0,                          0,                  2 * nf,             0,
+            (left + right) * lr,   (top + bottom) * bt,   (far + near) * nf,    1];
+
+    return out;
+}
 export default class Camera {
-    constructor({position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], fov = 45, aspect = 1, near = 0.1, far = 9000}) {
+    constructor({isPersp = false, widthSpan = 10,  position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], fov = 45, aspect = 1, near = 0.001, far = 1000}) {
         this.position = position;
         this.target = target;
         this.up = up;
@@ -9,6 +21,7 @@ export default class Camera {
         this.aspect = aspect;
         this.near = near;
         this.far = far;
+        this.widthSpan = widthSpan;
 
         this.viewMatrix = mat4.create();
         this.projectionMatrix = mat4.create();
@@ -22,15 +35,12 @@ export default class Camera {
 
     updateProjection() {
 
-        const width = 100,
-            height = width/this.aspect;
-
-
-        this.projectionMatrix = new Float32Array(mat4.ortho(
-            this.projectionMatrix, -0.5*width, 0.5*width, -0.2*height, 0.8*height, this.near, this.far
-        ));
-        // this.projectionMatrix = new Float32Array(mat4.perspective(
-        //     this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far));
+        const  height = this.widthSpan/this.aspect;
+        this.left = -this.widthSpan*0.5;
+        this.right = this.widthSpan*0.5;
+        this.bottom = 0;
+        this.top = height;
+        this.projectionMatrix = $ortho(this.left,this.right,this.bottom,this.top,this.near,this.far);
     }
 
     updateViewInverse() {

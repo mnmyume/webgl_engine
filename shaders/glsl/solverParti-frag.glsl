@@ -11,7 +11,7 @@ void main() {
     vec2 p = 2.0 * (gl_PointCoord - 0.5);
 
     if(outputSize>1.0 && length(p) < 1.0) {
-        gl_FragColor = vec4(1);
+        gl_FragColor = vec4(1, 1, 1, 0.64);
 //        if(debug ==15.0)
 //            gl_FragColor = vec4(1.0);
 //        else

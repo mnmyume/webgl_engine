@@ -64,7 +64,7 @@ float halton(int base, int index) {
 }
 
 vec3 gravityField(vec3 vel) {
-    vec3 gravity = vec3(0, -10, 0);
+    vec3 gravity = vec3(0, -3, 0);
     vel = vel + gravity * deltaTime;
     
     return vel;
@@ -93,9 +93,9 @@ vec3 velField(vec3 pos, vec3 scalar) {
 
     return scalar*normalize(d);
 }
-vec3 velDamp(vec3 dVel, float d){
-    return dVel*d;
-}
+//vec3 velDamp(vec3 dVel, float d){
+//    return dVel*d;
+//}
 vec3 airDrag(vec3 vel, float k, float dTime){
     return vel-vel*k*dTime;
 }
@@ -186,9 +186,9 @@ void main() {
     } else if(!hibernate && localTime>0.0){
         size = texture2D(emitterArr[0], emitterUV).z;
         vel = gravityField(vel);
-        vel  += velField(pos, vec3(1.0));
+        vel  += velField(pos, vec3(.2));
 //        vel += velDamp(newVel-vel, 0.5);
-        vel = airDrag(vel, 0.1, deltaTime);
+        vel = airDrag(vel, 0.998, deltaTime);
         updatePosVel(pos, vel);
     }
 

@@ -107,10 +107,10 @@ function initSolver(gl, canvas, camera) {
         rate: 1,
         duration: 10,
         lifeTime: 10,
-        size: 15,
+        size: 4,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 4;
+    const partiCount = 128*128;
     //
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
@@ -195,7 +195,7 @@ function initSolver(gl, canvas, camera) {
     });
     solver.initialize({gl});
 
-    const texDataArr = genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration);;
+    const texDataArr = genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration);
     const emitterTextureArr = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
@@ -348,9 +348,13 @@ function initSolver(gl, canvas, camera) {
             // screenQuadMaterial.postDraw(gl);
 
             // draw particles
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.blendEquation(gl.FUNC_ADD);
             partiMaterial.preDraw(gl, camera);
             partiShape.draw(gl, partiMaterial);
             partiMaterial.postDraw(gl);
+            gl.disable(gl.BLEND);
 
             // draw emitter quad
             emitterQuadMaterial.setTexture('tex', emitterTextureArr[0]);
@@ -592,7 +596,9 @@ function main() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     // init camera
-    const camera = new Camera({aspect: canvas.width / canvas.height});
+    const camera = new Camera({
+        widthSpan: 40,
+        aspect: canvas.width / canvas.height});
     const r = 100,
         cos45 = Math.cos(45 * Math.PI / 180),
         sin35 = Math.sin(35 * Math.PI / 180);
