@@ -71,16 +71,33 @@ vec3 gravityField(vec3 vel) {
 }
 
 vec3 velField(vec3 pos, vec3 scalar) {
+//    float x = fract(sin(dot2(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
+//    float y = fract(sin(dot2(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
+//    float z = fract(sin(dot2(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
+//
+//    float randomMagnitude1 = sin(time*2.5)*0.7;
+//    float randomMagnitude2 = cos(time*2.5)*0.7;
+
+    float scale = 1000.0;
+//    float x = fract(sin(dot(pos.xy/scale,vec2(12.9898+float(k)*12.0,78.233+float(k)*315.156)))* 43758.5453+float(k)*12.0)-0.5;
+//    float y = fract(sin(dot(pos.xy/scale,vec2(62.2364+float(k)*23.0,94.674+float(k)*95.0)))* 62159.8432+float(k)*12.0)-0.5;
+
     float x = fract(sin(dot2(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
     float y = fract(sin(dot2(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
     float z = fract(sin(dot2(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
-
     float randomMagnitude1 = sin(time*2.5)*0.7;
     float randomMagnitude2 = cos(time*2.5)*0.7;
 
-    vec3 d = vec3(x*sin(y),y,z)*randomMagnitude1 + vec3(y,x,z)*randomMagnitude2;
+
+    vec3 d = vec3(x,y,z)*randomMagnitude2;
 
     return scalar*normalize(d);
+}
+vec3 velDamp(vec3 dVel, float d){
+    return dVel*d;
+}
+vec3 airDrag(vec3 vel, float k, float dTime){
+    return vel-vel*k*dTime;
 }
 
 void updatePosVel(inout vec3 pos, inout vec3 vel) { // vec2 obs, vec2 index
@@ -134,7 +151,6 @@ float getPID(vec2 fragCoord, float MAXCOL){
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
 
-    int generation = GEN_SIZE + 1;
 
     float particleID = getPID(gl_FragCoord.xy, MAXCOL);
 
@@ -146,10 +162,13 @@ void main() {
     float startTime = texture2D(emitterArr[0], emitterUV).w;
     float localTime = time - startTime > 0.0 ? mod(time - startTime, lifeTime) : 0.0;
     float percentLife = localTime / lifeTime;
+    int generation = time - startTime > 0.0 ? int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE))) : -1;
 
-    generation = time - startTime > 0.0 ? int(mod(floor((time - startTime)/lifeTime), float(GEN_SIZE))) : 0;
+    bool emit = generation != lastGene;
+    bool hibernate = generation == -1;
 
-    if(generation == GEN_SIZE+1 || generation != lastGene){    // emitter state
+
+    if(!hibernate && emit){
         if(state == 1 || loop){
             vec2 emitterPos = vec2(0,0);
             if(generation == 0)
@@ -164,16 +183,14 @@ void main() {
             pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
             vel = vec3(0.0);
         }
-    } else if(localTime>0.0){
+    } else if(!hibernate && localTime>0.0){
         size = texture2D(emitterArr[0], emitterUV).z;
         vel = gravityField(vel);
-        vel = vel + velField(pos, vec3(.0,.0,.0));
+        vec3 newVel = vel + velField(pos, vec3(10.0));
+//        vel += velDamp(newVel-vel, 0.5);
+        vel = airDrag(vel, 0.001, deltaTime);
         updatePosVel(pos, vel);
     }
-
-//    if(time - startTime >= lifeTime * (float(generation)+1.0))
-//        size = 0.0;
-
 
 //    if(state == 1){//emit
 //
