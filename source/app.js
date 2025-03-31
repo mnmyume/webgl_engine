@@ -106,7 +106,7 @@ function initSolver(gl, canvas, camera) {
         geneCount: MAXGENSIZE,
         rate: 1,
         duration: 10,
-        lifeTime: 20,
+        lifeTime: 10,
         size: 15,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
@@ -191,7 +191,7 @@ function initSolver(gl, canvas, camera) {
         material: [solverMaterial],  // obstacleMaterial
         width: fbWidth, height: fbHeight,
         screenWidth: canvas.width, screenHeight: canvas.height,
-        mode: 1
+        mode: 1, loop: true
     });
     solver.initialize({gl});
 

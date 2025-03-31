@@ -27,6 +27,7 @@ export default class Solver{
         this.shape = params.shape || null;
         this.material = params.material || null;
         this.mode = params.mode || 0;
+        this.loop = params.loop || false;
     }
     initialize({gl}){
 
@@ -87,6 +88,7 @@ export default class Solver{
         this.attach(gl);
 
         this.material[0].setUniform('state', this.mode);
+        this.material[0].setUniform('loop', this.loop);
         this.material[0].setTexture('posFB', this.backBuffer.textures[0]);
         this.material[0].setTexture('velFB', this.backBuffer.textures[1]);
 

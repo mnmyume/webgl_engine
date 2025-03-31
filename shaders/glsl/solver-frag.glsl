@@ -13,8 +13,6 @@ uniform sampler2D emitterArr[GEN_SIZE];      // posX, posZ, size, startTime
 //#value test[3]:[12, 13, 14, 15]
 //uniform vec4 test[GEN_SIZE];      // posX, posZ, size, startTime
 
-
-
 #value posFB:4
 uniform sampler2D posFB;    // posX, posY, posZ, size
 #value velFB:5
@@ -28,6 +26,8 @@ uniform mat4 emitter_transform;
 
 #value state:0
 uniform int state;  // state = 1, init mode; state = 2, play mode
+// #value loop:true
+uniform bool loop;
 
 uniform float time;         //gameTime
 
@@ -131,11 +131,8 @@ float getPID(vec2 fragCoord, float MAXCOL){
     return (MAXCOL-1.0-floor(fragCoord.y)) * MAXCOL + floor(fragCoord.x);
 }
 
-
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
-
-    bool loop = true;
 
     int generation = GEN_SIZE + 1;
 
@@ -168,7 +165,6 @@ void main() {
             pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
             vel = vec3(0.0);
         }
-
     } else if(localTime>0.0){
         vel = gravityField(vel);
         vel = vel + velField(pos, vec3(.0,.0,.0));
