@@ -142,6 +142,8 @@ function initSolver(gl, canvas, camera) {
     });
     screenQuadMaterial.initialize({gl});
 
+    screenQuadMaterial.setUniform('canvas', [canvas.width, canvas.height]);
+
     // init screen quad shape
     const screenQuadShape = new ScreenQuad(
         'screenQuad',
@@ -362,10 +364,10 @@ function initSolver(gl, canvas, camera) {
             partiMaterial.setTexture('dataSlot2', solver.frontBuffer.textures[2]);
             partiMaterial.setTexture('dataSlot3', solver.frontBuffer.textures[3]);
 
-            // // draw screen quad
-            // screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
-            // screenQuadShape.draw(gl, screenQuadMaterial);
-            // screenQuadMaterial.postDraw(gl);
+            // draw screen quad
+            screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
+            screenQuadShape.draw(gl, screenQuadMaterial);
+            screenQuadMaterial.postDraw(gl);
 
             // draw particles
             // gl.enable(gl.BLEND);
