@@ -52,6 +52,6 @@ void main() {
   outputSize = texture2D(dataSlot0, posTexCoord).w;
   outputCol = texture2D(dataSlot2, posTexCoord).rgb;
 
-  gl_PointSize = outputSize;
   gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
+  gl_PointSize = outputSize / gl_Position.w;
 }

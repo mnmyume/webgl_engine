@@ -45,8 +45,8 @@ export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
             posPixels.push(localX, localZ, size, startTime);
         }
     }
-    return new Float32Array(posPixels);
 
+    return new Float32Array(posPixels);
 }
 
 export function genRectHaltonPosOLD(scale, corner, partiCount, geneCount, size, duration) {

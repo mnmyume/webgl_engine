@@ -122,8 +122,9 @@ function initSolver(gl, canvas, camera) {
     // set emitter grid
     const emitterSize = 16;
     const emitterHeight = 40;
-    const gridCorner = [0, 0];
-    //
+    const emitterHalfSize = emitterSize / 2;
+    const gridCorner = [-emitterHalfSize, -emitterHalfSize];
+
     // emitter transform
     const emitterTransform = new Transform();
     emitterTransform.translate(0, emitterHeight, 0);
@@ -620,17 +621,16 @@ function main() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     // init camera
-    // const camera = new OrthCamera({
-    //     widthSpan: 40,
-    //     aspect: canvas.width / canvas.height});
-    const camera = new PerspCamera({
-        
-    });
+    const camera = new OrthCamera({
+        widthSpan: 70,
+        aspect: canvas.width / canvas.height});
+    // const camera = new PerspCamera({
+    //     target:[0,10,0]
+    // });
     const r = 100,
         cos45 = Math.cos(45 * Math.PI / 180),
         sin35 = Math.sin(35 * Math.PI / 180);
     camera.setPosition([r * cos45, r * sin35, r * cos45]);
-    // camera.setPosition([0, 0, 800]);
     camera.updateProjection();
     camera.updateView();
     camera.updateViewInverse();
