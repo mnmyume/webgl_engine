@@ -110,7 +110,7 @@ function initSolver(gl, canvas, camera) {
         size: 16,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 128*128;
+    const partiCount = 1024*1024;
     //
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
