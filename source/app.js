@@ -1,9 +1,11 @@
 import Shader from './shader.js';
 import Shape from './shape.js';
 import ScreenQuad from './screenQuad.js';
-import StaticEmitter from './staticEmitter.js';
+import _staticEmitter from './_staticEmitter.js';
 import PartiShape from './partiShape.js';
 import Camera from './camera.js';
+import OrthCamera from "./orthCamera.js";
+import PerspCamera from "./perspCamera.js";
 import Material from './material.js';
 import _particleMaterial from './_particleMaterial.js';
 import Texture2D from './texture2d.js';
@@ -120,8 +122,9 @@ function initSolver(gl, canvas, camera) {
     // set emitter grid
     const emitterSize = 16;
     const emitterHeight = 40;
-    const gridCorner = [0, 0];
-    //
+    const emitterHalfSize = emitterSize / 2;
+    const gridCorner = [-emitterHalfSize, -emitterHalfSize];
+
     // emitter transform
     const emitterTransform = new Transform();
     emitterTransform.translate(0, emitterHeight, 0);
@@ -141,6 +144,8 @@ function initSolver(gl, canvas, camera) {
         shader: screenQuadShader
     });
     screenQuadMaterial.initialize({gl});
+
+    screenQuadMaterial.setUniform('canvas', [canvas.width, canvas.height]);
 
     // init screen quad shape
     const screenQuadShape = new ScreenQuad(
@@ -362,10 +367,10 @@ function initSolver(gl, canvas, camera) {
             partiMaterial.setTexture('dataSlot2', solver.frontBuffer.textures[2]);
             partiMaterial.setTexture('dataSlot3', solver.frontBuffer.textures[3]);
 
-            // // draw screen quad
-            // screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
-            // screenQuadShape.draw(gl, screenQuadMaterial);
-            // screenQuadMaterial.postDraw(gl);
+            // draw screen quad
+            screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
+            screenQuadShape.draw(gl, screenQuadMaterial);
+            screenQuadMaterial.postDraw(gl);
 
             // draw particles
             // gl.enable(gl.BLEND);
@@ -474,7 +479,7 @@ function initBlastParticle(gl, camera) {
         particleMaterial.setTexture('colorSampler', colorTexture);
         particleMaterial.setTexture('generatorSampler', initPosVelTexture);
 
-        const particleShape = new StaticEmitter({
+        const particleShape = new _staticEmitter({
             data: {...particleParams, partiCount: partiCount}
         });
         particleShape.initialize({gl});
@@ -575,7 +580,7 @@ function initSnowParticle(gl, camera) {
         particleMaterial.setTexture('colorSampler', colorTexture);
         particleMaterial.setTexture('generatorSampler', initPosVelTexture);
 
-        const particleShape = new StaticEmitter({
+        const particleShape = new _staticEmitter({
             data: {...particleParams, partiCount: partiCount}
         });
         particleShape.initialize({gl});
@@ -616,14 +621,16 @@ function main() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     // init camera
-    const camera = new Camera({
-        widthSpan: 40,
+    const camera = new OrthCamera({
+        widthSpan: 70,
         aspect: canvas.width / canvas.height});
+    // const camera = new PerspCamera({
+    //     target:[0,10,0]
+    // });
     const r = 100,
         cos45 = Math.cos(45 * Math.PI / 180),
         sin35 = Math.sin(35 * Math.PI / 180);
     camera.setPosition([r * cos45, r * sin35, r * cos45]);
-    // camera.setPosition([0, 0, 800]);
     camera.updateProjection();
     camera.updateView();
     camera.updateViewInverse();
