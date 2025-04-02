@@ -4,7 +4,7 @@ const START_TIME_IDX = 0;
 const PARTICLE_ID_IDX = 1;
 const LAST_IDX = 2;
 
-export default class StaticEmitter extends Shape {
+export default class _staticEmitter extends Shape {
     static DEFAULT_DATA = {
         duration: 999,
         rate: 10, 
@@ -17,7 +17,7 @@ export default class StaticEmitter extends Shape {
     constructor(params = {}) {
         super(params);
         this.data = {
-            ...StaticEmitter.DEFAULT_DATA,  
+            ..._staticEmitter.DEFAULT_DATA,
             ...params.data,         
         };
     }

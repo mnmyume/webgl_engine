@@ -1,9 +1,11 @@
 import Shader from './shader.js';
 import Shape from './shape.js';
 import ScreenQuad from './screenQuad.js';
-import StaticEmitter from './staticEmitter.js';
+import _staticEmitter from './_staticEmitter.js';
 import PartiShape from './partiShape.js';
 import Camera from './camera.js';
+import OrthCamera from "./orthCamera.js";
+import PerspCamera from "./perspCamera.js";
 import Material from './material.js';
 import _particleMaterial from './_particleMaterial.js';
 import Texture2D from './texture2d.js';
@@ -476,7 +478,7 @@ function initBlastParticle(gl, camera) {
         particleMaterial.setTexture('colorSampler', colorTexture);
         particleMaterial.setTexture('generatorSampler', initPosVelTexture);
 
-        const particleShape = new StaticEmitter({
+        const particleShape = new _staticEmitter({
             data: {...particleParams, partiCount: partiCount}
         });
         particleShape.initialize({gl});
@@ -577,7 +579,7 @@ function initSnowParticle(gl, camera) {
         particleMaterial.setTexture('colorSampler', colorTexture);
         particleMaterial.setTexture('generatorSampler', initPosVelTexture);
 
-        const particleShape = new StaticEmitter({
+        const particleShape = new _staticEmitter({
             data: {...particleParams, partiCount: partiCount}
         });
         particleShape.initialize({gl});
@@ -618,9 +620,12 @@ function main() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     // init camera
-    const camera = new Camera({
-        widthSpan: 40,
-        aspect: canvas.width / canvas.height});
+    // const camera = new OrthCamera({
+    //     widthSpan: 40,
+    //     aspect: canvas.width / canvas.height});
+    const camera = new PerspCamera({
+        
+    });
     const r = 100,
         cos45 = Math.cos(45 * Math.PI / 180),
         sin35 = Math.sin(35 * Math.PI / 180);

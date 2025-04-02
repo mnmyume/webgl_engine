@@ -42,7 +42,7 @@ export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
             const localX = localXStart + haltonX * scale;
             const localZ = localYStart + haltonY * scale;
             const startTime = (row * MAXCOL + col) * duration / partiCount;
-            posPixels.push(localX, localZ, size*Math.random(), startTime);
+            posPixels.push(localX, localZ, size, startTime);
         }
     }
     return new Float32Array(posPixels);
