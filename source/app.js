@@ -23,7 +23,7 @@ import {
     generateCirclePosVelRandom,
     genUVData,
     genQuadWithUV,
-    genQuad, genRandCol,
+    genQuad, genRandCol, genSnowCol
 } from './generatorHelper.js';
 import {readAttrSchema} from './shapeHelper.js';
 import {
@@ -109,10 +109,10 @@ function initSolver(gl, canvas, camera) {
         rate: 1,
         duration: 10,
         lifeTime: 10,
-        size: 16,
+        size: 20,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 128*128;
+    const partiCount = 8*8;
     //
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
@@ -226,7 +226,7 @@ function initSolver(gl, canvas, camera) {
             scaleUp: 'LINEAR'
         });
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genRandCol(MAXCOL));
+        emitterTexture.setData(gl, genSnowCol(MAXCOL));
         emitterSlot1.push(emitterTexture);
     }
 
@@ -373,13 +373,15 @@ function initSolver(gl, canvas, camera) {
             screenQuadMaterial.postDraw(gl);
 
             // draw particles
-            // gl.enable(gl.BLEND);
-            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-            // gl.blendEquation(gl.FUNC_ADD);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.blendEquation(gl.FUNC_ADD);
+
             partiMaterial.preDraw(gl, camera);
             partiShape.draw(gl, partiMaterial);
             partiMaterial.postDraw(gl);
-            // gl.disable(gl.BLEND);
+
+            gl.disable(gl.BLEND);
 
             // draw emitter quad
             emitterQuadMaterial.setTexture('tex', emitterSlot0[0]);

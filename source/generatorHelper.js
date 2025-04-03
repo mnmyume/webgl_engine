@@ -26,7 +26,16 @@ export function genRandCol(MAXCOL) {
         }
     }
     return new Float32Array(posPixels);
-
+}
+export function genSnowCol(MAXCOL) {
+    const posPixels = [];
+    for (let row = 0; row < MAXCOL; row++) {
+        for (let col = 0; col < MAXCOL; col++) {
+            const snow = Math.random();
+            posPixels.push(snow, snow, snow, 0);// colX, colY, colZ, _empty
+        }
+    }
+    return new Float32Array(posPixels);
 }
 export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
 
