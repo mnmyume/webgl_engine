@@ -108,11 +108,11 @@ function initSolver(gl, canvas, camera) {
         geneCount: MAXGENSIZE,
         rate: 1,
         duration: 10,
-        lifeTime: 10,
-        size: 20,
+        lifeTime: 16,
+        size: 8,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 8*8;
+    const partiCount = 128*128;
     //
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
@@ -624,7 +624,7 @@ function main() {
 
     // init camera
     const camera = new OrthCamera({
-        widthSpan: 70,
+        widthSpan: 40,
         aspect: canvas.width / canvas.height});
     // const camera = new PerspCamera({
     //     target:[0,10,0]

@@ -70,7 +70,7 @@ float halton(int base, int index) {
 }
 
 vec3 gravityField(vec3 vel) {
-    vec3 gravity = vec3(0, -3, 0);
+    vec3 gravity = vec3(0, -5, 0);
     vel = vel + gravity * deltaTime;
     
     return vel;
