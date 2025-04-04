@@ -23,7 +23,7 @@ import {
     generateCirclePosVelRandom,
     genUVData,
     genQuadWithUV,
-    genQuad, genRandCol,
+    genQuad, genRandCol, genSnowCol
 } from './generatorHelper.js';
 import {readAttrSchema} from './shapeHelper.js';
 import {
@@ -108,8 +108,8 @@ function initSolver(gl, canvas, camera) {
         geneCount: MAXGENSIZE,
         rate: 1,
         duration: 10,
-        lifeTime: 10,
-        size: 16,
+        lifeTime: 16,
+        size: 8,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
     const partiCount = 1024*1024;
@@ -226,7 +226,7 @@ function initSolver(gl, canvas, camera) {
             scaleUp: 'LINEAR'
         });
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genRandCol(MAXCOL));
+        emitterTexture.setData(gl, genSnowCol(MAXCOL));
         emitterSlot1.push(emitterTexture);
     }
 
@@ -373,13 +373,15 @@ function initSolver(gl, canvas, camera) {
             screenQuadMaterial.postDraw(gl);
 
             // draw particles
-            // gl.enable(gl.BLEND);
-            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-            // gl.blendEquation(gl.FUNC_ADD);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.blendEquation(gl.FUNC_ADD);
+
             partiMaterial.preDraw(gl, camera);
             partiShape.draw(gl, partiMaterial);
             partiMaterial.postDraw(gl);
-            // gl.disable(gl.BLEND);
+
+            gl.disable(gl.BLEND);
 
             // draw emitter quad
             emitterQuadMaterial.setTexture('tex', emitterSlot0[0]);
@@ -622,7 +624,7 @@ function main() {
 
     // init camera
     const camera = new OrthCamera({
-        widthSpan: 70,
+        widthSpan: 40,
         aspect: canvas.width / canvas.height});
     // const camera = new PerspCamera({
     //     target:[0,10,0]
