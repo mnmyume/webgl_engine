@@ -52,8 +52,8 @@ uniform vec2 resolution;
 //vortexField(pos);                 switcher, scalar
 //noiseField(pos, vec3(.2));        switcher, vec3
 //damp(vel-oldVel, 0.8, deltaTime); switcher, scalar
-#define PARMS 4
-uniform vec4 fieldParams[PARMS];
+//#define PARMS 4
+//uniform vec4 fieldParams[PARMS];
 
 
 float dot2(vec2 a, vec2 b) {
@@ -85,7 +85,7 @@ vec3 gravityField(vec3 vel) {
 }
 
 vec3 vortexField(vec3 pos, float scalar){//vec3 axis,  needs Quaternion Helper
-    vec3 vel = vec3(-pos.z,0, pos.x)/scalar;
+    vec3 vel = vec3(-pos.z,0, pos.x)*scalar;
     return vel;
 }
 
@@ -214,7 +214,7 @@ void main() {
         size = texture2D(emitterSlot0[0], emitterUV).z;
 
         vel = gravityField(oldVel);
-        vel += vortexField(pos, 1/100.0);
+        vel += vortexField(pos, 2.0/1000.0);
         vel  += noiseField(pos, vec3(.2));
         vel = oldVel + damp(vel-oldVel, 0.8, deltaTime);
         updatePosVel(pos, vel);
