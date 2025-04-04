@@ -48,6 +48,14 @@ uniform vec4 grid;  // width.r, height.g, corner.ba
 uniform vec2 worldSize;
 uniform vec2 resolution;
 
+//gravityField(oldVel);             switcher,vec3
+//vortexField(pos);                 switcher, scalar
+//noiseField(pos, vec3(.2));        switcher, vec3
+//damp(vel-oldVel, 0.8, deltaTime); switcher, scalar
+#define PARMS 4
+uniform vec4 fieldParams[PARMS];
+
+
 float dot2(vec2 a, vec2 b) {
     return a.x * b.x + a.y * b.y;
 }
@@ -76,7 +84,12 @@ vec3 gravityField(vec3 vel) {
     return vel;
 }
 
-vec3 velField(vec3 pos, vec3 scalar) {
+vec3 vortexField(vec3 pos, float scalar){//vec3 axis,  needs Quaternion Helper
+    vec3 vel = vec3(-pos.z,0, pos.x)/scalar;
+    return vel;
+}
+
+vec3 noiseField(vec3 pos, vec3 scalar) {
 //    float x = fract(sin(dot2(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
 //    float y = fract(sin(dot2(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
 //    float z = fract(sin(dot2(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
@@ -99,11 +112,8 @@ vec3 velField(vec3 pos, vec3 scalar) {
 
     return scalar*normalize(d);
 }
-//vec3 velDamp(vec3 dVel, float d){
-//    return dVel*d;
-//}
-vec3 airDrag(vec3 vel, float k, float dTime){
-    return vel-vel*k*dTime;
+vec3 damp(vec3 vel, float k, float dTime){
+    return vel*(1.0-k);
 }
 
 void updatePosVel(inout vec3 pos, inout vec3 vel) { // vec2 obs, vec2 index
@@ -199,13 +209,14 @@ void main() {
     else if(!hibernate && localTime>0.0){
 
         pos = texture2D(dataSlot0, uv).xyz;
-        vel = texture2D(dataSlot1, uv).xyz;
+        vec3 oldVel = texture2D(dataSlot1, uv).xyz;
         partiCol = texture2D(dataSlot2, uv).xyz;
         size = texture2D(emitterSlot0[0], emitterUV).z;
-        vel = gravityField(vel);
-        vel  += velField(pos, vec3(.2));
-//        vel += velDamp(newVel-vel, 0.5);
-        vel = airDrag(vel, 0.998, deltaTime);
+
+        vel = gravityField(oldVel);
+        vel += vortexField(pos, 1/100.0);
+        vel  += noiseField(pos, vec3(.2));
+        vel = oldVel + damp(vel-oldVel, 0.8, deltaTime);
         updatePosVel(pos, vel);
     }
 
@@ -251,7 +262,7 @@ void main() {
 //
 //    if(localTime > 0.0 && percentLife < 1.0) {
 //        vel = gravityField(vel);
-//        vel = vel + velField(pos, vec3(.0,.0,.0));
+//        vel = vel + noiseField(pos, vec3(.0,.0,.0));
 //        updatePosVel(pos, vel);
 //    }
 //

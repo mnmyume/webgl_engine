@@ -107,12 +107,12 @@ function initSolver(gl, canvas, camera) {
     const partiParams = {
         geneCount: MAXGENSIZE,
         rate: 1,
-        duration: 10,
-        lifeTime: 16,
+        duration: 8,
+        lifeTime: 8,
         size: 8,
     }
     // // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 1024*1024;
+    const partiCount = 128*128;
     //
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
@@ -199,7 +199,7 @@ function initSolver(gl, canvas, camera) {
         mode: 1, loop: true
     });
     solver.initialize({gl});
-
+    window.solver = solver;
     const emitterSlot0 = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
@@ -624,7 +624,7 @@ function main() {
 
     // init camera
     const camera = new OrthCamera({
-        widthSpan: 40,
+        widthSpan: 70,
         aspect: canvas.width / canvas.height});
     // const camera = new PerspCamera({
     //     target:[0,10,0]
