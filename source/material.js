@@ -135,7 +135,7 @@ export default class Material {
                              }
 
                         } else { //if(isSingleVar(type))
-                             const fncName = `uniform1${type === 'float'?'f':'i'}`;
+                             const fncName = `uniform1${/float/.test(type)?'f':'i'}`;
 
                              gl[fncName](this.dataLocation.uniforms[name], value);
 
