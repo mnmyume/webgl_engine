@@ -52,8 +52,8 @@ uniform vec2 resolution;
 //vortexField(pos);                 switcher, scalar
 //noiseField(pos, vec3(.2));        switcher, vec3
 //damp(vel-oldVel, 0.8, deltaTime); switcher, scalar
-//#define PARMS 4
-//uniform vec4 fieldParams[PARMS];
+#define PARMS 4                     // 0: switcher.x, gravity.yzw; 1: switcher.x, vortexScalar.y, __, __;
+uniform vec4 fieldParams[PARMS];    // 2: switcher.x, noiseScalar.yzw; 3: switcher.x, dampScalar.y, __, __;
 
 
 float dot2(vec2 a, vec2 b) {
@@ -77,10 +77,8 @@ float halton(int base, int index) {
     return result;
 }
 
-vec3 gravityField(vec3 vel) {
-    vec3 gravity = vec3(0, -5, 0);
+vec3 gravityField(vec3 vel, vec3 gravity) {
     vel = vel + gravity * deltaTime;
-    
     return vel;
 }
 
@@ -213,10 +211,28 @@ void main() {
         partiCol = texture2D(dataSlot2, uv).xyz;
         size = texture2D(emitterSlot0[0], emitterUV).z;
 
-        vel = gravityField(oldVel);
-        vel += vortexField(pos, 2.0/1000.0);
-        vel  += noiseField(pos, vec3(.2));
-        vel = oldVel + damp(vel-oldVel, 0.8, deltaTime);
+        float gravitySwitcher = fieldParams[0].x;
+        vec3 gravity = fieldParams[0].yzw;
+        float vortexSwitcher = fieldParams[1].x;
+        float vortexScalar = fieldParams[1].y;
+        float noiseSwitcher = fieldParams[2].x;
+        vec3 noiseScalar = fieldParams[2].yzw;
+        float dampSwitcher = fieldParams[3].x;
+        float dampScalar = fieldParams[3].y;
+
+        if(gravitySwitcher == 1.0) {
+            vel = gravityField(oldVel, gravity);
+        }
+        if(vortexSwitcher == 1.0) {
+            vel += vortexField(pos, vortexScalar);
+        }
+        if(noiseSwitcher == 1.0) {
+            vel  += noiseField(pos, noiseScalar);
+        }
+        if(dampSwitcher == 1.0){
+            vel = oldVel + damp(vel-oldVel, dampScalar, deltaTime);
+        }
+
         updatePosVel(pos, vel);
     }
 
@@ -279,7 +295,7 @@ void main() {
 
     gl_FragData[0] = vec4(pos, size);
     gl_FragData[1] = vec4(vel, generation);
-    gl_FragData[2] = vec4(partiCol, 1.0);
+    gl_FragData[2] = vec4(fieldParams[0].x,0,0, 1.0);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);
 
 }

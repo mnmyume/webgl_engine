@@ -103,22 +103,33 @@ function initSimpleQuad(gl, camera) {
 function initSolver(gl, canvas, camera) {
 
     const MAXGENSIZE = 2;
-    // set params
     const partiParams = {
         geneCount: MAXGENSIZE,
         rate: 1,
         duration: 8,
         lifeTime: 8,
         size: 8,
+        blurRadius: 0.4
     }
-    // // const partiCount = partiParams.duration * partiParams.rate;
+    // const partiCount = partiParams.duration * partiParams.rate;
     const partiCount = 128*128;
-    //
+
+    const solverParams = {
+        gravitySwitcher: 1,
+        gravity: [0,-5,0],
+        vortexSwitcher: 1,
+        vortexScalar: 2/1000,
+        noiseSwitcher: 1,
+        noiseScalar: [0.2,0.2,0.2],
+        dampSwitcher: 1,
+        dampScalar: 0.8
+    }
+
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
     const fbWidth = MAXCOL;
     const fbHeight = MAXCOL;
-    //
+
     // set emitter grid
     const emitterSize = 16;
     const emitterHeight = 40;
@@ -247,6 +258,13 @@ function initSolver(gl, canvas, camera) {
     solverMaterial.setUniform('MAXCOL', MAXCOL);
     solverMaterial.setUniform('emitter_transform', emitterTransform.matrix);
 
+    const fieldParams = [];
+    fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity ];
+    fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
+    fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
+    fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
+    solverMaterial.setUniform('fieldParams', fieldParams)
+
     //--------------------------------------------------
     // init particle shader
     const partiShader = new Shader({
@@ -276,6 +294,7 @@ function initSolver(gl, canvas, camera) {
         partiMaterial.setUniform('geneCount', partiParams.geneCount);
         partiMaterial.setUniform('partiCount', partiCount);
         partiMaterial.setUniform('MAXCOL', MAXCOL);
+        partiMaterial.setUniform('blurRadius', partiParams.blurRadius);
 
         partiMaterial.setTexture('colorSampler', colorTexture);
         // init particle shape
