@@ -258,31 +258,55 @@ export default function glsl(options = {}) {
 }
 
 function parseVecMat(input){//
-    const result = [];
-    const buffer = $match(/\b(?:vec|mat)(\d+)\(([-\d,.\s]+)\)/gm, input); //mat(1.0)
-    let [, dim, arrayStr] = buffer;
-    if(!arrayStr) debugger;
-    arrayStr.split(',').forEach((value,i)=>result[i] = parseFloat(value));
+    const vecReg = /\b(?:vec|mat)(\d+)\(([-\d,.\s]+)\)/gm;
+    let arrData = [], dim = 0;
+    if(vecReg.test(input)){
+        const buff = $match( /\b(?:vec|mat)(\d+)\(([-\d,.\s]+)\)/gm, input);
+        // [, dim, arrData] = $match(vecReg, input); //mat(1.0)
+        if(buff.length === 3)
+            [, dim, arrData] = buff;
+        else{
+            // ["vec2(1, 2)", "2", "1, 2", "vec2(3, 4)", "2", "3, 4", "vec2(5, 6)", "2", "5, 6"]
+
+            dim = buff[1];
+            for(let i=0;i<buff.length/3;i++){
+                $assert(dim === buff[3*i+1]);
+                arrData.push(buff[3*i+2]);
+            }
+        }
 
 
-    if(result.length === 1){
+        arrData =
+            Array.isArray(arrData)?
+                arrData.map(ele=>ele.split(',').map(value=> parseFloat(value))):
+                arrData.split(',').map(value=> parseFloat(value));
+    } else if(/\[[\d,.-]+\]/.test(input)){
+        arrData = JSON.parse(input);
+        dim = arrData.length;
+    }
+
+
+
+    if(arrData.length === 1){
         if(/mat/.test(input)){
             for(let row=0; row<dim; row++)
                 for(let col=0; col<dim; col++) {
                     const i = col + row * dim;
                     if (row === col)
-                        result[i] = result[0];
+                        arrData[i] = arrData[0];
                     else
-                        result[i] = 0;
+                        arrData[i] = 0;
                 }
 
         } else if(/vec/.test(input)){
             for(let i=1; i<dim; i++)
-                result[i] = result[0];
+                arrData[i] = arrData[0];
         }
 
     }
-    return result;
+
+    console.log(input, arrData);
+    return arrData;
 }
 
 function assignValues(uniformParams, values){

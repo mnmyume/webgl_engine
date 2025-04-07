@@ -124,7 +124,7 @@ function initSolver(gl, canvas, camera) {
         dampSwitcher: 1,
         dampScalar: 0.8
     }
-
+    window.solverParams = solverParams;
     // set framebuffer size
     const MAXCOL = sqrtFloor(partiCount);
     const fbWidth = MAXCOL;
@@ -258,12 +258,6 @@ function initSolver(gl, canvas, camera) {
     solverMaterial.setUniform('MAXCOL', MAXCOL);
     solverMaterial.setUniform('emitter_transform', emitterTransform.matrix);
 
-    const fieldParams = [];
-    fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity ];
-    fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
-    fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
-    fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
-    solverMaterial.setUniform('fieldParams', fieldParams)
 
     //--------------------------------------------------
     // init particle shader
@@ -367,6 +361,14 @@ function initSolver(gl, canvas, camera) {
         solver.Mode = Solver.MODE.init;
 
         function drawSolver() {
+
+            const fieldParams = [];
+            fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity ];
+            fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
+            fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
+            fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
+            solverMaterial.setUniform('fieldParams', fieldParams);
+
 
             time.update();
             solverMaterial.setUniform('time', time.ElapsedTime);

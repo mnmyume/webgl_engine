@@ -53,6 +53,8 @@ uniform vec2 resolution;
 //noiseField(pos, vec3(.2));        switcher, vec3
 //damp(vel-oldVel, 0.8, deltaTime); switcher, scalar
 #define PARMS 4                     // 0: switcher.x, gravity.yzw; 1: switcher.x, vortexScalar.y, __, __;
+
+#value fieldParams:[vec4(0),vec4(0),vec4(0),vec4(0)]
 uniform vec4 fieldParams[PARMS];    // 2: switcher.x, noiseScalar.yzw; 3: switcher.x, dampScalar.y, __, __;
 
 
