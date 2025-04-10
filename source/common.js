@@ -39,3 +39,8 @@ export function $getShaderInfo(name,gl, shader, file){
     return msg.replace(/ERROR: (.+):[0-9]+:/gm, `file:"${file[fileIndex]}" line:${lineNum}`);
 
 }
+
+
+function $isNumber(input) {
+    return input != null && (Number(input) || Number(input) == 0) ? true : false;
+};

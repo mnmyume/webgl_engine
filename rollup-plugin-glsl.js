@@ -109,16 +109,30 @@ function checkPreprocessor(key,source){
     return result;
 
 }
+function $isNumber(input) {
+    return input != null && (Number(input) || Number(input) == 0) ? true : false;
+};
 function checkAttrUniformParams(key, source){
     const buffer =  $match( new RegExp(`^(?!\\/\\/)${key}[\\s]+(\\S+)[\\s]+(\\S+)[\\s]*;`, 'gm'), source);
     const result = {};
     for(let i = 0; i<buffer.length/3;i++) {
         let varName = buffer[3*i+2];
         const isArr = /\[[^\]]*\]/.test(varName);
-        if(isArr)
-            varName = varName.match(/(.+)\[[^\]]*\]/)[1];
+
         const type = buffer[3 * i + 1];
-        result[varName] = {type:isArr?`${type}[]`:type , value: null};
+        if(isArr){
+            let length;
+            [,varName, length] =  $match(/(.+)\[([^\]]*)\]/gm, varName);
+                // varName.match(/(.+)\[[^\]]*\]/)[1];
+
+            const a = new RegExp(`^(?!\\/\\/).*?#define[\\s]+${length}([^\\/\\r\\n]+)`);
+            [,length] = $match( new RegExp(`^(?!\\/\\/).*?#define[\\s]+${length}[\\s]+([^\\/\\r\\n]+)`, 'gm'), source);
+            length = parseInt(length);
+            $assert($isNumber(length), `cannot find definition of ${length} from ${varName}`);
+
+            result[varName] = {type:`${type}[]` , value: null,length:parseInt(length)};
+        }else
+            result[varName] = {type , value: null};
 
     }
     return buffer.length?result:null;
@@ -130,20 +144,8 @@ function initUniforms(uniformParams, values){
 
     const clearGrp = [];
     for(const entry of values)
-        for(const [key,value] of Object.entries(entry)) {
-            const isArr = /\[[^\]]*\]/.test(key);
-            if(isArr) {
-                const [,varNm, index] = $match(/(.+)\[(\d+)\]/gm,key),
-                        finder = clearGrp.find(({key})=>key===varNm);
-                if(!finder)
-                    clearGrp.push({key:varNm,children:[key]});
-                else
-                    finder.children.push(key);
-
-                uniformParams[key] = {type:uniformParams[varNm].type,value};
-            }else
+        for(const [key,value] of Object.entries(entry))
                 uniformParams[key].value = value;
-        }
 
 
     for(let [key,{type,value}] of Object.entries(uniformParams)) {
@@ -171,26 +173,6 @@ function initUniforms(uniformParams, values){
     }
 
 
-    for(const {key,children} of clearGrp){
-
-        const maxIndex = children.reduce((acc,cur)=>{
-            const index = parseInt($match(/\[(\d+)\]/gm, cur)[1]);
-            return Math.max(acc, index);
-        },0)
-
-        uniformParams[key].value = uniformParams[key].value??[];
-
-        for(let i=0;i<maxIndex;i++){
-            const childEntry = uniformParams[`${key}[${i}]`];
-            if(childEntry)
-                uniformParams[key].value[i] = childEntry.value;
-            else
-                uniformParams[key].value[i] = null;
-        }
-
-        for(const child of children)
-            delete uniformParams[child];
-    }
 
 }
 
@@ -229,23 +211,27 @@ export default function glsl(options = {}) {
             const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
 
 
+            if(/solver-frag/.test(id)){
+                debugger;
+
+            }
             const extensions = checkPreprocessor('extension',sourceRaw);
             const source = filterSource(sourceRaw);
 
 
             const extensionParmas = {};
-            const attributeParmas = {...checkAttrUniformParams('attribute', includes), ...checkAttrUniformParams('attribute', source)};
-            const uniformParams = {...checkAttrUniformParams('uniform', includes), ...checkAttrUniformParams('uniform', source)};
+            const attributeParmas = {...checkAttrUniformParams('attribute', `${includes}\r\n${source}`)};
+
+
+            const uniformParams = {...checkAttrUniformParams('uniform', `${includes}\r\n${source}`)};
+
+
 
             const values = checkPreprocessor('value',sourceRaw);
             const buffers = checkPreprocessor('buffer',sourceRaw);
             checkPreprocessor('buffer',sourceRaw);
             initExtension(extensionParmas, extensions);
 
-            if(/solver-frag/.test(id)){
-                debugger;
-
-            }
             initUniforms(uniformParams, values);
             initAttributes(attributeParmas, buffers);
 

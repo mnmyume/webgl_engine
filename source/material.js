@@ -38,10 +38,10 @@ export default class Material {
         }
         
         for (let name in this.uniforms) {
-            const {type, value} = this.uniforms[name];
+            const {type, value,length} = this.uniforms[name];
             const isArr = /\[\]/.test(type);
             if(isArr){
-                for(const index in value){
+                for(let index=0;index<length;index++){
                     const key = `${name}[${index}]`
                     this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
                 }
