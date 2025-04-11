@@ -12,10 +12,11 @@ import solverFrag from './solver-frag.glsl';
 import solverPartiVert from './solverParti-vert.glsl';
 import solverPartiFrag from './solverParti-frag.glsl';
 
-import rainFrag from './rain-frag.glsl';;
+import rainVert from './rain-vert.glsl';
+import rainFrag from './rain-frag.glsl';
 
 import obstacleVert from './obstacle-vert.glsl';
 import obstacleFrag from './obstacle-frag.glsl';
 
-export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, screenQuadVert, screenQuadFrag, solverFrag, solverPartiVert, solverPartiFrag, rainFrag, obstacleVert, obstacleFrag}
+export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, screenQuadVert, screenQuadFrag, solverFrag, solverPartiVert, solverPartiFrag, rainVert, rainFrag, obstacleVert, obstacleFrag}
 
