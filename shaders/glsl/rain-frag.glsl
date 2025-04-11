@@ -11,27 +11,26 @@ varying vec3 outputVel;
 
 varying float debug;
 
-float segment(vec2 p, vec2 a, vec2 b) {
-    p -= a;
-    b -= a;
-    return length(p - b * clamp(dot(p, b) / dot(b, b), 0.0, 1.0));
-}
+
+
+float rainHeadSize = 0.02;
 
 void main() {
     vec2 uv = gl_PointCoord.xy;
-    float rainHeadSize = 0.02;
     float rainLength = length(outputVel);
     vec3 rainDir = normalize(outputVel);
 
-    // rainLength *= sqrt(rainDir.x*rainDir.x + rainDir.y*rainDir.y);
+    rainLength *= sqrt(rainDir.x*rainDir.x + rainDir.y*rainDir.y);
     vec2 origin = vec2(0.5),
          halfSeg = rainLength * vec2(rainDir.xy),
          A = origin + halfSeg,
          B = origin - halfSeg;
 
-    float d = segment(uv, A, B);
-    float line = smoothstep(0.01,0.0,d);
 
-    gl_FragColor = vec4(vec3(line),1);
-    // gl_FragColor = vec4(1);
+    vec2 p = uv - A;
+    B -= A;
+
+    float t = clamp(dot(p, B) / dot(B, B), 0., 1.);
+    float v = smoothstep(rainHeadSize*(1.-t), .0, length(p - B *t) );
+    gl_FragColor = vec4(v);
 }
