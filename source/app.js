@@ -110,18 +110,18 @@ function initSolver(gl, canvas, camera) {
         rate: 1,
         duration: 8,
         lifeTime: 8,
-        size: 30,
+        size: 8,
         blurRadius: 0.4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 8*8;
+    const partiCount = 128*128;
 
     const solverParams = {
         gravitySwitcher: 1,
-        gravity: [1,0,0],
-        vortexSwitcher: 0,
-        vortexScalar: 2/1000,
-        noiseSwitcher: 0,
+        gravity: [0,-10,0],
+        vortexSwitcher: 1,
+        vortexScalar: 10/1000,
+        noiseSwitcher: 1,
         noiseScalar: [0.2,0.2,0.2],
         dampSwitcher: 1,
         dampScalar: 0.8
@@ -396,9 +396,9 @@ function initSolver(gl, canvas, camera) {
             screenQuadMaterial.postDraw(gl);
 
             // draw particles
-            // gl.enable(gl.BLEND);
-            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-            // gl.blendEquation(gl.FUNC_ADD);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.blendEquation(gl.FUNC_ADD);
 
             partiMaterial.preDraw(gl, camera);
             partiShape.draw(gl, partiMaterial);
