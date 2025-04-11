@@ -37,6 +37,7 @@ import {
     solverFrag,
     solverPartiVert,
     solverPartiFrag,
+    rainFrag,
     obstacleVert,
     obstacleFrag
 } from "../shaders/output.js";
@@ -108,11 +109,11 @@ function initSolver(gl, canvas, camera) {
         rate: 1,
         duration: 8,
         lifeTime: 8,
-        size: 8,
+        size: 30,
         blurRadius: 0.4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 128*128;
+    const partiCount = 8*8;
 
     const solverParams = {
         gravitySwitcher: 1,
@@ -263,7 +264,7 @@ function initSolver(gl, canvas, camera) {
     // init particle shader
     const partiShader = new Shader({
         vertexSource: solverPartiVert,
-        fragmentSource: solverPartiFrag
+        fragmentSource: rainFrag
     });
     partiShader.initialize({gl});
 
