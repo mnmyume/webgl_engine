@@ -142,7 +142,6 @@ const __FILE_MAP = new Map();
 
 function initUniforms(uniformParams, values){
 
-    const clearGrp = [];
     for(const entry of values)
         for(const [key,value] of Object.entries(entry))
                 uniformParams[key].value = value;
