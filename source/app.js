@@ -37,6 +37,7 @@ import {
     solverFrag,
     solverPartiVert,
     solverPartiFrag,
+    rainVert,
     rainFrag,
     obstacleVert,
     obstacleFrag
@@ -263,7 +264,7 @@ function initSolver(gl, canvas, camera) {
     //--------------------------------------------------
     // init particle shader
     const partiShader = new Shader({
-        vertexSource: solverPartiVert,
+        vertexSource: rainVert,
         fragmentSource: rainFrag
     });
     partiShader.initialize({gl});

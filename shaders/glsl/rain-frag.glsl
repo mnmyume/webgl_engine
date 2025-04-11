@@ -7,6 +7,8 @@ uniform float blurRadius;
 
 varying float outputSize;
 varying vec3 outputCol;
+varying vec3 outputVel;
+
 varying float debug;
 
 float segment(vec2 p, vec2 a, vec2 b) {
@@ -18,8 +20,8 @@ float segment(vec2 p, vec2 a, vec2 b) {
 void main() {
     vec2 uv = gl_PointCoord.xy;
     float rainHeadSize = 0.02;
-    float rainLength = 1.0;
-    vec3 rainDir = normalize(vec3(-1, -1, 0));
+    float rainLength = length(outputVel);
+    vec3 rainDir = normalize(outputVel);
 
     // rainLength *= sqrt(rainDir.x*rainDir.x + rainDir.y*rainDir.y);
     vec2 origin = vec2(0.5),
