@@ -123,7 +123,10 @@ export default class Material {
                              $assert(value, 'empty uniform vec');
 
                              const [,dim] = type.match(/vec(\d+)/);
-                             gl[`uniform${dim}f`](this.dataLocation.uniforms[name], ...value);
+                            if(type.startsWith('i'))
+                                gl[`uniform${dim}i`](this.dataLocation.uniform[name], ...value);
+                            else
+                                gl[`uniform${dim}f`](this.dataLocation.uniform[name], ...value);
 
                         }else if(/mat/.test(type)){
                              if(!PRESERVED_UNIFORM.includes(name))

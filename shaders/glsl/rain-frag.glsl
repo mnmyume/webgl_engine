@@ -14,7 +14,7 @@ varying float debug;
 float pixelNum = 32.;
 
 
-float rainHeadSize = 0.16;
+float rainHeadSize = 0.32;
 
 void main() {
     vec2 uv = floor(vec2(gl_PointCoord.x, 1.-gl_PointCoord.y)*pixelNum)/pixelNum;

@@ -94,7 +94,7 @@ function checkPreprocessor(key,source){
     const result = [];
 
     for(let i = 0; i<buffer.length/2;i++){
-        const params = $match( /(\S+)[\s]*:[\s]*(vec\d\([^\)]*\)|mat\d\([^\)]*\)|\[[^\]]*\]|[^,\s]+)/gm, buffer[2*i+1]);
+        const params = $match( /(\S+)[\s]*:[\s]*(uvec\d\([^\)]*\)|ivec\d\([^\)]*\)|vec\d\([^\)]*\)|mat\d\([^\)]*\)|\[[^\]]*\]|[^,\s]+)/gm, buffer[2*i+1]);
         const pair = {};
         for(let j=0; j<params.length/3;j++){
 
@@ -243,10 +243,10 @@ export default function glsl(options = {}) {
 }
 
 function parseVecMat(input){//
-    const vecReg = /\b(?:vec|mat)(\d+)\(([-\d,.\s]+)\)/gm;
+    const vecReg = /\b(?:ivec|uvec|vec|mat)(\d+)\(([-\d,.\s]+)\)/gm;
     let arrData = [], dim = 0;
     if(vecReg.test(input)){
-        const buff = $match( /\b(?:vec|mat)(\d+)\(([-\d,.\s]+)\)/gm, input);
+        const buff = $match( /\b(?:ivec|uvec|vec|mat)(\d+)\(([-\d,.\s]+)\)/gm, input);
         // [, dim, arrData] = $match(vecReg, input); //mat(1.0)
         if(buff.length === 3)
             [, dim, arrData] = buff;
