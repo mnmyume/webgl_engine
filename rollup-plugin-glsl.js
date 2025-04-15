@@ -80,7 +80,8 @@ function addIncludeFiles(srcPath,source){
 
         const file = fs.readFileSync(location, 'utf8');
         ++fileIndex;
-        result.push(addingLineNum(fileIndex,location,file));
+        // result.push(addingLineNum(fileIndex,location,file));
+        result.push(file);
     }
 
     return {
@@ -207,13 +208,13 @@ export default function glsl(options = {}) {
 
 
 
-            const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
-
-
-            if(/solver-frag/.test(id)){
+            if(/aniTest-vert/.test(id)){
                 debugger;
 
             }
+            const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
+
+
             const extensions = checkPreprocessor('extension',sourceRaw);
             const source = filterSource(sourceRaw);
 
