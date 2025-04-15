@@ -4,13 +4,15 @@ precision mediump float;
 uniform sampler2D colorSampler;
 
 uniform float blurRadius;
+uniform float pixelNum;
 
 varying float outputSize;
 varying vec3 outputCol;
 varying float debug;
 
 void main() {
-    vec2 p = 2.0 * (gl_PointCoord - 0.5);
+    // vec2 p = 2.0 * (gl_PointCoord - 0.5);
+    vec2 p = floor((2.0 * (gl_PointCoord - 0.5))*pixelNum)/pixelNum;
     float dist = length(p);
 
     if(outputSize>1.0 && dist < 1.0) {

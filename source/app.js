@@ -110,11 +110,12 @@ function initSolver(gl, canvas, camera) {
         rate: 1,
         duration: 8,
         lifeTime: 8,
-        size: 8,
-        blurRadius: 0.4
+        size: 30,
+        blurRadius: 0.4,
+        pixelNum: 4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 128*128;
+    const partiCount = 8*8;
 
     const solverParams = {
         gravitySwitcher: 1,
@@ -264,8 +265,8 @@ function initSolver(gl, canvas, camera) {
     //--------------------------------------------------
     // init particle shader
     const partiShader = new Shader({
-        vertexSource: rainVert,
-        fragmentSource: rainFrag
+        vertexSource: solverPartiVert,
+        fragmentSource: solverPartiFrag
     });
     partiShader.initialize({gl});
 
@@ -291,6 +292,7 @@ function initSolver(gl, canvas, camera) {
         partiMaterial.setUniform('partiCount', partiCount);
         partiMaterial.setUniform('MAXCOL', MAXCOL);
         partiMaterial.setUniform('blurRadius', partiParams.blurRadius);
+        partiMaterial.setUniform('pixelNum', partiParams.pixelNum);
 
         partiMaterial.setTexture('colorSampler', colorTexture);
         // init particle shape

@@ -4,6 +4,7 @@ precision mediump float;
 uniform sampler2D colorSampler;
 
 uniform float blurRadius;
+uniform float pixelNum;
 
 varying float outputSize;
 varying vec3 outputCol;
@@ -11,10 +12,7 @@ varying vec3 outputVel;
 
 varying float debug;
 
-float pixelNum = 32.;
-
-
-float rainHeadSize = 0.32;
+float rainHeadSize = 0.16;
 
 void main() {
     vec2 uv = floor(vec2(gl_PointCoord.x, 1.-gl_PointCoord.y)*pixelNum)/pixelNum;
