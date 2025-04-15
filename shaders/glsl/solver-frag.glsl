@@ -297,7 +297,7 @@ void main() {
 
     gl_FragData[0] = vec4(pos, size);
     gl_FragData[1] = vec4(vel, generation);
-    gl_FragData[2] = vec4(partiCol, 1.0);
+    gl_FragData[2] = vec4(partiCol, startTime);
     gl_FragData[3] = vec4(1.0, 0.0, 0.0,1.0);
 
 }

@@ -43,14 +43,14 @@ vec2 getSolverCoord(float pid, float MAXCOL){
 
 void main() {
   // read position from texture
-  vec2 posTexCoord = getSolverCoord(particleID, MAXCOL);
+  vec2 solverCoord = getSolverCoord(particleID, MAXCOL);
 
-//  debug = posTexCoord.x;
+//  debug = solverCoord.x;
 
-  vec3 position = texture2D(dataSlot0, posTexCoord).xyz;
+  vec3 position = texture2D(dataSlot0, solverCoord).xyz;
   
-  outputSize = texture2D(dataSlot0, posTexCoord).w;
-  outputCol = texture2D(dataSlot2, posTexCoord).rgb;
+  outputSize = texture2D(dataSlot0, solverCoord).w;
+  outputCol = texture2D(dataSlot2, solverCoord).rgb;
 
   gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
   gl_PointSize = outputSize;
