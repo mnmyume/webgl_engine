@@ -41,9 +41,16 @@ export default class Material {
             const {type, value,length} = this.uniforms[name];
             const isArr = /\[\]/.test(type);
             if(isArr){
-                for(let index=0;index<length;index++){
+                let length = 1;
+                if(/mat/.test(type)){
+                    length = Number(type.match(/mat(\d+)/)[1]);
+                    length *= length;
+                }else if(/vec/.test(type))
+                    length = Number(type.match(/vec(\d+)/)[1]);
+                for(let index =0; index < value.length; index += length){
                     const key = `${name}[${index}]`
-                    this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
+                    this.dataLocation.uniform[key] = gl.getUniformLocation(this.shaderProgram, key);
+                    this.uniforms[name].length = length;
                 }
             }
 
@@ -113,7 +120,8 @@ export default class Material {
         const PRESERVED_UNIFORM = ["_uni_projMat", "_uni_viewMat", "_uni_modelMat"];
 
         for(const name in this.uniforms){
-            const {type, value} = this.uniforms[name];
+            const {type, length, value} = this.uniforms[name];
+            $assert(typeof length === 'number');
             const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
                     isArr = input=>/\[\]/.test(input),
 
@@ -148,8 +156,8 @@ export default class Material {
 
 
             if(isArr(type)){
-                for(const index in value){
-                    setGLValue(`${name}[${index}]`,type, value[index]);
+                for(let index =0; index < value.length; index += length){
+                    setGLValue(`${name}[${index}]`,type, value.slice(index,index+length));
                 }
             }else
                 setGLValue(name,type, value);

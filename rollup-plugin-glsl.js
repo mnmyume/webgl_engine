@@ -159,7 +159,7 @@ function initUniforms(uniformParams, values){
 
        if(/(.+)\[\]$/.test(type)){//arr
            if(isVecMat(value))
-               uniformParams[key].value = parseVecMat(value);
+               uniformParams[key].value = parseVecMat(type,value);
            else if(isArrStr(value))
                 uniformParams[key].value = JSON.parse(value);
            else
@@ -169,7 +169,7 @@ function initUniforms(uniformParams, values){
         }else if(type === 'float')
             uniformParams[key].value = parseFloat(value);
         else if(isVecMat(type))
-            uniformParams[key].value = parseVecMat(value);
+            uniformParams[key].value = parseVecMat(type,value);
     }
 
 
@@ -208,7 +208,7 @@ export default function glsl(options = {}) {
 
 
 
-            if(/aniTest-vert/.test(id)){
+            if(/solver-frag/.test(id)){
                 debugger;
 
             }
@@ -242,39 +242,9 @@ export default function glsl(options = {}) {
         }
     };
 }
-
-function parseVecMat(input){//
-    const vecReg = /\b(?:ivec|uvec|vec|mat)(\d+)\(([-\d,.\s]+)\)/gm;
-    let arrData = [], dim = 0;
-    if(vecReg.test(input)){
-        const buff = $match( /\b(?:ivec|uvec|vec|mat)(\d+)\(([-\d,.\s]+)\)/gm, input);
-        // [, dim, arrData] = $match(vecReg, input); //mat(1.0)
-        if(buff.length === 3)
-            [, dim, arrData] = buff;
-        else{
-            // ["vec2(1, 2)", "2", "1, 2", "vec2(3, 4)", "2", "3, 4", "vec2(5, 6)", "2", "5, 6"]
-
-            dim = buff[1];
-            for(let i=0;i<buff.length/3;i++){
-                $assert(dim === buff[3*i+1]);
-                arrData.push(buff[3*i+2]);
-            }
-        }
-
-
-        arrData =
-            Array.isArray(arrData)?
-                arrData.map(ele=>ele.split(',').map(value=> parseFloat(value))):
-                arrData.split(',').map(value=> parseFloat(value));
-    } else if(/\[[\d,.-]+\]/.test(input)){
-        arrData = JSON.parse(input);
-        dim = arrData.length;
-    }
-
-
-
+function spreadVecMat(raw, dim, arrData){
     if(arrData.length === 1){
-        if(/mat/.test(input)){
+        if(/mat/.test(raw)){
             for(let row=0; row<dim; row++)
                 for(let col=0; col<dim; col++) {
                     const i = col + row * dim;
@@ -284,12 +254,48 @@ function parseVecMat(input){//
                         arrData[i] = 0;
                 }
 
-        } else if(/vec/.test(input)){
+        } else if(/vec/.test(raw)){
             for(let i=1; i<dim; i++)
                 arrData[i] = arrData[0];
         }
 
     }
+}
+function parseVecMat(type,input){
+
+    let arrData = [], dim = 0, raw = input;
+    const buff = $match( /\b(?:ivec|uvec|vec|mat)(\d+)\(([-\d,.\s]+)\)/gm, input);
+    if(buff.length === 3){
+        [raw, dim, arrData] = buff;
+        arrData = arrData.split(',').map(value=> parseFloat(value));
+        spreadVecMat(raw, dim, arrData);
+        if(/mat/.test(type))
+            dim *= dim;
+        $assert(arrData.length == dim, `${input} length is not matching with type ${type}`);
+    }else{
+        // ["vec2(1, 2)", "2", "1, 2", "vec2(3, 4)", "2", "3, 4", "vec2(5, 6)", "2", "5, 6"]
+
+        dim = [], raw = [];
+        for(let i=0;i<buff.length/3;i++){
+            raw.push(buff[3*i])
+            dim.push(buff[3*i+1]);
+            arrData.push(buff[3*i+2]);
+
+        }
+
+        arrData =  arrData.map(ele=>ele.split(',').map(value=> parseFloat(value)));
+
+        for(const index in arrData){
+            const subData = arrData[index],
+                    subRaw = raw[index],
+                    subDim =  dim[index];
+            spreadVecMat(subRaw, subDim, subData);
+            $assert(subData.length == subDim, `${input} length is not matching with type ${type}`);
+            arrData[index] = subData;
+        }
+        arrData = arrData.flat();
+    }
+
 
     console.log(input, arrData);
     return arrData;
