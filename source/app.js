@@ -113,8 +113,8 @@ function initSolver(gl, canvas, camera) {
         duration: 8,
         lifeTime: 8,
         size: 15,
-        blurRadius: 0.4,
-        pixelNum: 4
+        uBlurRadius: 0.1,
+        uPixelNum: 4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
     const partiCount = 128*128;
@@ -292,8 +292,8 @@ function initSolver(gl, canvas, camera) {
         partiMaterial.setUniform('geneCount', partiParams.geneCount);
         partiMaterial.setUniform('partiCount', partiCount);
         partiMaterial.setUniform('MAXCOL', MAXCOL);
-        partiMaterial.setUniform('blurRadius', partiParams.blurRadius);
-        partiMaterial.setUniform('pixelNum', partiParams.pixelNum);
+        partiMaterial.setUniform('uBlurRadius', partiParams.uBlurRadius);
+        partiMaterial.setUniform('uPixelNum', partiParams.uPixelNum);
 
         partiMaterial.setTexture('colorSampler', colorTexture);
         // init particle shape
@@ -446,8 +446,8 @@ function initAniTest(gl, canvas, camera) {
         duration: 8,
         lifeTime: 8,
         size: 30,
-        blurRadius: 0.4,
-        pixelNum: 1024
+        uBlurRadius: 0.4,
+        uPixelNum: 1024
     }
     // const partiCount = partiParams.duration * partiParams.rate;
     const partiCount = 8*8;
@@ -625,8 +625,8 @@ function initAniTest(gl, canvas, camera) {
         partiMaterial.setUniform('geneCount', partiParams.geneCount);
         partiMaterial.setUniform('partiCount', partiCount);
         partiMaterial.setUniform('MAXCOL', MAXCOL);
-        partiMaterial.setUniform('blurRadius', partiParams.blurRadius);
-        partiMaterial.setUniform('pixelNum', partiParams.pixelNum);
+        partiMaterial.setUniform('uBlurRadius', partiParams.uBlurRadius);
+        partiMaterial.setUniform('uPixelNum', partiParams.uPixelNum);
 
         // aniTex
         const aniTexParams = {

@@ -96,7 +96,7 @@ export default class Material {
 
             this.#uniforms[key].value.splice(index*length, length, ...value);
         }else
-            this.#uniforms[key] = value;
+            this.#uniforms[key].value = value;
     }
 
 
