@@ -5,16 +5,18 @@ function getTime(){
 
 
 export default class Time{
-    start = null;
+    startTime = null;
     lastUpdate = null;
     interval = null;
 
+    static STATE = {start:1, stop:0,};
+    state = Time.STATE.stop;
 
     get ElapsedTime(){ // since start
-        return getTime()-this.start;
+        return this.Now-this.startTime;
     }
     get Interval(){ //since last update
-        return this.interval??0.01666;
+        return this.interval??0; //0.01666
         // return 0.01666;
     }
 
@@ -22,23 +24,31 @@ export default class Time{
         return 1/this.interval;
     }
 
+    nowTime = getTime();
     get Now(){
-        return getTime();
+        if(this.state & Time.STATE.start)
+            this.nowTime = getTime();
+        return this.nowTime;
     }
 
+    start(){
+
+        this.startTime = this.lastUpdate =this.Now;
+        this.state |= Time.STATE.start;
+    }
+    stop(){
+        this.state &= ~Time.STATE.start;
+        this.interval = 0;
+    }
 
     update(){
-        if(this.start === null)
-            this.start = this.Now;
+        if(!(this.state & Time.STATE.start))
+            return;
 
 
-        if(this.lastUpdate === null)
-            this.lastUpdate =  this.start;
-        else{
-            const now = this.Now;
-            this.interval = now - this.lastUpdate;
-            this.lastUpdate = now;
-        }
+        const now = this.Now;
+        this.interval = now - this.lastUpdate;
+        this.lastUpdate = now;
 
     }
 }

@@ -46,6 +46,7 @@ import {
 } from "../shaders/output.js";
 
 const time = new Time();
+window.time = time;
 const g_fps = document.getElementById("fps");
 if (!g_fps) {
     console.log('fps error')
@@ -377,6 +378,7 @@ function initSolver(gl, canvas, camera) {
 
             time.update();
             solverMaterial.setUniform('time', time.ElapsedTime);
+            solverMaterial.setUniform('deltaTime', time.Interval);
             solverMaterial.setUniform('state', solver.mode);
 
             // solverMaterial.setTexture('emitterSlot0', emitterSlot0[0]);
@@ -422,7 +424,7 @@ function initSolver(gl, canvas, camera) {
 
 
             // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
-            solverMaterial.setUniform('deltaTime', time.Interval);
+            // solverMaterial.setUniform('deltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
                 solver.Mode = Solver.MODE.play;
@@ -638,6 +640,7 @@ function initAniTest(gl, canvas, camera) {
         partiMaterial.setUniform('_ANI_TEX_0', [
             aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
 
+        debugger;
         partiMaterial.setTexture('colorSampler', colorTexture);
         // init particle shape
         const partiShape = new PartiShape(
@@ -717,9 +720,8 @@ function initAniTest(gl, canvas, camera) {
             fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
             solverMaterial.setUniform('fieldParams', fieldParams.flat());
 
-
             time.update();
-            partiMaterial.setUniform('time', time.ElapsedTime);
+            solverMaterial.setUniform('deltaTime', time.Interval);
             solverMaterial.setUniform('time', time.ElapsedTime);
             solverMaterial.setUniform('state', solver.mode);
 
@@ -766,7 +768,7 @@ function initAniTest(gl, canvas, camera) {
 
 
             // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
-            solverMaterial.setUniform('deltaTime', time.Interval);
+            //solverMaterial.setUniform('deltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
                 solver.Mode = Solver.MODE.play;

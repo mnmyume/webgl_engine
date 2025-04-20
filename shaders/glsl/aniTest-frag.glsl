@@ -1,6 +1,6 @@
 precision mediump float;
 
-#value colorSampler:1
+#value colorSampler:4
 uniform sampler2D colorSampler;
 
 uniform float uBlurRadius;
@@ -15,8 +15,9 @@ varying vec4 _ANI_TEX_UV;   // ux.xy, numCols.z, numRows.w
 void main() {
     // vec2 p = floor((2.0 * (gl_PointCoord - 0.5))*uPixelNum)/uPixelNum;
     vec2 aniTexCoord = _ANI_TEX_UV.xy;
-    float texNumCols = _ANI_TEX_UV.z;
-    float texNumRows = _ANI_TEX_UV.w;
-    vec2 uv = aniTexCoord + vec2(gl_PointCoord.x / texNumCols, gl_PointCoord.y / texNumRows);
-    gl_FragColor = texture2D(colorSampler, aniTexCoord);
+    float texColNum = _ANI_TEX_UV.z;
+    float texRowNum = _ANI_TEX_UV.w;
+    vec2 uv = aniTexCoord + vec2(gl_PointCoord.x / texColNum, gl_PointCoord.y / texRowNum);
+    gl_FragColor = texture2D(colorSampler, gl_PointCoord);
+    //gl_FragColor = vec4(texColNum/6.0,texRowNum/6.0, 0, 1);
 }
