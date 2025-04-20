@@ -38,18 +38,18 @@ export default class Material {
         }
         
         for (let name in this.uniforms) {
-            const {type, value,length} = this.uniforms[name];
+            const {type, value, length = 1} = this.uniforms[name];
             const isArr = /\[\]/.test(type);
             if(isArr){
-                let length = 1;
+                let length;
                 if(/mat/.test(type)){
                     length = Number(type.match(/mat(\d+)/)[1]);
                     length *= length;
                 }else if(/vec/.test(type))
                     length = Number(type.match(/vec(\d+)/)[1]);
                 for(let index =0; index < value.length; index += length){
-                    const key = `${name}[${index}]`
-                    this.dataLocation.uniform[key] = gl.getUniformLocation(this.shaderProgram, key);
+                    const key = `${name}[${index}]`;
+                    this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
                     this.uniforms[name].length = length;
                 }
             }
@@ -120,7 +120,7 @@ export default class Material {
         const PRESERVED_UNIFORM = ["_uni_projMat", "_uni_viewMat", "_uni_modelMat"];
 
         for(const name in this.uniforms){
-            const {type, length, value} = this.uniforms[name];
+            const {type, length = 1, value} = this.uniforms[name];
             $assert(typeof length === 'number');
             const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
                     isArr = input=>/\[\]/.test(input),
@@ -132,9 +132,9 @@ export default class Material {
 
                              const [,dim] = type.match(/vec(\d+)/);
                             if(type.startsWith('i'))
-                                gl[`uniform${dim}i`](this.dataLocation.uniform[name], ...value);
+                                gl[`uniform${dim}i`](this.dataLocation.uniforms[name], ...value);
                             else
-                                gl[`uniform${dim}f`](this.dataLocation.uniform[name], ...value);
+                                gl[`uniform${dim}f`](this.dataLocation.uniforms[name], ...value);
 
                         }else if(/mat/.test(type)){
                              if(!PRESERVED_UNIFORM.includes(name))
