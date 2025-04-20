@@ -3,8 +3,8 @@ precision mediump float;
 #value colorSampler:1
 uniform sampler2D colorSampler;
 
-uniform float blurRadius;
-uniform float pixelNum;
+uniform float uBlurRadius;
+uniform float uPixelNum;
 
 varying float outputSize;
 varying vec3 outputCol;
@@ -13,7 +13,7 @@ varying float debug;
 varying vec4 _ANI_TEX_UV;   // ux.xy, numCols.z, numRows.w
 
 void main() {
-    // vec2 p = floor((2.0 * (gl_PointCoord - 0.5))*pixelNum)/pixelNum;
+    // vec2 p = floor((2.0 * (gl_PointCoord - 0.5))*uPixelNum)/uPixelNum;
     vec2 aniTexCoord = _ANI_TEX_UV.xy;
     float texNumCols = _ANI_TEX_UV.z;
     float texNumRows = _ANI_TEX_UV.w;

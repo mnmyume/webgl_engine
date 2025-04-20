@@ -3,8 +3,15 @@ precision mediump float;
 #value colorSampler:1
 uniform sampler2D colorSampler;
 
-uniform float blurRadius;
-uniform float pixelNum;
+#value uBlurRadius:0.1
+uniform float uBlurRadius;
+
+
+#value uRadius:0.8
+uniform float uRadius;
+
+#value uPixelNum:8
+uniform float uPixelNum;
 
 varying float outputSize;
 varying vec3 outputCol;
@@ -12,11 +19,12 @@ varying float debug;
 
 void main() {
     // vec2 p = 2.0 * (gl_PointCoord - 0.5);
+    float pixelNum = uPixelNum / 2.0;
     vec2 p = floor((2.0 * (gl_PointCoord - 0.5))*pixelNum)/pixelNum;
     float dist = length(p);
 
-    if(outputSize>1.0 && dist < 1.0) {
-        float alpha = dist < blurRadius ? 1.0 : smoothstep(1.0, blurRadius, dist);
+    if(outputSize>1.0 && dist < uRadius) {
+        float alpha = dist < uBlurRadius ? 1.0 : smoothstep(1.0, uBlurRadius, dist);
         gl_FragColor = vec4(outputCol, alpha);
     } else {
         discard;
