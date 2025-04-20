@@ -905,8 +905,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    initSolver(gl, canvas, camera);
-    // initAniTest(gl, canvas, camera);
+    // initSolver(gl, canvas, camera);
+    initAniTest(gl, canvas, camera);
     // initBlastParticle(gl, camera);
 }
 
