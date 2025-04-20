@@ -6,7 +6,6 @@
 // uniform
 uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
-uniform mat4 uVInverseMatrix;
 uniform mat4 _uni_modelMat;
 uniform float duration;
 uniform float time;

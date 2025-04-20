@@ -112,12 +112,12 @@ function initSolver(gl, canvas, camera) {
         rate: 1,
         duration: 8,
         lifeTime: 8,
-        size: 30,
+        size: 15,
         blurRadius: 0.4,
         pixelNum: 4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 8*8;
+    const partiCount = 128*128;
 
     const solverParams = {
         gravitySwitcher: 1,
@@ -634,11 +634,9 @@ function initAniTest(gl, canvas, camera) {
             texHeight: 768,
             tileSize: 128,
             numFrames: 36,
-            fps: 60
         }
         partiMaterial.setUniform('_ANI_TEX_0', [
             aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
-        partiMaterial.setUniform('_ANI_TEX_0_FPS', aniTexParams.fps);
 
         partiMaterial.setTexture('colorSampler', colorTexture);
         // init particle shape
@@ -907,8 +905,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    // initSolver(gl, canvas, camera);
-    initAniTest(gl, canvas, camera);
+    initSolver(gl, canvas, camera);
+    // initAniTest(gl, canvas, camera);
     // initBlastParticle(gl, camera);
 }
 

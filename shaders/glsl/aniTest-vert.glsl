@@ -53,20 +53,15 @@ void main() {
     vec2 solverCoord = getSolverCoord(particleID, MAXCOL);
 
     vec3 position = texture2D(dataSlot0, solverCoord).xyz;
-    float startTime = texture2D(dataSlot2, solverCoord).w;
+    float percentLife = texture2D(dataSlot2, solverCoord).w;
 
     // aniTex
     float texWidth = _ANI_TEX_0.x;
     float texHeight = _ANI_TEX_0.y;
     float tileSize = _ANI_TEX_0.z;
     float numFrames = _ANI_TEX_0.w;
-    float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
-    float localTime = mod(time - startTime, lifeTime) ;
-    float percentLife = localTime / lifeTime;
-    float frame = mod(floor(localTime / frameDuration), numFrames);
-
-
+    float frame = mod(floor(percentLife * numFrames), numFrames);
 
     _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
 
