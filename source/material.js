@@ -3,6 +3,7 @@ import Texture2D from './texture2d.js';
 
 
 export default class Material {
+    #uniforms = null;
     textures = {};
     shaderProgram = null;
     shader = null;
@@ -18,7 +19,7 @@ export default class Material {
     initialize({ gl }) {
 
         this.attributes = JSON.parse(JSON.stringify(this.shader.attributes));
-        this.uniforms = JSON.parse(JSON.stringify(this.shader.uniforms));
+        this.#uniforms = JSON.parse(JSON.stringify(this.shader.uniforms));
 
         this.vertex = this.shader.vertex;
         this.fragment = this.shader.fragment;
@@ -37,8 +38,8 @@ export default class Material {
             this.dataLocation.attributes[attr] = gl.getAttribLocation(this.shaderProgram, attr);
         }
         
-        for (let name in this.uniforms) {
-            const {type, value, length = 1} = this.uniforms[name];
+        for (let name in this.#uniforms) {
+            const {type, value, length = 1} = this.#uniforms[name];
             const isArr = /\[\]/.test(type);
             if(isArr){
                 let length;
@@ -50,7 +51,7 @@ export default class Material {
                 for(let index =0; index < value.length; index += length){
                     const key = `${name}[${index}]`;
                     this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
-                    this.uniforms[name].length = length;
+                    this.#uniforms[name].length = length;
                 }
             }
 
@@ -77,12 +78,27 @@ export default class Material {
             this.textures[key] = texture;
         }
 
-        $assert(this.uniforms[key]);
+        $assert(this.#uniforms[key]);
     }
 
     setUniform(key, value){
-        this.uniforms[key].value = value;
+        if(/\[(\d)+\]/.test(key)){
+            if(!Array.isArray(value))
+                value = [value];
+
+
+            let index;
+            [,key, index] = key.match(/(.+)\[(\d+)\]/);
+            const length = this.#uniforms[key].length;
+            $assert(value.length === length, 'value length err');
+            const startIndex = index*length;
+            $assert(typeof (this.#uniforms[key].value[startIndex]) === 'number', 'index err');
+
+            this.#uniforms[key].value.splice(index*length, length, ...value);
+        }else
+            this.#uniforms[key] = value;
     }
+
 
 
     preDraw(gl, camera, transform) {
@@ -103,12 +119,12 @@ export default class Material {
         for(const [key,value] of Object.entries(this.textures)){
             if(Array.isArray(value)){
                 for(const index in value){
-                    const texIndex = this.uniforms[key].value[index];
+                    const texIndex = this.#uniforms[key].value[index];
                     setTex(value[index], texIndex);
                 }
 
             }else{
-                const texIndex = this.uniforms[key].value;
+                const texIndex = this.#uniforms[key].value;
                 setTex(value, texIndex);
             }
         }
@@ -119,8 +135,8 @@ export default class Material {
 
         const PRESERVED_UNIFORM = ["_uni_projMat", "_uni_viewMat", "_uni_modelMat"];
 
-        for(const name in this.uniforms){
-            const {type, length = 1, value} = this.uniforms[name];
+        for(const name in this.#uniforms){
+            const {type, length = 1, value} = this.#uniforms[name];
             $assert(typeof length === 'number');
             const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
                     isArr = input=>/\[\]/.test(input),
@@ -219,12 +235,12 @@ export default class Material {
         for(const [key,value] of Object.entries(this.textures)){
             if(Array.isArray(value)){
                 for(const index in value){
-                    const texIndex = this.uniforms[key].value[index];
+                    const texIndex = this.#uniforms[key].value[index];
                     gl.activeTexture(gl[`TEXTURE${texIndex}`]);
                     gl.bindTexture(gl.TEXTURE_2D, null);
                 }
             }else{
-                const texIndex = this.uniforms[key].value;
+                const texIndex = this.#uniforms[key].value;
                 gl.activeTexture(gl[`TEXTURE${texIndex}`]);
                 gl.bindTexture(gl.TEXTURE_2D, null);
             }

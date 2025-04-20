@@ -372,7 +372,7 @@ function initSolver(gl, canvas, camera) {
             fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
             fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
             fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
-            solverMaterial.setUniform('fieldParams', fieldParams);
+            solverMaterial.setUniform('fieldParams', fieldParams.flat());
 
 
             time.update();
