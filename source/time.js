@@ -10,7 +10,7 @@ export default class Time{
     interval = null;
 
     static STATE = {start:1, stop:0,};
-    state = Time.STATE.stop;
+    state = Time.STATE.start;    // stop
 
     get ElapsedTime(){ // since start
         return this.Now-this.startTime;

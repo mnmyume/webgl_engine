@@ -68,12 +68,12 @@ export default class Material {
             [,key, index] = $match(/(.+)\[(\d+)\]/gm,key);
             this.textures[key] = this.textures[key]??[];
             this.textures[key][index] = texture;
-        }else if(Array.isArray(texture)){
+        } else if(Array.isArray(texture)){
             this.textures[key] = this.textures[key]??[];
             for(const index in texture)
                 this.textures[key][index] = texture[index];
 
-        }else{
+        } else{
             $assert(texture instanceof Texture2D);
             this.textures[key] = texture;
         }

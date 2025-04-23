@@ -118,15 +118,15 @@ function initSolver(gl, canvas, camera) {
         uPixelNum: 4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 128*128;
+    const partiCount = 16*16;
 
     const solverParams = {
         gravitySwitcher: 1,
-        gravity: [0,-10,0],
+        gravity: [0,-3,0],
         vortexSwitcher: 1,
-        vortexScalar: 2/1000,
+        vortexScalar: 1/1000,
         noiseSwitcher: 1,
-        noiseScalar: [0.2,0.2,0.2],
+        noiseScalar: [1,1,1],
         dampSwitcher: 1,
         dampScalar: 0.8
     }
@@ -230,8 +230,8 @@ function initSolver(gl, canvas, camera) {
         emitterSlot0.push(emitterTexture);
     }
 
-    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
     solverMaterial.setTexture('emitterSlot0', emitterSlot0);
+    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
 
     const emitterSlot1 = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
@@ -246,8 +246,8 @@ function initSolver(gl, canvas, camera) {
         emitterSlot1.push(emitterTexture);
     }
 
-    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
     solverMaterial.setTexture('emitterSlot1', emitterSlot1);
+    // solverMaterial.setTexture('emitterSlot1[0]', emitterSlot1[0]);
 
 
     solver.backBuffer.textures[0].setData(gl, null);
@@ -373,17 +373,19 @@ function initSolver(gl, canvas, camera) {
             fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
             fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
             fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
-            solverMaterial.setUniform('fieldParams', fieldParams.flat());
-
+            // solverMaterial.setUniform('fieldParams', fieldParams.flat());
+            solverMaterial.setUniform('fieldParams[0]', fieldParams[0]);
+            solverMaterial.setUniform('fieldParams[1]', fieldParams[1]);
+            solverMaterial.setUniform('fieldParams[2]', fieldParams[2]);
+            solverMaterial.setUniform('fieldParams[3]', fieldParams[3]);
 
             time.update();
             solverMaterial.setUniform('time', time.ElapsedTime);
             solverMaterial.setUniform('deltaTime', time.Interval);
             solverMaterial.setUniform('state', solver.mode);
 
-            // solverMaterial.setTexture('emitterSlot0', emitterSlot0[0]);
             solver.update(gl);
-            //
+
             gl.viewport(0, 0, canvas.width, canvas.height);
 
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -447,7 +449,7 @@ function initAniTest(gl, canvas, camera) {
         rate: 1,
         duration: 8,
         lifeTime: 8,
-        size: 30,
+        size: 60,
         uBlurRadius: 0.4,
         uPixelNum: 1024
     }
@@ -456,7 +458,7 @@ function initAniTest(gl, canvas, camera) {
 
     const solverParams = {
         gravitySwitcher: 1,
-        gravity: [0,-10,0],
+        gravity: [0,-2,0],
         vortexSwitcher: 1,
         vortexScalar: 2/1000,
         noiseSwitcher: 1,
@@ -636,11 +638,12 @@ function initAniTest(gl, canvas, camera) {
             texHeight: 768,
             tileSize: 128,
             numFrames: 36,
+            aniFps: 36
         }
         partiMaterial.setUniform('_ANI_TEX_0', [
             aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
+        partiMaterial.setUniform('_ANI_TEX_0_FPS', aniTexParams.aniFps);
 
-        debugger;
         partiMaterial.setTexture('colorSampler', colorTexture);
         // init particle shape
         const partiShape = new PartiShape(
@@ -768,7 +771,7 @@ function initAniTest(gl, canvas, camera) {
 
 
             // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
-            //solverMaterial.setUniform('deltaTime', time.Interval);
+            // solverMaterial.setUniform('deltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
                 solver.Mode = Solver.MODE.play;
@@ -787,14 +790,13 @@ function initBlastParticle(gl, camera) {
 
     const particleParams = {
         numGen: 1,
-        rate: 60,
+        rate: 1,
         duration: 20,
         lifeTime: 10,   // 2
         startSize: 70,  // 50
         endSize: 150,    // 90
         velocity: [0, 0, 0],   // [0, 60, 0]
         velocityRange: [0, 0, 0],    // [15, 15, 15]
-        fps: 36
     }
     const partiCount = particleParams.duration * particleParams.rate;
 
@@ -845,6 +847,7 @@ function initBlastParticle(gl, camera) {
             texWidth: 768,
             texHeight: 768,
             numFrames: 36,
+            aniFps: 36,
             partiCount,
             ...particleParams,
         });

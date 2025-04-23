@@ -18,6 +18,6 @@ void main() {
     float texColNum = _ANI_TEX_UV.z;
     float texRowNum = _ANI_TEX_UV.w;
     vec2 uv = aniTexCoord + vec2(gl_PointCoord.x / texColNum, gl_PointCoord.y / texRowNum);
-    gl_FragColor = texture2D(colorSampler, gl_PointCoord);
-    //gl_FragColor = vec4(texColNum/6.0,texRowNum/6.0, 0, 1);
+    gl_FragColor = texture2D(colorSampler, uv);
+//    gl_FragColor = vec4(debug, 1.0-debug, 0.0, 1.0);
 }

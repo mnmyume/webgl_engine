@@ -60,13 +60,15 @@ void main() {
     float texHeight = _ANI_TEX_0.y;
     float tileSize = _ANI_TEX_0.z;
     float numFrames = _ANI_TEX_0.w;
+    float aniFps = _ANI_TEX_0_FPS;
 
-    float frame = mod(floor(percentLife * numFrames), numFrames);
-
+//    float frame = mod(floor(percentLife * numFrames), numFrames);
+    float frame = mod(floor(percentLife * lifeTime * aniFps), numFrames);
     _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
 
     outputSize = texture2D(dataSlot0, solverCoord).w;
     outputCol = texture2D(dataSlot2, solverCoord).xyz;
+    debug = percentLife;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
     gl_PointSize = outputSize;

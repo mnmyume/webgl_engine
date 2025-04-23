@@ -12,7 +12,7 @@ void _GEN_ANI_TEX_UV(float texWidth, float texHeight, float tileSize, float fram
 
   _ANI_TEX_UV = vec4(
       uOffset, // + (uv.x + 0.5) / numCols
-      1.0 - vOffset, //  - (uv.y + 0.5) / numRows  
+      vOffset, //  - (uv.y + 0.5) / numRows
       numCols, 
       numRows
   );

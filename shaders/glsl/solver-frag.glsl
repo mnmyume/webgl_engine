@@ -48,15 +48,9 @@ uniform vec4 grid;  // width.r, height.g, corner.ba
 uniform vec2 worldSize;
 uniform vec2 resolution;
 
-//gravityField(oldVel);             switcher,vec3
-//vortexField(pos);                 switcher, scalar
-//noiseField(pos, vec3(.2));        switcher, vec3
-//damp(vel-oldVel, 0.8, deltaTime); switcher, scalar
-#define PARMS 4                     // 0: switcher.x, gravity.yzw; 1: switcher.x, vortexScalar.y, __, __;
-
-#value fieldParams:[vec4(0),vec4(1),vec4(0),vec4(0)]
-uniform vec4 fieldParams[PARMS];    // 2: switcher.x, noiseScalar.yzw; 3: switcher.x, dampScalar.y, __, __;
-
+#define PARMS 4
+#value fieldParams:[vec4(0),vec4(1),vec4(0),vec4(0)]    // 0: switcher.x, gravity.yzw; 1: switcher.x, vortexScalar.y, __, __;
+uniform vec4 fieldParams[PARMS];                        // 2: switcher.x, noiseScalar.yzw; 3: switcher.x, dampScalar.y, __, __;
 
 float dot2(vec2 a, vec2 b) {
     return a.x * b.x + a.y * b.y;
@@ -167,7 +161,6 @@ float getPID(vec2 fragCoord, float MAXCOL){
 void main() {
     vec2 uv = gl_FragCoord.xy / resolution;
 
-
     float particleID = getPID(gl_FragCoord.xy, MAXCOL);
 
     vec3 pos, vel;
@@ -210,7 +203,6 @@ void main() {
 
         pos = texture2D(dataSlot0, uv).xyz;
         vec3 oldVel = texture2D(dataSlot1, uv).xyz;
-        partiCol = texture2D(dataSlot2, uv).xyz;
         size = texture2D(emitterSlot0[0], emitterUV).z;
 
         float gravitySwitcher = fieldParams[0].x;

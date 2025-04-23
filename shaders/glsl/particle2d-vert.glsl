@@ -50,8 +50,7 @@ void main() {
 
   float localTime = mod(time - startTime, lifeTime) ;
   float percentLife = localTime / lifeTime;
-  float frame = mod(floor(localTime / frameDuration),
-                    numFrames);
+  float frame = mod(floor(localTime / frameDuration), numFrames);
   float generation = floor((time - startTime) / duration);
 
   float componentOffset = 0.0;

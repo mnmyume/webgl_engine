@@ -16,7 +16,7 @@ export default class _particleMaterial extends Material{
         this.tileSize = params.tileSize || null;
         this.texWidth = params.texWidth || null;
         this.texHeight = params.texHeight || null;
-        this.fps = params.fps || 60;
+        this.aniFps = params.aniFps || 60;
     }
 
 
@@ -39,7 +39,7 @@ export default class _particleMaterial extends Material{
         this.uniforms["_ANI_TEX_0"].value = [
             this.texWidth, this.texHeight, this.tileSize, this.numFrames];
 
-        this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
+        this.uniforms["_ANI_TEX_0_FPS"].value = this.aniFps;
 
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
