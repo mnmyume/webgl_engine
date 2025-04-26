@@ -7,7 +7,9 @@ precision highp float;
 #value emitterSlot0:[0,1]
 uniform sampler2D emitterSlot0[GEN_SIZE];      // posX, posZ, size, startTime
 #value emitterSlot1:[2,3]
-uniform sampler2D emitterSlot1[GEN_SIZE];      // colX, colY, colZ, _empty
+uniform sampler2D emitterSlot1[GEN_SIZE];      // linVelX, linVelY, linVelZ, _empty
+#value emitterSlot2:[4,5]
+uniform sampler2D emitterSlot2[GEN_SIZE];      // angVelX,  angVelZ, _empty, _empty
 
 //#value test[0]:vec4( -1.0)
 //#value test[1]:[4, 5, 6, 7]
@@ -15,13 +17,13 @@ uniform sampler2D emitterSlot1[GEN_SIZE];      // colX, colY, colZ, _empty
 //#value test[3]:[12, 13, 14, 15]
 //uniform vec4 test[GEN_SIZE];      // posX, posZ, size, startTime
 
-#value dataSlot0:4
+#value dataSlot0:6
 uniform sampler2D dataSlot0;    // posX, posY, posZ, size
-#value dataSlot1:5
+#value dataSlot1:7
 uniform sampler2D dataSlot1;    // velX, velY, velZ, generation
-#value dataSlot2:6
+#value dataSlot2:8
 uniform sampler2D dataSlot2;    // colX, colY, colZ, _____
-#value dataSlot3:7
+#value dataSlot3:9
 uniform sampler2D dataSlot3;        // _____, _____, _____, _____
 
 #value deltaTime:0.01666
@@ -49,7 +51,8 @@ uniform vec2 worldSize;
 uniform vec2 resolution;
 
 #define PARMS 4
-#value fieldParams:[vec4(0),vec4(1),vec4(0),vec4(0)]    // 0: switcher.x, gravity.yzw; 1: switcher.x, vortexScalar.y, __, __;
+#value fieldParams:[vec4(0),vec4(1),vec4(0),vec4(0)]    // 0: switcher.x, gravity.yzw;
+                                                        // 1: switcher.x, vortexScalar.y, __, __;
 uniform vec4 fieldParams[PARMS];                        // 2: switcher.x, noiseScalar.yzw; 3: switcher.x, dampScalar.y, __, __;
 
 float dot2(vec2 a, vec2 b) {
@@ -230,62 +233,6 @@ void main() {
         updatePosVel(pos, vel);
     }
 
-//    if(state == 1){//emit
-//
-//
-////        vec2 emitterUV = getEmitterCoord(particleID,MAXCOL);
-////
-////        vec2 emitterPos = texture2D(emitterSlot0[0], emitterUV).xy;
-////        size = texture2D(emitterSlot0[0], emitterUV).z;
-////        startTime = texture2D(emitterSlot0[0], emitterUV).w;
-//
-//        pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-//
-//    }
-//    else if(state == 2){ //solver
-//
-//        vec2 solverUV = getEmitterCoord(particleID, MAXCOL);
-//        pos = texture2D(dataSlot0, solverUV).xyz;
-//        vel = texture2D(dataSlot1, solverUV).xyz;
-//
-//        if(false){ //restart
-////            float startTime = texture2D(emitterSlot0[0], emitterUV).w;
-////            float localTime = mod(time - startTime, lifeTime) ;
-////            float percentLife = localTime / lifeTime;
-////            // float frame = mod(floor(localTime / frameDuration), numFrames);
-////            float generation = 0.0; // floor((time - startTime) / duration);
-////
-////            vec2 coord = vec2(0.5,0.5);//getEmitterCoord(generation);
-////            vec2 emitterPos =   texture2D(emitterSlot0[0], coord).xy;
-////            float emitterSize =        texture2D(emitterSlot0[0], coord).z;
-////            pos = (emitter_transform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-//
-//        }
-//    }
-//
-////    vec4 obstacle = texture2D(obsSampler, (pos.xy + 0.5*worldSize)/worldSize);
-////    vec2 obs = vec2(obstacle.x, obstacle.y)*2.0 - 1.0;
-//
-
-//
-//    float percentLife = localTime / lifeTime;
-//
-//    if(localTime > 0.0 && percentLife < 1.0) {
-//        vel = gravityField(vel);
-//        vel = vel + noiseField(pos, vec3(.0,.0,.0));
-//        updatePosVel(pos, vel);
-//    }
-//
-////    bool isEmitterActive = duration > 0.0 && time < duration;
-////    if(percentLife > 1.0 && isEmitterActive){   // particle is dead
-////        //read emitter texture map
-////        float generation = floor((time - startTime)/lifeTime);
-////        float texCoordU = 0.5;
-////        float texCoordV = 1.0 - (generation / geneCount + 0.5 / geneCount);
-////        vec2 texCoord = vec2(texCoordU, texCoordV);
-////        pos = texture2D(emitterSlot0[0], texCoord).xyz;
-////        vel = texture2D(dataSlot1, texCoord).xyz;
-////    }
 
     gl_FragData[0] = vec4(pos, size);
     gl_FragData[1] = vec4(vel, generation);

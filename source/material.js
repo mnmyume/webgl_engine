@@ -174,7 +174,7 @@ export default class Material {
 
             if(isArr(type)){
                 for(let index =0; index < value.length; index += length){
-                    setGLValue(`${name}[${index}]`,type, value.slice(index,index+length));
+                    setGLValue(`${name}[${Math.floor(index/length)}]`,type, value.slice(index,index+length));
                 }
             }else
                 setGLValue(name,type, value);
