@@ -115,11 +115,11 @@ function initSolver(gl, canvas, camera) {
 
     const solverParams = {
         gravitySwitcher: 1,
-        gravity: [3,-3,0],
-        vortexSwitcher: 1,
+        gravity: [0, -10, 0],
+        vortexSwitcher: 0,
         vortexScalar: 1/1000,
         noiseSwitcher: 1,
-        noiseScalar: [1,1,1],
+        noiseScalar: [0.3, 0.3, 0.3],
         dampSwitcher: 1,
         dampScalar: 0.8
     }
@@ -260,8 +260,8 @@ function initSolver(gl, canvas, camera) {
     //--------------------------------------------------
     // init particle shader
     const partiShader = new Shader({
-        vertexSource: arrowVert,
-        fragmentSource: arrowFrag
+        vertexSource: solverPartiVert,
+        fragmentSource: solverPartiFrag
     });
     partiShader.initialize({gl});
 

@@ -33,5 +33,5 @@ void main() {
     float lineWidth = 0.1;
     float alpha = smoothstep(lineWidth, 0.0, abs(rotatedUV.y));
 
-    gl_FragColor = vec4(1.0, 0.0, 0.0, alpha);
+    gl_FragColor = vec4(outputCol, alpha);
 }

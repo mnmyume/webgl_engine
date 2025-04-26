@@ -32,7 +32,7 @@ export function genSnowCol(MAXCOL) {
     for (let row = 0; row < MAXCOL; row++) {
         for (let col = 0; col < MAXCOL; col++) {
             const snow = Math.random();
-            posPixels.push(snow, snow, snow, 0);// colX, colY, colZ, _empty
+            posPixels.push(1, 0, 0, 0);// colX, colY, colZ, _empty
         }
     }
     return new Float32Array(posPixels);

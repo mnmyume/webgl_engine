@@ -49,7 +49,7 @@ export default class Material {
                 }else if(/vec/.test(type))
                     length = Number(type.match(/vec(\d+)/)[1]);
                 for(let index =0; index < value.length; index += length){
-                    const key = `${name}[${index}]`;
+                    const key = `${name}[${index/length}]`;
                     this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
                     this.uniforms[name].length = length;
                 }

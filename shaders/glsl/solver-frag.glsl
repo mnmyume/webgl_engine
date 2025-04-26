@@ -9,7 +9,7 @@ uniform sampler2D emitterSlot0[GEN_SIZE];      // posX, posZ, size, startTime
 #value emitterSlot1:[2,3]
 uniform sampler2D emitterSlot1[GEN_SIZE];      // linVelX, linVelY, linVelZ, _empty
 #value emitterSlot2:[4,5]
-uniform sampler2D emitterSlot2[GEN_SIZE];      // angVelX,  angVelZ, _empty, _empty
+uniform sampler2D emitterSlot2[GEN_SIZE];      // angVelX, angVelZ, _empty, _empty
 
 //#value test[0]:vec4( -1.0)
 //#value test[1]:[4, 5, 6, 7]
@@ -81,31 +81,18 @@ vec3 gravityField(vec3 vel, vec3 gravity) {
     return vel;
 }
 
-vec3 vortexField(vec3 pos, float scalar){//vec3 axis,  needs Quaternion Helper
+vec3 vortexField(vec3 pos, float scalar){   //vec3 axis, needs Quaternion Helper
     vec3 vel = vec3(-pos.z,0, pos.x)*scalar;
     return vel;
 }
 
 vec3 noiseField(vec3 pos, vec3 scalar) {
-//    float x = fract(sin(dot2(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
-//    float y = fract(sin(dot2(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
-//    float z = fract(sin(dot2(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
-//
-//    float randomMagnitude1 = sin(time*2.5)*0.7;
-//    float randomMagnitude2 = cos(time*2.5)*0.7;
-
-    float scale = 1000.0;
-//    float x = fract(sin(dot(pos.xy/scale,vec2(12.9898+float(k)*12.0,78.233+float(k)*315.156)))* 43758.5453+float(k)*12.0)-0.5;
-//    float y = fract(sin(dot(pos.xy/scale,vec2(62.2364+float(k)*23.0,94.674+float(k)*95.0)))* 62159.8432+float(k)*12.0)-0.5;
 
     float x = fract(sin(dot2(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
     float y = fract(sin(dot2(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
     float z = fract(sin(dot2(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
-    float randomMagnitude1 = sin(time*2.5)*0.7;
-    float randomMagnitude2 = cos(time*2.5)*0.7;
 
-
-    vec3 d = vec3(x,y,z)*randomMagnitude2;
+    vec3 d = vec3(x,y,z);
 
     return scalar*normalize(d);
 }
@@ -185,10 +172,10 @@ void main() {
             vec2 emitterPos = vec2(0,0);
             if(generation == 0){
                 emitterPos = texture2D(emitterSlot0[0], emitterUV).xy;
-                partiCol = texture2D(emitterSlot1[0], emitterUV).rgb;
+                // partiCol = texture2D(emitterSlot1[0], emitterUV).rgb;
             }else if(generation == 1){
                 emitterPos = texture2D(emitterSlot0[1], emitterUV).xy;
-                partiCol = texture2D(emitterSlot1[1], emitterUV).rgb;
+                // partiCol = texture2D(emitterSlot1[1], emitterUV).rgb;
             }
 //            else if(generation == 2)
 //                emitterPos = texture2D(emitterSlot0[2], emitterUV).xy;
@@ -232,7 +219,6 @@ void main() {
 
         updatePosVel(pos, vel);
     }
-
 
     gl_FragData[0] = vec4(pos, size);
     gl_FragData[1] = vec4(vel, generation);
