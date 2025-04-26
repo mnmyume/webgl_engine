@@ -27,22 +27,15 @@ import {
 } from './generatorHelper.js';
 import {readAttrSchema} from './shapeHelper.js';
 import {
-    basicVert,
-    basicFrag,
-    particle3dVert,
-    particle2dVert,
-    particleFrag,
-    screenQuadFrag,
-    screenQuadVert,
+    basicVert, basicFrag,
+    particle3dVert, particle2dVert, particleFrag,
+    screenQuadFrag, screenQuadVert,
     solverFrag,
-    solverPartiVert,
-    solverPartiFrag,
-    rainVert,
-    rainFrag,
-    aniTestVert,
-    aniTestFrag,
-    obstacleVert,
-    obstacleFrag
+    solverPartiVert, solverPartiFrag,
+    rainVert, rainFrag,
+    arrowVert, arrowFrag,
+    aniTestVert, aniTestFrag,
+    obstacleVert, obstacleFrag
 } from "../shaders/output.js";
 
 const time = new Time();
@@ -122,7 +115,7 @@ function initSolver(gl, canvas, camera) {
 
     const solverParams = {
         gravitySwitcher: 1,
-        gravity: [0,-3,0],
+        gravity: [3,-3,0],
         vortexSwitcher: 1,
         vortexScalar: 1/1000,
         noiseSwitcher: 1,
@@ -267,8 +260,8 @@ function initSolver(gl, canvas, camera) {
     //--------------------------------------------------
     // init particle shader
     const partiShader = new Shader({
-        vertexSource: solverPartiVert,
-        fragmentSource: solverPartiFrag
+        vertexSource: arrowVert,
+        fragmentSource: arrowFrag
     });
     partiShader.initialize({gl});
 
@@ -910,8 +903,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    // initSolver(gl, canvas, camera);
-    initAniTest(gl, canvas, camera);
+    initSolver(gl, canvas, camera);
+    // initAniTest(gl, canvas, camera);
     // initBlastParticle(gl, camera);
 }
 

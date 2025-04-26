@@ -15,11 +15,22 @@ import solverPartiFrag from './solverParti-frag.glsl';
 import rainVert from './rain-vert.glsl';
 import rainFrag from './rain-frag.glsl';
 
+import arrowVert from './arrow-vert.glsl';
+import arrowFrag from './arrow-frag.glsl';
+
 import aniTestVert from './aniTest-vert.glsl';
 import aniTestFrag from './aniTest-frag.glsl';
 
 import obstacleVert from './obstacle-vert.glsl';
 import obstacleFrag from './obstacle-frag.glsl';
 
-export {basicFrag, basicVert, particleFrag, particle2dVert, particle3dVert, screenQuadVert, screenQuadFrag, solverFrag, solverPartiVert, solverPartiFrag, rainVert, rainFrag, aniTestVert, aniTestFrag, obstacleVert, obstacleFrag}
+export {basicFrag, basicVert,
+    particleFrag, particle2dVert, particle3dVert,
+    screenQuadVert, screenQuadFrag,
+    solverFrag,
+    solverPartiVert, solverPartiFrag,
+    rainVert, rainFrag,
+    arrowVert, arrowFrag,
+    aniTestVert, aniTestFrag,
+    obstacleVert, obstacleFrag}
 
