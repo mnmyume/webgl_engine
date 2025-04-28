@@ -1,7 +1,6 @@
 import Texture2D from "./texture2d.js";
 import {$assert} from "./common.js";
 import FrameBuffer from "./frameBuffer.js";
-import {testGenPos, testGenVel} from "./generatorHelper.js";
 
 export default class Solver{
     static MODE = {init:1, play:2}
@@ -87,12 +86,12 @@ export default class Solver{
 
         this.attach(gl);
 
-        this.material[0].setUniform('state', this.mode);
-        this.material[0].setUniform('loop', this.loop);
-        this.material[0].setTexture('dataSlot0', this.backBuffer.textures[0]);
-        this.material[0].setTexture('dataSlot1', this.backBuffer.textures[1]);
-        this.material[0].setTexture('dataSlot2', this.backBuffer.textures[2]);
-        this.material[0].setTexture('dataSlot3', this.backBuffer.textures[3]);
+        this.material[0].setUniform('uState', this.mode);
+        this.material[0].setUniform('uLoop', this.loop);
+        this.material[0].setTexture('uDataSlot0', this.backBuffer.textures[0]);
+        this.material[0].setTexture('uDataSlot1', this.backBuffer.textures[1]);
+        this.material[0].setTexture('uDataSlot2', this.backBuffer.textures[2]);
+        this.material[0].setTexture('uDataSlot3', this.backBuffer.textures[3]);
 
         // this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 

@@ -72,24 +72,24 @@ export default class _staticEmitter extends Shape {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['startTime'], 
+            material.dataLocation.attributes['aStartTime'],
             1, gl.FLOAT, false, stride,
             sizeofFloat * START_TIME_IDX);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['startTime']);
+            material.dataLocation.attributes['aStartTime']);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['particleID'], 
+            material.dataLocation.attributes['aParticleID'],
             1, gl.FLOAT, false, stride,
             sizeofFloat * PARTICLE_ID_IDX);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['particleID']);
+            material.dataLocation.attributes['aParticleID']);
         
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
         gl.drawArrays(gl.POINTS, 0, this.data.partiCount);
 
-        gl.disableVertexAttribArray(material.dataLocation.attributes['startTime']);
-        gl.disableVertexAttribArray(material.dataLocation.attributes['particleID']);
+        gl.disableVertexAttribArray(material.dataLocation.attributes['aStartTime']);
+        gl.disableVertexAttribArray(material.dataLocation.attributes['aParticleID']);
         
     };
 }

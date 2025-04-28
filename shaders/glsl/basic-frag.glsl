@@ -1,15 +1,14 @@
 precision highp float;
 
-#value color:vec3(0,1,0)
-uniform vec3 color;
+#value uColor:vec3(0,1,0)
+uniform vec3 uColor;
 
 varying vec2 vUV;
-#value tex:0
-uniform sampler2D tex;
+#value uTex:0
+uniform sampler2D uTex;
 
 void main(void) {
 
-
-   gl_FragColor = //vec4(color,1.0);
-        vec4(texture2D(tex,vUV).rgb,1.0);
+   gl_FragColor =   // vec4(uColor, 1.0);
+        vec4(texture2D(uTex,vUV).rgb, 1.0);
 }

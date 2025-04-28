@@ -1,8 +1,10 @@
 import { halton } from "./mathHelper.js";
 
+
 export function sqrtFloor(num) {
     return Math.floor(Math.sqrt(num));
 }
+
 
 export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
     const posPixels = [];  
@@ -18,6 +20,8 @@ export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
 
     return new Float32Array(posPixels);  
 }
+
+
 export function genRandCol(MAXCOL) {
     const posPixels = [];
     for (let row = 0; row < MAXCOL; row++) {
@@ -27,16 +31,8 @@ export function genRandCol(MAXCOL) {
     }
     return new Float32Array(posPixels);
 }
-export function genSnowCol(MAXCOL) {
-    const posPixels = [];
-    for (let row = 0; row < MAXCOL; row++) {
-        for (let col = 0; col < MAXCOL; col++) {
-            const snow = Math.random();
-            posPixels.push(1, 0, 0, 0);// colX, colY, colZ, _empty
-        }
-    }
-    return new Float32Array(posPixels);
-}
+
+
 export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
 
     const localXStart = corner[0];  
@@ -57,6 +53,7 @@ export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
 
     return new Float32Array(posPixels);
 }
+
 
 export function genRectHaltonPosOLD(scale, corner, partiCount, geneCount, size, duration) {
     const posPixels = [];
@@ -79,12 +76,11 @@ export function genRectHaltonPosOLD(scale, corner, partiCount, geneCount, size, 
 }
 
 
-
-export function testGenVel(fbWidth,fbHeight) {
+export function genLinVel(MAXCOL) {
     const posPixels = [];
 
-    for(let row = 0; row < fbHeight; row++)
-        for(let col = 0; col < fbWidth; col++){
+    for(let row = 0; row < MAXCOL; row++)
+        for(let col = 0; col < MAXCOL; col++){
             const vx = 5*(Math.random() * 2 - 1); // Random value between -1 and 1
             const vy = 100*(-Math.random()); // Random value between -1 and 0
 
@@ -95,33 +91,22 @@ export function testGenVel(fbWidth,fbHeight) {
     return new Float32Array(posPixels);
 }
 
-export function testGenPos(fbWidth,fbHeight) {
+
+export function genAngVel(MAXCOL) {
     const posPixels = [];
 
-    for(let row = 0; row < fbHeight; row++)
-        for(let col = 0; col < fbWidth; col++)
-            posPixels.push(0, 0, 0, 1);
+    for(let row = 0; row < MAXCOL; row++)
+        for(let col = 0; col < MAXCOL; col++){
+            const vx = 5*(Math.random() * 2 - 1); // Random value between -1 and 1
+            const vy = 100*(-Math.random()); // Random value between -1 and 0
+
+            // posPixels.push(vx, vy, 0, 1);
+            posPixels.push(0,0,0,1)
+        }
 
     return new Float32Array(posPixels);
 }
 
-export function generateCirclePos(partiCount, generation) { 
-    const posPixels = [];
-    const radius = 50;
-
-    for(let row = 0; row < generation; row++) {
-        const offset = 2 * Math.PI / generation * row;  // Math.random() *
-        for (let col = 0; col < partiCount; col++) {
-            const angle = 2 * Math.PI / (partiCount) * col;
-            const x = radius * Math.cos(angle + offset);
-            const y = radius * Math.sin(angle + offset);
-
-            posPixels.push(x, y, 0.0, 0.0);
-        }
-    }
-
-    return posPixels;
-}
 
 // 0--duration(1s)
 // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
@@ -152,34 +137,6 @@ export function generateCirclePosVelRandom(partiCount, startSize, endSize) {
     }
 
     return posPixels;
-}
-
-export function genUVData(width, height) {
-    let uvArray = [];
-    for (var y=0; y<height; ++y) {
-        for (var x=0; x<width; ++x) {
-          uvArray.push(x/width);
-          uvArray.push(y/height);
-        }
-    }
-
-    return new Float32Array(uvArray);
-}
-
-export function genQuadWithUV(out, index) {
-    const uvCoordinates = [
-        [0, 0],
-        [0, 1],
-        [1, 1],
-        [0, 0],
-        [1, 1],
-        [1, 0]
-    ];
-
-    for (let i = 0; i < uvCoordinates.length; i++) {
-        const uv = uvCoordinates[i];
-        out.push(...index, ...uv);
-    }
 }
 
 export function genQuad(size){

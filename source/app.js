@@ -17,13 +17,9 @@ import {
     sqrtFloor,
     genPartiInfo,
     genRectHaltonPos,
-    testGenPos,
-    testGenVel,
-    generateCirclePos,
+    genLinVel, genAngVel,
     generateCirclePosVelRandom,
-    genUVData,
-    genQuadWithUV,
-    genQuad, genRandCol, genSnowCol
+    genQuad, genRandCol,
 } from './generatorHelper.js';
 import {readAttrSchema} from './shapeHelper.js';
 import {
@@ -48,6 +44,11 @@ const fpsCounter = new FPSCounter(g_fps);
 
 function initSimpleQuad(gl, camera) {
 
+    const quadParams = {
+        quadSize: 10,
+        quadColor: [1, 0, 1]
+    }
+
     // init quad shader
     const quadShader = new Shader({
         vertexSource: basicVert,
@@ -58,23 +59,22 @@ function initSimpleQuad(gl, camera) {
     // init transform
     const quadTransform = new Transform();
     quadTransform.setPosition(0, 0, 0);
+    // quadTransform.scale(quadParams.quadSize, quadParams.quadSize, quadParams.quadSize);
 
     // init material
     const quadMaterial = new Material({
         shader: quadShader,
     })
     quadMaterial.initialize({gl});
-    quadMaterial.uniforms['size'].value = 80;
+    quadMaterial.setUniform('uColor', quadParams.quadColor);
 
-    // init shape
-    let pos = [];
-    genQuadWithUV(pos, [0, 0, 0]);
+    // init quad shape
+    const quadData = genQuad(quadParams.quadSize);
     const quadShape = new Shape(
         'quad',
-        {count: 6, schema: readAttrSchema(basicVert.attribute)}
-    );
+        {count: 6, schema: readAttrSchema(basicVert.attribute)});
     quadShape.initialize({gl});
-    quadShape.update(gl, 'quadBuffer', pos)
+    quadShape.update(gl, 'quadBuffer', quadData);
 
     function drawSimpleQuad() {
 
@@ -106,7 +106,7 @@ function initSolver(gl, canvas, camera) {
         rate: 1,
         duration: 8,
         lifeTime: 8,
-        size: 15,
+        size: 40,
         uBlurRadius: 0.1,
         uPixelNum: 4
     }
@@ -116,11 +116,11 @@ function initSolver(gl, canvas, camera) {
     const solverParams = {
         gravitySwitcher: 1,
         gravity: [0, -10, 0],
-        vortexSwitcher: 0,
+        vortexSwitcher: 1,
         vortexScalar: 1/1000,
         noiseSwitcher: 1,
         noiseScalar: [0.3, 0.3, 0.3],
-        dampSwitcher: 1,
+        dampSwitcher: 0,
         dampScalar: 0.8
     }
     window.solverParams = solverParams;
@@ -154,8 +154,7 @@ function initSolver(gl, canvas, camera) {
         shader: screenQuadShader
     });
     screenQuadMaterial.initialize({gl});
-
-    screenQuadMaterial.setUniform('canvas', [canvas.width, canvas.height]);
+    screenQuadMaterial.setUniform('uCanvas', [canvas.width, canvas.height]);
 
     // init screen quad shape
     const screenQuadShape = new ScreenQuad(
@@ -175,7 +174,7 @@ function initSolver(gl, canvas, camera) {
     // const obstacleMaterial = new Material({
     //     shader: obstacleShader });
     // obstacleMaterial.initialize({ gl });
-    // obstacleMaterial.setUniform('worldSize', [canvas.width,canvas.height]);
+    // obstacleMaterial.setUniform('uWorldSize', [canvas.width,canvas.height]);
 
     // init obstacle shape
     // const obstacleShape = new Shape(
@@ -222,9 +221,8 @@ function initSolver(gl, canvas, camera) {
         emitterTexture.setData(gl, genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration));
         emitterSlot0.push(emitterTexture);
     }
-
-    solverMaterial.setTexture('emitterSlot0', emitterSlot0);
-    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
+    solverMaterial.setTexture('uEmitterSlot0', emitterSlot0);
+    // solverMaterial.setTexture('uEmitterSlot0[0]', emitterSlot0[0]);
 
     const emitterSlot1 = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
@@ -235,40 +233,51 @@ function initSolver(gl, canvas, camera) {
             scaleUp: 'LINEAR'
         });
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genSnowCol(MAXCOL));
+        emitterTexture.setData(gl, genLinVel(MAXCOL));
         emitterSlot1.push(emitterTexture);
     }
+    solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
+    // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
 
-    solverMaterial.setTexture('emitterSlot1', emitterSlot1);
-    // solverMaterial.setTexture('emitterSlot1[0]', emitterSlot1[0]);
+    const emitterSlot2 = [];
+    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
+        const emitterTexture = new Texture2D('emitterTexture', {
+            width: MAXCOL, height: MAXCOL,
+            scaleDown: 'LINEAR',
+            // data: texDataArr[genIndex],
+            scaleUp: 'LINEAR'
+        });
+        emitterTexture.initialize({gl});
+        emitterTexture.setData(gl, genAngVel(MAXCOL));
+        emitterSlot1.push(emitterTexture);
+    }
+    solverMaterial.setTexture('uEmitterSlot2', emitterSlot2);
+    // solverMaterial.setTexture('uEmitterSlot2[0]', emitterSlot2[0]);
 
 
-    solver.backBuffer.textures[0].setData(gl, null);
-    solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth, fbHeight));
-
-    solverMaterial.setUniform('grid', [emitterSize, emitterHeight, ...gridCorner]);
-    solverMaterial.setUniform('worldSize', [canvas.width, canvas.height]);
-    solverMaterial.setUniform('resolution', [fbWidth, fbHeight]);
-    solverMaterial.setUniform('duration', partiParams.duration);
-    solverMaterial.setUniform('partiCount', partiCount);
-    solverMaterial.setUniform('geneCount', partiParams.geneCount);
-    solverMaterial.setUniform('lifeTime', partiParams.lifeTime);
-    solverMaterial.setUniform('MAXCOL', MAXCOL);
-    solverMaterial.setUniform('emitter_transform', emitterTransform.matrix);
+    solverMaterial.setUniform('uGrid', [emitterSize, emitterHeight, ...gridCorner]);
+    solverMaterial.setUniform('uWorldSize', [canvas.width, canvas.height]);
+    solverMaterial.setUniform('uResolution', [fbWidth, fbHeight]);
+    solverMaterial.setUniform('uDuration', partiParams.duration);
+    solverMaterial.setUniform('uPartiCount', partiCount);
+    solverMaterial.setUniform('uGeneCount', partiParams.geneCount);
+    solverMaterial.setUniform('uLifeTime', partiParams.lifeTime);
+    solverMaterial.setUniform('uMAXCOL', MAXCOL);
+    solverMaterial.setUniform('uEmitterTransform', emitterTransform.matrix);
 
 
     //--------------------------------------------------
     // init particle shader
     const partiShader = new Shader({
-        vertexSource: solverPartiVert,
-        fragmentSource: solverPartiFrag
+        vertexSource: arrowVert,
+        fragmentSource: arrowFrag
     });
     partiShader.initialize({gl});
 
 
     // init particle texture
     const colTexImg = new Image();
-    colTexImg.src = '../resources/fire/7761.png';
+    colTexImg.src = '../resources/arrow2.png';
     colTexImg.onload = _ => { // TODO
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
@@ -283,13 +292,13 @@ function initSolver(gl, canvas, camera) {
             shader: partiShader
         });
         partiMaterial.initialize({gl});
-        partiMaterial.setUniform('geneCount', partiParams.geneCount);
-        partiMaterial.setUniform('partiCount', partiCount);
-        partiMaterial.setUniform('MAXCOL', MAXCOL);
+        partiMaterial.setUniform('uGeneCount', partiParams.geneCount);
+        partiMaterial.setUniform('uPartiCount', partiCount);
+        partiMaterial.setUniform('uMAXCOL', MAXCOL);
         partiMaterial.setUniform('uBlurRadius', partiParams.uBlurRadius);
         partiMaterial.setUniform('uPixelNum', partiParams.uPixelNum);
 
-        partiMaterial.setTexture('colorSampler', colorTexture);
+        partiMaterial.setTexture('uColorSampler', colorTexture);
         // init particle shape
         const partiShape = new PartiShape(
             'particle',
@@ -319,7 +328,7 @@ function initSolver(gl, canvas, camera) {
             shader: emitterQuadShader
         });
         emitterQuadMaterial.initialize({gl});
-        emitterQuadMaterial.setUniform('color', [0, 1, 0]);
+        emitterQuadMaterial.setUniform('uColor', [0, 1, 0]);
 
         // init emitter quad shape
         const emitterQuadData = genQuad(1);
@@ -345,7 +354,7 @@ function initSolver(gl, canvas, camera) {
             shader: groundQuadShader
         });
         groundQuadMaterial.initialize({gl});
-        groundQuadMaterial.setUniform('color', [1, 0, 0]);
+        groundQuadMaterial.setUniform('uColor', [1, 0, 0]);
 
         // init ground quad shape
         const groundQuadData = genQuad(1.0);
@@ -366,16 +375,16 @@ function initSolver(gl, canvas, camera) {
             fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
             fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
             fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
-            solverMaterial.setUniform('fieldParams', fieldParams.flat());
-            // solverMaterial.setUniform('fieldParams[0]', fieldParams[0]);
-            // solverMaterial.setUniform('fieldParams[1]', fieldParams[1]);
-            // solverMaterial.setUniform('fieldParams[2]', fieldParams[2]);
-            // solverMaterial.setUniform('fieldParams[3]', fieldParams[3]);
+            solverMaterial.setUniform('uFieldParams', fieldParams.flat());
+            // solverMaterial.setUniform('uFieldParams[0]', fieldParams[0]);
+            // solverMaterial.setUniform('uFieldParams[1]', fieldParams[1]);
+            // solverMaterial.setUniform('uFieldParams[2]', fieldParams[2]);
+            // solverMaterial.setUniform('uFieldParams[3]', fieldParams[3]);
 
             time.update();
-            solverMaterial.setUniform('time', time.ElapsedTime);
-            solverMaterial.setUniform('deltaTime', time.Interval);
-            solverMaterial.setUniform('state', solver.mode);
+            solverMaterial.setUniform('uTime', time.ElapsedTime);
+            solverMaterial.setUniform('uDeltaTime', time.Interval);
+            solverMaterial.setUniform('uState', solver.mode);
 
             solver.update(gl);
 
@@ -385,10 +394,10 @@ function initSolver(gl, canvas, camera) {
             gl.clearColor(1, 1, 1, 1.0);
             gl.colorMask(true, true, true, true);
 
-            partiMaterial.setTexture('dataSlot0', solver.frontBuffer.textures[0]);
-            partiMaterial.setTexture('dataSlot1', solver.frontBuffer.textures[1]);
-            partiMaterial.setTexture('dataSlot2', solver.frontBuffer.textures[2]);
-            partiMaterial.setTexture('dataSlot3', solver.frontBuffer.textures[3]);
+            partiMaterial.setTexture('uDataSlot0', solver.frontBuffer.textures[0]);
+            partiMaterial.setTexture('uDataSlot1', solver.frontBuffer.textures[1]);
+            partiMaterial.setTexture('uDataSlot2', solver.frontBuffer.textures[2]);
+            partiMaterial.setTexture('uDataSlot3', solver.frontBuffer.textures[3]);
 
             // draw screen quad
             screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
@@ -407,7 +416,7 @@ function initSolver(gl, canvas, camera) {
             gl.disable(gl.BLEND);
 
             // draw emitter quad
-            emitterQuadMaterial.setTexture('tex', emitterSlot0[0]);
+            emitterQuadMaterial.setTexture('uTex', emitterSlot0[0]);
             emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
             emitterQuadShape.draw(gl, emitterQuadMaterial);
             emitterQuadMaterial.postDraw(gl);
@@ -419,7 +428,7 @@ function initSolver(gl, canvas, camera) {
 
 
             // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
-            // solverMaterial.setUniform('deltaTime', time.Interval);
+            // solverMaterial.setUniform('uDeltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
                 solver.Mode = Solver.MODE.play;
@@ -491,7 +500,7 @@ function initAniTest(gl, canvas, camera) {
     });
     screenQuadMaterial.initialize({gl});
 
-    screenQuadMaterial.setUniform('canvas', [canvas.width, canvas.height]);
+    screenQuadMaterial.setUniform('uCanvas', [canvas.width, canvas.height]);
 
     // init screen quad shape
     const screenQuadShape = new ScreenQuad(
@@ -511,7 +520,7 @@ function initAniTest(gl, canvas, camera) {
     // const obstacleMaterial = new Material({
     //     shader: obstacleShader });
     // obstacleMaterial.initialize({ gl });
-    // obstacleMaterial.setUniform('worldSize', [canvas.width,canvas.height]);
+    // obstacleMaterial.setUniform('uWorldSize', [canvas.width,canvas.height]);
 
     // init obstacle shape
     // const obstacleShape = new Shape(
@@ -558,9 +567,8 @@ function initAniTest(gl, canvas, camera) {
         emitterTexture.setData(gl, genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration));
         emitterSlot0.push(emitterTexture);
     }
-
-    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
-    solverMaterial.setTexture('emitterSlot0', emitterSlot0);
+    solverMaterial.setTexture('uEmitterSlot0', emitterSlot0);
+    // solverMaterial.setTexture('uEmitterSlot0[0]', emitterSlot0[0]);
 
     const emitterSlot1 = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
@@ -571,26 +579,37 @@ function initAniTest(gl, canvas, camera) {
             scaleUp: 'LINEAR'
         });
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genSnowCol(MAXCOL));
+        emitterTexture.setData(gl, genLinVel(MAXCOL));
         emitterSlot1.push(emitterTexture);
     }
+    solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
+    // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
 
-    // solverMaterial.setTexture('emitterSlot0[0]', emitterSlot0[0]);
-    solverMaterial.setTexture('emitterSlot1', emitterSlot1);
+    const emitterSlot2 = [];
+    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
+        const emitterTexture = new Texture2D('emitterTexture', {
+            width: MAXCOL, height: MAXCOL,
+            scaleDown: 'LINEAR',
+            // data: texDataArr[genIndex],
+            scaleUp: 'LINEAR'
+        });
+        emitterTexture.initialize({gl});
+        emitterTexture.setData(gl, genAngVel(MAXCOL));
+        emitterSlot1.push(emitterTexture);
+    }
+    solverMaterial.setTexture('uEmitterSlot2', emitterSlot2);
+    // solverMaterial.setTexture('uEmitterSlot2[0]', emitterSlot2[0]);
 
 
-    solver.backBuffer.textures[0].setData(gl, null);
-    solver.backBuffer.textures[1].setData(gl, testGenVel(fbWidth, fbHeight));
-
-    solverMaterial.setUniform('grid', [emitterSize, emitterHeight, ...gridCorner]);
-    solverMaterial.setUniform('worldSize', [canvas.width, canvas.height]);
-    solverMaterial.setUniform('resolution', [fbWidth, fbHeight]);
-    solverMaterial.setUniform('duration', partiParams.duration);
-    solverMaterial.setUniform('partiCount', partiCount);
-    solverMaterial.setUniform('geneCount', partiParams.geneCount);
-    solverMaterial.setUniform('lifeTime', partiParams.lifeTime);
-    solverMaterial.setUniform('MAXCOL', MAXCOL);
-    solverMaterial.setUniform('emitter_transform', emitterTransform.matrix);
+    solverMaterial.setUniform('uGrid', [emitterSize, emitterHeight, ...gridCorner]);
+    solverMaterial.setUniform('uWorldSize', [canvas.width, canvas.height]);
+    solverMaterial.setUniform('uResolution', [fbWidth, fbHeight]);
+    solverMaterial.setUniform('uDuration', partiParams.duration);
+    solverMaterial.setUniform('uPartiCount', partiCount);
+    solverMaterial.setUniform('uGeneCount', partiParams.geneCount);
+    solverMaterial.setUniform('uLifeTime', partiParams.lifeTime);
+    solverMaterial.setUniform('uMAXCOL', MAXCOL);
+    solverMaterial.setUniform('uEmitterTransform', emitterTransform.matrix);
 
 
     //--------------------------------------------------
@@ -618,10 +637,10 @@ function initAniTest(gl, canvas, camera) {
             shader: partiShader
         });
         partiMaterial.initialize({gl});
-        partiMaterial.setUniform('lifeTime', partiParams.lifeTime);
-        partiMaterial.setUniform('geneCount', partiParams.geneCount);
-        partiMaterial.setUniform('partiCount', partiCount);
-        partiMaterial.setUniform('MAXCOL', MAXCOL);
+        partiMaterial.setUniform('uLifeTime', partiParams.lifeTime);
+        partiMaterial.setUniform('uGeneCount', partiParams.geneCount);
+        partiMaterial.setUniform('uPartiCount', partiCount);
+        partiMaterial.setUniform('uMAXCOL', MAXCOL);
         partiMaterial.setUniform('uBlurRadius', partiParams.uBlurRadius);
         partiMaterial.setUniform('uPixelNum', partiParams.uPixelNum);
 
@@ -637,7 +656,7 @@ function initAniTest(gl, canvas, camera) {
             aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
         partiMaterial.setUniform('_ANI_TEX_0_FPS', aniTexParams.aniFps);
 
-        partiMaterial.setTexture('colorSampler', colorTexture);
+        partiMaterial.setTexture('uColorSampler', colorTexture);
         // init particle shape
         const partiShape = new PartiShape(
             'particle',
@@ -667,7 +686,7 @@ function initAniTest(gl, canvas, camera) {
             shader: emitterQuadShader
         });
         emitterQuadMaterial.initialize({gl});
-        emitterQuadMaterial.setUniform('color', [0, 1, 0]);
+        emitterQuadMaterial.setUniform('uColor', [0, 1, 0]);
 
         // init emitter quad shape
         const emitterQuadData = genQuad(1);
@@ -693,7 +712,7 @@ function initAniTest(gl, canvas, camera) {
             shader: groundQuadShader
         });
         groundQuadMaterial.initialize({gl});
-        groundQuadMaterial.setUniform('color', [1, 0, 0]);
+        groundQuadMaterial.setUniform('uColor', [1, 0, 0]);
 
         // init ground quad shape
         const groundQuadData = genQuad(1.0);
@@ -714,14 +733,14 @@ function initAniTest(gl, canvas, camera) {
             fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
             fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
             fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
-            solverMaterial.setUniform('fieldParams', fieldParams.flat());
+            solverMaterial.setUniform('uFieldParams', fieldParams.flat());
 
             time.update();
-            solverMaterial.setUniform('deltaTime', time.Interval);
-            solverMaterial.setUniform('time', time.ElapsedTime);
-            solverMaterial.setUniform('state', solver.mode);
+            solverMaterial.setUniform('uDeltaTime', time.Interval);
+            solverMaterial.setUniform('uTime', time.ElapsedTime);
+            solverMaterial.setUniform('uState', solver.mode);
 
-            // solverMaterial.setTexture('emitterSlot0', emitterSlot0[0]);
+            // solverMaterial.setTexture('uEmitterSlot0', emitterSlot0[0]);
             solver.update(gl);
             //
             gl.viewport(0, 0, canvas.width, canvas.height);
@@ -730,10 +749,10 @@ function initAniTest(gl, canvas, camera) {
             gl.clearColor(1, 1, 1, 1.0);
             gl.colorMask(true, true, true, true);
 
-            partiMaterial.setTexture('dataSlot0', solver.frontBuffer.textures[0]);
-            partiMaterial.setTexture('dataSlot1', solver.frontBuffer.textures[1]);
-            partiMaterial.setTexture('dataSlot2', solver.frontBuffer.textures[2]);
-            partiMaterial.setTexture('dataSlot3', solver.frontBuffer.textures[3]);
+            partiMaterial.setTexture('uDataSlot0', solver.frontBuffer.textures[0]);
+            partiMaterial.setTexture('uDataSlot1', solver.frontBuffer.textures[1]);
+            partiMaterial.setTexture('uDataSlot2', solver.frontBuffer.textures[2]);
+            partiMaterial.setTexture('uDataSlot3', solver.frontBuffer.textures[3]);
 
             // draw screen quad
             screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
@@ -752,7 +771,7 @@ function initAniTest(gl, canvas, camera) {
             gl.disable(gl.BLEND);
 
             // draw emitter quad
-            emitterQuadMaterial.setTexture('tex', emitterSlot0[0]);
+            emitterQuadMaterial.setTexture('uTex', emitterSlot0[0]);
             emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
             emitterQuadShape.draw(gl, emitterQuadMaterial);
             emitterQuadMaterial.postDraw(gl);
@@ -764,7 +783,7 @@ function initAniTest(gl, canvas, camera) {
 
 
             // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
-            // solverMaterial.setUniform('deltaTime', time.Interval);
+            // solverMaterial.setUniform('uDeltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
                 solver.Mode = Solver.MODE.play;
@@ -845,9 +864,9 @@ function initBlastParticle(gl, camera) {
             ...particleParams,
         });
         particleMaterial.initialize({gl});
-        particleMaterial.setTexture('rampSampler', rampTexture);
-        particleMaterial.setTexture('colorSampler', colorTexture);
-        particleMaterial.setTexture('generatorSampler', initPosVelTexture);
+        particleMaterial.setTexture('uRampSampler', rampTexture);
+        particleMaterial.setTexture('uColorSampler', colorTexture);
+        particleMaterial.setTexture('uGeneratorSampler', initPosVelTexture);
 
         const particleShape = new _staticEmitter({
             data: {...particleParams, partiCount: partiCount}

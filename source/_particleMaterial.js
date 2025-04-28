@@ -28,13 +28,13 @@ export default class _particleMaterial extends Material{
 
     preDraw(gl, time, camera, transform) {
 
-        this.uniforms["time"].value = time.ElapsedTime;
+        this.uniforms["uTime"].value = time.ElapsedTime;
 
-        this.uniforms["duration"].value = this.duration;
-        this.uniforms["partiCount"].value = this.partiCount;
-        this.uniforms["numGen"].value = this.numGen;
-        this.uniforms["gravity"].value = this.gravity;
-        this.uniforms["lifeTime"].value = this.lifeTime;
+        this.uniforms["uDuration"].value = this.duration;
+        this.uniforms["uPartiCount"].value = this.partiCount;
+        this.uniforms["uNumGen"].value = this.numGen;
+        this.uniforms["uGravity"].value = this.gravity;
+        this.uniforms["uLifeTime"].value = this.lifeTime;
 
         this.uniforms["_ANI_TEX_0"].value = [
             this.texWidth, this.texHeight, this.tileSize, this.numFrames];

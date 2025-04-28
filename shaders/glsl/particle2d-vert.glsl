@@ -7,17 +7,17 @@
 uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
 uniform mat4 _uni_modelMat;
-uniform float duration;
-uniform float time;
-uniform float partiCount;
-uniform float numGen;
-uniform vec3 gravity;
-uniform float lifeTime;
+uniform float uDuration;
+uniform float uTime;
+uniform float uPartiCount;
+uniform float uNumGen;
+uniform vec3 uGravity;
+uniform float uLifeTime;
 
 
 // PixelOne(pos.xyz, startSize.w) PixelTwo(linearVel.xyz, endSize.w)
-#value generatorSampler:2
-uniform sampler2D generatorSampler;
+#value uGeneratorSampler:2
+uniform sampler2D uGeneratorSampler;
 
 
 #define ANI_TEX
@@ -26,10 +26,10 @@ uniform sampler2D generatorSampler;
 #endif  /* MACRO ANI_TEX*/
 
 // attribute
-attribute float startTime;
-attribute float particleID;
+attribute float aStartTime;
+attribute float aParticleID;
 
-varying float outputPercentLife;
+varying float vPercentLife;
 
 const float NUM_COMPONENTS = 2.0;
 float pidPixels(float pid){
@@ -48,24 +48,24 @@ void main() {
   float numFrames = _ANI_TEX_0.w;
   float frameDuration = 1.0 / _ANI_TEX_0_FPS;
 
-  float localTime = mod(time - startTime, lifeTime) ;
-  float percentLife = localTime / lifeTime;
+  float localTime = mod(uTime - aStartTime, uLifeTime) ;
+  float percentLife = localTime / uLifeTime;
   float frame = mod(floor(localTime / frameDuration), numFrames);
-  float generation = floor((time - startTime) / duration);
+  float generation = floor((uTime - aStartTime) / uDuration);
 
   float componentOffset = 0.0;
-  float posTexCoordU = pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
-  float posTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
+  float posTexCoordU = pidPixelsOffset(aParticleID, componentOffset) / pidPixels(uPartiCount);
+  float posTexCoordV = 1.0 - (generation / uNumGen + 0.5 / uNumGen);  
   vec2 posTexCoord = vec2(posTexCoordU, posTexCoordV);
-  vec3 position = texture2D(generatorSampler, posTexCoord).xyz;
-  float startSize = texture2D(generatorSampler, posTexCoord).w;
+  vec3 position = texture2D(uGeneratorSampler, posTexCoord).xyz;
+  float startSize = texture2D(uGeneratorSampler, posTexCoord).w;
 
   componentOffset = 1.0;
-  float linearVelTexCoordU =  pidPixelsOffset(particleID, componentOffset) / pidPixels(partiCount);
-  float linearVelTexCoordV = 1.0 - (generation / numGen + 0.5 / numGen);  
+  float linearVelTexCoordU =  pidPixelsOffset(aParticleID, componentOffset) / pidPixels(uPartiCount);
+  float linearVelTexCoordV = 1.0 - (generation / uNumGen + 0.5 / uNumGen);  
   vec2 linearVelTexCoord = vec2(linearVelTexCoordU, linearVelTexCoordV);
-  vec3 linearVelocity = texture2D(generatorSampler, linearVelTexCoord).xyz;
-  float endSize = texture2D(generatorSampler, linearVelTexCoord).w;
+  vec3 linearVelocity = texture2D(uGeneratorSampler, linearVelTexCoord).xyz;
+  float endSize = texture2D(uGeneratorSampler, linearVelTexCoord).w;
 
   _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
 
@@ -77,7 +77,7 @@ void main() {
                        // acceleration * localTime * localTime + 
                        position; 
                        
-  outputPercentLife = percentLife;
+  vPercentLife = percentLife;
   gl_PointSize = size; 
   gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(localPosition, 1.);
 }

@@ -1,37 +1,40 @@
 precision mediump float;
 
-#value colorSampler:1
-uniform sampler2D colorSampler;
+#value uColorSampler:4
+uniform sampler2D uColorSampler;
 
 uniform float uBlurRadius;
 uniform float uPixelNum;
 
-varying float outputSize;
-varying vec3 outputCol;
-varying vec3 outputVel;
+varying float vSize;
+varying vec3 vColor;
+varying vec3 vVel;
 
-varying float debug;
+varying float vDebug;
 
-mat2 getRotationMatrix(vec2 dir) {
-    float angle = atan(dir.y, dir.x);
-    float c = cos(angle);
-    float s = sin(angle);
-    return mat2(c, -s, s, c);
+mat2 rotateVelMatrix(vec2 vel) {
+
+    vec2 col1 = normalize(vec2(vel.x, -vel.y));
+    vec2 col2 = normalize(vec2(vel.y, vel.x));
+
+    return mat2(col1, col2);
+}
+
+vec2 rotateUV(vec2 uv, mat2 rot) {
+    vec2 centeredUV = uv - vec2(0.5, 0.5);
+    vec2 rotatedUV = rot * centeredUV;
+    vec2 finalUV = rotatedUV + vec2(0.5);
+
+    return finalUV;
 }
 
 void main() {
     // vec2 uv = floor(vec2(gl_PointCoord.x, 1.-gl_PointCoord.y)*uPixelNum)/uPixelNum;
     vec2 uv = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
 
-    vec2 arrowDir = normalize(outputVel.xy);
+    mat2 rot = rotateVelMatrix(vVel.xy);
 
-    mat2 rot = getRotationMatrix(arrowDir);
+    vec2 rotUV = rotateUV(uv, rot);
 
-    vec2 centeredUV = uv - vec2(0.5, 0.5);
-    vec2 rotatedUV = rot * centeredUV;
-
-    float lineWidth = 0.1;
-    float alpha = smoothstep(lineWidth, 0.0, abs(rotatedUV.y));
-
-    gl_FragColor = vec4(outputCol, alpha);
+    gl_FragColor = texture2D(uColorSampler, rotUV);
 }
