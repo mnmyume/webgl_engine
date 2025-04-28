@@ -380,6 +380,7 @@ function initSolver(gl, canvas, camera) {
             // solverMaterial.setUniform('uFieldParams[1]', fieldParams[1]);
             // solverMaterial.setUniform('uFieldParams[2]', fieldParams[2]);
             // solverMaterial.setUniform('uFieldParams[3]', fieldParams[3]);
+            //debugger;
 
             time.update();
             solverMaterial.setUniform('uTime', time.ElapsedTime);
@@ -431,7 +432,8 @@ function initSolver(gl, canvas, camera) {
             // solverMaterial.setUniform('uDeltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
-                solver.Mode = Solver.MODE.play;
+                //hard code
+                 //solver.Mode = Solver.MODE.play;
             }
 
             requestAnimationFrame(drawSolver);

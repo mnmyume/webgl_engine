@@ -174,9 +174,12 @@ void main() {
         if(uState == 1 || uLoop){
             vec2 emitterPos = vec2(0,0);
             if(generation == 0){
+
+                size = texture2D(uEmitterSlot0[0], emitterUV).z;
                 emitterPos = texture2D(uEmitterSlot0[0], emitterUV).xy;
                 linVel = texture2D(uEmitterSlot1[0], emitterUV).xyz;
             }else if(generation == 1){
+                size = texture2D(uEmitterSlot0[1], emitterUV).z;
                 emitterPos = texture2D(uEmitterSlot0[1], emitterUV).xy;
                 linVel = texture2D(uEmitterSlot1[1], emitterUV).xyz;
             }
@@ -187,12 +190,16 @@ void main() {
 
             pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
             linVel = vec3(0);
-        }
 
+
+            //hard code
+            size = 1.;
+            pos = vec3(1);
+        }
     }
 
     ////////////////////////////INTEGRATION-----UPDATE
-    else if(!hibernate && localTime>0.0){
+    else if(uState != 1 && !hibernate && localTime>0.0){
 
         pos = texture2D(uDataSlot0, uv).xyz;
         vec3 oldVel = texture2D(uDataSlot1, uv).xyz;
@@ -221,6 +228,7 @@ void main() {
         }
 
         updatePosVel(pos, linVel);
+
     }
 
     gl_FragData[0] = vec4(pos, size);
