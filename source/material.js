@@ -3,6 +3,7 @@ import Texture2D from './texture2d.js';
 
 
 export default class Material {
+    name = null;
     uniforms = null;
     textures = {};
     shaderProgram = null;
@@ -11,7 +12,8 @@ export default class Material {
         attributes: {},
         uniforms: {},
     };
-    constructor(params = {}) {
+    constructor(name,params = {}) {
+        this.name = name;
         this.shader = params.shader || null;
     }
 
@@ -39,10 +41,9 @@ export default class Material {
         }
         
         for (let name in this.uniforms) {
-            const {type, value, length = 1} = this.uniforms[name];
+            let {type, value, length = 1} = this.uniforms[name];
             const isArr = /\[\]/.test(type);
             if(isArr){
-                let length;
                 if(/mat/.test(type)){
                     length = Number(type.match(/mat(\d+)/)[1]);
                     length *= length;
@@ -136,6 +137,9 @@ export default class Material {
         const PRESERVED_UNIFORM = ["_uni_projMat", "_uni_viewMat", "_uni_modelMat"];
 
         for(const name in this.uniforms){
+            if(!this.dataLocation.uniforms[name])
+                continue;
+
             const {type, length = 1, value} = this.uniforms[name];
             $assert(typeof length === 'number');
             const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
@@ -165,6 +169,7 @@ export default class Material {
                              const fncName = `uniform1${/float/.test(type)?'f':'i'}`;
 
                              if(Array.isArray(value)) value = value[0];
+
                              gl[fncName](this.dataLocation.uniforms[name],value);
 
 

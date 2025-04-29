@@ -63,7 +63,7 @@ function initSimpleQuad(gl, camera) {
     // quadTransform.scale(quadParams.quadSize, quadParams.quadSize, quadParams.quadSize);
 
     // init material
-    const quadMaterial = new Material({
+    const quadMaterial = new Material('quadMat',{
         shader: quadShader,
     })
     quadMaterial.initialize({gl});
@@ -112,7 +112,7 @@ function initSolver(gl, canvas, camera) {
         uPixelNum: 4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 16*16;
+    const partiCount = 4;
 
     const solverParams = {
         gravitySwitcher: 1,
@@ -151,7 +151,7 @@ function initSolver(gl, canvas, camera) {
     const screenQuadTransform = new Transform();
     screenQuadTransform.setPosition(0, 0, 0);
     // init screen quad material
-    const screenQuadMaterial = new Material({
+    const screenQuadMaterial = new Material('screenQuadMat',{
         shader: screenQuadShader
     });
     screenQuadMaterial.initialize({gl});
@@ -195,7 +195,7 @@ function initSolver(gl, canvas, camera) {
     solverShader.initialize({gl});
 
     // init solver material
-    const solverMaterial = new Material({
+    const solverMaterial = new Material('solverMat',{
         shader: solverShader
     })
     solverMaterial.initialize({gl});
@@ -289,7 +289,7 @@ function initSolver(gl, canvas, camera) {
 
 
         // init particle material
-        const partiMaterial = new Material({
+        const partiMaterial = new Material('partiMat',{
             shader: partiShader
         });
         partiMaterial.initialize({gl});
@@ -325,7 +325,7 @@ function initSolver(gl, canvas, camera) {
         emitterQuadTransform.scale(15, 15, 15);
 
         //init emitter quad material
-        const emitterQuadMaterial = new Material({
+        const emitterQuadMaterial = new Material('emitterQuadMat',{
             shader: emitterQuadShader
         });
         emitterQuadMaterial.initialize({gl});
@@ -351,7 +351,7 @@ function initSolver(gl, canvas, camera) {
         const groundQuadTransform = new Transform();
 
         //init ground quad material
-        const groundQuadMaterial = new Material({
+        const groundQuadMaterial = new Material('groundQuadMat',{
             shader: groundQuadShader
         });
         groundQuadMaterial.initialize({gl});
@@ -428,8 +428,8 @@ function initSolver(gl, canvas, camera) {
             groundQuadMaterial.postDraw(gl);
 
 
-            // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
-            // solverMaterial.setUniform('uDeltaTime', time.Interval);
+            console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
+            solverMaterial.setUniform('uDeltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
                 solver.Mode = Solver.MODE.play;
@@ -496,7 +496,7 @@ function initAniTest(gl, canvas, camera) {
     const screenQuadTransform = new Transform();
     screenQuadTransform.setPosition(0, 0, 0);
     // init screen quad material
-    const screenQuadMaterial = new Material({
+    const screenQuadMaterial = new Material('screenQuadMat',{
         shader: screenQuadShader
     });
     screenQuadMaterial.initialize({gl});
@@ -541,7 +541,7 @@ function initAniTest(gl, canvas, camera) {
     solverShader.initialize({gl});
 
     // init solver material
-    const solverMaterial = new Material({
+    const solverMaterial = new Material('solverMat',{
         shader: solverShader
     })
     solverMaterial.initialize({gl});
@@ -634,7 +634,7 @@ function initAniTest(gl, canvas, camera) {
         colorTexture.initialize({gl});
 
         // init particle material
-        const partiMaterial = new Material({
+        const partiMaterial = new Material('partiMat',{
             shader: partiShader
         });
         partiMaterial.initialize({gl});
@@ -683,7 +683,7 @@ function initAniTest(gl, canvas, camera) {
         emitterQuadTransform.scale(15, 15, 15);
 
         //init emitter quad material
-        const emitterQuadMaterial = new Material({
+        const emitterQuadMaterial = new Material('emitterQuadMat',{
             shader: emitterQuadShader
         });
         emitterQuadMaterial.initialize({gl});
@@ -709,7 +709,7 @@ function initAniTest(gl, canvas, camera) {
         const groundQuadTransform = new Transform();
 
         //init ground quad material
-        const groundQuadMaterial = new Material({
+        const groundQuadMaterial = new Material('groundQuadMat',{
             shader: groundQuadShader
         });
         groundQuadMaterial.initialize({gl});
