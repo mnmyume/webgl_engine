@@ -6,6 +6,7 @@ function getTime(){
 
 export default class Time{
     startTime = null;
+    nowTime = null;
     lastUpdate = null;
     interval = null;
 
@@ -24,7 +25,6 @@ export default class Time{
         return 1/this.interval;
     }
 
-    nowTime = getTime();
     get Now(){
         if(this.state & Time.STATE.start)
             this.nowTime = getTime();

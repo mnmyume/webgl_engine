@@ -11,3 +11,7 @@ export function halton(base, index) {
     
     return result;
 }
+
+export function sqrtFloor(num) {
+    return Math.floor(Math.sqrt(num));
+}

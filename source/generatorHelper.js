@@ -1,9 +1,4 @@
-import { halton } from "./mathHelper.js";
-
-
-export function sqrtFloor(num) {
-    return Math.floor(Math.sqrt(num));
-}
+import { halton, sqrtFloor } from "./mathHelper.js";
 
 
 export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {

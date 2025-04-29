@@ -13,8 +13,8 @@ import Transform from './transform.js';
 import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import Solver from './solver.js';
+import { sqrtFloor } from "./mathHelper.js";
 import {
-    sqrtFloor,
     genPartiInfo,
     genRectHaltonPos,
     genLinVel, genAngVel,
@@ -36,6 +36,7 @@ import {
 
 const time = new Time();
 window.time = time;
+
 const g_fps = document.getElementById("fps");
 if (!g_fps) {
     console.log('fps error')
@@ -205,7 +206,7 @@ function initSolver(gl, canvas, camera) {
         material: [solverMaterial],  // obstacleMaterial
         width: fbWidth, height: fbHeight,
         screenWidth: canvas.width, screenHeight: canvas.height,
-        mode: 1, loop: true
+        mode: 1, loop: false
     });
     solver.initialize({gl});
     window.solver = solver;
@@ -380,7 +381,6 @@ function initSolver(gl, canvas, camera) {
             // solverMaterial.setUniform('uFieldParams[1]', fieldParams[1]);
             // solverMaterial.setUniform('uFieldParams[2]', fieldParams[2]);
             // solverMaterial.setUniform('uFieldParams[3]', fieldParams[3]);
-            //debugger;
 
             time.update();
             solverMaterial.setUniform('uTime', time.ElapsedTime);
@@ -406,9 +406,9 @@ function initSolver(gl, canvas, camera) {
             screenQuadMaterial.postDraw(gl);
 
             // draw particles
-            gl.enable(gl.BLEND);
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-            gl.blendEquation(gl.FUNC_ADD);
+            // gl.enable(gl.BLEND);
+            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            // gl.blendEquation(gl.FUNC_ADD);
 
             partiMaterial.preDraw(gl, camera);
             partiShape.draw(gl, partiMaterial);
@@ -432,8 +432,7 @@ function initSolver(gl, canvas, camera) {
             // solverMaterial.setUniform('uDeltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
-                //hard code
-                 //solver.Mode = Solver.MODE.play;
+                solver.Mode = Solver.MODE.play;
             }
 
             requestAnimationFrame(drawSolver);
