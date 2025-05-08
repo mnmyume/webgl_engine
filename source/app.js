@@ -112,7 +112,7 @@ function initSolver(gl, canvas, camera) {
         uPixelNum: 4
     }
     // const partiCount = partiParams.duration * partiParams.rate;
-    const partiCount = 4;
+    const partiCount = 1;
 
     const solverParams = {
         gravitySwitcher: 1,
@@ -121,7 +121,7 @@ function initSolver(gl, canvas, camera) {
         vortexScalar: 1/1000,
         noiseSwitcher: 1,
         noiseScalar: [0.3, 0.3, 0.3],
-        dampSwitcher: 0,
+        dampSwitcher: 1,
         dampScalar: 0.8
     }
     window.solverParams = solverParams;
@@ -367,8 +367,6 @@ function initSolver(gl, canvas, camera) {
 
         // solver.addObstacles(gl);
 
-        solver.Mode = Solver.MODE.init;
-
         function drawSolver() {
 
             const fieldParams = [];
@@ -428,7 +426,7 @@ function initSolver(gl, canvas, camera) {
             groundQuadMaterial.postDraw(gl);
 
 
-            console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
+            // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
             solverMaterial.setUniform('uDeltaTime', time.Interval);
 
             if (solver.Mode === Solver.MODE.init) {
@@ -909,8 +907,8 @@ function main() {
 
     // init camera
     const camera = new OrthCamera({
-        widthSpan: 70,
-        aspect: canvas.width / canvas.height});
+        widthSpan: 200, // 70
+        aspect: canvas.width / canvas.height });
     // const camera = new PerspCamera({
     //     target:[0,10,0]
     // });

@@ -155,45 +155,40 @@ void main() {
 
     float particleID = getPID(gl_FragCoord.xy, uMAXCOL);
 
-    vec3 pos = vec3(0,.5,0);
-    vec3 linVel;
+    vec3 pos, linVel;
     vec2 angVel;
-    float size = 5.0;
-    int lastGene = int(texture2D(uDataSlot1, uv).w);
-    vec2 emitterUV = getEmitterCoord(particleID,uMAXCOL);
+    float size;
+
+    vec2 emitterUV = getEmitterCoord(particleID, uMAXCOL);
     float startTime = texture2D(uEmitterSlot0[0], emitterUV).w;
     vec3 partiCol = vec3(1.0, 1.0, 1.0);
     float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
     float percentLife = localTime / uLifeTime;
+
+    int lastGene = int(texture2D(uDataSlot1, uv).w);
     int generation = uTime - startTime > 0.0 ? int(mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE))) : -1;
 
-    bool emit = generation != lastGene;
-    emit = true;
 
+    bool emit = generation != lastGene ;
+    if(emit || uState == 1){
+        vec2 emitterPos = vec2(0,0);
 
+        if(generation == 0){
+            size = texture2D(uEmitterSlot0[0], emitterUV).z;
+            emitterPos = texture2D(uEmitterSlot0[0], emitterUV).xy;
+            linVel = texture2D(uEmitterSlot1[0], emitterUV).xyz;
+        }else if(generation == 1){
+            size = texture2D(uEmitterSlot0[1], emitterUV).z;
+            emitterPos = texture2D(uEmitterSlot0[1], emitterUV).xy;
+            linVel = texture2D(uEmitterSlot1[1], emitterUV).xyz;
+        }
+//        else if(generation == 2)
+//            emitterPos = texture2D(uEmitterSlot0[2], emitterUV).xy;
+//        else if(generation == 3)
+//            emitterPos = texture2D(uEmitterSlot0[3], emitterUV).xy;
 
-    if(emit){
-//        if(uState == 1){
-            vec2 emitterPos = vec2(0,0);
-            if(generation == 0){
-
-                size = texture2D(uEmitterSlot0[0], emitterUV).z;
-                emitterPos = texture2D(uEmitterSlot0[0], emitterUV).xy;
-                linVel = texture2D(uEmitterSlot1[0], emitterUV).xyz;
-            }else if(generation == 1){
-                size = texture2D(uEmitterSlot0[1], emitterUV).z;
-                emitterPos = texture2D(uEmitterSlot0[1], emitterUV).xy;
-                linVel = texture2D(uEmitterSlot1[1], emitterUV).xyz;
-            }
-//            else if(generation == 2)
-//                emitterPos = texture2D(uEmitterSlot0[2], emitterUV).xy;
-//            else if(generation == 3)
-//                emitterPos = texture2D(uEmitterSlot0[3], emitterUV).xy;
-
-            pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-//            linVel = vec3(0);
-//            pos = vec3(0,30,0);
-//        }
+        pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+        linVel = vec3(0);
     }
 
     ////////////////////////////INTEGRATION-----UPDATE

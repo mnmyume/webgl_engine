@@ -14,8 +14,13 @@ export default class Camera {
     }
 
     updateView() {
-         this.viewMatrix = new Float32Array(mat4.lookAt(
-            this.viewMatrix, this.position, this.target, this.up));
+        let view = mat4.create();
+        mat4.lookAt(view, this.position, this.target, this.up);
+        mat4.translate(view, view, [0, 75, 0]);
+        this.viewMatrix = new Float32Array(view);
+         // this.viewMatrix = new Float32Array(mat4.lookAt(
+         //    this.viewMatrix, this.position, this.target, this.up));
+
     }
 
     updateViewInverse() {
