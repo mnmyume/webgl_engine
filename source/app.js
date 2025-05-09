@@ -10,7 +10,6 @@ import Material from './material.js';
 import _particleMaterial from './_particleMaterial.js';
 import Texture2D from './texture2d.js';
 import Transform from './transform.js';
-import FPSCounter from './fpscounter.js';
 import Time from './time.js';
 import Solver from './solver.js';
 import { sqrtFloor } from "./mathHelper.js";
@@ -37,11 +36,6 @@ import {
 const time = new Time();
 window.time = time;
 
-const g_fps = document.getElementById("fps");
-if (!g_fps) {
-    console.log('fps error')
-}
-const fpsCounter = new FPSCounter(g_fps);
 
 function initSimpleQuad(gl, camera) {
 
@@ -88,10 +82,6 @@ function initSimpleQuad(gl, camera) {
         quadShape.draw(gl, quadMaterial);
 
         quadMaterial.postDraw(gl);
-
-        if (fpsCounter) {
-            fpsCounter.update();
-        }
 
         requestAnimationFrame(drawSimpleQuad);
     }
@@ -885,10 +875,6 @@ function initBlastParticle(gl, camera) {
 
             particleMaterial.postDraw(gl);
 
-            if (fpsCounter) {
-                fpsCounter.update();
-            }
-
             requestAnimationFrame(drawParticles);
         }
 
@@ -907,7 +893,7 @@ function main() {
 
     // init camera
     const camera = new OrthCamera({
-        widthSpan: 200, // 70
+        widthSpan: 70,
         aspect: canvas.width / canvas.height });
     // const camera = new PerspCamera({
     //     target:[0,10,0]
