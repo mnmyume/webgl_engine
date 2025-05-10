@@ -1,95 +1,117 @@
-export function genUVData(width, height) {
-    let uvArray = [];
-    for (var y=0; y<height; ++y) {
-        for (var x=0; x<width; ++x) {
-          uvArray.push(x/width);
-          uvArray.push(y/height);
+import { halton, sqrtFloor } from "./mathHelper.js";
+
+
+export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
+    const posPixels = [];  
+    const deltaTime = duration / partiCount;
+
+    for (let row = 0; row < fbHeight; row++) {
+        for (let col = 0; col < fbWidth; col++) {
+            const px = col; // particle ID  
+            const py = deltaTime * col;    // startTime  
+            posPixels.push(px, py, 0, 0);
         }
     }
 
-    return new Float32Array(uvArray);
+    return new Float32Array(posPixels);  
 }
 
-export function testGenVel(fbWidth,fbHeight) {
+
+export function genRandCol(MAXCOL) {
+    const posPixels = [];
+    for (let row = 0; row < MAXCOL; row++) {
+        for (let col = 0; col < MAXCOL; col++) {
+            posPixels.push(Math.random()+0.2, Math.random()+0.2, Math.random()+0.2, 0);// colX, colY, colZ, _empty
+        }
+    }
+    return new Float32Array(posPixels);
+}
+
+
+export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
+
+    const localXStart = corner[0];  
+    const localYStart = corner[1];
+    const partiCount = MAXCOL*MAXCOL;
+
+    const posPixels = [];
+    for (let row = 0; row < MAXCOL; row++) {
+        for (let col = 0; col < MAXCOL; col++) {
+            const haltonX = halton(2, row * MAXCOL + col);
+            const haltonY = halton(3, row * MAXCOL + col);
+            const localX = localXStart + haltonX * scale;
+            const localZ = localYStart + haltonY * scale;
+            const startTime = (row * MAXCOL + col) * duration / partiCount;
+            posPixels.push(localX, localZ, size, startTime);
+        }
+    }
+
+    return new Float32Array(posPixels);
+}
+
+
+export function genRectHaltonPosOLD(scale, corner, partiCount, geneCount, size, duration) {
     const posPixels = [];
 
-    for(let row = 0; row < fbHeight; row++)
-        for(let col = 0; col < fbWidth; col++){
+    const localXStart = corner[0];
+    const localYStart = corner[1];
+
+    for (let row = 0; row < geneCount; row++) {
+        for (let col = 0; col < partiCount; col++) {
+            const haltonX = halton(2, row * partiCount + col);
+            const haltonY = halton(3, row * partiCount + col);
+            const localX = localXStart + haltonX * scale;
+            const localZ = localYStart + haltonY * scale;
+            const startTime = (row * partiCount + col) * duration / partiCount;
+            posPixels.push(localX, localZ, size, startTime);
+        }
+    }
+
+    return new Float32Array(posPixels);
+}
+
+
+export function genLinVel(MAXCOL) {
+    const posPixels = [];
+
+    for(let row = 0; row < MAXCOL; row++)
+        for(let col = 0; col < MAXCOL; col++){
             const vx = 5*(Math.random() * 2 - 1); // Random value between -1 and 1
             const vy = 100*(-Math.random()); // Random value between -1 and 0
 
-            posPixels.push(vx, vy, 0, 1);
+            // posPixels.push(vx, vy, 0, 1);
+            posPixels.push(0,0,0,1)
         }
 
     return new Float32Array(posPixels);
 }
 
-export function testGenRandPos(width,height,fbWidth,fbHeight) {
+
+export function genAngVel(MAXCOL) {
     const posPixels = [];
 
-    for(let row = 0; row < fbHeight; row++)
-        for(let col = 0; col < fbWidth; col++){
-            const px = (Math.random() * 2 - 1) * width/2;
-            const py = (Math.random() * 2 - 1) * height/2;
-            posPixels.push(px, py, 0, 1);
+    for(let row = 0; row < MAXCOL; row++)
+        for(let col = 0; col < MAXCOL; col++){
+            const vx = 5*(Math.random() * 2 - 1); // Random value between -1 and 1
+            const vy = 100*(-Math.random()); // Random value between -1 and 0
+
+            // posPixels.push(vx, vy, 0, 1);
+            posPixels.push(0,0,0,1)
         }
 
     return new Float32Array(posPixels);
 }
 
-export function testGenPos(fbWidth,fbHeight) {
-    const posPixels = [];
-
-    for(let row = 0; row < fbHeight; row++)
-        for(let col = 0; col < fbWidth; col++)
-            posPixels.push(0, 0, 0, 1);
-
-    return new Float32Array(posPixels);
-}
-
-export function genQuadWithUV(out, index) {
-    const uvCoordinates = [
-        [0, 0],
-        [0, 1],
-        [1, 1],
-        [0, 0],
-        [1, 1],
-        [1, 0]
-    ];
-
-    for (let i = 0; i < uvCoordinates.length; i++) {
-        const uv = uvCoordinates[i];
-        out.push(...index, ...uv);
-    }
-}
-
-export function generateCirclePos(numParticle, generation) { 
-    const posPixels = [];
-    const radius = 50;
-
-    for(let row = 0; row < generation; row++) {
-        const offset = 2 * Math.PI / generation * row;  // Math.random() *
-        for (let col = 0; col < numParticle; col++) {
-            const angle = 2 * Math.PI / (numParticle) * col;
-            const x = radius * Math.cos(angle + offset);
-            const y = radius * Math.sin(angle + offset);
-
-            posPixels.push(x, y, 0.0, 0.0);
-        }
-    }
-
-    return posPixels;
-}
 
 // 0--duration(1s)
 // 0 -1000ms (delta: 66.7) ==== rate:60 i++ (0-60)
 // Math.Random()*2*PI ==> x,y
 // startTime: i*66.7/1000
-export function generateCirclePosVelRandom(numParticle, startSize, endSize) {
+export function generateCirclePosVelRandom(partiCount, startSize, endSize) {
     const posPixels = [];
     const radius = 50;
 
-    for(let i = 0; i < numParticle; i++) {
+    for(let i = 0; i < partiCount; i++) {
 
         // position
         const angle = Math.random() * 2 * Math.PI; 
@@ -112,3 +134,30 @@ export function generateCirclePosVelRandom(numParticle, startSize, endSize) {
     return posPixels;
 }
 
+export function genQuad(size){
+    const halfSize = 0.5*size;
+    return [
+        -halfSize,      0,    -halfSize,         0, 0,
+        -halfSize,      0,    halfSize,         0, 1,
+        halfSize,       0,     halfSize,        1, 1,
+        -halfSize,      0,    -halfSize,        0, 0,
+        halfSize,       0,    halfSize,         1, 1,
+        halfSize,       0,     -halfSize,       1, 0,
+    ]
+}
+
+export function genQuadWithUV(out, index) {
+    const uvCoordinates = [
+        [0, 0],
+        [0, 1],
+        [1, 1],
+        [0, 0],
+        [1, 1],
+        [1, 0]
+    ];
+
+    for (let i = 0; i < uvCoordinates.length; i++) {
+        const uv = uvCoordinates[i];
+        out.push(...index, ...uv);
+    }
+}

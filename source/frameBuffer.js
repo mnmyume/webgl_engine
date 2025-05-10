@@ -98,6 +98,4 @@ export default class FrameBuffer{
         );
     }
 
-
-
 }

@@ -7,6 +7,9 @@ export default class Transform {
 
     setPosition(x, y, z) {
         this.position = [x, y, z];
+        this.matrix[12] = x;
+        this.matrix[13] = y;
+        this.matrix[14] = z;
     }
 
     translate(x, y, z) {
@@ -28,4 +31,7 @@ export default class Transform {
     reset() {
         mat4.identity(this.matrix);
     }
+
+
+
 }

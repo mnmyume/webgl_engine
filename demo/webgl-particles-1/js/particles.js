@@ -23,6 +23,8 @@ function Particles(canvas, nparticles, size) {
         alert(msg);
         throw new Error(msg);
     }
+    debugger;
+    console.log(gl.getParameter(gl.MAX_TEXTURE_SIZE));
 
     /* Drawing parameters. */
     this.size = size || 5;

@@ -24,32 +24,37 @@ attribute float aParticleID;
 
 varying float vSize;
 varying vec3 vColor;
+varying vec3 vVel;
 
 varying float vDebug;
 
 const float NUM_COMPONENTS = 1.0;
 float pidPixels(float pid){
-  return  pid*NUM_COMPONENTS;
+    return  pid*NUM_COMPONENTS;
 }
 float pidPixelsOffset(float pid, float offset){
-  return  pid*NUM_COMPONENTS + offset + 0.5;
+    return  pid*NUM_COMPONENTS + offset + 0.5;
 }
 
 vec2 getSolverCoord(float pid, float uMAXCOL){
-  vec2 uv =  vec2(mod(pid,uMAXCOL), floor(pid/uMAXCOL)) / uMAXCOL;
-  uv += vec2(1.0/uMAXCOL*0.5); //offset to center of pixel
-  return uv;
+    vec2 uv =  vec2(mod(pid,uMAXCOL), floor(pid/uMAXCOL)) / uMAXCOL;
+    uv += vec2(1.0/uMAXCOL*0.5); //offset to center of pixel
+    return uv;
 }
 
 void main() {
-  // read position from texture
-  vec2 solverCoord = getSolverCoord(aParticleID, uMAXCOL);
+    // read position from texture
+    vec2 solverCoord = getSolverCoord(aParticleID, uMAXCOL);
 
-  vec3 position = texture2D(uDataSlot0, solverCoord).xyz;
-  
-  vSize = texture2D(uDataSlot0, solverCoord).w;
-  vColor = texture2D(uDataSlot3, solverCoord).rgb;
+    //  vDebug = solverCoord.x;
 
-  gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
-  gl_PointSize = vSize;
+    vec3 position = texture2D(uDataSlot0, solverCoord).xyz;
+    vec3 velocity = texture2D(uDataSlot1, solverCoord).xyz;
+
+    vSize = texture2D(uDataSlot0, solverCoord).w;
+    vColor = texture2D(uDataSlot3, solverCoord).rgb;
+    vVel = velocity;
+
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position,1);
+    gl_PointSize = vSize;
 }

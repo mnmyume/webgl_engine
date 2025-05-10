@@ -1,8 +1,10 @@
-import {$assert} from "./common.js";
+import {$assert,$match} from "./common.js";
 import Texture2D from './texture2d.js';
 
 
 export default class Material {
+    name = null;
+    uniforms = null;
     textures = {};
     shaderProgram = null;
     shader = null;
@@ -10,7 +12,8 @@ export default class Material {
         attributes: {},
         uniforms: {},
     };
-    constructor(params = {}) {
+    constructor(name,params = {}) {
+        this.name = name;
         this.shader = params.shader || null;
     }
 
@@ -37,75 +40,171 @@ export default class Material {
             this.dataLocation.attributes[attr] = gl.getAttribLocation(this.shaderProgram, attr);
         }
         
-        for (const name in this.uniforms) {
+        for (let name in this.uniforms) {
+            let {type, value, length = 1} = this.uniforms[name];
+            const isArr = /\[\]/.test(type);
+            if(isArr){
+                if(/mat/.test(type)){
+                    length = Number(type.match(/mat(\d+)/)[1]);
+                    length *= length;
+                }else if(/vec/.test(type))
+                    length = Number(type.match(/vec(\d+)/)[1]);
+                for(let index =0; index < value.length; index += length){
+                    const key = `${name}[${index/length}]`;
+                    this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
+                    this.uniforms[name].length = length;
+                }
+            }
+
             this.dataLocation.uniforms[name] = gl.getUniformLocation(this.shaderProgram, name);
         }
     }
 
     setTexture(key, texture){
-        $assert(texture instanceof Texture2D);
+
+
+        if(/\[(\d)+\]/.test(key)){
+            $assert(texture instanceof Texture2D);
+            let index;
+            [,key, index] = $match(/(.+)\[(\d+)\]/gm,key);
+            this.textures[key] = this.textures[key]??[];
+            this.textures[key][index] = texture;
+        } else if(Array.isArray(texture)){
+            this.textures[key] = this.textures[key]??[];
+            for(const index in texture)
+                this.textures[key][index] = texture[index];
+
+        } else{
+            $assert(texture instanceof Texture2D);
+            this.textures[key] = texture;
+        }
+
         $assert(this.uniforms[key]);
-        this.textures[key] = texture;
     }
+
+    setUniform(key, value){
+        if(/\[(\d)+\]/.test(key)){
+            if(!Array.isArray(value))
+                value = [value];
+
+
+            let index;
+            [,key, index] = key.match(/(.+)\[(\d+)\]/);
+            const length = this.uniforms[key].length;
+            $assert(value.length === length, 'value length err');
+            const startIndex = index*length;
+            $assert(typeof (this.uniforms[key].value[startIndex]) === 'number', 'index err');
+
+            this.uniforms[key].value.splice(index*length, length, ...value);
+        }else
+            this.uniforms[key].value = value;
+    }
+
+
 
     preDraw(gl, camera, transform) {
 
         gl.useProgram(this.shaderProgram);
-
+        const setTex =
+            (value, texIndex)=>{
+                    gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+                    let TYPE;
+                    if(value.type === "2DTexture")
+                        TYPE = gl.TEXTURE_2D;
+                    else if(value.type === "3DTexture")
+                        TYPE = gl.TEXTURE_CUBE_MAP;
+                    else
+                        $assert(false);
+                    gl.bindTexture(TYPE, value.texture);
+                };
         for(const [key,value] of Object.entries(this.textures)){
-            const texIndex = this.uniforms[key].value;
-            gl.activeTexture(gl[`TEXTURE${texIndex}`]);
-            let TYPE;
-            if(value.type === "2DTexture")
-                TYPE = gl.TEXTURE_2D;
-            else if(value.type === "3DTexture")
-                TYPE = gl.TEXTURE_CUBE_MAP;
-            else
-                $assert(false);
-            gl.bindTexture(TYPE, value.texture);
+            if(Array.isArray(value)){
+                for(const index in value){
+                    const texIndex = this.uniforms[key].value[index];
+                    setTex(value[index], texIndex);
+                }
+
+            }else{
+                const texIndex = this.uniforms[key].value;
+                setTex(value, texIndex);
+            }
         }
 
         // gl.enable(gl.BLEND);
         // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         // gl.blendEquation(gl.FUNC_ADD);
 
-        for(var name in this.uniforms){
-            const data = this.uniforms[name];
+        const PRESERVED_UNIFORM = ["_uni_projMat", "_uni_viewMat", "_uni_modelMat"];
 
-            if(data.type === "bool" ||
-                data.type === "int" ||
-                data.type === 'sampler2D' || data.type === 'samplerCube')
-                gl.uniform1i(this.dataLocation.uniforms[name], data.value);
-            else if(data.type === "float")
-                gl.uniform1f(this.dataLocation.uniforms[name], data.value);
-            else{
+        for(const name in this.uniforms){
+            if(!this.dataLocation.uniforms[name])
+                continue;
 
-                if(/vec/.test(data.type))
-                    $assert(data.value, 'empty uniform vec');
+            const {type, length = 1, value} = this.uniforms[name];
+            $assert(typeof length === 'number');
+            const isSingleVar = input => /bool|int|float|sampler2D|samplerCube/.test(input),
+                    isArr = input=>/\[\]/.test(input),
 
-                if(data.type === "vec2")
-                    gl.uniform2f(this.dataLocation.uniforms[name], data.value[0],data.value[1]);
-                else if(data.type === "vec3")
-                    gl.uniform3f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2]);
-                else if(data.type === "vec4")
-                    gl.uniform4f(this.dataLocation.uniforms[name], data.value[0], data.value[1],data.value[2],data.value[3]);
-            }
-        };
+                 setGLValue = (name, type, value)=>{
+                        if(/vec/.test(type)){
 
-        if (this.dataLocation.uniforms["uPMatrix"] && camera) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uPMatrix"], false, camera.projectionMatrix);
+                             $assert(value, 'empty uniform vec');
+
+                             const [,dim] = type.match(/vec(\d+)/);
+                            if(type.startsWith('i'))
+                                gl[`uniform${dim}i`](this.dataLocation.uniforms[name], ...value);
+                            else
+                                gl[`uniform${dim}f`](this.dataLocation.uniforms[name], ...value);
+
+                        }else if(/mat/.test(type)){
+                             if(!PRESERVED_UNIFORM.includes(name))
+                                 $assert(value, 'empty uniform vec');
+
+                             if(value){
+                                 const [,dim] = type.match(/mat(\d+)/);
+                                 gl[`uniformMatrix${dim}fv`](this.dataLocation.uniforms[name], false, value);
+                             }
+
+                        } else { //if(isSingleVar(type))
+                             const fncName = `uniform1${/float/.test(type)?'f':'i'}`;
+
+                             if(Array.isArray(value)) value = value[0];
+
+                             gl[fncName](this.dataLocation.uniforms[name],value);
+
+
+                        }
+                };
+
+
+            if(isArr(type)){
+                for(let index =0; index < value.length; index += length){
+                    setGLValue(`${name}[${Math.floor(index/length)}]`,type, value.slice(index,index+length));
+                }
+            }else
+                setGLValue(name,type, value);
+
         }
-        if (this.dataLocation.uniforms["uVMatrix"] && camera) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uVMatrix"], false, camera.viewMatrix);
+
+        if (this.dataLocation.uniforms["_uni_projMat"] && camera) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_projMat"], false, camera.projectionMatrix);
         }
+        if (this.dataLocation.uniforms["_uni_viewMat"] && camera) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_viewMat"], false, camera.viewMatrix);
+        }
+        if (this.dataLocation.uniforms["_uni_modelMat"] && transform) {
+            gl.uniformMatrix4fv(this.dataLocation.uniforms["_uni_modelMat"], false, transform.getMatrix());
+        }
+
+
+
+
+
         if (this.dataLocation.uniforms["uVInverseMatrix"] && camera) {
             gl.uniformMatrix4fv(this.dataLocation.uniforms["uVInverseMatrix"], false, camera.viewInverseMatrix);
         }
-        if (this.dataLocation.uniforms["uMMatrix"] && transform) {
-            gl.uniformMatrix4fv(this.dataLocation.uniforms["uMMatrix"], false, transform.getMatrix());
-        }
 
-        if(this.dataLocation.uniforms["uNMatrix"]){
+        if(this.dataLocation.uniforms["_uni_normalMat"]){
             //transform
             //http://stackoverflow.com/questions/5255806/how-to-calculate-tangent-and-binormal
             //http://www.lighthouse3d.com/tutorials/glsl-tutorial/the-normal-matrix/
@@ -132,7 +231,7 @@ export default class Material {
             tmpMat3[4]*=syInv;
             tmpMat3[8]*=szInv;
 
-            gl.uniformMatrix3fv(this.dataLocation.uniforms["uNMatrix"], false, tmpMat3);
+            gl.uniformMatrix3fv(this.dataLocation.uniforms["_uni_normalMat"], false, tmpMat3);
         }
 
     }
@@ -140,9 +239,18 @@ export default class Material {
     postDraw(gl){
         gl.useProgram(null);
         for(const [key,value] of Object.entries(this.textures)){
-            const texIndex = this.uniforms[key].value;
-            gl.activeTexture(gl[`TEXTURE${texIndex}`]);
-            gl.bindTexture(gl.TEXTURE_2D, null);
+            if(Array.isArray(value)){
+                for(const index in value){
+                    const texIndex = this.uniforms[key].value[index];
+                    gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+                    gl.bindTexture(gl.TEXTURE_2D, null);
+                }
+            }else{
+                const texIndex = this.uniforms[key].value;
+                gl.activeTexture(gl[`TEXTURE${texIndex}`]);
+                gl.bindTexture(gl.TEXTURE_2D, null);
+            }
+
         }
     }
 }

@@ -1,22 +1,54 @@
+
+function getTime(){
+    return performance.now()/1000;
+}
+
+
 export default class Time{
     startTime = null;
-    lastUpdateTime = null;
-    intervalTime = null;
+    nowTime = null;
+    lastUpdate = null;
+    interval = null;
 
+    static STATE = {start:1, stop:0,};
+    state = Time.STATE.start;    // stop
 
-    get ElapsedTime(){
-        return Date.now()/1000-this.startTime;
+    get ElapsedTime(){ // since start
+        return this.Now-this.startTime;
+    }
+    get Interval(){ //since last update
+        return this.interval??0; //0.01666
+        // return 0.01666;
     }
 
+    get FPS(){
+        return 1/this.interval;
+    }
+
+    get Now(){
+        if(this.state & Time.STATE.start)
+            this.nowTime = getTime();
+        return this.nowTime;
+    }
+
+    start(){
+
+        this.startTime = this.lastUpdate =this.Now;
+        this.state |= Time.STATE.start;
+    }
+    stop(){
+        this.state &= ~Time.STATE.start;
+        this.interval = 0;
+    }
 
     update(){
-        if(this.startTime === null)
-            this.startTime = Date.now()/1000;
+        if(!(this.state & Time.STATE.start))
+            return;
 
 
-        if(this.lastUpdateTime === null)
-            this.lastUpdateTime = Date.now()/1000;
-        else
-            this.intervalTime = Date.now()/1000 - this.lastUpdateTime;
+        const now = this.Now;
+        this.interval = now - this.lastUpdate;
+        this.lastUpdate = now;
+
     }
 }

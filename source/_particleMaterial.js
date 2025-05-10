@@ -3,12 +3,12 @@ import Texture2D from './texture2d.js';
 import Material from "./material.js";
 
 
-export default class ParticleMaterial extends Material{
+export default class _particleMaterial extends Material{
 
     constructor(params = {}) {
         super(params);
         this.numFrames = params.numFrames || 1;
-        this.numParticle = params.numParticle || 1;
+        this.partiCount = params.partiCount || 1;
         this.numGen = params.numGen || 1;
         this.duration = params.duration || 1;
         this.gravity = [0, -9.8, 0];
@@ -16,7 +16,7 @@ export default class ParticleMaterial extends Material{
         this.tileSize = params.tileSize || null;
         this.texWidth = params.texWidth || null;
         this.texHeight = params.texHeight || null;
-        this.fps = params.fps || 60;
+        this.aniFps = params.aniFps || 60;
     }
 
 
@@ -28,18 +28,18 @@ export default class ParticleMaterial extends Material{
 
     preDraw(gl, time, camera, transform) {
 
-        this.uniforms["time"].value = time.ElapsedTime;
+        this.uniforms["uTime"].value = time.ElapsedTime;
 
-        this.uniforms["duration"].value = this.duration;
-        this.uniforms["numParticle"].value = this.numParticle;
-        this.uniforms["numGen"].value = this.numGen;
-        this.uniforms["gravity"].value = this.gravity;
-        this.uniforms["lifeTime"].value = this.lifeTime;
+        this.uniforms["uDuration"].value = this.duration;
+        this.uniforms["uPartiCount"].value = this.partiCount;
+        this.uniforms["uNumGen"].value = this.numGen;
+        this.uniforms["uGravity"].value = this.gravity;
+        this.uniforms["uLifeTime"].value = this.lifeTime;
 
         this.uniforms["_ANI_TEX_0"].value = [
             this.texWidth, this.texHeight, this.tileSize, this.numFrames];
 
-        this.uniforms["_ANI_TEX_0_FPS"].value = this.fps;
+        this.uniforms["_ANI_TEX_0_FPS"].value = this.aniFps;
 
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);

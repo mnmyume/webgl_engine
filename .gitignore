@@ -16,3 +16,4 @@ node_modules/
 build/
 .vscode
 shaders/output.js
+shaders/output.js

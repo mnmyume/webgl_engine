@@ -401,7 +401,7 @@ export class ParticleEmitter {
         if (!this.createdParticles_) {
             return;
         }
-
+        debugger;
         // Set up blend function
         gl.enable(gl.BLEND);
         var blendFunc = this.blendFunc_;

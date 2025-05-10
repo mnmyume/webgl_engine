@@ -1,12 +1,10 @@
 // import { mat4 } from 'gl-matrix';
 
 export default class Camera {
-    constructor({position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], fov = 45, aspect = 1, near = 0.1, far = 1000}) {
+    constructor({ position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], near = 0.001, far = 1000}) {
         this.position = position;
         this.target = target;
         this.up = up;
-        this.fov = fov;
-        this.aspect = aspect;
         this.near = near;
         this.far = far;
 
@@ -16,22 +14,16 @@ export default class Camera {
     }
 
     updateView() {
-        this.viewMatrix = new Float32Array(mat4.lookAt(
+        // let view = mat4.create();
+        // mat4.lookAt(view, this.position, this.target, this.up);
+        // mat4.translate(view, view, [0, 75, 0]);
+        // this.viewMatrix = new Float32Array(view);
+         this.viewMatrix = new Float32Array(mat4.lookAt(
             this.viewMatrix, this.position, this.target, this.up));
-    }
-
-    updateProjection() {
-        this.projectionMatrix = new Float32Array(mat4.perspective(
-            this.projectionMatrix, this.fov * Math.PI / 180, this.aspect, this.near, this.far));
     }
 
     updateViewInverse() {
         mat4.invert(this.viewInverseMatrix, this.viewMatrix);
-    }
-
-    setAspect(aspect) {
-        this.aspect = aspect;
-        this.updateProjection();
     }
 
     setPosition(position) {
@@ -44,15 +36,4 @@ export default class Camera {
         this.updateView();
     }
 
-    getViewMatrix() {
-        return this.viewMatrix;
-    }
-
-    getProjectionMatrix() {
-        return this.projectionMatrix;
-    }
-
-    getViewInverseMatrix() {
-        return this.viewInverseMatrix;
-    }
 }

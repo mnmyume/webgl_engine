@@ -4,11 +4,11 @@ const START_TIME_IDX = 0;
 const PARTICLE_ID_IDX = 1;
 const LAST_IDX = 2;
 
-export default class StaticEmitter extends Shape {
+export default class _staticEmitter extends Shape {
     static DEFAULT_DATA = {
         duration: 999,
         rate: 10, 
-        numParticle: 1,
+        partiCount: 1,
         startTime: 0,
     };
     particleBuffer = null;
@@ -17,7 +17,7 @@ export default class StaticEmitter extends Shape {
     constructor(params = {}) {
         super(params);
         this.data = {
-            ...StaticEmitter.DEFAULT_DATA,  
+            ..._staticEmitter.DEFAULT_DATA,
             ...params.data,         
         };
     }
@@ -31,29 +31,29 @@ export default class StaticEmitter extends Shape {
     };
 
     setData(gl, data) {
-        let numParticle = data.numParticle;
+        let partiCount = data.partiCount;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
         gl.bufferData(gl.ARRAY_BUFFER,
-            (numParticle + 1) * this.bufferSubData.byteLength,
+            (partiCount + 1) * this.bufferSubData.byteLength,
             gl.STATIC_DRAW);
 
         this.createParticles(
             gl, 
             0,
-            numParticle,
+            partiCount,
             data
         )
     };
 
-    createParticles(gl, firstParticleIndex, numParticle) {
+    createParticles(gl, firstParticleIndex, partiCount) {
         const bufferSubData = this.bufferSubData;
         const data = this.data;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
 
-        for (let ii = 0; ii < numParticle; ++ii) {
-            let pStartTime = data.duration / numParticle * ii;
+        for (let ii = 0; ii < partiCount; ++ii) {
+            let pStartTime = data.duration / partiCount * ii;
 
             bufferSubData[START_TIME_IDX] = pStartTime;
 
@@ -72,24 +72,24 @@ export default class StaticEmitter extends Shape {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['startTime'], 
+            material.dataLocation.attributes['aStartTime'],
             1, gl.FLOAT, false, stride,
             sizeofFloat * START_TIME_IDX);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['startTime']);
+            material.dataLocation.attributes['aStartTime']);
 
         gl.vertexAttribPointer(
-            material.dataLocation.attributes['particleID'], 
+            material.dataLocation.attributes['aParticleID'],
             1, gl.FLOAT, false, stride,
             sizeofFloat * PARTICLE_ID_IDX);
         gl.enableVertexAttribArray(
-            material.dataLocation.attributes['particleID']);
+            material.dataLocation.attributes['aParticleID']);
         
         gl.bindBuffer(gl.ARRAY_BUFFER, this.particleBuffer);
-        gl.drawArrays(gl.POINTS, 0, this.data.numParticle);
+        gl.drawArrays(gl.POINTS, 0, this.data.partiCount);
 
-        gl.disableVertexAttribArray(material.dataLocation.attributes['startTime']);
-        gl.disableVertexAttribArray(material.dataLocation.attributes['particleID']);
+        gl.disableVertexAttribArray(material.dataLocation.attributes['aStartTime']);
+        gl.disableVertexAttribArray(material.dataLocation.attributes['aParticleID']);
         
     };
 }

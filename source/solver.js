@@ -1,10 +1,9 @@
 import Texture2D from "./texture2d.js";
 import {$assert} from "./common.js";
 import FrameBuffer from "./frameBuffer.js";
-import {testGenPos, testGenVel} from "./generatorHelper.js";
 
 export default class Solver{
-
+    static MODE = {init:1, play:2}
     frontBuffer = [];
     backBuffer = [];
     backBufferTextures = [];
@@ -12,6 +11,13 @@ export default class Solver{
     shape = [];
     material = [];
     ext = null;
+
+    get Mode(){return this.mode}
+
+    set Mode(value){
+        this.mode = value;
+    }
+
     constructor(params) {
         this.width = params.width??128;
         this.height = params.height??128;
@@ -19,19 +25,22 @@ export default class Solver{
         this.screenHeight = params.screenHeight??null;
         this.shape = params.shape || null;
         this.material = params.material || null;
+        this.mode = params.mode || 0;
+        this.loop = params.loop || false;
     }
     initialize({gl}){
 
         this.ext = gl.getExtension("WEBGL_draw_buffers");
         $assert(this.ext);
-        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
         this.backBuffer = new FrameBuffer('bFrameBuff', {width:this.width,height:this.height});
+        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
 
-        this.frontBuffer.initialize({gl});
         this.backBuffer.initialize({gl});
+        this.frontBuffer.initialize({gl});
 
         this.obstacleBuffer = new FrameBuffer('oFrameBuff', {width:this.screenWidth,height:this.screenHeight});
         this.obstacleBuffer.initialize({gl});
+
     }
 
     attach(gl){
@@ -55,11 +64,17 @@ export default class Solver{
         this.shape[1].draw(gl, this.material[1]);
         this.material[1].postDraw(gl);
 
-        // dettach
+        // detach
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+
     update(gl){
+
+
+        if(!(this.mode & Solver.MODE.play || this.mode & Solver.MODE.init ))
+            return;
+
         // gl.disable(gl.BLEND);
         // this.attach(gl);
 
@@ -71,26 +86,30 @@ export default class Solver{
 
         this.attach(gl);
 
-        this.material[0].setTexture('posSampler', this.backBuffer.textures[0]);
-        this.material[0].setTexture('velSampler', this.backBuffer.textures[1]);
-        this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
-        this.material[0].uniforms['randSeed'].value = Math.random() * 2 - 1;
+        this.material[0].setUniform('uState', this.mode);
+        this.material[0].setUniform('uLoop', this.loop);
+        this.material[0].setTexture('uDataSlot0', this.backBuffer.textures[0]);
+        this.material[0].setTexture('uDataSlot1', this.backBuffer.textures[1]);
+        this.material[0].setTexture('uDataSlot2', this.backBuffer.textures[2]);
+        this.material[0].setTexture('uDataSlot3', this.backBuffer.textures[3]);
+
+        // this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 
         this.material[0].preDraw(gl);
         this.shape[0].draw(gl, this.material[0]);
 
-        const pixels = new Float32Array(
-            this.width * this.height * 4,
-        );
-        gl.readPixels(
-            0,
-            0,
-            this.width,
-            this.height,
-            gl.RGBA,
-            gl.FLOAT,
-            pixels,
-        );
+        // const pixels = new Float32Array(
+        //     this.width * this.height * 4,
+        // );
+        // gl.readPixels(
+        //     0,
+        //     0,
+        //     this.width,
+        //     this.height,
+        //     gl.RGBA,
+        //     gl.FLOAT,
+        //     pixels,
+        // );
 
         this.material[0].postDraw(gl);
 
