@@ -134,9 +134,9 @@ export function autumn(gl, canvas, camera) {
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
             width: MAXCOL, height: MAXCOL,
-            scaleDown: 'LINEAR',
+            scaleDown: 'NEAREST',
             // data: texDataArr[genIndex],
-            scaleUp: 'LINEAR'
+            scaleUp: 'NEAREST'
         });
         emitterTexture.initialize({gl});
         emitterTexture.setData(gl, genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration));
@@ -149,9 +149,9 @@ export function autumn(gl, canvas, camera) {
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
             width: MAXCOL, height: MAXCOL,
-            scaleDown: 'LINEAR',
+            scaleDown: 'NEAREST',
             // data: texDataArr[genIndex],
-            scaleUp: 'LINEAR'
+            scaleUp: 'NEAREST'
         });
         emitterTexture.initialize({gl});
         emitterTexture.setData(gl, genLinVel(MAXCOL));
@@ -164,9 +164,9 @@ export function autumn(gl, canvas, camera) {
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
             width: MAXCOL, height: MAXCOL,
-            scaleDown: 'LINEAR',
+            scaleDown: 'NEAREST',
             // data: texDataArr[genIndex],
-            scaleUp: 'LINEAR'
+            scaleUp: 'NEAREST'
         });
         emitterTexture.initialize({gl});
         emitterTexture.setData(gl, genAngVel(MAXCOL));

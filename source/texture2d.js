@@ -73,11 +73,15 @@ export default class Texture2D {
         if (this.generateMipMap)
             gl.generateMipmap(gl.TEXTURE_2D);
 
+        gl.getExtension('OES_texture_float_linear');
+
         //FILTERing
         //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl[this.scaleDown]);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl[this.scaleUp]);
+
+
 
         gl.bindTexture(gl.TEXTURE_2D, null);
 
