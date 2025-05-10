@@ -571,7 +571,7 @@ function main() {
     // initAniTest(gl, canvas, camera);
     // initBlastParticle(gl, camera);
 
-    test(gl, canvas, camera);
+    initSolver(gl, canvas, camera);
 }
 
 main();

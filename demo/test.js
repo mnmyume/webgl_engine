@@ -21,7 +21,7 @@ import Shape from "../source/shape.js";
 
 export function test(gl, canvas, camera) {
 
-    const MAXGENSIZE = 2;
+    const MAXGENSIZE = 1;
     const partiParams = {
         geneCount: MAXGENSIZE,
         rate: 1,
@@ -87,13 +87,18 @@ export function test(gl, canvas, camera) {
     const emitterSlot0 = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
-            width: MAXCOL, height: MAXCOL,
-            scaleDown: 'LINEAR',
+            width: 2, height: 2,
+            scaleDown: 'NEAREST',
             // data: texDataArr[genIndex],
-            scaleUp: 'LINEAR'
+            scaleUp: 'NEAREST'
         });
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl,new Float32Array([0.5,0.5,0.0,1.0]));// genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration)
+        emitterTexture.setData(gl,new Float32Array([
+            0.5,0.5,0.0,1,
+            0,0.5,0.0,1,
+            0.5,0,0.0,1,
+            0,0,0.0,1,
+        ]));// genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration)
         emitterSlot0.push(emitterTexture);
     }
 
@@ -136,6 +141,7 @@ export function test(gl, canvas, camera) {
             scaleUp: 'LINEAR'
         });
         colorTexture.initialize({gl});
+        emitterQuadMaterial.setTexture('uTex', colorTexture);
         emitterQuadMaterial.setTexture('uTex', emitterSlot0[0]);
     }
 
