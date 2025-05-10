@@ -51,7 +51,8 @@ export default class Texture2D {
         this.texture = gl.createTexture();
 
         this.setFilter(gl);
-        this.setData(gl, this.image||this.data);
+        if(this.image||this.data)
+            this.setData(gl, this.image||this.data);
     }
 
     setFilter (gl) {
@@ -92,6 +93,7 @@ export default class Texture2D {
             this.height = data.height;
         }else{
             $assert(this.width && this.height);
+            gl.getExtension('OES_texture_float');
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.FLOAT, data);
 
         }
