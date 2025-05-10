@@ -72,11 +72,15 @@ export default class Texture2D {
         if (this.generateMipMap)
             gl.generateMipmap(gl.TEXTURE_2D);
 
+        gl.getExtension('OES_texture_float_linear');
+
         //FILTERing
         //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl[this.scaleDown]);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl[this.scaleUp]);
+
+
 
         gl.bindTexture(gl.TEXTURE_2D, null);
 
@@ -92,6 +96,7 @@ export default class Texture2D {
             this.height = data.height;
         }else{
             $assert(this.width && this.height);
+            gl.getExtension('OES_texture_float');
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.FLOAT, data);
 
         }
