@@ -19,7 +19,7 @@ import {genAngVel, genLinVel, genQuad, genRectHaltonPos} from "../source/generat
 import PartiShape from "../source/partiShape.js";
 import Shape from "../source/shape.js";
 
-export function initSolver(gl, canvas, camera) {
+export function autumn(gl, canvas, camera) {
 
     const MAXGENSIZE = 2;
     const partiParams = {
@@ -197,7 +197,6 @@ export function initSolver(gl, canvas, camera) {
 
 
     // init particle texture
-    let partiMaterial,partiShape;
     const colTexImg = new Image();
     colTexImg.src = '../resources/arrow2.png';
     colTexImg.onload = _ => { // TODO
@@ -210,7 +209,7 @@ export function initSolver(gl, canvas, camera) {
 
 
         // init particle material
-        partiMaterial = new Material('partiMat',{
+        const partiMaterial = new Material('partiMat',{
             shader: partiShader
         });
         partiMaterial.initialize({gl});
@@ -222,7 +221,7 @@ export function initSolver(gl, canvas, camera) {
 
         partiMaterial.setTexture('uColorSampler', colorTexture);
         // init particle shape
-        partiShape = new PartiShape(
+        const partiShape = new PartiShape(
             'particle',
             {
                 count: partiCount,
@@ -232,135 +231,133 @@ export function initSolver(gl, canvas, camera) {
         partiShape.initialize({gl});
         partiShape.update(gl, 'partiBuffer');
 
+        // -----------------------------------------
+        // init emitter quad shader
+        const emitterQuadShader = new Shader({
+            vertexSource: basicVert,
+            fragmentSource: basicFrag
+        });
+        emitterQuadShader.initialize({gl});
 
-    }
+        // init emitter quad transform
+        const emitterQuadTransform = new Transform();
+        emitterQuadTransform.setPosition(0, emitterHeight, 0);
+        emitterQuadTransform.scale(15, 15, 15);
 
-    // -----------------------------------------
-    // init emitter quad shader
-    const emitterQuadShader = new Shader({
-        vertexSource: basicVert,
-        fragmentSource: basicFrag
-    });
-    emitterQuadShader.initialize({gl});
+        //init emitter quad material
+        const emitterQuadMaterial = new Material('emitterQuadMat',{
+            shader: emitterQuadShader
+        });
+        emitterQuadMaterial.initialize({gl});
+        emitterQuadMaterial.setUniform('uColor', [0, 1, 0]);
 
-    // init emitter quad transform
-    const emitterQuadTransform = new Transform();
-    emitterQuadTransform.setPosition(0, emitterHeight, 0);
-    emitterQuadTransform.scale(15, 15, 15);
+        // init emitter quad shape
+        const emitterQuadData = genQuad(1);
+        const emitterQuadShape = new Shape(
+            'emitterQuad',
+            {count: 6, schema: readAttrSchema(basicVert.attribute)});
+        emitterQuadShape.initialize({gl});
+        emitterQuadShape.update(gl, 'quadBuffer', emitterQuadData);
 
-    //init emitter quad material
-    const emitterQuadMaterial = new Material('emitterQuadMat',{
-        shader: emitterQuadShader
-    });
-    emitterQuadMaterial.initialize({gl});
-    emitterQuadMaterial.setUniform('uColor', [0, 1, 0]);
+        // -----------------------------------------------------
+        // init ground quad shader
+        const groundQuadShader = new Shader({
+            vertexSource: basicVert,
+            fragmentSource: basicFrag
+        });
+        groundQuadShader.initialize({gl});
 
-    // init emitter quad shape
-    const emitterQuadData = genQuad(1);
-    const emitterQuadShape = new Shape(
-        'emitterQuad',
-        {count: 6, schema: readAttrSchema(basicVert.attribute)});
-    emitterQuadShape.initialize({gl});
-    emitterQuadShape.update(gl, 'quadBuffer', emitterQuadData);
+        // init ground quad transform
+        const groundQuadTransform = new Transform();
 
-    // -----------------------------------------------------
-    // init ground quad shader
-    const groundQuadShader = new Shader({
-        vertexSource: basicVert,
-        fragmentSource: basicFrag
-    });
-    groundQuadShader.initialize({gl});
+        //init ground quad material
+        const groundQuadMaterial = new Material('groundQuadMat',{
+            shader: groundQuadShader
+        });
+        groundQuadMaterial.initialize({gl});
+        groundQuadMaterial.setUniform('uColor', [1, 0, 0]);
 
-    // init ground quad transform
-    const groundQuadTransform = new Transform();
+        // init ground quad shape
+        const groundQuadData = genQuad(1.0);
+        const groundQuadShape = new Shape(
+            'groundQuad',
+            {count: 6, schema: readAttrSchema(basicVert.attribute)});
+        groundQuadShape.initialize({gl});
+        groundQuadShape.update(gl, 'quadBuffer', groundQuadData);
 
-    //init ground quad material
-    const groundQuadMaterial = new Material('groundQuadMat',{
-        shader: groundQuadShader
-    });
-    groundQuadMaterial.initialize({gl});
-    groundQuadMaterial.setUniform('uColor', [1, 0, 0]);
+        // solver.addObstacles(gl);
 
-    // init ground quad shape
-    const groundQuadData = genQuad(1.0);
-    const groundQuadShape = new Shape(
-        'groundQuad',
-        {count: 6, schema: readAttrSchema(basicVert.attribute)});
-    groundQuadShape.initialize({gl});
-    groundQuadShape.update(gl, 'quadBuffer', groundQuadData);
+        function drawSolver() {
 
-    // solver.addObstacles(gl);
+            const fieldParams = [];
+            fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity ];
+            fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
+            fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
+            fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
+            solverMaterial.setUniform('uFieldParams', fieldParams.flat());
+            // solverMaterial.setUniform('uFieldParams[0]', fieldParams[0]);
+            // solverMaterial.setUniform('uFieldParams[1]', fieldParams[1]);
+            // solverMaterial.setUniform('uFieldParams[2]', fieldParams[2]);
+            // solverMaterial.setUniform('uFieldParams[3]', fieldParams[3]);
 
-    function drawSolver() {
+            time.update();
+            solverMaterial.setUniform('uTime', time.ElapsedTime);
+            solverMaterial.setUniform('uDeltaTime', time.Interval);
+            solverMaterial.setUniform('uState', solver.mode);
 
-        const fieldParams = [];
-        fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity ];
-        fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
-        fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
-        fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
-        solverMaterial.setUniform('uFieldParams', fieldParams.flat());
-        // solverMaterial.setUniform('uFieldParams[0]', fieldParams[0]);
-        // solverMaterial.setUniform('uFieldParams[1]', fieldParams[1]);
-        // solverMaterial.setUniform('uFieldParams[2]', fieldParams[2]);
-        // solverMaterial.setUniform('uFieldParams[3]', fieldParams[3]);
+            solver.update(gl);
 
-        time.update();
-        solverMaterial.setUniform('uTime', time.ElapsedTime);
-        solverMaterial.setUniform('uDeltaTime', time.Interval);
-        solverMaterial.setUniform('uState', solver.mode);
+            gl.viewport(0, 0, canvas.width, canvas.height);
 
-        solver.update(gl);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.clearColor(1, 1, 1, 1.0);
+            gl.colorMask(true, true, true, true);
 
-        gl.viewport(0, 0, canvas.width, canvas.height);
+            partiMaterial.setTexture('uDataSlot0', solver.frontBuffer.textures[0]);
+            partiMaterial.setTexture('uDataSlot1', solver.frontBuffer.textures[1]);
+            partiMaterial.setTexture('uDataSlot2', solver.frontBuffer.textures[2]);
+            partiMaterial.setTexture('uDataSlot3', solver.frontBuffer.textures[3]);
 
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.clearColor(1, 1, 1, 1.0);
-        gl.colorMask(true, true, true, true);
+            // draw screen quad
+            screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
+            screenQuadShape.draw(gl, screenQuadMaterial);
+            screenQuadMaterial.postDraw(gl);
 
-        partiMaterial.setTexture('uDataSlot0', solver.frontBuffer.textures[0]);
-        partiMaterial.setTexture('uDataSlot1', solver.frontBuffer.textures[1]);
-        partiMaterial.setTexture('uDataSlot2', solver.frontBuffer.textures[2]);
-        partiMaterial.setTexture('uDataSlot3', solver.frontBuffer.textures[3]);
+            // draw particles
+            // gl.enable(gl.BLEND);
+            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            // gl.blendEquation(gl.FUNC_ADD);
 
-        // draw screen quad
-        screenQuadMaterial.preDraw(gl, camera, screenQuadTransform);
-        screenQuadShape.draw(gl, screenQuadMaterial);
-        screenQuadMaterial.postDraw(gl);
+            partiMaterial.preDraw(gl, camera);
+            partiShape.draw(gl, partiMaterial);
+            partiMaterial.postDraw(gl);
 
-        // draw particles
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-        // gl.blendEquation(gl.FUNC_ADD);
+            gl.disable(gl.BLEND);
 
-        partiMaterial.preDraw(gl, camera);
-        partiShape.draw(gl, partiMaterial);
-        partiMaterial.postDraw(gl);
+            // draw emitter quad
+            emitterQuadMaterial.setTexture('uTex', emitterSlot0[0]);
+            emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
+            emitterQuadShape.draw(gl, emitterQuadMaterial);
+            emitterQuadMaterial.postDraw(gl);
 
-        gl.disable(gl.BLEND);
-
-        // draw emitter quad
-        emitterQuadMaterial.setTexture('uTex', emitterSlot0[0]);
-        emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
-        emitterQuadShape.draw(gl, emitterQuadMaterial);
-        emitterQuadMaterial.postDraw(gl);
-
-        // draw ground quad
-        groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
-        groundQuadShape.draw(gl, groundQuadMaterial);
-        groundQuadMaterial.postDraw(gl);
+            // draw ground quad
+            groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
+            groundQuadShape.draw(gl, groundQuadMaterial);
+            groundQuadMaterial.postDraw(gl);
 
 
-        // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
-        solverMaterial.setUniform('uDeltaTime', time.Interval);
+            // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
+            solverMaterial.setUniform('uDeltaTime', time.Interval);
 
-        if (solver.Mode === Solver.MODE.init) {
-            solver.Mode = Solver.MODE.play;
+            if (solver.Mode === Solver.MODE.init) {
+                solver.Mode = Solver.MODE.play;
+            }
+
+            requestAnimationFrame(drawSolver);
         }
 
-        requestAnimationFrame(drawSolver);
+
+        drawSolver();
+
     }
-
-
-    drawSolver();
-
 }
