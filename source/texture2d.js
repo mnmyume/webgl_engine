@@ -51,8 +51,7 @@ export default class Texture2D {
         this.texture = gl.createTexture();
 
         this.setFilter(gl);
-        if(this.image||this.data)
-            this.setData(gl, this.image||this.data);
+        this.setData(gl, this.image||this.data);
     }
 
     setFilter (gl) {
