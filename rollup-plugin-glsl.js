@@ -120,18 +120,25 @@ function checkAttrUniformParams(key, source){
         let varName = buffer[3*i+2];
         const isArr = /\[[^\]]*\]/.test(varName);
 
+        if(varName === 'uTexArr[GEN_SIZE]') debugger;
         const type = buffer[3 * i + 1];
         if(isArr){
-            let length;
-            [,varName, length] =  $match(/(.+)\[([^\]]*)\]/gm, varName);
-                // varName.match(/(.+)\[[^\]]*\]/)[1];
 
-            const a = new RegExp(`^(?!\\/\\/).*?#define[\\s]+${length}([^\\/\\r\\n]+)`);
-            [,length] = $match( new RegExp(`^(?!\\/\\/).*?#define[\\s]+${length}[\\s]+([^\\/\\r\\n]+)`, 'gm'), source);
-            length = parseInt(length);
+            let GEN_SIZE;
+            [,varName, GEN_SIZE] =  $match(/(.+)\[([^\]]*)\]/gm, varName);
+            [,GEN_SIZE] = $match( new RegExp(`^(?!\\/\\/).*?#define[\\s]+${GEN_SIZE}[\\s]+([^\\/\\r\\n]+)`, 'gm'), source);
+
+            let length = 1;
+            if(/mat/.test(type)){
+                length = Number(type.match(/mat(\d+)/)[1]);
+                length *= length;
+            }else if(/vec/.test(type))
+                length = Number(type.match(/vec(\d+)/)[1]);
+
+
             $assert($isNumber(length), `cannot find definition of ${length} from ${varName}`);
 
-            result[varName] = {type:`${type}[]` , value: null,length:parseInt(length)};
+            result[varName] = {type:`${type}[]` , value: null,length};
         }else
             result[varName] = {type , value: null};
 

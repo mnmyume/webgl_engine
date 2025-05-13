@@ -44,11 +44,7 @@ export default class Material {
             let {type, value, length = 1} = this.uniforms[name];
             const isArr = /\[\]/.test(type);
             if(isArr){
-                if(/mat/.test(type)){
-                    length = Number(type.match(/mat(\d+)/)[1]);
-                    length *= length;
-                }else if(/vec/.test(type))
-                    length = Number(type.match(/vec(\d+)/)[1]);
+
                 for(let index =0; index < value.length; index += length){
                     const key = `${name}[${index/length}]`;
                     this.dataLocation.uniforms[key] = gl.getUniformLocation(this.shaderProgram, key);
