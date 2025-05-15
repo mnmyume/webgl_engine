@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL 2 Samples</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000; /* make it look less tragic */
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="game-surface"></canvas>
+
+<script src="../source/gl-matrix.js"></script>
+
+<script type="module" src="./_transform_feedback_interleaved/_transform_feedback_interleaved.js"></script>
+<script src="./Di-3d.png"></script>
+
+</body>
+</html>

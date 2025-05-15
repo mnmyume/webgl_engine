@@ -138,7 +138,7 @@ export default function main() {
 
     // -- Load texture then render
 
-    const imageUrl = './Di-3d.png';
+    const imageUrl = "Di-3d.png";
     let texture;
     loadImage(imageUrl, function(image) {
         texture = gl.createTexture();
