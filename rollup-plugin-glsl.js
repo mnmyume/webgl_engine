@@ -311,7 +311,6 @@ export default function glsl(options = {}) {
             console.log(sourceRaw);
             console.log(attributeParmas);
             console.log(uniformParams);
-            debugger;
 
             initUniforms(uniformParams, values);
             initAttributes(attributeParmas, buffers);
