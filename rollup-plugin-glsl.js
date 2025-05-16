@@ -46,8 +46,8 @@ function $match(regex, str) {
     return result;
 }
 
-function generateCode(extension,attribute, uniform, code) {
-    return `export default ${JSON.stringify({code,extension, attribute,uniform, file:Object.fromEntries(__FILE_MAP.entries())})}`;
+function generateCode(version,extension,attribute, uniform, code) {
+    return `export default ${JSON.stringify({version,code,extension, attribute,uniform, file:Object.fromEntries(__FILE_MAP.entries())})}`;
 }
 
 function addingLineNum(curFileIndex,srcPath, srcText){
@@ -90,6 +90,26 @@ function addIncludeFiles(srcPath,source){
     }
 }
 
+const VERSIONS = {
+    'GLSL_ES1':'GLSL ES 1.00',
+    'GLSL_ES3':'GLSL ES 3.00',
+}
+
+const _VER = {
+    '100':'GLSL ES 1.00',
+    '300 es':'GLSL ES 3.00',
+}
+
+
+function checkVersion(source){
+    let verValue = '100';
+    const buffer = $match(/^(?!\/\/).*?#version[\s]+([^\/\r\n]+)/gm, source);
+    if(buffer.length)
+        verValue = buffer[1]
+
+    return _VER[verValue];
+}
+
 function checkPreprocessor(key,source){
     const buffer =  $match( new RegExp(`^(?!\\/\\/).*?#${key}[\\s]+([^\\/\\r\\n]+)`, 'gm'), source);
     const result = [];
@@ -112,21 +132,23 @@ function checkPreprocessor(key,source){
 }
 function $isNumber(input) {
     return input != null && (Number(input) || Number(input) == 0) ? true : false;
-};
-function checkAttrUniformParams(key, source){
-    const buffer =  $match( new RegExp(`^(?!\\/\\/)${key}[\\s]+(\\S+)[\\s]+(\\S+)[\\s]*;`, 'gm'), source);
+}
+
+const getDefineValue = (varName, source)=>$match( new RegExp(`^(?!\\/\\/).*?#define[\\s]+${varName}[\\s]+([^\\/\\r\\n]+)`, 'gm'), source);
+function checkUniformParams( source){
+
+    const buffer =  $match(/^(?!\/\/)[\s]*uniform[\s]+(\S+)[\s]+(\S+)[\s]*;/gm, source);
+
     const result = {};
     for(let i = 0; i<buffer.length/3;i++) {
         let varName = buffer[3*i+2];
         const isArr = /\[[^\]]*\]/.test(varName);
 
-        if(varName === 'uTexArr[GEN_SIZE]') debugger;
-        const type = buffer[3 * i + 1];
+        const type = buffer[3*i+1];
         if(isArr){
 
-            let GEN_SIZE;
-            [,varName, GEN_SIZE] =  $match(/(.+)\[([^\]]*)\]/gm, varName);
-            [,GEN_SIZE] = $match( new RegExp(`^(?!\\/\\/).*?#define[\\s]+${GEN_SIZE}[\\s]+([^\\/\\r\\n]+)`, 'gm'), source);
+            const [,varName, GEN_SIZE_NAME] =  $match(/(.+)\[([^\]]*)\]/gm, varName);
+            const [,GEN_SIZE] = getDefineValue(GEN_SIZE_NAME, source);
 
             let length = 1;
             if(/mat/.test(type)){
@@ -141,6 +163,47 @@ function checkAttrUniformParams(key, source){
             result[varName] = {type:`${type}[]` , value: null,length};
         }else
             result[varName] = {type , value: null};
+
+    }
+    return buffer.length?result:null;
+
+}
+
+function checkAttrParams(key, source){
+
+    const buffer =  $match( new RegExp(`^(?!\\/\\/)[\\s]*(layout[\\s]*\\([^\\)]+\\)[\\s])*${key}[\\s]+(\\S+)[\\s]+(\\S+)[\\s]*;`, 'gm'), source);
+
+    const result = {};
+    for(let i = 0; i<buffer.length/4;i++) {
+        let varName = buffer[4*i+3];
+        const isArr = /\[[^\]]*\]/.test(varName);
+        const layout = {};
+        const layoutInfo = buffer[4 * i + 1];
+        if(layoutInfo) {
+            let [, layoutParams] = $match(/layout\((.+)\)/gm, layoutInfo);
+            layoutParams = layoutParams.split(',')
+            layoutParams.reduce((prev, cur)=>{
+                // const [key, value = true] = cur.split('=');
+
+                let key, value = true;
+                if(cur.includes('='))
+                    [,key,value=true] = $match(/(\S+)[\s]*=[\s]*(\S+)/gm, cur);
+                else
+                    key = cur;
+
+
+                if(!$isNumber(value))
+                    [,value] = getDefineValue(value,source);
+
+                $assert($isNumber(value));
+
+                prev[key] = value;
+                return prev;
+            },layout);
+        }
+        const type = buffer[4 * i + 2];
+
+        result[varName] = {type , value: null, layout};
 
     }
     return buffer.length?result:null;
@@ -215,35 +278,46 @@ export default function glsl(options = {}) {
 
 
 
-            if(/solver-frag/.test(id)){
-                debugger;
-
-            }
             const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
+
+
+            const version = checkVersion(sourceRaw);
+
+            debugger;
 
 
             const extensions = checkPreprocessor('extension',sourceRaw);
             const source = filterSource(sourceRaw);
 
 
-            const extensionParmas = {};
-            const attributeParmas = {...checkAttrUniformParams('attribute', `${includes}\r\n${source}`)};
+            let attributeParmas, vertexAttri;
+
+            if(version === VERSIONS.GLSL_ES1)
+                attributeParmas = {...checkAttrParams('attribute', `${includes}\r\n${source}`)};
+            else if(version === VERSIONS.GLSL_ES3)
+                attributeParmas = {...checkAttrParams('in', `${includes}\r\n${source}`)};
 
 
-            const uniformParams = {...checkAttrUniformParams('uniform', `${includes}\r\n${source}`)};
+            const uniformParams = {...checkUniformParams( `${includes}\r\n${source}`)};
 
 
 
             const values = checkPreprocessor('value',sourceRaw);
             const buffers = checkPreprocessor('buffer',sourceRaw);
             checkPreprocessor('buffer',sourceRaw);
+            const extensionParmas = {};
             initExtension(extensionParmas, extensions);
+
+            console.log(sourceRaw);
+            console.log(attributeParmas);
+            console.log(uniformParams);
+            debugger;
 
             initUniforms(uniformParams, values);
             initAttributes(attributeParmas, buffers);
 
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
-            const code = generateCode(extensionParmas,attributeParmas, uniformParams, glslSrc),
+            const code = generateCode(version, extensionParmas,attributeParmas, uniformParams, glslSrc),
                 magicString = new MagicString(code);
             return { code: magicString.toString() };
         }
