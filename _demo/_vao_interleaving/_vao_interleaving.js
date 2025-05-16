@@ -25,32 +25,28 @@ export default function main() {
     // -- Init Buffer
     const vertexPosLocation = 0;
     const vertices = new Float32Array([
-        -0.5, -0.5,        0, 0, 0,
-        -0.5, 0.5,         0, 1, 0,
-        0.5,  0.5,         1, 0, 0,
-        -0.5, -0.5,        0, 0, 0,
-        0.5,  0.5,         1, 0, 0,
-        0.5,  -0.5,        1, 1, 1
+        -0.3, -0.5, 1.0, 0.5, 0.0,
+        0.3, -0.5, 0.0, 0.5, 1.0,
+        0.0,  0.5, 1.0, 0.5, 0.0
     ]);
     const vertexPosBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(vertexPosLocation);
     gl.vertexAttribPointer(vertexPosLocation, 2, gl.FLOAT, false, 20, 0);
-    gl.vertexAttribPointer(vertexPosLocation, 3, gl.FLOAT, false, 20, 8);
 
 
-    // const vertexColorLocation = 1;
-    // const colors = new Float32Array([
-    //     1.0, 0.5, 0.0,
-    //     0.0, 0.5, 1.0
-    // ]);
+    const vertexColorLocation = 1;
+    const colors = new Float32Array([
+        1.0, 0.5, 0.0,
+        0.0, 0.5, 1.0
+    ]);
     // const vertexColorBuffer = gl.createBuffer();
-    // gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-    // gl.enableVertexAttribArray(vertexColorLocation);
-    // gl.vertexAttribPointer(vertexColorLocation, 3, gl.FLOAT, false, 0, 0);
-    // gl.vertexAttribDivisor(vertexColorLocation, 1);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexPosBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(vertexColorLocation);
+    gl.vertexAttribPointer(vertexColorLocation, 3, gl.FLOAT, false, 20, 8);
+    gl.vertexAttribDivisor(vertexColorLocation, 1);
 
     gl.bindVertexArray(null);
 

@@ -9,8 +9,8 @@ const vsSource = `
  precision highp int;
 
 layout(location = POSITION_LOCATION) in vec2 pos;
-layout(location = POSITION_LOCATION) in vec3 color;
-flat out vec3 v_color;
+layout(location = COLOR_LOCATION) in vec4 color;
+flat out vec4 v_color;
 
 void main()
 {
@@ -29,7 +29,7 @@ out vec4 color;
 
 void main()
 {
-    // color = v_color;
-    color = vec4(1);
+    color = v_color;
+    // color = vec4(1);
 }
 `;
