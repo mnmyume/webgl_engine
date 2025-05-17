@@ -40,7 +40,8 @@ export default class Shader {
     compile(gl,params){
         params = params || {};
         const directives = [
-            '#version 100',
+            '#version 300 es'
+            // '#version 100',
             // '#extension GL_EXT_draw_buffers:require', //https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_draw_buffers
             // 'precision mediump float;'
         ];

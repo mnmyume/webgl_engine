@@ -23,16 +23,10 @@ import {
 import {readAttrSchema} from './source/shapeHelper.js';
 import {
     basicVert, basicFrag,
-    particle3dVert, particle2dVert, particleFrag,
-    screenQuadFrag, screenQuadVert,
-    solverFrag,
-    solverPartiVert, solverPartiFrag,
-    rainVert, rainFrag,
-    arrowVert, arrowFrag,
-    aniTestVert, aniTestFrag,
-    obstacleVert, obstacleFrag
 } from "./shaders/output.js";
-import {autumn} from "./demo/autumnWind.js";
+import { autumn } from "./demo/autumnWind.js";
+import { initWebgl2Quad } from "./demo/quad.js";
+
 
 const time = new Time();
 window.time = time;
@@ -546,7 +540,7 @@ function initBlastParticle(gl, camera) {
 function main() {
 
     const canvas = document.getElementById('game-surface');
-    const gl = canvas.getContext('webgl');
+    const gl = canvas.getContext('webgl2');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -567,7 +561,8 @@ function main() {
     camera.updateViewInverse();
 
     // initSimpleQuad(gl, camera);
-    autumn(gl, canvas, camera);
+    // autumn(gl, canvas, camera);
+    initWebgl2Quad(gl, canvas, camera);
     // initAniTest(gl, canvas, camera);
     // initBlastParticle(gl, camera);
 }
