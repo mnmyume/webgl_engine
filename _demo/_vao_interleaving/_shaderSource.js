@@ -15,7 +15,8 @@ flat out vec4 v_color;
 void main()
 {
     v_color = color;
-    gl_Position = vec4(pos, 0.0, 1.0);
+    gl_Position = vec4(pos + vec2(float(gl_InstanceID) - 0.5, 0.0), 0.0, 1.0);
+    // gl_Position = vec4(pos, 0.0, 1.0);
 }
 `;
 
@@ -24,7 +25,7 @@ const fsSource = `
 precision highp float;
 precision highp int;
 
-flat in vec3 v_color;
+flat in vec4 v_color;
 out vec4 color;
 
 void main()
