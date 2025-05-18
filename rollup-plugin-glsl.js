@@ -55,15 +55,19 @@ function addingLineNum(curFileIndex,srcPath, srcText){
     __FILE_MAP.set(curFileIndex,srcPath);
     const lines = srcText.split('\n');
     for(const index in lines){
+
+
         lines[index] = `#line ${parseInt(index)+1} ${curFileIndex} \n  ${lines[index]} \n`;//${srcPath}\n
+
     }
     return lines.join('');
 }
 
 function filterSource(source){
-    source = source.replace(/#include[\s]+(.+)/gm, '');
-    source = source.replace(  /#value[\s]+(.+)/gm, '');
-    source = source.replace( /#buffer[\s]+(.+)/gm, '');
+    source = source.replace(/^(?!\/\/)[\s]*#include[\s]+(.+)/gm, '');
+    source = source.replace(  /^(?!\/\/)[\s]*#value[\s]+(.+)/gm, '');
+    source = source.replace( /^(?!\/\/)[\s]*#buffer[\s]+(.+)/gm, '');
+    source = source.replace( /^(?!\/\/)[\s]*#version(.+)/gm, '');
     return source.replace(/#extension[\s]+(.+)/gm, '');
 }
 
@@ -283,11 +287,10 @@ export default function glsl(options = {}) {
 
             const version = checkVersion(sourceRaw);
 
-            debugger;
 
 
             const extensions = checkPreprocessor('extension',sourceRaw);
-            const source = filterSource(sourceRaw);
+            let source = filterSource(sourceRaw);
 
 
             let attributeParmas, vertexAttri;
@@ -314,6 +317,13 @@ export default function glsl(options = {}) {
 
             initUniforms(uniformParams, values);
             initAttributes(attributeParmas, buffers);
+            //
+            // const verReg = /^(?!\/\/)[\s]*#version(.+)/gm;
+            //
+            // const [ver] = $match(verReg,source);
+            // if(ver)
+            //     source = source.replace(verReg,'');
+
 
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
             const code = generateCode(version, extensionParmas,attributeParmas, uniformParams, glslSrc),

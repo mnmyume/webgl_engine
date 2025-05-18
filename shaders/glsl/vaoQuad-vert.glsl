@@ -1,4 +1,4 @@
-// #version 300 es
+#version 300 es
 #define POSITION_LOCATION 0
 #define COLOR_LOCATION 1
 

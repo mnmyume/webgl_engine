@@ -38,9 +38,10 @@ export default class Shader {
         this.compile(gl, this.params);
     }
     compile(gl,params){
-        params = params || {};
+        params = params || {}
+        debugger;
         const directives = [
-            '#version 300 es'
+            // '#version 300 es'
             // '#version 100',
             // '#extension GL_EXT_draw_buffers:require', //https://developer.mozilla.org/en-US/docs/Web/API/WEBGL_draw_buffers
             // 'precision mediump float;'
@@ -62,14 +63,16 @@ export default class Shader {
             {shader:this.vertex,source:this.vertSrc}
         ];
         for(let {shader,source} of shaders){
-            const {attributes, uniforms, code, file} = source;
+            const {version,attribute, uniform,extension, code, file} = source;
+            const ext = [];
+            for (const [key, value] of Object.entries(extension))
+                ext.push(`#extension ${key}:${value}`);
 
-            const extension = [];
-            for (const [key, value] of Object.entries(source.extension))
-                extension.push(`#extension ${key}:${value}`);
+            let ver = '';
+            if(version === 'GLSL ES 3.00')
+                ver = '#version 300 es';
 
-
-            gl.shaderSource(shader, ([...directives,...extension].join('\n') + '\n').concat(code));
+            gl.shaderSource(shader, ([ver,...directives,...ext].join('\n') + '\n').concat(code));
             gl.compileShader(shader);
             $assert(gl.getShaderParameter(shader, gl.COMPILE_STATUS), $getShaderInfo(this.name,gl,shader,file));
         }
