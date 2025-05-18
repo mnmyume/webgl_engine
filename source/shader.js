@@ -51,12 +51,10 @@ export default class Shader {
 
 
 
-        for(var i in (params.defines || [])){
+        for(const i in (params.defines || [])){
             directives.push('#define ' + params.defines[i]);
         }
 
-
-        // directives = directives.join('\n') + '\n';
 
         const shaders = [
             {shader:this.fragment, source:this.fragSrc},
