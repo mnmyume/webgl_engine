@@ -44,7 +44,7 @@ export function initWebgl2Quad(gl, camera) {
     const quadData = genQuad(quadParams.quadSize);
     const quadShape = new Shape(
         'quad',
-        {count: 6, schema: readAttrSchema(basicVert.attribute)});
+        {count: 6, schema: readAttrSchema(vaoQuadVert.attribute)});
     quadShape.initialize({gl});
     quadShape.update(gl, 'quadBuffer', quadData);
 

@@ -38,8 +38,7 @@ export default class Shader {
         this.compile(gl, this.params);
     }
     compile(gl,params){
-        params = params || {}
-        debugger;
+        params = params || {};
         const directives = [
             // '#version 300 es'
             // '#version 100',
