@@ -134,7 +134,7 @@ export function generateCirclePosVelRandom(partiCount, startSize, endSize) {
     return posPixels;
 }
 
-export function genQuad(size){
+export function genQuadUV(size){
     const halfSize = 0.5*size;
     return [
         -halfSize,      0,    -halfSize,         0, 0,
@@ -146,18 +146,14 @@ export function genQuad(size){
     ]
 }
 
-export function genQuadWithUV(out, index) {
-    const uvCoordinates = [
-        [0, 0],
-        [0, 1],
-        [1, 1],
-        [0, 0],
-        [1, 1],
-        [1, 0]
-    ];
-
-    for (let i = 0; i < uvCoordinates.length; i++) {
-        const uv = uvCoordinates[i];
-        out.push(...index, ...uv);
-    }
+export function genQuad(size){
+    const halfSize = 0.5*size;
+    return [
+        -halfSize, -halfSize,  1.0, 0.5, 0.0,
+        -halfSize, halfSize,   0.0, 0.5, 1.0,
+        halfSize,   halfSize,  1.0, 0.5, 0.0,
+        -halfSize, -halfSize,  0.0, 0.5, 1.0,
+        halfSize,  halfSize,   1.0, 0.5, 0.0,
+        halfSize,   -halfSize, 0.0, 0.5, 1.0
+    ]
 }

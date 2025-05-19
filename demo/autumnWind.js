@@ -10,7 +10,7 @@ import ScreenQuad from "../source/screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import Solver from "../source/solver.js";
 import Texture2D from "../source/texture2d.js";
-import {genAngVel, genLinVel, genQuad, genRectHaltonPos} from "../source/generatorHelper.js";
+import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos} from "../source/generatorHelper.js";
 import PartiShape from "../source/partiShape.js";
 import Shape from "../source/shape.js";
 
@@ -251,7 +251,7 @@ export function autumn(gl, canvas, camera) {
     emitterQuadMaterial.setUniform('uColor', [0, 1, 0]);
 
     // init emitter quad shape
-    const emitterQuadData = genQuad(1);
+    const emitterQuadData = genQuadUV(1);
     const emitterQuadShape = new Shape(
         'emitterQuad',
         {count: 6, schema: readAttrSchema(basicVert.attribute)});
@@ -277,7 +277,7 @@ export function autumn(gl, canvas, camera) {
     groundQuadMaterial.setUniform('uColor', [1, 0, 0]);
 
     // init ground quad shape
-    const groundQuadData = genQuad(1.0);
+    const groundQuadData = genQuadUV(1.0);
     const groundQuadShape = new Shape(
         'groundQuad',
         {count: 6, schema: readAttrSchema(basicVert.attribute)});

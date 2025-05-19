@@ -18,7 +18,7 @@ import {
     genRectHaltonPos,
     genLinVel, genAngVel,
     generateCirclePosVelRandom,
-    genQuad, genRandCol,
+    genQuadUV, genRandCol,
 } from './source/generatorHelper.js';
 import {readAttrSchema} from './source/shapeHelper.js';
 import {
@@ -59,7 +59,7 @@ function initSimpleQuad(gl, camera) {
     quadMaterial.setUniform('uColor', quadParams.quadColor);
 
     // init quad shape
-    const quadData = genQuad(quadParams.quadSize);
+    const quadData = genQuadUV(quadParams.quadSize);
     const quadShape = new Shape(
         'quad',
         {count: 6, schema: readAttrSchema(basicVert.attribute)});
@@ -332,7 +332,7 @@ function initAniTest(gl, canvas, camera) {
         emitterQuadMaterial.setUniform('uColor', [0, 1, 0]);
 
         // init emitter quad shape
-        const emitterQuadData = genQuad(1);
+        const emitterQuadData = genQuadUV(1);
         const emitterQuadShape = new Shape(
             'emitterQuad',
             {count: 6, schema: readAttrSchema(basicVert.attribute)});
@@ -358,7 +358,7 @@ function initAniTest(gl, canvas, camera) {
         groundQuadMaterial.setUniform('uColor', [1, 0, 0]);
 
         // init ground quad shape
-        const groundQuadData = genQuad(1.0);
+        const groundQuadData = genQuadUV(1.0);
         const groundQuadShape = new Shape(
             'groundQuad',
             {count: 6, schema: readAttrSchema(basicVert.attribute)});

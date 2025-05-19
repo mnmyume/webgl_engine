@@ -27,6 +27,9 @@ export default class Shape {
 
         finder.data = data;
 
+        const vertexArray = gl.createVertexArray();
+        gl.bindVertexArray(vertexArray);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, finder.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl[type]);
 
@@ -69,6 +72,7 @@ export default class Shape {
 
             gl.drawArrays(gl.POINTS, 0 , this.count);
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            // gl.deleteVertexArray(vertexArray);
         }
 
     };

@@ -19,7 +19,7 @@ export default function main() {
     gl.useProgram(program);
 
     // -- Init Vertex Array
-    var vertexArray = gl.createVertexArray();
+    const vertexArray = gl.createVertexArray();
     gl.bindVertexArray(vertexArray);
 
     // -- Init Buffer

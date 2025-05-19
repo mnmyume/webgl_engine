@@ -10,7 +10,7 @@ import ScreenQuad from "../source/screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import Solver from "../source/solver.js";
 import Texture2D from "../source/texture2d.js";
-import {genAngVel, genLinVel, genQuad, genRectHaltonPos} from "../source/generatorHelper.js";
+import {genAngVel, genLinVel, genQuadUV, genQuad, genRectHaltonPos} from "../source/generatorHelper.js";
 import PartiShape from "../source/partiShape.js";
 import Shape from "../source/shape.js";
 
@@ -41,7 +41,7 @@ export function initWebgl2Quad(gl, camera) {
     // quadMaterial.setUniform('uColor', quadParams.quadColor);
 
     // init quad shape
-    const quadData = genQuad(quadParams.quadSize);
+    const quadData = genQuad(1);
     const quadShape = new Shape(
         'quad',
         {count: 6, schema: readAttrSchema(vaoQuadVert.attribute)});
