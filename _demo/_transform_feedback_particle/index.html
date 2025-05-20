@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebGL Particle System</title>
+  <script src = "main.js" type = "text/javascript"></script>
+  <script type = "text/x-vertex-shader" id = "particle-update-vert">
+    #version 300 es
+    precision mediump float;
+
+    uniform float u_TimeDelta;
+    uniform sampler2D u_RgNoise;
+    uniform vec2 u_Gravity;
+    uniform vec2 u_Origin;
+    uniform float u_MinTheta;
+    uniform float u_MaxTheta;
+    uniform float u_MinSpeed;
+    uniform float u_MaxSpeed;
+
+    in vec2 i_Position;
+    in float i_Age;
+    in float i_Life;
+    in vec2 i_Velocity;
+
+    out vec2 v_Position;
+    out float v_Age;
+    out float v_Life;
+    out vec2 v_Velocity;
+
+    void main() {
+      if (i_Age >= i_Life) {
+        ivec2 noise_coord = ivec2(gl_VertexID % 512, gl_VertexID / 512);
+        vec2 rand = texelFetch(u_RgNoise, noise_coord, 0).rg;
+        float theta = u_MinTheta + rand.r*(u_MaxTheta - u_MinTheta);
+        float x = cos(theta);
+        float y = sin(theta);
+        v_Position = u_Origin;
+        v_Age = 0.0;
+        v_Life = i_Life;
+        v_Velocity =
+          vec2(x, y) * (u_MinSpeed + rand.g * (u_MaxSpeed - u_MinSpeed));
+      } else {
+        v_Position = i_Position + i_Velocity * u_TimeDelta;
+        v_Age = i_Age + u_TimeDelta;
+        v_Life = i_Life;
+        v_Velocity = i_Velocity + u_Gravity * u_TimeDelta;
+      }
+
+    }
+  </script>
+  <script type = "text/x-fragment-shader" id = "passthru-frag-shader">
+    #version 300 es
+    precision mediump float;
+    in float v_Age;
+    void main() { discard; }
+  </script>
+  <script type = "text/x-vertex-shader" id = "particle-render-vert">
+    #version 300 es
+    precision mediump float;
+
+    in vec2 i_Position;
+
+
+    void main() {
+      gl_PointSize = 1.0;
+      gl_Position = vec4(i_Position, 0.0, 1.0);
+    }
+  </script>
+  <script type = "text/x-fragment-shader" id = "particle-render-frag">
+    #version 300 es
+    precision mediump float;
+
+    out vec4 o_FragColor;
+
+    void main() {
+      o_FragColor = vec4(1.0);
+    }
+  </script>
+</head>
+<body onload = "main()" style = "text-align:center"></body>
+</html>

@@ -71,3 +71,46 @@ export function loadObj(url, onload) {
     };
     xhr.send();
 };
+
+export function initProgram(gl, vertexShaderSource, fragmentShaderSource) {
+
+    // Setup program for transform feedback
+    function createShader(gl, source, type) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        return shader;
+    }
+
+    const vshader = createShader(gl, getShaderSource(vertexShaderSource), gl.VERTEX_SHADER);
+    const fshader = createShader(gl, getShaderSource(fragmentShaderSource), gl.FRAGMENT_SHADER);
+
+    const program = gl.createProgram();
+    gl.attachShader(program, vshader);
+    gl.attachShader(program, fshader);
+
+    const varyings = ['v_position', 'v_velocity', 'v_spawntime', 'v_lifetime'];
+    gl.transformFeedbackVaryings(program, varyings, gl.SEPARATE_ATTRIBS);
+    gl.linkProgram(program);
+
+    // check
+    let log = gl.getProgramInfoLog(program);
+    if (log) {
+        console.log(log);
+    }
+
+    log = gl.getShaderInfoLog(vshader);
+    if (log) {
+        console.log(log);
+    }
+
+    log = gl.getShaderInfoLog(fshader);
+    if (log) {
+        console.log(log);
+    }
+
+    gl.deleteShader(vshader);
+    gl.deleteShader(fshader);
+
+    return program;
+}
