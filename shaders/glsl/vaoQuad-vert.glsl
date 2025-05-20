@@ -13,7 +13,6 @@ layout(location = COLOR_LOCATION) in vec4 color;
 
 flat out vec4 v_color;
 
-
 void main()
 {
     v_color = color;

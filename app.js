@@ -21,9 +21,7 @@ import {
     genQuadUV, genRandCol,
 } from './source/generatorHelper.js';
 import {readAttrSchema} from './source/shapeHelper.js';
-import {
-    basicVert, basicFrag,
-} from "./shaders/output.js";
+
 import { autumn } from "./demo/autumnWind.js";
 import { initWebgl2Quad } from "./demo/quad.js";
 

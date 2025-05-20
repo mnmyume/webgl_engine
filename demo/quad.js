@@ -1,10 +1,14 @@
 import {sqrtFloor} from "../source/mathHelper.js";
 import Transform from "../source/transform.js";
 import Shader from "../source/shader.js";
-import {
-    basicVert, basicFrag,
-    vaoQuadVert, vaoQuadFrag
-} from "../shaders/output.js";
+// import {
+//     basicVert, basicFrag,
+//     vaoQuadVert, vaoQuadFrag
+// } from "../shaders/output.js";
+
+
+import vaoQuadVert from "../shaders/glsl/vaoQuad-vert.glsl"
+import vaoQuadFrag from "../shaders/glsl/vaoQuad-frag.glsl"
 import Material from "../source/material.js";
 import ScreenQuad from "../source/screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
@@ -20,6 +24,8 @@ export function initWebgl2Quad(gl, camera) {
         quadSize: 10,
         quadColor: [1, 0, 1]
     }
+
+    debugger;
 
     // init quad shader
     const quadShader = new Shader({
@@ -46,7 +52,7 @@ export function initWebgl2Quad(gl, camera) {
         'quad',
         {count: 6, schema: readAttrSchema(vaoQuadVert.attribute)});
     quadShape.initialize({gl});
-    quadShape.update(gl, 'quadBuffer', quadData);
+    quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
 
     function drawSimpleQuad() {
 

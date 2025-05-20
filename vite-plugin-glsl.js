@@ -277,11 +277,13 @@ export default function glsl(options = {}) {
     return {
         name: 'glsl',
 
+
         transform(sourceRaw, id) {
-            console.log(id);
             if (!filter(id)) return;
 
 
+            console.log('glslglslglslglslglslglslglslglslglslglsl');
+            console.log(sourceRaw,id);
 
             const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
 
@@ -312,9 +314,6 @@ export default function glsl(options = {}) {
             const extensionParmas = {};
             initExtension(extensionParmas, extensions);
 
-            console.log(sourceRaw);
-            console.log(attributeParmas);
-            console.log(uniformParams);
 
             initUniforms(uniformParams, values);
             initAttributes(attributeParmas, buffers);
@@ -329,6 +328,8 @@ export default function glsl(options = {}) {
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
             const code = generateCode(version, extensionParmas,attributeParmas, uniformParams, glslSrc),
                 magicString = new MagicString(code);
+
+            console.log({ code: magicString.toString() });
             return { code: magicString.toString() };
         }
     };

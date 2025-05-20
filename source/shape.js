@@ -6,19 +6,23 @@ export default class Shape {
     static RENDERSTATE = {triangle:1,line:2,point:3};
     
     dataBuffer = [];
+    vao = null;
     constructor(name, params={}) {
         this.name = name;
         this.schema = params.schema??[];
         this.state = params.state?? Shape.RENDERSTATE.triangle;
         this.count = params.count??4;
+        this.vao = null;
     }
 
     initialize({ gl }) {
         for(const {name, value} of this.schema)
             this.dataBuffer.push({buffer:gl.createBuffer(),name,value, data:null, type:'STATIC_DRAW'});
+
+        this.vao = gl.createVertexArray();
     };
 
-    update(gl, key, data, type='STATIC_DRAW') {
+    update(gl, key, {material, data, type='STATIC_DRAW'}) {
 
 
         const finder = this.dataBuffer.find(ele=>ele.name === key);
@@ -27,14 +31,32 @@ export default class Shape {
 
         finder.data = data;
 
-        const vertexArray = gl.createVertexArray();
-        gl.bindVertexArray(vertexArray);
+        gl.bindVertexArray(this.vao);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, finder.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl[type]);
 
+        for(const [key,value] of Object.entries(material.dataLocation.attributes)){
+            $assert(value>=0);
+            gl.enableVertexAttribArray(value);
+            const dataBuffer = this.dataBuffer.find(ele=>ele.value.find(({attribute})=>attribute === key));
+            const {size,stride,offset} = dataBuffer.value.find(({attribute})=>attribute === key);
+            gl.vertexAttribPointer(value,parseInt(size), gl.FLOAT, false, parseInt(stride), parseInt(offset));
+        }
+        gl.bindVertexArray(null);
     }
+    delete(gl){
+        for(const {buffer} of this.dataBuffer)
+            gl.deleteBuffer(buffer);
+        gl.deleteVertexArray(this.vao)
 
+        this.vao = null;
+        this.name = null;
+        this.schema = null;
+        this.state = null;
+        this.count = null;
+
+    }
     draw(gl, material) {
 
         for (const {name,data,type} of this.dataBuffer.filter(ele=>ele.type === 'DYNAMIC_DRAW')){
@@ -43,14 +65,7 @@ export default class Shape {
         }
 
 
-        for(const [key,value] of Object.entries(material.dataLocation.attributes)){
-            $assert(value>=0);
-            gl.enableVertexAttribArray(value);
-            const dataBuffer = this.dataBuffer.find(ele=>ele.value.find(({attribute})=>attribute === key));
-            const {size,stride,offset} = dataBuffer.value.find(({attribute})=>attribute === key);
-            gl.bindBuffer(gl.ARRAY_BUFFER, dataBuffer.buffer);
-            gl.vertexAttribPointer(value,parseInt(size), gl.FLOAT, false, parseInt(stride), parseInt(offset));
-        }
+        gl.bindVertexArray(this.vao);
 
 
         if (this.state == Shape.RENDERSTATE.triangle) {

@@ -1,10 +1,7 @@
 import {sqrtFloor} from "../source/mathHelper.js";
 import Transform from "../source/transform.js";
 import Shader from "../source/shader.js";
-import {
-     basicFrag,
-     basicVert,
-} from "../shaders/output.js";
+
 import Material from "../source/material.js";
 import ScreenQuad from "../source/screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
