@@ -46,8 +46,8 @@ function $match(regex, str) {
     return result;
 }
 
-function generateCode(version,extension,attribute, uniform, code) {
-    return `export default ${JSON.stringify({version,code,extension, attribute,uniform, file:Object.fromEntries(__FILE_MAP.entries())})}`;
+function generateCode({version,extension,input,output, uniform, code}) {
+    return `export default ${JSON.stringify({version,code,extension, input,uniform,output, file:Object.fromEntries(__FILE_MAP.entries())})}`;
 }
 
 function addingLineNum(curFileIndex,srcPath, srcText){
@@ -256,17 +256,17 @@ function initExtension(extensionParmas, extensions){
             extensionParmas[key] = value;
 }
 
-function initAttributes(attributeParmas, buffers){
+function initAttributes(input, buffers){
 
-    for(const [key,value] of Object.entries(attributeParmas)){
+    for(const [key,value] of Object.entries(input)){
         const finder = buffers.find(ele=>ele[key]);
 
         if(!finder) continue;
 
         const name = finder[key];
         delete finder[key];
-        attributeParmas[key].name = name;
-        attributeParmas[key].value = {...finder};
+        input[key].name = name;
+        input[key].value = {...finder};
     }
 
 }
@@ -292,13 +292,14 @@ export default function glsl(options = {}) {
             let source = filterSource(sourceRaw);
 
 
-            let attributeParmas, vertexAttri;
+            let input, vertexAttri, output={};
 
             if(version === VERSIONS.GLSL_ES1)
-                attributeParmas = {...checkAttrParams('attribute', `${includes}\r\n${source}`)};
-            else if(version === VERSIONS.GLSL_ES3)
-                attributeParmas = {...checkAttrParams('in', `${includes}\r\n${source}`)};
-
+                input = {...checkAttrParams('attribute', `${includes}\r\n${source}`)};
+            else if(version === VERSIONS.GLSL_ES3){
+                input = {...checkAttrParams('in', `${includes}\r\n${source}`)};
+                output = {...checkAttrParams('out', `${includes}\r\n${source}`)};
+            }
 
             const uniformParams = {...checkUniformParams( `${includes}\r\n${source}`)};
 
@@ -312,10 +313,10 @@ export default function glsl(options = {}) {
 
 
             initUniforms(uniformParams, values);
-            initAttributes(attributeParmas, buffers);
+            initAttributes(input, buffers);
 
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
-            const code = generateCode(version, extensionParmas,attributeParmas, uniformParams, glslSrc),
+            const code = generateCode({version,extension:extensionParmas,input,output, uniform:uniformParams, code:glslSrc}),
                 magicString = new MagicString(code);
 
             console.log({ code: magicString.toString() });

@@ -9,6 +9,7 @@ import Shader from "../source/shader.js";
 
 import vaoQuadVert from "../shaders/glsl/vaoQuad-vert.glsl"
 import vaoQuadFrag from "../shaders/glsl/vaoQuad-frag.glsl"
+import testTransformFeedback from "../shaders/glsl/testTransformFeedback.glsl"
 import Material from "../source/material.js";
 import ScreenQuad from "../source/screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
@@ -18,7 +19,7 @@ import {genAngVel, genLinVel, genQuadUV, genQuad, genRectHaltonPos} from "../sou
 import PartiShape from "../source/partiShape.js";
 import Shape from "../source/shape.js";
 
-
+debugger;
 export function initWebgl2Quad(gl, camera) {
     const quadParams = {
         quadSize: 10,
