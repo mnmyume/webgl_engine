@@ -273,7 +273,6 @@ function initAttributes(attributeParmas, buffers){
 
 export default function glsl(options = {}) {
     const filter = createFilter(options.include, options.exclude);
-    debugger;
     return {
         name: 'glsl',
 
@@ -281,9 +280,6 @@ export default function glsl(options = {}) {
         transform(sourceRaw, id) {
             if (!filter(id)) return;
 
-
-            console.log('glslglslglslglslglslglslglslglslglslglsl');
-            console.log(sourceRaw,id);
 
             const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
 
@@ -317,13 +313,6 @@ export default function glsl(options = {}) {
 
             initUniforms(uniformParams, values);
             initAttributes(attributeParmas, buffers);
-            //
-            // const verReg = /^(?!\/\/)[\s]*#version(.+)/gm;
-            //
-            // const [ver] = $match(verReg,source);
-            // if(ver)
-            //     source = source.replace(verReg,'');
-
 
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
             const code = generateCode(version, extensionParmas,attributeParmas, uniformParams, glslSrc),
