@@ -6,6 +6,7 @@ output.js
 game.js
 .ionide
 .vscode
+.vite-inspect
 .idea
 .zip
 #mac
