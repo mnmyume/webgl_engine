@@ -11,6 +11,4 @@ void main()
 
     color = v_color;
 
-
-
 }
