@@ -26,7 +26,7 @@ export default class Shader {
         //     init:this.initValues,
         // });
 
-        const attributes = this.vertSrc.attribute;
+        const attributes = this.vertSrc.input;
         const uniforms = {...this.vertSrc.uniform, ...this.fragSrc.uniform};
         const extension = {...this.vertSrc.extension,...this.fragSrc.extension};
         this.fragment = gl.createShader(gl.FRAGMENT_SHADER);

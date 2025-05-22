@@ -19,14 +19,14 @@ import {genAngVel, genLinVel, genQuadUV, genQuad, genRectHaltonPos} from "../sou
 import PartiShape from "../source/partiShape.js";
 import Shape from "../source/shape.js";
 
-debugger;
+
 export function initWebgl2Quad(gl, camera) {
     const quadParams = {
         quadSize: 10,
         quadColor: [1, 0, 1]
     }
 
-    debugger;
+
 
     // init quad shader
     const quadShader = new Shader({
@@ -51,7 +51,7 @@ export function initWebgl2Quad(gl, camera) {
     const quadData = genQuad(1);
     const quadShape = new Shape(
         'quad',
-        {count: 6, schema: readAttrSchema(vaoQuadVert.attribute)});
+        {count: 6, schema: readAttrSchema(vaoQuadVert.input)});
     quadShape.initialize({gl});
     quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
 
