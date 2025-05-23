@@ -1,7 +1,6 @@
 import {sqrtFloor} from "../source/mathHelper.js";
 import Transform from "../source/transform.js";
 import Shader from "../source/shader.js";
-
 import Material from "../source/material.js";
 import ScreenQuad from "../source/screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
@@ -10,8 +9,12 @@ import Texture2D from "../source/texture2d.js";
 import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos} from "../source/generatorHelper.js";
 import PartiShape from "../source/partiShape.js";
 import Shape from "../source/shape.js";
+import Time from "../source/time.js";
 
 export function autumn(gl, canvas, camera) {
+
+    const time = new Time();
+    window.time = time;
 
     const MAXGENSIZE = 2;
     const partiParams = {

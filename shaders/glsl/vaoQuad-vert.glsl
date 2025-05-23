@@ -1,22 +1,35 @@
 #version 300 es
 #define POSITION_LOCATION 0
-#define COLOR_LOCATION 1
+#define UV_LOCATION 1
 
 precision highp float;
 precision highp int;
 
-#buffer pos:quadBuffer, size:2, stride:20, offset:0
-layout(location = POSITION_LOCATION) in vec2 pos;
+layout(std140, column_major) uniform;
 
-#buffer color:quadBuffer, size:3, stride:20, offset:8
-layout(location = COLOR_LOCATION) in vec4 color;
+// uniform Transform
+// {
+//     mat4 MVP[2];
+// } transform;
 
-flat out vec4 v_color;
+uniform mat4 _uni_projMat;
+uniform mat4 _uni_viewMat;
+#value _uni_modelMat:mat4(1.0)
+uniform mat4 _uni_modelMat;
 
+
+#buffer iPos:quadBuffer, size:3, stride:20, offset:0
+layout(location = POSITION_LOCATION) in vec3 iPos;
+
+#buffer aUV:quadBuffer, size:2, stride:20, offset:12
+layout(location = UV_LOCATION) in vec2 aUV;
+
+flat out vec2 vUV;
 
 
 void main()
 {
-    v_color = color;
-    gl_Position = vec4(pos, 0.0, 1.0);
+    vec3 position = iPos;
+    vUV = aUV;
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
 }
