@@ -7,7 +7,7 @@ import Time from './source/time.js';
 import { initAniTest } from "./demo/aniTest.js";
 import { autumn } from "./demo/autumnWind.js";
 import { initQuad } from "./demo/quad.js";
-import {initTransformFeedback} from "./demo/transformFeedback.js";
+import {initTransformFeedback} from "./demo/testTransformFeedback.js";
 
 
 function main() {
@@ -33,9 +33,9 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    initQuad(gl, canvas, camera);
+    // initQuad(gl, canvas, camera);
     // autumn(gl, canvas, camera);
-    // initTransformFeedback(gl, canvas, camera);
+    initTransformFeedback(gl, canvas, camera);
     // initAniTest(gl, canvas, camera);
 }
 
