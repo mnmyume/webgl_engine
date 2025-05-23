@@ -24,6 +24,7 @@ import {readAttrSchema} from './source/shapeHelper.js';
 
 import { autumn } from "./demo/autumnWind.js";
 import { initWebgl2Quad } from "./demo/quad.js";
+import {initTransformFeedback} from "./demo/transformFeedback.js";
 
 
 const time = new Time();
@@ -560,7 +561,8 @@ function main() {
 
     // initSimpleQuad(gl, camera);
     // autumn(gl, canvas, camera);
-    initWebgl2Quad(gl, canvas, camera);
+    // initWebgl2Quad(gl, canvas, camera);
+    initTransformFeedback(gl, canvas, camera);
     // initAniTest(gl, canvas, camera);
     // initBlastParticle(gl, camera);
 }
