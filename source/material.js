@@ -30,6 +30,12 @@ export default class Material {
         gl.attachShader(this.shaderProgram, this.vertex);
         gl.attachShader(this.shaderProgram, this.fragment);
 
+
+        // transform feedback
+        const varyings = Object.keys(this.shader.vertSrc.output);
+        gl.transformFeedbackVaryings(this.shaderProgram, varyings, gl.INTERLEAVED_ATTRIBS);
+
+
         gl.linkProgram(this.shaderProgram);
         if (!gl.getProgramParameter(this.shaderProgram, gl.LINK_STATUS)) {
             var info = gl.getProgramInfoLog(this.shaderProgram);

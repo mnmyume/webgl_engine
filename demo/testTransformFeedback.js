@@ -9,18 +9,19 @@ import { genQuadUV } from "../source/generatorHelper.js";
 
 import vaoQuadVert from "../shaders/glsl/vaoQuad-vert.glsl"
 import vaoQuadFrag from "../shaders/glsl/vaoQuad-frag.glsl"
+import testTransformFeedback from "../shaders/glsl/testTransformFeedback.glsl"
 
 
-export function initQuad(gl, canvas, camera) {
+export function initTransformFeedback(gl, canvas, camera) {
 
     const quadParams = {
         quadSize: 10,
-        quadColor: [0.7, 0, 0.3]
+        quadColor: [1, 0, 1]
     }
 
     // init quad shader
     const quadShader = new Shader({
-        vertexSource: vaoQuadVert,
+        vertexSource: testTransformFeedback,
         fragmentSource: vaoQuadFrag,
     });
     quadShader.initialize({gl});
@@ -33,10 +34,9 @@ export function initQuad(gl, canvas, camera) {
     // init material
     const quadMaterial = new Material('quadMat',{
         shader: quadShader,
-    });
+    })
     quadMaterial.initialize({gl});
     quadMaterial.setUniform('uColor', quadParams.quadColor);
-    // quadMaterial.setTexture('uTex', texture);
 
     // init quad shape
     const quadData = genQuadUV(quadParams.quadSize);
@@ -46,9 +46,9 @@ export function initQuad(gl, canvas, camera) {
     quadShape.initialize({gl});
     quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
 
-    function drawSimpleQuad() {
+    function drawTransformFeedback() {
 
-        gl.clearColor(0.2, 0.2, 0.2, 1.0);
+        gl.clearColor(0.3, 0.3, 0.3, 1.0);
         gl.colorMask(true, true, true, true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -56,8 +56,8 @@ export function initQuad(gl, canvas, camera) {
         quadShape.draw(gl, quadMaterial);
         quadMaterial.postDraw(gl);
 
-        requestAnimationFrame(drawSimpleQuad);
+        requestAnimationFrame(drawTransformFeedback);
     }
 
-    drawSimpleQuad();
+    drawTransformFeedback();
 }

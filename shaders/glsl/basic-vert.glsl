@@ -3,6 +3,10 @@ uniform mat4 _uni_viewMat;
 #value _uni_modelMat:mat4(1.0)
 uniform mat4 _uni_modelMat;
 
+
+// uniform MVP
+// attr pos, uv
+// varying uv
 #buffer aVertex:quadBuffer, size:3, stride:20, offset:0
 attribute vec3 aVertex;
 
