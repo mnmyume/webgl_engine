@@ -24,7 +24,7 @@ void main() {
 
     if(vSize>1.0 && dist < uRadius) {
         float alpha = dist < uBlurRadius ? 1.0 : smoothstep(1.0, uBlurRadius, dist);
-        gl_FragColor = vec4(vColor, alpha);
+         gl_FragColor = vec4(vColor, alpha);
     } else {
         discard;
     }
