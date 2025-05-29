@@ -7,7 +7,7 @@ import Time from './source/time.js';
 import { initAniTest } from "./demo/aniTest.js";
 import { autumn } from "./demo/autumnWind.js";
 import { initQuad } from "./demo/quad.js";
-import {initTransformFeedback} from "./demo/testTransformFeedback.js";
+import {initTransFeed} from "./demo/testTransFeed.js";
 
 
 function main() {

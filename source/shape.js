@@ -3,15 +3,15 @@ import { $assert } from './common.js';
 const __DEBUG__ = true;
 
 export default class Shape {
-    static RENDERSTATE = {triangle:1,line:2,point:3};
+    static RENDERSTATE = {triangle:1,line:2,point:3,instance:4};
     
     dataBuffer = [];
-    vao = null;
     constructor(name, params={}) {
         this.name = name;
         this.schema = params.schema??[];
         this.state = params.state?? Shape.RENDERSTATE.triangle;
         this.count = params.count??4;
+        this.instanceCount = params.instanceCount??1;
         this.vao = null;
     }
 
@@ -82,12 +82,17 @@ export default class Shape {
             // gl.drawElements(gl.LINES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
         }
         if (this.state == Shape.RENDERSTATE.point) {
-            // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-            // gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
 
             gl.drawArrays(gl.POINTS, 0 , this.count);
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
-            // gl.deleteVertexArray(vertexArray);
+
+        }
+        if (this.state == Shape.RENDERSTATE.instance) {
+
+            gl.drawArraysInstanced(gl.TRIANGLES, 0 , this.count, this.instanceCount);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
         }
 
     };
