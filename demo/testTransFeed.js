@@ -41,11 +41,7 @@ export function initTransFeed(gl, canvas, camera) {
 
 
     // init transform feedback
-    const transformFeedback = new TransformFeedback('transformFeedback',{
-        transformProgram: emitMaterial.shaderProgram,
 
-    });
-    transformFeedback.initialize({gl});
 
 
 
