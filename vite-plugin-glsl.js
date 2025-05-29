@@ -150,8 +150,8 @@ function checkUniformParams( source){
 
         const type = buffer[3*i+1];
         if(isArr){
-
-            const [,varName, GEN_SIZE_NAME] =  $match(/(.+)\[([^\]]*)\]/gm, varName);
+            let GEN_SIZE_NAME;
+            [,varName, GEN_SIZE_NAME] =  $match(/(.+)\[([^\]]*)\]/gm, varName);
             const [,GEN_SIZE] = getDefineValue(GEN_SIZE_NAME, source);
 
             let length = 1;
