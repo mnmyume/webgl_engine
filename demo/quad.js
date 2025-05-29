@@ -7,8 +7,8 @@ import Texture2D from "../source/texture2d.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import { genQuadUV } from "../source/generatorHelper.js";
 
-import vaoQuadVert from "../shaders/glsl/vaoQuad-vert.glsl"
-import vaoQuadFrag from "../shaders/glsl/vaoQuad-frag.glsl"
+import quadVert from "../shaders/glsl/quad-vert.glsl"
+import quadFrag from "../shaders/glsl/quad-frag.glsl"
 
 
 export function initQuad(gl, canvas, camera) {
@@ -20,8 +20,8 @@ export function initQuad(gl, canvas, camera) {
 
     // init quad shader
     const quadShader = new Shader({
-        vertexSource: vaoQuadVert,
-        fragmentSource: vaoQuadFrag,
+        vertexSource: quadVert,
+        fragmentSource: quadFrag,
     });
     quadShader.initialize({gl});
 
@@ -42,7 +42,7 @@ export function initQuad(gl, canvas, camera) {
     const quadData = genQuadUV(quadParams.quadSize);
     const quadShape = new Shape(
         'quad',
-        {count: 6, schema: readAttrSchema(vaoQuadVert.input)});
+        {count: 6, schema: readAttrSchema(quadVert.input)});
     quadShape.initialize({gl});
     quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
 

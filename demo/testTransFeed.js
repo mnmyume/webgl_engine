@@ -9,8 +9,8 @@ import EmitterMaterial from "../source/emitterMaterial.js";
 import { readAttrSchema } from "../source/shapeHelper.js";
 import { genQuadUV } from "../source/generatorHelper.js";
 
-import vaoQuadVert from "../shaders/glsl/vaoQuad-vert.glsl";
-import vaoQuadFrag from "../shaders/glsl/vaoQuad-frag.glsl";
+import vaoQuadVert from "../shaders/glsl/quad-vert.glsl";
+import vaoQuadFrag from "../shaders/glsl/quad-frag.glsl";
 import emitVert from "../shaders/glsl/emit-vert.glsl";
 import emitFrag from "../shaders/glsl/emit-frag.glsl";
 import drawVert from "../shaders/glsl/draw-vert.glsl";
