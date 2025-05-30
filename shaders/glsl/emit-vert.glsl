@@ -29,26 +29,7 @@ float rand(vec2 co)
 
 void main()
 {
-    float theta = M_2PI * rand(vec2(u_time, a_rotation + a_offset.x + a_offset.y));
 
-    float cos_r = cos(a_rotation);
-    float sin_r = sin(a_rotation);
-    mat2 rot = mat2(
-    cos_r, sin_r,
-    -sin_r, cos_r
-    );
-
-    vec2 p = WANDER_CIRCLE_R * vec2(cos(theta), sin(theta)) + vec2(WANDER_CIRCLE_OFFSET, 0.0);
-    vec2 move = normalize(rot * p);
-    v_rotation = atan(move.y, move.x);
-
-    v_offset = a_offset + MOVE_DELTA * move;
-
-    // wrapping at edges
-    v_offset = vec2 (
-    v_offset.x > MAP_HALF_LENGTH ? - MAP_HALF_LENGTH : ( v_offset.x < - MAP_HALF_LENGTH ? MAP_HALF_LENGTH : v_offset.x ) ,
-    v_offset.y > MAP_HALF_LENGTH ? - MAP_HALF_LENGTH : ( v_offset.y < - MAP_HALF_LENGTH ? MAP_HALF_LENGTH : v_offset.y )
-    );
 
     gl_Position = vec4(v_offset, 0.0, 1.0);
 }

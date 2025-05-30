@@ -33,6 +33,8 @@ export function initTransFeed(gl, canvas, camera) {
     emitShader.initialize({gl});
 
 
+
+
     // init emit material
     const emitMaterial = new EmitterMaterial('emitterMat',{
         shader: emitShader,

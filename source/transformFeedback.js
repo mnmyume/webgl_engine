@@ -2,14 +2,14 @@ import {$assert} from "./common.js";
 
 
 export default class TransformFeedback {
-    transformProgram = null;
-    feedbackProgram = null;
+    shape = [];
+    material = [];
     transformFeedback = [];
     index = 0;
-    constructor(name='transformFeedback', params={}) {
-        this.name = name;
-        this.transformProgram = params.transformProgram || null;
-        this.feedbackProgram = params.feedbackProgram || null;
+    constructor(params) {
+        this.shape = params.shape || null;
+        this.material = params.material || null;
+
     }
 
     initialize({ gl }) {
