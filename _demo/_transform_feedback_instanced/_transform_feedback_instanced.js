@@ -30,10 +30,10 @@ export default function main() {
 
     var currentSourceIdx = 0;
 
-    const NUM_VERTS = 3;
+    const NUM_VERT = 3;
     const floatsPerOffset = 2;
     const floatsPerRotation = 1;
-    const floatsPerPosition = NUM_VERTS * 2; // 3 vertices, 2 floats each
+    const floatsPerPosition = 2;
     const floatsPerColor = 3;
 
     const floatsPerInstance =
@@ -42,37 +42,18 @@ export default function main() {
         floatsPerPosition +
         floatsPerColor;
 
-    const instanceData = new Float32Array(NUM_INSTANCES * floatsPerInstance);
-
-
-    const trianglePositions = [
-        0.015, 0.0,
-        -0.010, 0.010,
-        -0.010, -0.010,
-    ];
+    let instanceArray = [];
 
     for (let i = 0; i < NUM_INSTANCES; ++i) {
-        const base = i * floatsPerInstance;
 
-        // Location 0 - Offset
-        instanceData[base + 0] = Math.random() * 2.0 - 1.0; // offset x
-        instanceData[base + 1] = Math.random() * 2.0 - 1.0; // offset y
-
-        // Location 1 - Rotation
-        instanceData[base + 2] = Math.random() * 2 * Math.PI;
-
-        // Location 2 - Position (static triangle shape)
-        for (let j = 0; j < floatsPerPosition; ++j) {
-            instanceData[base + 3 + j] = trianglePositions[j];
-        }
-
-        // Location 3 - Color
-        const colorBase = base + 3 + floatsPerPosition;
-        instanceData[colorBase + 0] = 1;//Math.random(); // r
-        instanceData[colorBase + 1] = 0;//Math.random(); // g
-        instanceData[colorBase + 2] = 0;//Math.random(); // b
+        instanceArray.push(
+            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI,  0.015,  0.0,   1, 0, 0,
+            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI, -0.010,  0.010, 1, 0, 0,
+            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI, -0.010, -0.010, 1, 0, 0,
+        );
     }
 
+    const instanceData = new Float32Array(instanceArray);
 
 
     // -- Init Vertex Array
@@ -100,30 +81,30 @@ export default function main() {
         // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][OFFSET_LOCATION]);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
         gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STREAM_COPY);
-        gl.vertexAttribPointer(OFFSET_LOCATION, 2, gl.FLOAT, false, 48, 0);
+        gl.vertexAttribPointer(OFFSET_LOCATION, 2, gl.FLOAT, false, 32, 0);
         gl.enableVertexAttribArray(OFFSET_LOCATION);
 
         // vertexBuffers[va][ROTATION_LOCATION] = gl.createBuffer();
         // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][ROTATION_LOCATION]);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
         gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STREAM_COPY);
-        gl.vertexAttribPointer(ROTATION_LOCATION, 1, gl.FLOAT, false, 48, 8);
+        gl.vertexAttribPointer(ROTATION_LOCATION, 1, gl.FLOAT, false, 32, 8);
         gl.enableVertexAttribArray(ROTATION_LOCATION);
 
         // vertexBuffers[va][POSITION_LOCATION] = gl.createBuffer();
         // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][POSITION_LOCATION]);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
         gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(POSITION_LOCATION, 2, gl.FLOAT, false, 48, 12);
+        gl.vertexAttribPointer(POSITION_LOCATION, 2, gl.FLOAT, false, 32, 12);
         gl.enableVertexAttribArray(POSITION_LOCATION);
 
         // vertexBuffers[va][COLOR_LOCATION] = gl.createBuffer();
         // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][COLOR_LOCATION]);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
         gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(COLOR_LOCATION, 3, gl.FLOAT, false, 48, 36);
+        gl.vertexAttribPointer(COLOR_LOCATION, 3, gl.FLOAT, false, 32, 20);
         gl.enableVertexAttribArray(COLOR_LOCATION);
-        gl.vertexAttribDivisor(COLOR_LOCATION, 1); // attribute used once per instance
+        // gl.vertexAttribDivisor(COLOR_LOCATION, 1); // attribute used once per instance
 
         gl.bindVertexArray(null);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -252,8 +233,8 @@ export default function main() {
         var time = Date.now();
         gl.uniform1f(drawTimeLocation, time);
 
-        gl.drawArraysInstanced(gl.TRIANGLES, 0, 3, NUM_INSTANCES);
-
+        // gl.drawArraysInstanced(gl.TRIANGLES, 0, 3, NUM_INSTANCES);
+        gl.drawArrays(gl.TRIANGLES, 0, NUM_INSTANCES*3);
         requestAnimationFrame(render);
     }
 
