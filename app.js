@@ -8,7 +8,7 @@ import Time from './source/time.js';
 import { initSimpleQuad } from "./demo/simpleQuad.js";
 import { autumn } from "./demo/autumnWind.js";
 import { initAniTest } from "./demo/aniTest.js";
-import { initSnow } from "./demo/snow.js";
+import { initSnow } from "./demo/snowCleaned.js";
 import { initBlastParticle } from "./demo/blastParticle.js";
 import { test } from "./demo/test.js";
 

@@ -40,7 +40,7 @@ export default class Shape {
         }
 
 
-        for(const [key,value] of Object.entries(material.dataLocation.attributes)){
+        for(const [key,value] of Object.entries(material.dataLocation.input)){
             $assert(value>=0);
             gl.enableVertexAttribArray(value);
             const dataBuffer = this.dataBuffer.find(ele=>ele.value.find(({attribute})=>attribute === key));

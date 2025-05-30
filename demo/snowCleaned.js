@@ -11,17 +11,19 @@ import { sqrtFloor } from "../source/mathHelper.js";
 import { readAttrSchema } from "../source/shapeHelper.js";
 import { genAngVel, genLinVel, genQuad, genRectHaltonPos } from "../source/generatorHelper.js";
 
-import {
-    arrowFrag,
-    arrowVert, basicFrag,
-    basicVert,
-    screenQuadFrag,
-    screenQuadVert,
-    solverFrag,
-    solverPartiVert,
-    solverPartiFrag
-} from "../shaders/output.js";
+// import {
+//     screenQuadFrag,
+//     screenQuadVert,
+//     solverFrag,
+//     solverPartiVert,
+//     solverPartiFrag
+// } from "../shaders/output.js";
 
+import solverPartiVert from "../shaders/glsl/solverParti-vert.glsl";
+import solverPartiFrag from "../shaders/glsl/solverParti-frag.glsl";
+import solverFrag from "../shaders/glsl/solver-frag.glsl";
+import screenQuadFrag from "../shaders/glsl/screenQuad-frag.glsl";
+import screenQuadVert from "../shaders/glsl/screenQuad-vert.glsl";
 
 export function initSnow(gl, canvas, camera) {
 
@@ -105,7 +107,7 @@ export function initSnow(gl, canvas, camera) {
     // const obstacleShape = new Shape(
     //     'obstacle',
     //     {count:1,
-    //      schema:readAttrSchema(obstacleVert.attribute),
+    //      schema:readAttrSchema(obstacleVert.input),
     //      state:3});
     // obstacleShape.initialize({ gl });
     // obstacleShape.update(gl, 'obstacleBuffer', [0,0]);
@@ -230,7 +232,7 @@ export function initSnow(gl, canvas, camera) {
             'particle',
             {
                 count: partiCount,
-                schema: readAttrSchema(solverPartiVert.attribute),
+                schema: readAttrSchema(solverPartiVert.input),
                 state: 3
             });
         partiShape.initialize({gl});
@@ -238,59 +240,11 @@ export function initSnow(gl, canvas, camera) {
     }
 
 
-    // -----------------------------------------
-    // init emitter quad shader
-    const emitterQuadShader = new Shader({
-        vertexSource: basicVert,
-        fragmentSource: basicFrag
-    });
-    emitterQuadShader.initialize({gl});
 
-    // init emitter quad transform
-    const emitterQuadTransform = new Transform();
-    emitterQuadTransform.setPosition(0, emitterHeight, 0);
-    emitterQuadTransform.scale(15, 15, 15);
 
-    //init emitter quad material
-    const emitterQuadMaterial = new Material('emitterQuadMat',{
-        shader: emitterQuadShader
-    });
-    emitterQuadMaterial.initialize({gl});
-    emitterQuadMaterial.setUniform('uColor', [0, 1, 0]);
 
-    // init emitter quad shape
-    const emitterQuadData = genQuad(1);
-    const emitterQuadShape = new Shape(
-        'emitterQuad',
-        {count: 6, schema: readAttrSchema(basicVert.attribute)});
-    emitterQuadShape.initialize({gl});
-    emitterQuadShape.update(gl, 'quadBuffer', emitterQuadData);
 
-    // -----------------------------------------------------
-    // init ground quad shader
-    const groundQuadShader = new Shader({
-        vertexSource: basicVert,
-        fragmentSource: basicFrag
-    });
-    groundQuadShader.initialize({gl});
 
-    // init ground quad transform
-    const groundQuadTransform = new Transform();
-
-    //init ground quad material
-    const groundQuadMaterial = new Material('groundQuadMat',{
-        shader: groundQuadShader
-    });
-    groundQuadMaterial.initialize({gl});
-    groundQuadMaterial.setUniform('uColor', [1, 0, 0]);
-
-    // init ground quad shape
-    const groundQuadData = genQuad(1.0);
-    const groundQuadShape = new Shape(
-        'groundQuad',
-        {count: 6, schema: readAttrSchema(basicVert.attribute)});
-    groundQuadShape.initialize({gl});
-    groundQuadShape.update(gl, 'quadBuffer', groundQuadData);
 
     // solver.addObstacles(gl);
 
@@ -346,16 +300,9 @@ export function initSnow(gl, canvas, camera) {
 
         gl.disable(gl.BLEND);
 
-        // draw emitter quad
-        emitterQuadMaterial.setTexture('uTex', emitterSlot0[0]);
-        emitterQuadMaterial.preDraw(gl, camera, emitterQuadTransform);
-        emitterQuadShape.draw(gl, emitterQuadMaterial);
-        emitterQuadMaterial.postDraw(gl);
 
-        // draw ground quad
-        groundQuadMaterial.preDraw(gl, camera, groundQuadTransform);
-        groundQuadShape.draw(gl, groundQuadMaterial);
-        groundQuadMaterial.postDraw(gl);
+
+
 
 
         // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);

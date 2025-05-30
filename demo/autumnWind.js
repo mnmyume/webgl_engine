@@ -83,7 +83,7 @@ export function autumn(gl, canvas, camera) {
     // init screen quad shape
     const screenQuadShape = new ScreenQuad(
         'screenQuad',
-        {count: 6, schema: readAttrSchema(screenQuadVert.attribute)});
+        {count: 6, schema: readAttrSchema(screenQuadVert.input)});
     screenQuadShape.initialize({gl});
     screenQuadShape.update(gl, 'quadBuffer')
 

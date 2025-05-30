@@ -26,14 +26,14 @@ export default class Shader {
         //     init:this.initValues,
         // });
 
-        const attributes = this.vertSrc.attribute;
-        const uniforms = {...this.vertSrc.uniform, ...this.fragSrc.uniform};
+        const input = this.vertSrc.input;
+        const uniform = {...this.vertSrc.uniform, ...this.fragSrc.uniform};
         const extension = {...this.vertSrc.extension,...this.fragSrc.extension};
         this.fragment = gl.createShader(gl.FRAGMENT_SHADER);
         this.vertex =gl.createShader(gl.VERTEX_SHADER);
 
-        this.attributes = attributes;
-        this.uniforms = uniforms;
+        this.input = input;
+        this.uniform = uniform;
         this.extension = extension;
         this.compile(gl, this.params);
     }
@@ -61,7 +61,7 @@ export default class Shader {
             {shader:this.vertex,source:this.vertSrc}
         ];
         for(let {shader,source} of shaders){
-            const {attributes, uniforms, code, file} = source;
+            const {input, uniform, code, file} = source;
 
             const extension = [];
             for (const [key, value] of Object.entries(source.extension))
@@ -70,7 +70,7 @@ export default class Shader {
 
             gl.shaderSource(shader, ([...directives,...extension].join('\n') + '\n').concat(code));
             gl.compileShader(shader);
-            $assert(gl.getShaderParameter(shader, gl.COMPILE_STATUS), $getShaderInfo(this.name,gl,shader,file));
+            $assert(gl.getShaderParameter(shader, gl.COMPILE_STATUS), {msg:$getShaderInfo(this.name,gl,shader,file)});
         }
     };
 }
