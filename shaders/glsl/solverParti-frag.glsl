@@ -1,7 +1,5 @@
 precision mediump float;
 
-#value uColorSampler:1
-uniform sampler2D uColorSampler;
 
 #value uBlurRadius:0.1
 uniform float uBlurRadius;

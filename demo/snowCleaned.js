@@ -203,41 +203,26 @@ export function initSnow(gl, canvas, camera) {
 
     let partiMaterial, partiShape;
 
-    // init particle texture
-    const colTexImg = new Image();
-    colTexImg.src = '../resources/arrow2.png';
-    colTexImg.onload = _ => { // TODO
-        const colorTexture = new Texture2D('colorTexture', {
-            image: colTexImg,
-            scaleDown: 'LINEAR',
-            scaleUp: 'LINEAR'
+    partiMaterial = new Material('partiMat',{
+        shader: partiShader
+    });
+    partiMaterial.initialize({gl});
+    partiMaterial.setUniform('uGeneCount', partiParams.geneCount);
+    partiMaterial.setUniform('uPartiCount', partiCount);
+    partiMaterial.setUniform('uMAXCOL', MAXCOL);
+    partiMaterial.setUniform('uBlurRadius', partiParams.blurRadius);
+    partiMaterial.setUniform('uPixelNum', partiParams.pixelNum);
+
+    // init particle shape
+    partiShape = new PartiShape(
+        'particle',
+        {
+            count: partiCount,
+            schema: readAttrSchema(solverPartiVert.input),
+            state: 3
         });
-        colorTexture.initialize({gl});
-
-
-        // init particle material
-        partiMaterial = new Material('partiMat',{
-            shader: partiShader
-        });
-        partiMaterial.initialize({gl});
-        partiMaterial.setUniform('uGeneCount', partiParams.geneCount);
-        partiMaterial.setUniform('uPartiCount', partiCount);
-        partiMaterial.setUniform('uMAXCOL', MAXCOL);
-        partiMaterial.setUniform('uBlurRadius', partiParams.blurRadius);
-        partiMaterial.setUniform('uPixelNum', partiParams.pixelNum);
-
-        partiMaterial.setTexture('uColorSampler', colorTexture);
-        // init particle shape
-        partiShape = new PartiShape(
-            'particle',
-            {
-                count: partiCount,
-                schema: readAttrSchema(solverPartiVert.input),
-                state: 3
-            });
-        partiShape.initialize({gl});
-        partiShape.update(gl, 'partiBuffer');
-    }
+    partiShape.initialize({gl});
+    partiShape.update(gl, 'partiBuffer');
 
 
 
