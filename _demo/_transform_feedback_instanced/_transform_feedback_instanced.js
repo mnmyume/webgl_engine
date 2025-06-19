@@ -47,9 +47,9 @@ export default function main() {
     for (let i = 0; i < NUM_INSTANCES; ++i) {
 
         instanceArray.push(
-            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI,  0.015,  0.0,   1, 0, 0,
-            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI, -0.010,  0.010, 1, 0, 0,
-            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI, -0.010, -0.010, 1, 0, 0,
+            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI,  0.015,  0.0,   Math.random(), Math.random(), Math.random(),
+            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI, -0.010,  0.010, Math.random(), Math.random(), Math.random(),
+            Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0, Math.random() * 2 * Math.PI, -0.010, -0.010, Math.random(), Math.random(), Math.random(),
         );
     }
 
@@ -75,35 +75,39 @@ export default function main() {
     for (var va = 0; va < vertexArrays.length; ++va) {
         gl.bindVertexArray(vertexArrays[va]);
         // vertexBuffers[va] = new Array(NUM_LOCATIONS);
-        vertexBuffers[va] = gl.createBuffer();
+        vertexBuffers[va] = new Array(2);
 
         // vertexBuffers[va][OFFSET_LOCATION] = gl.createBuffer();
         // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][OFFSET_LOCATION]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
+        vertexBuffers[va][0] = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][0]);
         gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STREAM_COPY);
         gl.vertexAttribPointer(OFFSET_LOCATION, 2, gl.FLOAT, false, 32, 0);
         gl.enableVertexAttribArray(OFFSET_LOCATION);
-
-        // vertexBuffers[va][ROTATION_LOCATION] = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][ROTATION_LOCATION]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
-        gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STREAM_COPY);
         gl.vertexAttribPointer(ROTATION_LOCATION, 1, gl.FLOAT, false, 32, 8);
         gl.enableVertexAttribArray(ROTATION_LOCATION);
 
+        // vertexBuffers[va][ROTATION_LOCATION] = gl.createBuffer();
+        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][ROTATION_LOCATION]);
+        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
+        // gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STREAM_COPY);
+
+
         // vertexBuffers[va][POSITION_LOCATION] = gl.createBuffer();
         // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][POSITION_LOCATION]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
+        vertexBuffers[va][1] = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][1]);
         gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
         gl.vertexAttribPointer(POSITION_LOCATION, 2, gl.FLOAT, false, 32, 12);
         gl.enableVertexAttribArray(POSITION_LOCATION);
+        gl.vertexAttribPointer(COLOR_LOCATION, 3, gl.FLOAT, false, 32, 20);
+        gl.enableVertexAttribArray(COLOR_LOCATION);
 
         // vertexBuffers[va][COLOR_LOCATION] = gl.createBuffer();
         // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][COLOR_LOCATION]);
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
-        gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(COLOR_LOCATION, 3, gl.FLOAT, false, 32, 20);
-        gl.enableVertexAttribArray(COLOR_LOCATION);
+        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
+        // gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
+
         // gl.vertexAttribDivisor(COLOR_LOCATION, 1); // attribute used once per instance
 
         gl.bindVertexArray(null);
@@ -111,9 +115,8 @@ export default function main() {
 
         // Set up output
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedbacks[va]);
-        // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, vertexBuffers[va][OFFSET_LOCATION]);
-        // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, vertexBuffers[va][ROTATION_LOCATION]);
-        gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, vertexBuffers[va]);
+        gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, vertexBuffers[va][0]);
+        // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, vertexBuffers[va][1]);
 
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
     }
@@ -181,7 +184,7 @@ export default function main() {
         // https://bugs.chromium.org/p/angleproject/issues/detail?id=2051
         // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, vertexBuffers[destinationIdx][OFFSET_LOCATION]);
         // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, vertexBuffers[destinationIdx][ROTATION_LOCATION]);
-        gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, vertexBuffers[destinationIdx]);
+        gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, vertexBuffers[destinationIdx][0]);
 
         // Attributes per-vertex when doing transform feedback needs setting to 0 when doing transform feedback
         gl.vertexAttribDivisor(OFFSET_LOCATION, 0);
@@ -233,8 +236,8 @@ export default function main() {
         var time = Date.now();
         gl.uniform1f(drawTimeLocation, time);
 
-        // gl.drawArraysInstanced(gl.TRIANGLES, 0, 3, NUM_INSTANCES);
-        gl.drawArrays(gl.TRIANGLES, 0, NUM_INSTANCES*3);
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, 3, NUM_INSTANCES);
+        // gl.drawArrays(gl.TRIANGLES, 0, NUM_INSTANCES*3);
         requestAnimationFrame(render);
     }
 
