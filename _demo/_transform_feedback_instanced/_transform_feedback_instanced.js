@@ -78,8 +78,7 @@ export default function main() {
         // vertexBuffers[va] = new Array(NUM_LOCATIONS);
         vertexBuffers[va] = new Array(3);
 
-        // vertexBuffers[va][OFFSET_LOCATION] = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][OFFSET_LOCATION]);
+
         vertexBuffers[va][0] = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][0]);
         gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STREAM_COPY);
@@ -88,19 +87,14 @@ export default function main() {
         gl.vertexAttribPointer(ROTATION_LOCATION, 1, gl.FLOAT, false, 12, 8);
         gl.enableVertexAttribArray(ROTATION_LOCATION);
 
-        // vertexBuffers[va][ROTATION_LOCATION] = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][ROTATION_LOCATION]);
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
-        // gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STREAM_COPY);
 
-
-        // vertexBuffers[va][POSITION_LOCATION] = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][POSITION_LOCATION]);
         vertexBuffers[va][1] = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][1]);
         gl.bufferData(gl.ARRAY_BUFFER, trianglePositions, gl.STATIC_DRAW);
         gl.vertexAttribPointer(POSITION_LOCATION, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(POSITION_LOCATION);
+
+        gl.vertexAttribDivisor(POSITION_LOCATION, 0);
 
         vertexBuffers[va][2] = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][2]);
@@ -108,10 +102,7 @@ export default function main() {
         gl.vertexAttribPointer(COLOR_LOCATION, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(COLOR_LOCATION);
 
-        // vertexBuffers[va][COLOR_LOCATION] = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][COLOR_LOCATION]);
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va]);
-        // gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.STATIC_DRAW);
+
 
         gl.vertexAttribDivisor(COLOR_LOCATION, 1); // attribute used once per instance
 
@@ -121,7 +112,6 @@ export default function main() {
         // Set up output
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedbacks[va]);
         gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, vertexBuffers[va][0]);
-        // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 1, vertexBuffers[va][1]);
 
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
     }
