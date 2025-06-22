@@ -94,7 +94,7 @@ export default function main() {
         gl.vertexAttribPointer(POSITION_LOCATION, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(POSITION_LOCATION);
 
-        gl.vertexAttribDivisor(POSITION_LOCATION, 0);
+        // gl.vertexAttribDivisor(POSITION_LOCATION, 0);
 
         vertexBuffers[va][2] = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][2]);
