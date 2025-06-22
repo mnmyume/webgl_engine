@@ -1,21 +1,6 @@
 import { halton, sqrtFloor } from "./mathHelper.js";
 
 
-export function genPartiInfo(fbWidth, fbHeight=1, partiCount, duration) {
-    const posPixels = [];  
-    const deltaTime = duration / partiCount;
-
-    for (let row = 0; row < fbHeight; row++) {
-        for (let col = 0; col < fbWidth; col++) {
-            const px = col; // particle ID  
-            const py = deltaTime * col;    // startTime  
-            posPixels.push(px, py, 0, 0);
-        }
-    }
-
-    return new Float32Array(posPixels);  
-}
-
 
 export function genRandCol(MAXCOL) {
     const posPixels = [];

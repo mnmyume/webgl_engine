@@ -7,7 +7,7 @@ import TransformFeedback from "../source/transformFeedback.js";
 import EmitterMaterial from "../source/emitterMaterial.js";
 
 import { readAttrSchema } from "../source/shapeHelper.js";
-import { genQuadUV } from "../source/generatorHelper.js";
+import { genQuadUV, genRectHaltonPos } from "../source/generatorHelper.js";
 
 import vaoQuadVert from "../shaders/glsl/quad-vert.glsl";
 import vaoQuadFrag from "../shaders/glsl/quad-frag.glsl";
@@ -25,24 +25,28 @@ export function initTransFeed(gl, canvas, camera) {
     }
 
 
-    // init emit shader
-    const emitShader = new Shader({
+    // init emitter shader
+    const emitterShader = new Shader({
         vertexSource: emitVert,
         fragmentSource: emitFrag,
     });
-    emitShader.initialize({gl});
+    emitterShader.initialize({gl});
 
 
 
 
-    // init emit material
-    const emitMaterial = new EmitterMaterial('emitterMat',{
-        shader: emitShader,
+    // init emitter material
+    const emitterMaterial = new EmitterMaterial('emitterMat',{
+        shader: emitterShader,
     });
-    emitMaterial.initialize({gl});
+    emitterMaterial.initialize({gl});
 
 
     // init transform feedback
+    const transformFeedback = new TransformFeedback({
+        material: emitterMaterial
+    });
+    transformFeedback.initialize({gl});
 
 
 

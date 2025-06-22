@@ -2,12 +2,6 @@
 #define OFFSET_LOCATION 0
 #define ROTATION_LOCATION 1
 
-#define M_2PI 6.28318530718
-#define MAP_HALF_LENGTH 1.01
-#define WANDER_CIRCLE_R 0.01
-#define WANDER_CIRCLE_OFFSET 0.04
-#define MOVE_DELTA 0.001
-
 precision highp float;
 precision highp int;
 
@@ -31,5 +25,5 @@ void main()
 {
 
 
-    gl_Position = vec4(v_offset, 0.0, 1.0);
+    gl_Position = vec4(1.0, 0.0, 0.0, 1.0);
 }
