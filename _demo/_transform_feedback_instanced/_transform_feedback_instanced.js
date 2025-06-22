@@ -52,14 +52,6 @@ export default function main() {
 
     const instanceData = new Float32Array(instanceArray);
 
-    var instanceColors = new Float32Array(NUM_INSTANCES * 3);
-    for (var i = 0; i < NUM_INSTANCES; ++i) {
-        var ci = i * 3;
-
-        instanceColors[ci] = Math.random();
-        instanceColors[ci + 1] = Math.random();
-        instanceColors[ci + 2] = Math.random();
-    }
 
 
     // -- Init Vertex Array
@@ -81,7 +73,7 @@ export default function main() {
     for (var va = 0; va < vertexArrays.length; ++va) {
         gl.bindVertexArray(vertexArrays[va]);
         // vertexBuffers[va] = new Array(NUM_LOCATIONS);
-        vertexBuffers[va] = new Array(3);
+        vertexBuffers[va] = new Array(2);
 
 
         vertexBuffers[va][0] = gl.createBuffer();
@@ -102,15 +94,6 @@ export default function main() {
         gl.enableVertexAttribArray(COLOR_LOCATION);
 
         // gl.vertexAttribDivisor(POSITION_LOCATION, 0);
-
-        // vertexBuffers[va][2] = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffers[va][2]);
-        // gl.bufferData(gl.ARRAY_BUFFER, instanceColors, gl.STATIC_DRAW);
-        // gl.vertexAttribPointer(COLOR_LOCATION, 3, gl.FLOAT, false, 0, 0);
-        // gl.enableVertexAttribArray(COLOR_LOCATION);
-
-
-
         gl.vertexAttribDivisor(COLOR_LOCATION, 1); // attribute used once per instance
 
         gl.bindVertexArray(null);
