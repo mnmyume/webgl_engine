@@ -9,7 +9,7 @@ import EmitterMaterial from "../source/emitterMaterial.js";
 import EmitterShape from "../source/emitterShape.js";
 
 import { readAttrSchema } from "../source/shapeHelper.js";
-import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos} from "../source/generatorHelper.js";
+import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos, genInitData} from "../source/generatorHelper.js";
 
 import vaoQuadVert from "../shaders/glsl/quad-vert.glsl";
 import vaoQuadFrag from "../shaders/glsl/quad-frag.glsl";
@@ -25,7 +25,7 @@ export function initTransFeed(gl, canvas, camera) {
     const time = new Time();
 
     const particleParams = {
-        particleCount: 1000
+        particleCount: 1
     }
 
 
@@ -43,69 +43,20 @@ export function initTransFeed(gl, canvas, camera) {
     });
     emitterMaterial.initialize({gl});
 
+    const initData = genInitData(particleParams.particleCount);
     const emitterShape = new EmitterShape('emitterShape', {
-        count:6, schema: readAttrSchema(emitVert.attribute)
+        count:6, schema: readAttrSchema(emitVert.input)
     });
     emitterShape.initialize({gl});
-    emitterShape.update(gl, 'emitBuffer');
+    emitterShape.update(gl, 'emitBuffer',{material:emitterMaterial, data:initData});
 
     // init transform feedback
     const solver = new Solver({
         shape: emitterShape,
-        material: emitterMaterial
+        material: emitterMaterial,
+        count: particleParams.particleCount,
     });
     solver.initialize({gl});
-
-
-
-    const emitterSlot0 = [];
-    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
-        const emitterTexture = new Texture2D('emitterTexture', {
-            width: MAXCOL, height: MAXCOL,
-            scaleDown: 'NEAREST',
-            // data: texDataArr[genIndex],
-            scaleUp: 'NEAREST'
-        });
-        emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genRectHaltonPos(emitterSize, gridCorner, MAXCOL, partiParams.size, partiParams.duration));
-        emitterSlot0.push(emitterTexture);
-    }
-    emitterMaterial.setTexture('uEmitterSlot0', emitterSlot0);
-    // emitterMaterial.setTexture('uEmitterSlot0[0]', emitterSlot0[0]);
-
-    const emitterSlot1 = [];
-    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
-        const emitterTexture = new Texture2D('emitterTexture', {
-            width: MAXCOL, height: MAXCOL,
-            scaleDown: 'NEAREST',
-            // data: texDataArr[genIndex],
-            scaleUp: 'NEAREST'
-        });
-        emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genLinVel(MAXCOL));
-        emitterSlot1.push(emitterTexture);
-    }
-    emitterMaterial.setTexture('uEmitterSlot1', emitterSlot1);
-    // emitterMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
-
-    const emitterSlot2 = [];
-    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
-        const emitterTexture = new Texture2D('emitterTexture', {
-            width: MAXCOL, height: MAXCOL,
-            scaleDown: 'NEAREST',
-            // data: texDataArr[genIndex],
-            scaleUp: 'NEAREST'
-        });
-        emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genAngVel(MAXCOL));
-        emitterSlot1.push(emitterTexture);
-    }
-    emitterMaterial.setTexture('uEmitterSlot2', emitterSlot2);
-    // emitterMaterial.setTexture('uEmitterSlot2[0]', emitterSlot2[0]);
-
-
-    emitterMaterial.setUniform('uCount', particleParams.particleCount);
-
 
 
     // init render
@@ -119,14 +70,14 @@ export function initTransFeed(gl, canvas, camera) {
         shader: particleShader,
     });
     particleMaterial.initialize({gl});
-    particleMaterial.setUniform('uCount', particleParams.particleCount);
+    // particleMaterial.setUniform('uCount', particleParams.particleCount);
 
     const particleShape = new Shape('particleShape',{
-        count: 6,
-        schema: readAttrSchema(drawVert.attribute)
+        state: 4, count: 6,
+        schema: readAttrSchema(drawVert.input)
     })
     particleShape.initialize({gl});
-    particleShape.update(gl, 'particleBuffer');
+    particleShape.update(gl, 'particleBuffer', {material:particleMaterial});
 
     function drawTransFeed() {
 

@@ -10,8 +10,8 @@ export default class Shape {
         this.name = name;
         this.schema = params.schema??[];
         this.state = params.state?? Shape.RENDERSTATE.triangle;
-        this.count = params.count??4;
-        this.instanceCount = params.instanceCount??1;
+        this.count = params.count??1;
+        this.verticeCount = params.verticeCount??6;
         this.vao = null;
     }
 

@@ -1,6 +1,25 @@
 import { halton, sqrtFloor } from "./mathHelper.js";
 
+export function genInitData(count) {
+    const stride = 6;
+    const initData = new Float32Array(count * stride);
 
+    for(let i = 0; i < count; i++) {
+        const base = i * stride;
+
+        // a_pos = (0,0,0)
+        initData[base + 0] = 0.0;
+        initData[base + 1] = 0.0;
+        initData[base + 2] = 0.0;
+
+        // a_linVel = (1, 1, 1)
+        initData[base + 3] = 1.0;
+        initData[base + 4] = 1.0;
+        initData[base + 5] = 1.0;
+    }
+
+    return initData;
+}
 
 export function genRandCol(MAXCOL) {
     const posPixels = [];

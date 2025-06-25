@@ -1,28 +1,30 @@
 #version 300 es
-#define OFFSET_LOCATION 0
-#define ROTATION_LOCATION 1
-#define POSITION_LOCATION 2
-#define COLOR_LOCATION 3
+#define POSITION_LOCATION 0
+#define LINEAR_VELOCITY_LOCATION 1
 
 precision highp float;
 precision highp int;
 
-layout(location = POSITION_LOCATION) in vec2 a_position;
-layout(location = ROTATION_LOCATION) in float a_rotation;
-layout(location = OFFSET_LOCATION) in vec2 a_offset;
-layout(location = COLOR_LOCATION) in vec3 a_color;
+#buffer a_pos:particleBuffer, size:3, stride:24, offset:0
+layout(location = POSITION_LOCATION) in vec3 a_pos;
+#buffer a_linVel:particleBuffer, size:3, stride:24, offset:0
+layout(location = LINEAR_VELOCITY_LOCATION) in vec3 a_linVel;
+
+vec3 vertice[6] = vec3[6](
+    vec3(-0.5, 0, -0.5),
+    vec3(-0.5, 0,  0.5),
+    vec3( 0.5, 0,  0.5),
+    vec3(-0.5, 0, -0.5),
+    vec3( 0.5, 0,  0.5),
+    vec3( 0.5, 0, -0.5)
+);
 
 out vec3 v_color;
 
 void main()
 {
-    v_color = a_color;
+    vec3 linVel = a_linVel;
+    vec3 pos = vec3(vertice[gl_VertexID] + a_pos) + linVel*0.0;
 
-    float cos_r = cos(a_rotation);
-    float sin_r = sin(a_rotation);
-    mat2 rot = mat2(
-    cos_r, sin_r,
-    -sin_r, cos_r
-    );
-    gl_Position = vec4(rot * a_position + a_offset, 0.0, 1.0);
+    gl_Position = vec4(pos, 1.0);
 }
