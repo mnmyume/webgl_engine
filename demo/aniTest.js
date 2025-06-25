@@ -4,7 +4,7 @@ import Shader from "../source/shader.js";
 import Material from "../source/material.js";
 import ScreenQuad from "../source/screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
-import Solver from "../source/solver.js";
+import _solver from "../source/_solver.js";
 import Texture2D from "../source/texture2d.js";
 import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos} from "../source/generatorHelper.js";
 import PartiShape from "../source/partiShape.js";
@@ -117,7 +117,7 @@ export function initAniTest(gl, canvas, camera) {
     solverMaterial.initialize({gl});
 
     // init solver
-    const solver = new Solver({
+    const solver = new _solver({
         shape: [screenQuadShape],    // obstacleShape
         material: [solverMaterial],  // obstacleMaterial
         width: fbWidth, height: fbHeight,
@@ -295,7 +295,7 @@ export function initAniTest(gl, canvas, camera) {
 
         // solver.addObstacles(gl);
 
-        solver.Mode = Solver.MODE.init;
+        solver.Mode = _solver.MODE.init;
 
         function drawAniTest() {
 
@@ -356,8 +356,8 @@ export function initAniTest(gl, canvas, camera) {
             // console.log(`Call to doSomething took ${time.FPS} milliseconds.`);
             // solverMaterial.setUniform('uDeltaTime', time.Interval);
 
-            if (solver.Mode === Solver.MODE.init) {
-                solver.Mode = Solver.MODE.play;
+            if (solver.Mode === _solver.MODE.init) {
+                solver.Mode = _solver.MODE.play;
             }
 
             requestAnimationFrame(drawAniTest);
