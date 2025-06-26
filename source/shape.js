@@ -39,8 +39,8 @@ export default class Shape {
         for(const [key,value] of Object.entries(material.dataLocation.attributes)){
             $assert(value>=0);
             gl.enableVertexAttribArray(value);
-            const dataBuffer = this.dataBuffer.find(ele=>ele.value.find(({attribute})=>attribute === key));
-            const {size,stride,offset} = dataBuffer.value.find(({attribute})=>attribute === key);
+            // const dataBuffer = this.dataBuffer.find(ele=>ele.value.find(({attribute})=>attribute === key));
+            const {size,stride,offset} = finder.value.find(({attribute})=>attribute === key);
             gl.vertexAttribPointer(value,parseInt(size), gl.FLOAT, false, parseInt(stride), parseInt(offset));
         }
         gl.bindVertexArray(null);

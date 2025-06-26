@@ -22,7 +22,7 @@ export default class Solver {
         const destIndex = (this.currIndex + 1) % 2;
 
         const sourceVAO = this.shape.vao[this.currIndex];
-        const destBuffer = this.shape.dataBuffer[destIndex].buffer;
+        const destBuffer = this.shape.dataBuffer[destIndex][0].buffer;
         const destTransformFeedback = this.transformFeedback[destIndex];
 
 
@@ -31,6 +31,9 @@ export default class Solver {
         gl.bindVertexArray(sourceVAO);
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, destTransformFeedback);
 
+        // NOTE: The following two lines shouldn't be necessary, but are required to work in ANGLE
+        // due to a bug in its handling of transform feedback objects.
+        // https://bugs.chromium.org/p/angleproject/issues/detail?id=2051
         gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, destBuffer);
 
         // gl.vertexAttribDivisor( , 0);
