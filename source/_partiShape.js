@@ -1,6 +1,6 @@
 import Shape from './shape.js';
 
-export default class PartiShape extends Shape {
+export default class _partiShape extends Shape {
     static RENDERSTATE = {triangle:1,line:2,point:3};
 
     dataBuffer = [];

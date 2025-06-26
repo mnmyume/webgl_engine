@@ -2,12 +2,12 @@ import {sqrtFloor} from "../source/mathHelper.js";
 import Transform from "../source/transform.js";
 import Shader from "../source/shader.js";
 import Material from "../source/material.js";
-import ScreenQuad from "../source/screenQuad.js";
+import _screenQuad from "../source/_screenQuad.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import _solver from "../source/_solver.js";
 import Texture2D from "../source/texture2d.js";
 import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos} from "../source/generatorHelper.js";
-import PartiShape from "../source/partiShape.js";
+import _partiShape from "../source/_partiShape.js";
 import Shape from "../source/shape.js";
 import Time from "../source/time.js";
 
@@ -73,7 +73,7 @@ export function autumn(gl, canvas, camera) {
     screenQuadMaterial.setUniform('uCanvas', [canvas.width, canvas.height]);
 
     // init screen quad shape
-    const screenQuadShape = new ScreenQuad(
+    const screenQuadShape = new _screenQuad(
         'screenQuad',
         {count: 6, schema: readAttrSchema(screenQuadVert.attribute)});
     screenQuadShape.initialize({gl});
@@ -217,7 +217,7 @@ export function autumn(gl, canvas, camera) {
 
         partiMaterial.setTexture('uColorSampler', colorTexture);
         // init particle shape
-        partiShape = new PartiShape(
+        partiShape = new _partiShape(
             'particle',
             {
                 count: partiCount,
