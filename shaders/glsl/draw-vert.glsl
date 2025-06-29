@@ -1,6 +1,7 @@
 #version 300 es
 #define POSITION_LOCATION 0
 #define LINEAR_VELOCITY_LOCATION 1
+#define UV_LOCATION 2
 
 precision highp float;
 precision highp int;

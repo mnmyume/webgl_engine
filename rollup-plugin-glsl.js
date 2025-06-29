@@ -187,21 +187,25 @@ function checkAttrParams(key, source){
             let [, layoutParams] = $match(/layout\((.+)\)/gm, layoutInfo);
             layoutParams = layoutParams.split(',')
             layoutParams.reduce((prev, cur)=>{
-                // const [key, value = true] = cur.split('=');
 
-                let key, value = true;
+                let key, value, location;
+                if(cur === 'location = UV_LOCATION')
+                    debugger;
                 if(cur.includes('='))
-                    [,key,value=true] = $match(/(\S+)[\s]*=[\s]*(\S+)/gm, cur);
+                    [,key,value] = $match(/(\S+)[\s]*=[\s]*(\S+)/gm, cur);
                 else
-                    key = cur;
+                    throw new Error(cur);
 
 
-                if(!$isNumber(value))
-                    [,value] = getDefineValue(value,source);
+                if($isNumber(value))
+                    location = value;
+                else
+                    [,location] = getDefineValue(value,source);
 
-                $assert($isNumber(value));
 
-                prev[key] = value;
+                $assert($isNumber(location), `cannot find #define of ${value} from ${cur}`);
+
+                prev[key] = location;
                 return prev;
             },layout);
         }
