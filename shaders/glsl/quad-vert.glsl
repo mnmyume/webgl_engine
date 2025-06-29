@@ -18,8 +18,8 @@ uniform mat4 _uni_viewMat;
 uniform mat4 _uni_modelMat;
 
 
-#buffer iPos:quadBuffer, size:3, stride:20, offset:0
-layout(location = POSITION_LOCATION) in vec3 iPos;
+#buffer aPos:quadBuffer, size:3, stride:20, offset:0
+layout(location = POSITION_LOCATION) in vec3 aPos;
 
 #buffer aUV:quadBuffer, size:2, stride:20, offset:12
 layout(location = UV_LOCATION) in vec2 aUV;
@@ -29,7 +29,7 @@ flat out vec2 vUV;
 
 void main()
 {
-    vec3 position = iPos;
+    vec3 position = aPos;
     vUV = aUV;
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1.0);
 }

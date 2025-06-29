@@ -3,7 +3,7 @@
 precision highp float;
 precision highp int;
 
-
+in vec3 vColor;
 
 out vec4 color;
 

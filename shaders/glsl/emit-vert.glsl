@@ -31,11 +31,11 @@ uniform float uCount;
 
 
 // transform feedback params
-#buffer a_pos:emitBuffer, size:3, stride:24, offset:0
-layout(location = POSITION_LOCATION) in vec3 a_pos;
+#buffer aPos:emitBuffer, size:3, stride:24, offset:0
+layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer a_linVel:emitBuffer, size:3, stride:24, offset:12
-layout(location = LINEAR_VELOCITY_LOCATION) in vec3 a_linVel;
+#buffer aLinVel:emitBuffer, size:3, stride:24, offset:12
+layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
 out vec3 v_pos;
 out vec3 v_linVel;
@@ -49,7 +49,7 @@ vec3 updatePos(vec3 pos, vec3 linVel) {
 void main()
 {
 
-    v_pos = updatePos(a_pos, a_linVel);
+    v_pos = updatePos(aPos, aLinVel);
 
     gl_Position = vec4(v_pos, 1.0);
 }

@@ -72,7 +72,7 @@ export default class Shape {
             // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
             // gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
-            gl.drawArrays(gl.TRIANGLES, 0 , this.count);
+            gl.drawArrays(gl.TRIANGLES, 0 , this.verticeCount);
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         } 
@@ -90,7 +90,7 @@ export default class Shape {
         }
         if (this.state == Shape.RENDERSTATE.instance) {
 
-            gl.drawArraysInstanced(gl.TRIANGLES, 0 , this.count, this.instanceCount);
+            gl.drawArraysInstanced(gl.TRIANGLES, 0 , this.verticeCount, this.count);
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         }

@@ -73,11 +73,13 @@ export function initTransFeed(gl, canvas, camera) {
     // particleMaterial.setUniform('uCount', particleParams.particleCount);
 
     const particleShape = new Shape('particleShape',{
-        state: 4, count: 6,
+        state: 4, verticeCount: 6, count: particleParams.particleCount,
         schema: readAttrSchema(drawVert.input)
-    })
+    });
     particleShape.initialize({gl});
-    particleShape.update(gl, 'particleBuffer', {material:particleMaterial});
+    particleShape.update(gl, 'particleBuffer', {material:particleMaterial, data:initData});
+    const quadData = genQuadUV(10);
+    particleShape.update(gl,'quadBuffer',{material:particleMaterial, data:quadData});
 
     function drawTransFeed() {
 
