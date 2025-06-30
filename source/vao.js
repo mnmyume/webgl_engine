@@ -6,8 +6,8 @@ export default class VAO{
     dataBuffer;
     name;
     schema;
-    constructor(name, params={schema}) {
-        this.name = name;
+    constructor(bufferName, params={schema}) {
+        this.name = bufferName;
         this.schema = params.schema;
         this.vao = null;
     }

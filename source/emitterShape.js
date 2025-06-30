@@ -3,6 +3,9 @@ import {$assert} from "./common.js";
 
 
 export default class EmitterShape extends Shape {
+    get VAOS(){return this.vaos};
+    set VAOS(value){this.vaos = value};
+
     constructor(name, params = {}) {
         super(name, params);
         this.vao = [];

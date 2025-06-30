@@ -6,6 +6,10 @@ export default class Shape {
     static RENDERSTATE = {triangle:1,line:2,point:3,instance:4};
     
     vaos = [];
+
+
+    get VAOS(){return this.vaos};
+    set VAOS(value){this.vaos = value};
     constructor(name, params={}) {
         this.name = name;
         this.schema = params.schema??[];
