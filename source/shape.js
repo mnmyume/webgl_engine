@@ -11,7 +11,7 @@ export default class Shape {
         this.schema = params.schema??[];
         this.state = params.state?? Shape.RENDERSTATE.triangle;
         this.count = params.count??1;
-        this.verticeCount = params.verticeCount??6;
+        this.verticeCount = params.verticeCount??3;
         this.vao = null;
     }
 
@@ -72,7 +72,7 @@ export default class Shape {
             // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
             // gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
-            gl.drawArrays(gl.TRIANGLES, 0 , this.verticeCount);
+            gl.drawArraysInstanced(gl.TRIANGLES, 0 , this.verticeCount, this.count);
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         } 
@@ -84,17 +84,10 @@ export default class Shape {
         if (this.state == Shape.RENDERSTATE.point) {
 
 
-            gl.drawArrays(gl.POINTS, 0 , this.count);
+            gl.drawArraysInstanced(gl.POINTS, 0, 1, this.count);
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         }
-        if (this.state == Shape.RENDERSTATE.instance) {
-
-            gl.drawArraysInstanced(gl.TRIANGLES, 0 , this.verticeCount, this.count);
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-        }
-
     };
 
 }

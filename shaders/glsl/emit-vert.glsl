@@ -37,8 +37,8 @@ layout(location = POSITION_LOCATION) in vec3 aPos;
 #buffer aLinVel:emitBuffer, size:3, stride:24, offset:12
 layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
-out vec3 v_pos;
-out vec3 v_linVel;
+out vec3 vPos;
+out vec3 vLinVel;
 
 
 vec3 updatePos(vec3 pos, vec3 linVel) {
@@ -49,7 +49,8 @@ vec3 updatePos(vec3 pos, vec3 linVel) {
 void main()
 {
 
-    v_pos = updatePos(aPos, aLinVel);
+    vPos = updatePos(aPos, aLinVel);
+    vLinVel = aLinVel;
 
-    gl_Position = vec4(v_pos, 1.0);
+    gl_Position = vec4(vPos, 1.0);
 }

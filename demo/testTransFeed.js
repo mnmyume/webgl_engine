@@ -48,7 +48,7 @@ export function initTransFeed(gl, canvas, camera) {
         count:6, schema: readAttrSchema(emitVert.input)
     });
     emitterShape.initialize({gl});
-    emitterShape.update(gl, 'emitBuffer',{material:emitterMaterial, data:initData});
+
 
     // init transform feedback
     const solver = new Solver({
@@ -57,6 +57,8 @@ export function initTransFeed(gl, canvas, camera) {
         count: particleParams.particleCount,
     });
     solver.initialize({gl});
+
+    emitterShape.update(gl, 'emitBuffer',{material:emitterMaterial, data:initData, solver:solver});
 
 
     // init render
@@ -73,13 +75,13 @@ export function initTransFeed(gl, canvas, camera) {
     // particleMaterial.setUniform('uCount', particleParams.particleCount);
 
     const particleShape = new Shape('particleShape',{
-        state: 4, verticeCount: 6, count: particleParams.particleCount,
+        state: 3, count: particleParams.particleCount,
         schema: readAttrSchema(drawVert.input)
     });
     particleShape.initialize({gl});
-    // particleShape.update(gl, 'particleBuffer', {material:particleMaterial, data:initData});
+    particleShape.update(gl, 'particleBuffer', {material:particleMaterial, data:initData});
     const quadData = genQuadUV(10);
-    particleShape.update(gl,'particleBuffer',{material:particleMaterial, data:quadData});
+    // particleShape.update(gl,'particleBuffer',{material:particleMaterial, data:quadData});
 
     function drawTransFeed() {
 
