@@ -80,7 +80,7 @@ export function initTransFeed(gl, canvas, camera) {
     // particleShape.update(gl, 'particleBuffer', {material:particleMaterial, data:initData});
     const quadData = genQuadUV(10);
     particleShape.update(gl,'particleBuffer',{material:particleMaterial, data:quadData});
-
+    debugger;
     function drawTransFeed() {
 
 
