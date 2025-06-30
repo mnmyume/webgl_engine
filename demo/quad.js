@@ -4,7 +4,7 @@ import Material from "../source/material.js";
 import Shape from "../source/shape.js";
 import Texture2D from "../source/texture2d.js";
 
-import {readAttrSchema} from "../source/shapeHelper.js";
+import { readAttrSchema } from "../source/shapeHelper.js";
 import { genQuadUV } from "../source/generatorHelper.js";
 
 import quadVert from "../shaders/glsl/quad-vert.glsl"

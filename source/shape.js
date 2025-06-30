@@ -17,11 +17,11 @@ export default class Shape {
     }
 
     initialize({ gl }) {
-        for(const {key, value} of this.schema)
-            this.vaos.push(new VAO(key, {schema: value}));
-
-
-
+        for(const {name, value} of this.schema) {
+            const vao = new VAO(name, {schema: value});
+            vao.initialize({gl});
+            this.vaos.push(vao);
+        }
 
     };
     update(gl, key, {material, data, type='STATIC_DRAW'}) {
@@ -73,7 +73,7 @@ export default class Shape {
 
 
         for(const vao of this.vaos)
-            gl.bindVertexArray(vao);
+            gl.bindVertexArray(vao.vao);
 
 
         if (this.state == Shape.RENDERSTATE.triangle) {

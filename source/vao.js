@@ -8,7 +8,7 @@ export default class VAO{
     schema;
     constructor(name, params={schema}) {
         this.name = name;
-        this.schema = schema;
+        this.schema = params.schema;
         this.vao = null;
     }
     initialize({ gl }) {
