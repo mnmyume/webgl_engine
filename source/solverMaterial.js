@@ -1,6 +1,6 @@
 import Material from "./material.js";
 
-export default class EmitterMaterial extends Material {
+export default class SolverMaterial extends Material {
     varyings = null;
     constructor(name, params = {}) {
         super(name, params);

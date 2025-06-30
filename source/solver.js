@@ -21,20 +21,21 @@ export default class Solver {
 
         const destIndex = (this.currIndex + 1) % 2;
 
-        const sourceVAO = this.shape.vao[this.currIndex];
-        const destBuffer = this.shape.dataBuffer[destIndex][0].buffer;
+        const currVAO = this.shape.vaos[this.currIndex];
+        const destVAO = this.shape.vaos[destIndex];
+        const destBuffer = destVAO.dataBuffer.buffer;
         const destTransformFeedback = this.transformFeedbacks[destIndex];
 
 
         this.material.preDraw(gl);
 
-        gl.bindVertexArray(sourceVAO);
+        gl.bindVertexArray(currVAO.vao);
         gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, destTransformFeedback);
 
         // NOTE: The following two lines shouldn't be necessary, but are required to work in ANGLE
         // due to a bug in its handling of transform feedback objects.
         // https://bugs.chromium.org/p/angleproject/issues/detail?id=2051
-        // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, destBuffer);
+        gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, destBuffer);
 
 
         for (const attr in this.material.attributes) {

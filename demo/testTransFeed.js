@@ -5,8 +5,8 @@ import Material from "../source/material.js";
 import Shape from "../source/shape.js";
 import Texture2D from "../source/texture2d.js";
 import Solver from "../source/solver.js";
-import EmitterMaterial from "../source/emitterMaterial.js";
-import EmitterShape from "../source/emitterShape.js";
+import SolverMaterial from "../source/solverMaterial.js";
+import SolverShape from "../source/solverShape.js";
 
 import { readAttrSchema } from "../source/shapeHelper.js";
 import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos, genInitData} from "../source/generatorHelper.js";
@@ -29,36 +29,37 @@ export function initTransFeed(gl, canvas, camera) {
     }
 
 
-    // init emitter shader
-    const emitterShader = new Shader({
+    // init solver shader
+    const solverShader = new Shader({
         vertexSource: emitVert,
         fragmentSource: emitFrag,
     });
-    emitterShader.initialize({gl});
+    solverShader.initialize({gl});
 
 
-    // init emitter material
-    const emitterMaterial = new EmitterMaterial('emitterMat',{
-        shader: emitterShader,
+    // init solver material
+    const solverMaterial = new SolverMaterial('emitterMat',{
+        shader: solverShader,
     });
-    emitterMaterial.initialize({gl});
+    solverMaterial.initialize({gl});
 
+
+    // init solver shape
     const initData = genInitData(particleParams.particleCount);
-    const emitterShape = new EmitterShape('emitterShape', {
+    const solverShape = new SolverShape('solverShape', {
         count:6, schema: readAttrSchema(emitVert.input)
     });
-    emitterShape.initialize({gl});
+    solverShape.initialize({gl});
+    solverShape.update(gl, 'particleBuffer',{material:solverMaterial, data:initData});
 
 
     // init transform feedback
     const solver = new Solver({
-        shape: emitterShape,
-        material: emitterMaterial,
+        shape: solverShape,
+        material: solverMaterial,
         count: particleParams.particleCount,
     });
     solver.initialize({gl});
-
-    emitterShape.update(gl, 'emitBuffer',{material:emitterMaterial, data:initData, solver:solver});
 
 
     // init render
@@ -74,22 +75,22 @@ export function initTransFeed(gl, canvas, camera) {
     particleMaterial.initialize({gl});
     // particleMaterial.setUniform('uCount', particleParams.particleCount);
 
+
     const particleShape = new Shape('particleShape',{
-        state: 3, count: particleParams.particleCount,
+        state: 3, count: particleParams.particleCount, vaos: solverShape.VAOS,
         schema: readAttrSchema(drawVert.input)
     });
-    particleShape.initialize({gl});
-    particleShape.update(gl, 'particleBuffer', {material:particleMaterial, data:initData});
-    const quadData = genQuadUV(10);
-
+    // particleShape.initialize({gl});
+    // particleShape.update(gl, 'particleBuffer', {material:particleMaterial});
+    // const quadData = genQuadUV(10);
     // particleShape.update(gl,'particleBuffer',{material:particleMaterial, data:quadData});
 
     function drawTransFeed() {
 
 
         time.update();
-        emitterMaterial.setUniform('uTime', time.ElapsedTime);
-        emitterMaterial.setUniform('uDeltaTime', time.Interval);
+        solverMaterial.setUniform('uTime', time.ElapsedTime);
+        solverMaterial.setUniform('uDeltaTime', time.Interval);
 
         solver.update(gl);
 

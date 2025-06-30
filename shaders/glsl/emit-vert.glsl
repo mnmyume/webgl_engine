@@ -31,10 +31,10 @@ uniform float uCount;
 
 
 // transform feedback params
-#buffer aPos:emitBuffer, size:3, stride:24, offset:0
+#buffer aPos:particleBuffer, size:3, stride:24, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aLinVel:emitBuffer, size:3, stride:24, offset:12
+#buffer aLinVel:particleBuffer, size:3, stride:24, offset:12
 layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
 out vec3 vPos;
