@@ -77,9 +77,9 @@ export function initTransFeed(gl, canvas, camera) {
         schema: readAttrSchema(drawVert.input)
     });
     particleShape.initialize({gl});
-    particleShape.update(gl, 'particleBuffer', {material:particleMaterial, data:initData});
+    // particleShape.update(gl, 'particleBuffer', {material:particleMaterial, data:initData});
     const quadData = genQuadUV(10);
-    particleShape.update(gl,'quadBuffer',{material:particleMaterial, data:quadData});
+    particleShape.update(gl,'particleBuffer',{material:particleMaterial, data:quadData});
 
     function drawTransFeed() {
 
