@@ -4,7 +4,7 @@ import {$assert} from "./common.js";
 export default class Solver {
     shape = [];
     material = [];
-    transformFeedback = [];
+    transformFeedbacks = [];
     currIndex = 0;
     constructor(params) {
         this.shape = params.shape || null;
@@ -13,7 +13,7 @@ export default class Solver {
     }
 
     initialize({ gl }) {
-        this.transformFeedback = [gl.createTransformFeedback(), gl.createTransformFeedback()];
+        this.transformFeedbacks = [gl.createTransformFeedback(), gl.createTransformFeedback()];
 
     }
 
@@ -23,7 +23,7 @@ export default class Solver {
 
         const sourceVAO = this.shape.vao[this.currIndex];
         const destBuffer = this.shape.dataBuffer[destIndex][0].buffer;
-        const destTransformFeedback = this.transformFeedback[destIndex];
+        const destTransformFeedback = this.transformFeedbacks[destIndex];
 
 
         this.material.preDraw(gl);
@@ -34,9 +34,12 @@ export default class Solver {
         // NOTE: The following two lines shouldn't be necessary, but are required to work in ANGLE
         // due to a bug in its handling of transform feedback objects.
         // https://bugs.chromium.org/p/angleproject/issues/detail?id=2051
-        gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, destBuffer);
+        // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, destBuffer);
 
-        // gl.vertexAttribDivisor( , 0);
+
+        for (const attr in this.material.attributes) {
+            gl.vertexAttribDivisor(this.material.dataLocation.attributes[attr], 0);
+        }
 
         gl.enable(gl.RASTERIZER_DISCARD);
 
@@ -53,6 +56,13 @@ export default class Solver {
 
         this.currIndex = (this.currIndex + 1) % 2;
 
+
+        // debug
+        gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
+        const floatsPerParticle = 6;
+        const readbackArray = new Float32Array(this.count * floatsPerParticle);
+        gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
+        console.log(readbackArray);
     }
 
 

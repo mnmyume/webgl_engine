@@ -17,9 +17,9 @@ export default class EmitterShape extends Shape {
         this.vao = [gl.createVertexArray(), gl.createVertexArray()];
     }
 
-    update(gl, key, {material, data, type='STATIC_DRAW'}) {
+    update(gl, key, {material, data, solver, type='STATIC_DRAW'}) {
         // const buffIndex = 0;
-        for(let buffIndex=0;buffIndex<2;buffIndex++){
+        for(let buffIndex=0; buffIndex<2; buffIndex++){
             const finder = this.dataBuffer[buffIndex].find(ele=>ele.name === key);
             $assert(finder);
             if(!finder) return;
@@ -28,6 +28,10 @@ export default class EmitterShape extends Shape {
 
 
             gl.bindVertexArray(this.vao[buffIndex]);
+
+            for (const attr in material.attributes) {
+                gl.vertexAttribDivisor(material.dataLocation.attributes[attr], 1);
+            }
 
             gl.bindBuffer(gl.ARRAY_BUFFER, finder.buffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl[type]);
@@ -41,6 +45,12 @@ export default class EmitterShape extends Shape {
             }
             gl.bindVertexArray(null);
             gl.bindVertexArray(null);
+
+            // set up output
+            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, solver.transformFeedbacks[buffIndex]);
+            gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, finder.buffer);
+
+            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
         }
 
     }
@@ -50,6 +60,9 @@ export default class EmitterShape extends Shape {
     }
 
     draw(gl, material) {
+
+
+
 
     }
 }

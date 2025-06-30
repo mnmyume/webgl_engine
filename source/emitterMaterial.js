@@ -1,6 +1,7 @@
 import Material from "./material.js";
 
 export default class EmitterMaterial extends Material {
+    varyings = null;
     constructor(name, params = {}) {
         super(name, params);
     }
@@ -19,8 +20,8 @@ export default class EmitterMaterial extends Material {
 
 
         // transform feedback
-        const varyings = Object.keys(this.shader.vertSrc.output);
-        gl.transformFeedbackVaryings(this.shaderProgram, varyings, gl.INTERLEAVED_ATTRIBS);
+        this.varyings = Object.keys(this.shader.vertSrc.output);
+        gl.transformFeedbackVaryings(this.shaderProgram, this.varyings, gl.INTERLEAVED_ATTRIBS);
 
 
         gl.linkProgram(this.shaderProgram);
