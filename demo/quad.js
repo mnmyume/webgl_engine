@@ -42,7 +42,7 @@ export function initQuad(gl, canvas, camera) {
     const quadData = genQuadUV(quadParams.quadSize);
     const quadShape = new Shape(
         'quad',
-        {count: 6, schema: readAttrSchema(quadVert.input)});
+        {verticeCount: 6, schema: readAttrSchema(quadVert.input)});
     quadShape.initialize({gl});
     quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
 

@@ -65,28 +65,30 @@ void main()
     vec2 angVel;
     float size;
 
-    vec2 emitterUV = getEmitterCoord(gl_InstanceID, uMAXCOL);
+    float particleID = float(gl_InstanceID);
+    vec2 emitterUV = getEmitterCoord(particleID, uMAXCOL);
 
-    float startTime = texture2D(uEmitterSlot0[0], emitterUV).w;
+    float startTime = texture(uEmitterSlot0[0], emitterUV).w;
     float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
     float percentLife = localTime / uLifeTime;
 
-//    int lastGene = int(texture2D(uDataSlot1, uv).w);
+//    int lastGene = int(texture(uDataSlot1, uv).w);
     int lastGene = -1;
     int generation = uTime - startTime > 0.0 ? int(mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE))) : -1;
 
     bool emit = generation!=lastGene;
-    if(emit || uState == 1){
+//    if(emit || uState == 1){
+    if(uState == 1){
         vec2 emitterPos = vec2(0,0);
 
         if(generation == 0){
-            size = texture2D(uEmitterSlot0[0], emitterUV).z;
-            emitterPos = texture2D(uEmitterSlot0[0], emitterUV).xy;
-            linVel = texture2D(uEmitterSlot1[0], emitterUV).xyz;
+            size = texture(uEmitterSlot0[0], emitterUV).z;
+            emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
+            linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
         }else if(generation == 1){
-            size = texture2D(uEmitterSlot0[1], emitterUV).z;
-            emitterPos = texture2D(uEmitterSlot0[1], emitterUV).xy;
-            linVel = texture2D(uEmitterSlot1[1], emitterUV).xyz;
+            size = texture(uEmitterSlot0[1], emitterUV).z;
+            emitterPos = texture(uEmitterSlot0[1], emitterUV).xy;
+            linVel = texture(uEmitterSlot1[1], emitterUV).xyz;
         }
 
         pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
@@ -96,7 +98,7 @@ void main()
 
         pos = aPos;
         vec3 oldVel = aLinVel;
-        size = texture2D(uEmitterSlot0[0], emitterUV).z;
+        size = texture(uEmitterSlot0[0], emitterUV).z;
 
 //        float gravitySwitcher = uFieldParams[0].x;
 //        vec3 gravity = uFieldParams[0].yzw;
@@ -121,9 +123,8 @@ void main()
 //        }
 
         pos = updatePos(pos, oldVel);
-        linVel = oldVel;
+        linVel = vec3(-20);
     }
-
 
     gl_Position = vec4(pos, 1.0);
 

@@ -2,22 +2,35 @@ import {$assert} from "./common.js";
 
 
 export default class Solver {
+    static MODE = {init:1, play:2}
     shape = [];
     material = [];
     transformFeedbacks = [];
     currIndex = 0;
+
+    get Mode(){return this.mode;}
+    set Mode(value){this.mode=value;}
+
     constructor(params) {
         this.shape = params.shape || null;
         this.material = params.material || null;
         this.count = params.count || 1;
+        this.mode = params.mode || 0;
+        this.loop = params.loop || false;
     }
 
     initialize({ gl }) {
         this.transformFeedbacks = [gl.createTransformFeedback(), gl.createTransformFeedback()];
 
+        this.material.setUniform('uLoop', this.loop);
     }
 
     update(gl) {
+
+        if(!(this.mode & Solver.MODE.play || this.mode & Solver.MODE.init ))
+            return;
+
+        this.material.setUniform('uState', this.mode);
 
         const destIndex = (this.currIndex + 1) % 2;
 
@@ -59,11 +72,11 @@ export default class Solver {
 
 
         // debug
-        // gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
-        // const floatsPerParticle = 6;
-        // const readbackArray = new Float32Array(this.count * floatsPerParticle);
-        // gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
-        // console.log(readbackArray);
+        gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
+        const floatsPerParticle = 6;
+        const readbackArray = new Float32Array(this.count * floatsPerParticle);
+        gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
+        console.log(readbackArray);
     }
 
 

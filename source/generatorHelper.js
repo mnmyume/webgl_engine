@@ -7,15 +7,15 @@ export function genInitData(count) {
     for(let i = 0; i < count; i++) {
         const base = i * stride;
 
-        // a_pos = (0,0,0)
+        // a_pos
         initData[base + 0] = 0;
         initData[base + 1] = 0;
         initData[base + 2] = 0;
 
-        // a_linVel = (1, 1, 1)
-        initData[base + 3] = 10;
-        initData[base + 4] = 10;
-        initData[base + 5] = 10;
+        // a_linVel
+        initData[base + 3] = 0;
+        initData[base + 4] = 0;
+        initData[base + 5] = 0;
     }
 
     return initData;
@@ -149,3 +149,4 @@ export function genQuadUV(size){
         halfSize,       0,     -halfSize,       1, 0,
     ]
 }
+

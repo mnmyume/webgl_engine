@@ -8,16 +8,16 @@ import Solver from "../source/solver.js";
 import SolverMaterial from "../source/solverMaterial.js";
 import SolverShape from "../source/solverShape.js";
 
-import { readAttrSchema } from "../source/shapeHelper.js";
+import {readAttrSchema} from "../source/shapeHelper.js";
 import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos, genInitData} from "../source/generatorHelper.js";
+import {sqrtFloor} from "../source/mathHelper.js";
 
-import vaoQuadVert from "../shaders/glsl/quad-vert.glsl";
-import vaoQuadFrag from "../shaders/glsl/quad-frag.glsl";
+import quadVert from "../shaders/glsl/quad-vert.glsl";
+import quadFrag from "../shaders/glsl/quad-frag.glsl";
 import emitVert from "../shaders/glsl/emit-vert.glsl";
 import emitFrag from "../shaders/glsl/emit-frag.glsl";
 import snowVert from "../shaders/glsl/snow-vert.glsl";
 import snowFrag from "../shaders/glsl/snow-frag.glsl";
-import {sqrtFloor} from "../source/mathHelper.js";
 
 
 
@@ -26,7 +26,7 @@ export function initSnow(gl, canvas, camera) {
     const time = new Time();
     const MAXGENSIZE = 2;
     const particleParams = {
-        particleCount: 1,
+        count: 1,
         duration: 8,
         lifeTime: 8,
         size: 40,
@@ -35,7 +35,7 @@ export function initSnow(gl, canvas, camera) {
         emitterSize: 16,
         emitterHeight: 40
     }
-    const MAXCOL = sqrtFloor(particleParams.particleCount);
+    const MAXCOL = sqrtFloor(particleParams.count);
 
     const solverParams = {
         gravitySwitcher: 1,
@@ -61,13 +61,13 @@ export function initSnow(gl, canvas, camera) {
     solverShader.initialize({gl});
 
 
-    const solverMaterial = new SolverMaterial('emitterMat',{
+    const solverMaterial = new SolverMaterial('solverMaterial',{
         shader: solverShader,
     });
     solverMaterial.initialize({gl});
 
 
-    const initData = genInitData(particleParams.particleCount);
+    const initData = genInitData(particleParams.count);
     const solverShape = new SolverShape('solverShape', {
         count:6, schema: readAttrSchema(emitVert.input)
     });
@@ -75,9 +75,8 @@ export function initSnow(gl, canvas, camera) {
 
 
     const solver = new Solver({
-        shape: solverShape,
-        material: solverMaterial,
-        count: particleParams.particleCount,
+        shape: solverShape, material: solverMaterial,
+        count: particleParams.count, mode:1, loop:true
     });
     solver.initialize({gl});
 
@@ -129,6 +128,8 @@ export function initSnow(gl, canvas, camera) {
     solverMaterial.setTexture('uEmitterSlot2', emitterSlot2);
     // solverMaterial.setTexture('uEmitterSlot2[0]', emitterSlot2[0]);
 
+    solverMaterial.setUniform('uEmitterTransform', emitterTransform.matrix);
+
 
     // init render
     const particleShader = new Shader({
@@ -137,7 +138,7 @@ export function initSnow(gl, canvas, camera) {
     });
     particleShader.initialize({gl});
 
-    const particleMaterial = new Material('particleMat',{
+    const particleMaterial = new Material('particleMaterial',{
         shader: particleShader,
     });
     particleMaterial.initialize({gl});
@@ -145,20 +146,53 @@ export function initSnow(gl, canvas, camera) {
 
 
     const particleShape = new Shape('particleShape',{
-        state: 3, count: particleParams.particleCount, vaos: solverShape.VAOS,
+        state: 3, count: particleParams.count, vaos: solverShape.VAOS,
         schema: readAttrSchema(snowVert.input)
     });
-    // particleShape.initialize({gl});
-    // particleShape.update(gl, 'particleBuffer', {material:particleMaterial});
-    // const quadData = genQuadUV(10);
-    // particleShape.update(gl,'particleBuffer',{material:particleMaterial, data:quadData});
+
+
+    // init quads
+    const quadShader = new Shader({
+        vertexSource: quadVert,
+        fragmentSource: quadFrag
+    });
+    quadShader.initialize({gl});
+
+    const emitterQuadMaterial = new Material('emitterQuadMaterial', {
+        shader: quadShader
+    })
+    emitterQuadMaterial.initialize({gl});
+
+    const emitterQuadData = genQuadUV(particleParams.emitterSize);
+    const emitterQuadShape = new Shape('emitterQuadShape', {
+        verticeCount: 6, schema: readAttrSchema(quadVert.input)
+    });
+    emitterQuadShape.initialize({gl});
+    emitterQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:emitterQuadData});
+
+
+    const groundQuadMaterial = new Material('emitterQuadMaterial', {
+        shader: quadShader
+    })
+    groundQuadMaterial.initialize({gl});
+
+    const groundQuadData = genQuadUV(5);
+    const groundQuadShape = new Shape('emitterQuadShape', {
+        verticeCount: 6, schema: readAttrSchema(quadVert.input)
+    });
+    groundQuadShape.initialize({gl});
+    groundQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:groundQuadData});
+
+
 
     function drawSnow() {
 
+        requestAnimationFrame(drawSnow);
 
         time.update();
         solverMaterial.setUniform('uTime', time.ElapsedTime);
         solverMaterial.setUniform('uDeltaTime', time.Interval);
+        solverMaterial.setUniform('uState', solver.mode);
 
         solver.update(gl);
 
@@ -179,7 +213,22 @@ export function initSnow(gl, canvas, camera) {
 
         gl.disable(gl.BLEND);
 
-        requestAnimationFrame(drawSnow);
+        // draw quad
+        emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+        emitterQuadShape.draw(gl, emitterQuadMaterial);
+        emitterQuadMaterial.postDraw(gl);
+
+        groundQuadMaterial.preDraw(gl, camera);
+        groundQuadShape.draw(gl, emitterQuadMaterial);
+        groundQuadMaterial.postDraw(gl);
+
+
+        solverMaterial.setUniform('uDeltaTime', time.Interval);
+
+        if (solver.Mode === Solver.MODE.init) {
+            solver.Mode = Solver.MODE.play;
+        }
+
     }
 
     drawSnow();
