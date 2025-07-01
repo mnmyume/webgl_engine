@@ -1,2 +1,2 @@
-import drawVert from "./draw-vert.glsl";
+import drawVert from "./snow-vert.glsl";
 export {drawVert}

@@ -91,13 +91,13 @@ export default class Texture2D {
 
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
         if(data instanceof Image || data instanceof HTMLCanvasElement){
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, data);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, gl.RGBA, gl.UNSIGNED_BYTE, data);
             this.width = data.width;
             this.height = data.height;
         }else{
             $assert(this.width && this.height);
             gl.getExtension('OES_texture_float');
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.FLOAT, data);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, this.width, this.height, 0, gl.RGBA, gl.FLOAT, data);
 
         }
         gl.bindTexture(gl.TEXTURE_2D, null);

@@ -7,7 +7,7 @@ import Time from './source/time.js';
 import { initAniTest } from "./demo/aniTest.js";
 import { autumn } from "./demo/autumnWind.js";
 import { initQuad } from "./demo/quad.js";
-import { initTransFeed } from "./demo/testTransFeed.js";
+import { initSnow } from "./demo/snow.js";
 
 
 function main() {
@@ -35,7 +35,7 @@ function main() {
 
     // initQuad(gl, canvas, camera);
     // autumn(gl, canvas, camera);
-    initTransFeed(gl, canvas, camera);
+    initSnow(gl, canvas, camera);
     // initAniTest(gl, canvas, camera);
 }
 
