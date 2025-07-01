@@ -1,22 +1,8 @@
 import { halton, sqrtFloor } from "./mathHelper.js";
 
-export function genInitData(count) {
-    const stride = 6;
+export function genInitData(count, stride) {
+
     const initData = new Float32Array(count * stride);
-
-    for(let i = 0; i < count; i++) {
-        const base = i * stride;
-
-        // a_pos
-        initData[base + 0] = 0;
-        initData[base + 1] = 0;
-        initData[base + 2] = 0;
-
-        // a_linVel
-        initData[base + 3] = 0;
-        initData[base + 4] = 0;
-        initData[base + 5] = 0;
-    }
 
     return initData;
 }

@@ -66,8 +66,8 @@ export function initSnow(gl, canvas, camera) {
     });
     solverMaterial.initialize({gl});
 
-
-    const initData = genInitData(particleParams.count);
+    const stride = 10;
+    const initData = genInitData(particleParams.count, stride);
     const solverShape = new SolverShape('solverShape', {
         count:6, schema: readAttrSchema(emitVert.input)
     });
@@ -76,7 +76,7 @@ export function initSnow(gl, canvas, camera) {
 
     const solver = new Solver({
         shape: solverShape, material: solverMaterial,
-        count: particleParams.count, mode:1, loop:true
+        count: particleParams.count, mode:1, loop:true, stride: stride
     });
     solver.initialize({gl});
 
@@ -128,7 +128,12 @@ export function initSnow(gl, canvas, camera) {
     solverMaterial.setTexture('uEmitterSlot2', emitterSlot2);
     // solverMaterial.setTexture('uEmitterSlot2[0]', emitterSlot2[0]);
 
+
     solverMaterial.setUniform('uEmitterTransform', emitterTransform.matrix);
+    solverMaterial.setUniform('uDuration', particleParams.duration);
+    solverMaterial.setUniform('uCount', particleParams.count);
+    solverMaterial.setUniform('uLifeTime', particleParams.lifeTime);
+    solverMaterial.setUniform('uMAXCOL', MAXCOL);
 
 
     // init render

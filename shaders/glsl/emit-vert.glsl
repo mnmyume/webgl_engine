@@ -1,6 +1,9 @@
 #version 300 es
 #define POSITION_LOCATION 0
 #define LINEAR_VELOCITY_LOCATION 1
+#define ANGULAR_VELOCITY_LOCATION 2
+#define GENERATION_LOCATION 3
+#define SIZE_LOCATION 4
 
 precision highp float;
 precision highp int;
@@ -35,15 +38,27 @@ uniform float uMAXCOL;
 // uFieldParams
 
 
-// transform feedback params
-#buffer aPos:particleBuffer, size:3, stride:24, offset:0
+
+#buffer aPos:particleBuffer, size:3, stride:40, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aLinVel:particleBuffer, size:3, stride:24, offset:12
+#buffer aLinVel:particleBuffer, size:3, stride:40, offset:12
 layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
+
+#buffer aAngVel:particleBuffer, size:2, stride:40, offset:24
+layout(location = ANGULAR_VELOCITY_LOCATION) in vec2 aAngVel;
+
+#buffer aGeneration:particleBuffer, size:1, stride:40, offset:32
+layout(location = GENERATION_LOCATION) in float aGeneration;
+
+#buffer aSize:particleBuffer, size:1, stride:40, offset:36
+layout(location = SIZE_LOCATION) in float aSize;
 
 out vec3 vPos;
 out vec3 vLinVel;
+out vec2 vAngVel;
+out float vGeneration;
+out float vSize;
 
 
 vec2 getEmitterCoord(float particleID, float MAXCOL) {
@@ -72,20 +87,18 @@ void main()
     float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
     float percentLife = localTime / uLifeTime;
 
-//    int lastGene = int(texture(uDataSlot1, uv).w);
-    int lastGene = -1;
-    int generation = uTime - startTime > 0.0 ? int(mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE))) : -1;
+    float lastGene = aGeneration;
+    float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
 
-    bool emit = generation!=lastGene;
-//    if(emit || uState == 1){
-    if(uState == 1){
+    bool emit = generation!=lastGene && generation!=-1.0;
+    if(emit || uState == 1){
         vec2 emitterPos = vec2(0,0);
 
-        if(generation == 0){
+        if(generation == 0.0){
             size = texture(uEmitterSlot0[0], emitterUV).z;
             emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
             linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
-        }else if(generation == 1){
+        }else if(generation == 1.0){
             size = texture(uEmitterSlot0[1], emitterUV).z;
             emitterPos = texture(uEmitterSlot0[1], emitterUV).xy;
             linVel = texture(uEmitterSlot1[1], emitterUV).xyz;
@@ -123,11 +136,14 @@ void main()
 //        }
 
         pos = updatePos(pos, oldVel);
-        linVel = vec3(-20);
+        linVel = vec3(0,-20,0);
     }
 
     gl_Position = vec4(pos, 1.0);
 
     vPos = pos;
     vLinVel = linVel;
+    vAngVel = aAngVel;
+    vGeneration = generation;
+    vSize = aSize;
 }

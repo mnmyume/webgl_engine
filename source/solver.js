@@ -17,6 +17,7 @@ export default class Solver {
         this.count = params.count || 1;
         this.mode = params.mode || 0;
         this.loop = params.loop || false;
+        this.stride = params.stride || null;
     }
 
     initialize({ gl }) {
@@ -73,8 +74,7 @@ export default class Solver {
 
         // debug
         gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
-        const floatsPerParticle = 6;
-        const readbackArray = new Float32Array(this.count * floatsPerParticle);
+        const readbackArray = new Float32Array(this.count * this.stride);
         gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
         console.log(readbackArray);
     }
