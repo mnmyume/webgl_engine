@@ -8,14 +8,14 @@ export function genInitData(count) {
         const base = i * stride;
 
         // a_pos = (0,0,0)
-        initData[base + 0] = 0.0;
-        initData[base + 1] = 0.0;
-        initData[base + 2] = 0.0;
+        initData[base + 0] = 0;
+        initData[base + 1] = 0;
+        initData[base + 2] = 0;
 
         // a_linVel = (1, 1, 1)
-        initData[base + 3] = 1.0;
-        initData[base + 4] = 1.0;
-        initData[base + 5] = 1.0;
+        initData[base + 3] = 10;
+        initData[base + 4] = 10;
+        initData[base + 5] = 10;
     }
 
     return initData;

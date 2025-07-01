@@ -25,7 +25,7 @@ function main() {
     // const camera = new PerspCamera({
     //     target:[0,10,0]
     // });
-    const r = 100,
+    const r = 700,
         cos45 = Math.cos(45 * Math.PI / 180),
         sin35 = Math.sin(35 * Math.PI / 180);
     camera.setPosition([r * cos45, r * sin35, r * cos45]);

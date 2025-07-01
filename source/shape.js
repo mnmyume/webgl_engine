@@ -78,6 +78,7 @@ export default class Shape {
             gl.bindVertexArray(vao.vao);
 
 
+
         if (this.state == Shape.RENDERSTATE.triangle) {
             // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
             // gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);

@@ -24,9 +24,15 @@ export default class SolverShape extends Shape {
     }
 
 
-    update(gl, key, {material, data, type='STATIC_DRAW'}) {
+    update(gl, key, {material, solver, data, type='STREAM_COPY'}) {
         for(let buffIndex=0; buffIndex<2; buffIndex++) {
             this.vaos[buffIndex].update(gl, key, {material, data, type} );
+
+            // set up output
+            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, solver.transformFeedbacks[buffIndex]);
+            gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, this.vaos[buffIndex].dataBuffer.buffer);
+
+            gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
         }
     }
 

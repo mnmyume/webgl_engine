@@ -25,7 +25,23 @@ export function initTransFeed(gl, canvas, camera) {
     const time = new Time();
 
     const particleParams = {
-        particleCount: 1
+        particleCount: 1,
+        duration: 8,
+        lifeTime: 8,
+        size: 40,
+        uBlurRadius: 0.1,
+        uPixelNum: 4
+    }
+
+    const solverParams = {
+        gravitySwitcher: 1,
+        gravity: [0, -10, 0],
+        vortexSwitcher: 1,
+        vortexScalar: 1/1000,
+        noiseSwitcher: 1,
+        noiseScalar: [0.3, 0.3, 0.3],
+        dampSwitcher: 1,
+        dampScalar: 0.8
     }
 
 
@@ -50,7 +66,7 @@ export function initTransFeed(gl, canvas, camera) {
         count:6, schema: readAttrSchema(emitVert.input)
     });
     solverShape.initialize({gl});
-    solverShape.update(gl, 'particleBuffer',{material:solverMaterial, data:initData});
+
 
 
     // init transform feedback
@@ -60,6 +76,8 @@ export function initTransFeed(gl, canvas, camera) {
         count: particleParams.particleCount,
     });
     solver.initialize({gl});
+
+    solverShape.update(gl, 'particleBuffer',{material:solverMaterial, solver:solver, data:initData});
 
 
     // init render
@@ -96,7 +114,7 @@ export function initTransFeed(gl, canvas, camera) {
 
         gl.viewport(0, 0, canvas.width, canvas.height);
 
-        gl.clearColor(0.3, 0.3, 0.3, 1.0);
+        gl.clearColor(0.2, 0.2, 0.2, 1.0);
         gl.colorMask(true, true, true, true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 

@@ -35,7 +35,7 @@ export default class Solver {
         // NOTE: The following two lines shouldn't be necessary, but are required to work in ANGLE
         // due to a bug in its handling of transform feedback objects.
         // https://bugs.chromium.org/p/angleproject/issues/detail?id=2051
-        gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, destBuffer);
+        // gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, destBuffer);
 
 
         for (const attr in this.material.attributes) {
@@ -59,11 +59,11 @@ export default class Solver {
 
 
         // debug
-        gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
-        const floatsPerParticle = 6;
-        const readbackArray = new Float32Array(this.count * floatsPerParticle);
-        gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
-        console.log(readbackArray);
+        // gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
+        // const floatsPerParticle = 6;
+        // const readbackArray = new Float32Array(this.count * floatsPerParticle);
+        // gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
+        // console.log(readbackArray);
     }
 
 
