@@ -1,4 +1,4 @@
-import glsl from './rollup-plugin-glsl.js';
+import glsl from './vite-plugin-glsl.js';
 export default [
     {
         // ...

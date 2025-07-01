@@ -63,12 +63,14 @@ function addingLineNum(curFileIndex,srcPath, srcText){
     return lines.join('');
 }
 
-function filterSource(source){
-    source = source.replace(/^(?!\/\/)[\s]*#include[\s]+(.+)/gm, '');
-    source = source.replace(  /^(?!\/\/)[\s]*#value[\s]+(.+)/gm, '');
-    source = source.replace( /^(?!\/\/)[\s]*#buffer[\s]+(.+)/gm, '');
-    source = source.replace( /^(?!\/\/)[\s]*#version(.+)/gm, '');
-    return source.replace(/#extension[\s]+(.+)/gm, '');
+function filterSource(source, opt={}){
+    source = source.replace(/^(?!\/\/)[^\S\r\n]*#include[\s]+(.+)/gm, '');
+    source = source.replace(  /^(?!\/\/)[^\S\r\n]*#value[\s]+(.+)/gm, '');
+    source = source.replace( /^(?!\/\/)[^\S\r\n]*#buffer[\s]+(.+)/gm, '');
+    source = source.replace( /^(?!\/\/)[^\S\r\n]*#version(.+)/gm, '');
+    source = source.replace(/#extension[\s]+(.+)/gm, '');
+    return source;
+
 }
 
 function addIncludeFiles(srcPath,source){
@@ -187,21 +189,23 @@ function checkAttrParams(key, source){
             let [, layoutParams] = $match(/layout\((.+)\)/gm, layoutInfo);
             layoutParams = layoutParams.split(',')
             layoutParams.reduce((prev, cur)=>{
-                // const [key, value = true] = cur.split('=');
 
-                let key, value = true;
+                let key, value, location;
                 if(cur.includes('='))
-                    [,key,value=true] = $match(/(\S+)[\s]*=[\s]*(\S+)/gm, cur);
+                    [,key,value] = $match(/(\S+)[\s]*=[\s]*(\S+)/gm, cur);
                 else
-                    key = cur;
+                    throw new Error(cur);
 
 
-                if(!$isNumber(value))
-                    [,value] = getDefineValue(value,source);
+                if($isNumber(value))
+                    location = value;
+                else
+                    [,location] = getDefineValue(value,source);
 
-                $assert($isNumber(value));
 
-                prev[key] = value;
+                $assert($isNumber(location), `cannot find #define of ${value} from ${cur}`);
+
+                prev[key] = location;
                 return prev;
             },layout);
         }
@@ -289,8 +293,8 @@ export default function glsl(options = {}) {
 
 
             const extensions = checkPreprocessor('extension',sourceRaw);
-            let source = filterSource(sourceRaw);
 
+            let source = filterSource(sourceRaw);
 
             let input, vertexAttri, output={};
 
@@ -315,6 +319,8 @@ export default function glsl(options = {}) {
             initUniforms(uniformParams, values);
             initAttributes(input, buffers);
 
+            //https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)
+            //#version has to be first line of the shader, save for comments and whitespace, delete #line 1
             const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
             const code = generateCode({version,extension:extensionParmas,input,output, uniform:uniformParams, code:glslSrc}),
                 magicString = new MagicString(code);
@@ -353,7 +359,7 @@ function parseVecMat(type,input){
         spreadVecMat(raw, dim, arrData);
         if(/mat/.test(type))
             dim *= dim;
-        $assert(arrData.length == dim, `${input} length is not matching with type ${type}`);
+        $assert(arrData.length === dim, `${input} length is not matching with type ${type}`);
     }else{
         // ["vec2(1, 2)", "2", "1, 2", "vec2(3, 4)", "2", "3, 4", "vec2(5, 6)", "2", "5, 6"]
 
@@ -372,7 +378,7 @@ function parseVecMat(type,input){
                     subRaw = raw[index],
                     subDim =  dim[index];
             spreadVecMat(subRaw, subDim, subData);
-            $assert(subData.length == subDim, `${input} length is not matching with type ${type}`);
+            $assert(subData.length === subDim, `${input} length is not matching with type ${type}`);
             arrData[index] = subData;
         }
         arrData = arrData.flat();

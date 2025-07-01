@@ -189,8 +189,6 @@ function checkAttrParams(key, source){
             layoutParams.reduce((prev, cur)=>{
 
                 let key, value, location;
-                if(cur === 'location = UV_LOCATION')
-                    debugger;
                 if(cur.includes('='))
                     [,key,value] = $match(/(\S+)[\s]*=[\s]*(\S+)/gm, cur);
                 else

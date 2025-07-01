@@ -1,2 +1,2 @@
-import drawVert from "./snow-vert.glsl";
-export {drawVert}
+import emitVert from "./emit-vert.glsl";
+export {emitVert}
