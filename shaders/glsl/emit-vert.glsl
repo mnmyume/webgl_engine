@@ -140,7 +140,7 @@ void main()
 //            linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
 //        }
 
-//        pos = updatePos(pos, oldVel);
+        pos = updatePos(pos, oldVel);
         linVel = vec3(0,-20,0);
     }
 

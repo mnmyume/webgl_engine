@@ -55,7 +55,7 @@ export default class Solver {
         for (const attr in this.material.attributes) {
             const attrValue = this.material.dataLocation.attributes[attr];
             if(attrValue<0) continue;
-            gl.vertexAttribDivisor(attrValue, 0);
+            gl.vertexAttribDivisor(attrValue, 1);
         }
 
         gl.enable(gl.RASTERIZER_DISCARD);
