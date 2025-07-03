@@ -35,8 +35,11 @@ uniform float uLifeTime;
 uniform float uCount;
 uniform float uMAXCOL;
 
-// uFieldParams
 
+#define PARMS 4                     // 0: switcher.x, gravity.yzw;
+#value uFieldParams:[0,1,2,3]       // 1: switcher.x, vortexScalar.y, __, __;
+uniform vec4 uFieldParams[PARMS];   // 2: switcher.x, noiseScalar.yzw;
+                                    // 3: switcher.x, dampScalar.y, __, __;
 
 
 #buffer aPos:particleBuffer, size:3, stride:40, offset:0
@@ -68,6 +71,32 @@ vec2 getEmitterCoord(float particleID, float MAXCOL) {
 }
 
 
+vec3 gravityField(vec3 linVel, vec3 gravity) {
+    linVel = linVel + gravity * uDeltaTime;
+    return linVel;
+}
+
+vec3 vortexField(vec3 pos, float scalar){   //vec3 axis, needs Quaternion Helper
+    vec3 linVel = vec3(-pos.z,0, pos.x)*scalar;
+    return linVel;
+}
+
+vec3 noiseField(vec3 pos, vec3 scalar) {
+
+    float x = fract(sin(dot(pos.xy,vec2(12.9898,78.233)))* 43758.5453)-0.5;
+    float y = fract(sin(dot(pos.xy,vec2(62.2364,94.674)))* 62159.8432)-0.5;
+    float z = fract(sin(dot(pos.xy,vec2(989.2364,94.674)))* 12349.8432)-0.5;
+
+    vec3 d = vec3(x,y,z);
+
+    return scalar*normalize(d);
+}
+
+vec3 damp(vec3 linVel, float k, float dTime){
+    return linVel*(1.0-k);
+}
+
+
 vec3 updatePos(vec3 pos, vec3 linVel) {
     return pos = pos + linVel * uDeltaTime;
 }
@@ -76,9 +105,10 @@ vec3 updatePos(vec3 pos, vec3 linVel) {
 void main()
 {
 
-    vec3 pos, linVel;
-    vec2 angVel;
-    float size=aSize;
+    vec3 pos = aPos;
+    vec3 linVel = aLinVel;
+    vec2 angVel = aAngVel;
+    float size = aSize;
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uMAXCOL);
@@ -90,27 +120,24 @@ void main()
     float lastGene = aGeneration;
     float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
 
-    vec2 emitterPos = aAngVel;//vec2(0,0);
+
     bool emit = generation!=lastGene && generation!=-1.0;
     if(emit || uState == 1){
 
+        vec2 emitterPos = vec2(0,0);
+        if(generation == 0.0){
+            size = texture(uEmitterSlot0[0], emitterUV).z;
+            emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
+            linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
+        }else if(generation == 1.0){
+            size = texture(uEmitterSlot0[1], emitterUV).z;
+            emitterPos = texture(uEmitterSlot0[1], emitterUV).xy;
+            linVel = texture(uEmitterSlot1[1], emitterUV).xyz;
+        }
 
-//        if(generation == 0.0){
-//            size = texture(uEmitterSlot0[0], emitterUV).z;
-//            emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
-//            linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
-//        }else if(generation == 1.0){
-//            size = texture(uEmitterSlot0[1], emitterUV).z;
-//            emitterPos = texture(uEmitterSlot0[1], emitterUV).xy;
-//            linVel = texture(uEmitterSlot1[1], emitterUV).xyz;
-//        }
-
-        size = texture(uEmitterSlot0[0], emitterUV).z;
-        emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
-        linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
 
         pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-        linVel = vec3(0);
+        linVel = vec3(0,-20,0);
     }
     else{
 
@@ -118,38 +145,36 @@ void main()
         vec3 oldVel = aLinVel;
         size = texture(uEmitterSlot0[0], emitterUV).z;
 
-//        float gravitySwitcher = uFieldParams[0].x;
-//        vec3 gravity = uFieldParams[0].yzw;
-//        float vortexSwitcher = uFieldParams[1].x;
-//        float vortexScalar = uFieldParams[1].y;
-//        float noiseSwitcher = uFieldParams[2].x;
-//        vec3 noiseScalar = uFieldParams[2].yzw;
-//        float dampSwitcher = uFieldParams[3].x;
-//        float dampScalar = uFieldParams[3].y;
-//
-//        if(gravitySwitcher == 1.0) {
-//            linVel = gravityField(oldVel, gravity);
-//        }
-//        if(vortexSwitcher == 1.0) {
-//            linVel += vortexField(pos, vortexScalar);
-//        }
-//        if(noiseSwitcher == 1.0) {
-//            linVel  += noiseField(pos, noiseScalar);
-//        }
-//        if(dampSwitcher == 1.0){
-//            linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
-//        }
+        float gravitySwitcher = uFieldParams[0].x;
+        vec3 gravity = uFieldParams[0].yzw;
+        float vortexSwitcher = uFieldParams[1].x;
+        float vortexScalar = uFieldParams[1].y;
+        float noiseSwitcher = uFieldParams[2].x;
+        vec3 noiseScalar = uFieldParams[2].yzw;
+        float dampSwitcher = uFieldParams[3].x;
+        float dampScalar = uFieldParams[3].y;
+
+        if(gravitySwitcher == 1.0) {
+            linVel = gravityField(oldVel, gravity);
+        }
+        if(vortexSwitcher == 1.0) {
+            linVel += vortexField(pos, vortexScalar);
+        }
+        if(noiseSwitcher == 1.0) {
+            linVel  += noiseField(pos, noiseScalar);
+        }
+        if(dampSwitcher == 1.0){
+            linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
+        }
 
         pos = updatePos(pos, oldVel);
-        linVel = vec3(0,-20,0);
     }
 
     gl_Position = vec4(pos, 1.0);
 
-//    emitterPos = aAngVel - aAngVel + emitterPos;
-    vPos = pos;          //0,1,2
-    vLinVel = linVel;    //3,4,5
-    vAngVel =  aAngVel - aAngVel + emitterUV; //6,7
-    vGeneration = generation; //8
-    vSize = particleID; //9
+    vPos = pos;
+    vLinVel = linVel;
+    vAngVel =  aAngVel;
+    vGeneration = generation;
+    vSize = size;
 }

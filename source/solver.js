@@ -76,10 +76,10 @@ export default class Solver {
 
 
         // debug
-        gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
-        const readbackArray = new Float32Array(this.count * this.stride);
-        gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
-        console.log(readbackArray);
+        // gl.bindBuffer(gl.ARRAY_BUFFER, destBuffer);
+        // const readbackArray = new Float32Array(this.count * this.stride);
+        // gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
+        // console.log(readbackArray);
     }
 
 

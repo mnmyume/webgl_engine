@@ -29,7 +29,7 @@ export function initSnow(gl, canvas, camera) {
         count: 100,
         duration: 8,
         lifeTime: 8,
-        size: 40,
+        size: 10,
         uBlurRadius: 0.1,
         uPixelNum: 4,
         emitterSize: 16,
@@ -93,7 +93,6 @@ export function initSnow(gl, canvas, camera) {
         });
         const data = genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.size, particleParams.duration);
         emitterTexture.initialize({gl});
-        debugger;
         emitterTexture.setData(gl,data );
         emitterSlot0.push(emitterTexture);
     }
@@ -136,6 +135,14 @@ export function initSnow(gl, canvas, camera) {
     solverMaterial.setUniform('uCount', particleParams.count);
     solverMaterial.setUniform('uLifeTime', particleParams.lifeTime);
     solverMaterial.setUniform('uMAXCOL', MAXCOL);
+
+
+    const fieldParams = [];
+    fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity ];
+    fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
+    fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
+    fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
+    solverMaterial.setUniform('uFieldParams', fieldParams.flat());
 
 
     // init render

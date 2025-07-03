@@ -30,17 +30,15 @@ layout(location = SIZE_LOCATION) in float aSize;
 
 
 
-out vec2 vUV;
-out vec3 vColor;
+
+
 
 void main()
 {
     vec3 linVel = aLinVel;
-    vec3 pos = aPos + linVel * 0.0;
-
-    //    vec3 pos = aVertice;
+    vec3 pos = aPos;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
-    gl_PointSize = 20.0;
-    //    vUV = aUV;
+    gl_PointSize = aSize;
+
 }
