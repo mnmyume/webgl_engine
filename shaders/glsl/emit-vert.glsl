@@ -137,7 +137,7 @@ void main()
 
 
         pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-        linVel = vec3(0,-20,0);
+        linVel = vec3(0,0,0);
     }
     else{
 

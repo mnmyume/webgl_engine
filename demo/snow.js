@@ -41,7 +41,7 @@ export function initSnow(gl, canvas, camera) {
         gravitySwitcher: 1,
         gravity: [0, -10, 0],
         vortexSwitcher: 1,
-        vortexScalar: 1/1000,
+        vortexScalar: 1000,
         noiseSwitcher: 1,
         noiseScalar: [0.3, 0.3, 0.3],
         dampSwitcher: 1,
