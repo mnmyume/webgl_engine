@@ -26,7 +26,7 @@ export function initSnow(gl, canvas, camera) {
     const time = new Time();
     const MAXGENSIZE = 2;
     const particleParams = {
-        count: 1,
+        count: 100,
         duration: 8,
         lifeTime: 8,
         size: 40,
@@ -69,7 +69,7 @@ export function initSnow(gl, canvas, camera) {
     const stride = 10;
     const initData = genInitData(particleParams.count, stride);
     const solverShape = new SolverShape('solverShape', {
-        count:6, schema: readAttrSchema(emitVert.input)
+        count:particleParams.count, schema: readAttrSchema(emitVert.input)
     });
     solverShape.initialize({gl});
 

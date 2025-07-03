@@ -78,7 +78,7 @@ void main()
 
     vec3 pos, linVel;
     vec2 angVel;
-    float size;
+    float size=aSize;
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uMAXCOL);
@@ -90,9 +90,10 @@ void main()
     float lastGene = aGeneration;
     float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
 
+    vec2 emitterPos = vec2(0,0);
     bool emit = generation!=lastGene && generation!=-1.0;
     if(emit || uState == 1){
-        vec2 emitterPos = vec2(0,0);
+
 
         if(generation == 0.0){
             size = texture(uEmitterSlot0[0], emitterUV).z;
@@ -141,9 +142,10 @@ void main()
 
     gl_Position = vec4(pos, 1.0);
 
+    emitterPos = aAngVel - aAngVel + emitterPos;
     vPos = pos;
     vLinVel = linVel;
-    vAngVel = aAngVel;
+    vAngVel = emitterPos;
     vGeneration = generation;
-    vSize = aSize;
+    vSize = particleID;
 }

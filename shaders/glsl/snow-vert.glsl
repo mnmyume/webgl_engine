@@ -41,6 +41,6 @@ void main()
     //    vec3 pos = aVertice;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
-    gl_PointSize = 50.0;
+    gl_PointSize = 20.0;
     //    vUV = aUV;
 }

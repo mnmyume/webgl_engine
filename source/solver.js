@@ -59,7 +59,8 @@ export default class Solver {
         gl.enable(gl.RASTERIZER_DISCARD);
 
         gl.beginTransformFeedback(gl.POINTS);
-        gl.drawArrays(gl.POINTS, 0, this.count);
+        // gl.drawArrays(gl.POINTS, 0, this.count);
+        gl.drawArraysInstanced(gl.POINTS, 0, 1, this.count);
         gl.endTransformFeedback();
 
 
