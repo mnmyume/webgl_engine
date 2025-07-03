@@ -90,20 +90,24 @@ void main()
     float lastGene = aGeneration;
     float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
 
-    vec2 emitterPos = vec2(0,0);
+    vec2 emitterPos = aAngVel;//vec2(0,0);
     bool emit = generation!=lastGene && generation!=-1.0;
     if(emit || uState == 1){
 
 
-        if(generation == 0.0){
-            size = texture(uEmitterSlot0[0], emitterUV).z;
-            emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
-            linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
-        }else if(generation == 1.0){
-            size = texture(uEmitterSlot0[1], emitterUV).z;
-            emitterPos = texture(uEmitterSlot0[1], emitterUV).xy;
-            linVel = texture(uEmitterSlot1[1], emitterUV).xyz;
-        }
+//        if(generation == 0.0){
+//            size = texture(uEmitterSlot0[0], emitterUV).z;
+//            emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
+//            linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
+//        }else if(generation == 1.0){
+//            size = texture(uEmitterSlot0[1], emitterUV).z;
+//            emitterPos = texture(uEmitterSlot0[1], emitterUV).xy;
+//            linVel = texture(uEmitterSlot1[1], emitterUV).xyz;
+//        }
+
+        size = texture(uEmitterSlot0[0], emitterUV).z;
+        emitterPos = texture(uEmitterSlot0[0], emitterUV).xy;
+        linVel = texture(uEmitterSlot1[0], emitterUV).xyz;
 
         pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
         linVel = vec3(0);
@@ -136,16 +140,16 @@ void main()
 //            linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
 //        }
 
-        pos = updatePos(pos, oldVel);
+//        pos = updatePos(pos, oldVel);
         linVel = vec3(0,-20,0);
     }
 
     gl_Position = vec4(pos, 1.0);
 
-    emitterPos = aAngVel - aAngVel + emitterPos;
-    vPos = pos;
-    vLinVel = linVel;
-    vAngVel = emitterPos;
-    vGeneration = generation;
-    vSize = particleID;
+//    emitterPos = aAngVel - aAngVel + emitterPos;
+    vPos = pos;          //0,1,2
+    vLinVel = linVel;    //3,4,5
+    vAngVel =  aAngVel - aAngVel + emitterUV; //6,7
+    vGeneration = generation; //8
+    vSize = particleID; //9
 }

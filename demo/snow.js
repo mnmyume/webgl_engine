@@ -91,41 +91,43 @@ export function initSnow(gl, canvas, camera) {
             // data: texDataArr[genIndex],
             scaleUp: 'NEAREST'
         });
+        const data = genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.size, particleParams.duration);
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.size, particleParams.duration));
+        debugger;
+        emitterTexture.setData(gl,data );
         emitterSlot0.push(emitterTexture);
     }
     solverMaterial.setTexture('uEmitterSlot0', emitterSlot0);
     // solverMaterial.setTexture('uEmitterSlot0[0]', emitterSlot0[0]);
 
-    const emitterSlot1 = [];
-    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
-        const emitterTexture = new Texture2D('emitterTexture', {
-            width: MAXCOL, height: MAXCOL,
-            scaleDown: 'NEAREST',
-            // data: texDataArr[genIndex],
-            scaleUp: 'NEAREST'
-        });
-        emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genLinVel(MAXCOL));
-        emitterSlot1.push(emitterTexture);
-    }
-    solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
-    // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
-
-    const emitterSlot2 = [];
-    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
-        const emitterTexture = new Texture2D('emitterTexture', {
-            width: MAXCOL, height: MAXCOL,
-            scaleDown: 'NEAREST',
-            // data: texDataArr[genIndex],
-            scaleUp: 'NEAREST'
-        });
-        emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genAngVel(MAXCOL));
-        emitterSlot1.push(emitterTexture);
-    }
-    solverMaterial.setTexture('uEmitterSlot2', emitterSlot2);
+    // const emitterSlot1 = [];
+    // for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
+    //     const emitterTexture = new Texture2D('emitterTexture', {
+    //         width: MAXCOL, height: MAXCOL,
+    //         scaleDown: 'NEAREST',
+    //         // data: texDataArr[genIndex],
+    //         scaleUp: 'NEAREST'
+    //     });
+    //     emitterTexture.initialize({gl});
+    //     emitterTexture.setData(gl, genLinVel(MAXCOL));
+    //     emitterSlot1.push(emitterTexture);
+    // }
+    // solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
+    // // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
+    //
+    // const emitterSlot2 = [];
+    // for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
+    //     const emitterTexture = new Texture2D('emitterTexture', {
+    //         width: MAXCOL, height: MAXCOL,
+    //         scaleDown: 'NEAREST',
+    //         // data: texDataArr[genIndex],
+    //         scaleUp: 'NEAREST'
+    //     });
+    //     emitterTexture.initialize({gl});
+    //     emitterTexture.setData(gl, genAngVel(MAXCOL));
+    //     emitterSlot2.push(emitterTexture);
+    // }
+    // solverMaterial.setTexture('uEmitterSlot2', emitterSlot2);
     // solverMaterial.setTexture('uEmitterSlot2[0]', emitterSlot2[0]);
 
 

@@ -95,7 +95,7 @@ export default class Shape {
         if (this.state == Shape.RENDERSTATE.point) {
 
 
-            gl.drawArraysInstanced(gl.POINTS, 0, 1, this.count);
+            gl.drawArraysInstanced(gl.POINTS, 0,  100, this.count);
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
         }

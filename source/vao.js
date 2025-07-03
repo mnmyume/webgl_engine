@@ -33,7 +33,7 @@ export default class VAO{
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl[type]);
 
         for(const [key,value] of Object.entries(material.dataLocation.attributes)){
-            $assert(value>=0);
+            if(value<0) continue;
             gl.enableVertexAttribArray(value);
             const {size,stride,offset} = finder.schema.find(({attribute})=>attribute === key);
             gl.vertexAttribPointer(value,parseInt(size), gl.FLOAT, false, parseInt(stride), parseInt(offset));

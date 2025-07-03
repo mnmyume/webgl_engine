@@ -37,7 +37,8 @@ export default class ShapeVAO {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl[type]);
 
         for(const [key,value] of Object.entries(material.dataLocation.attributes)){
-            $assert(value>=0);
+            // $assert(value>=0);
+            if(value<0) continue;
             gl.enableVertexAttribArray(value);
             // const dataBuffers = this.dataBuffers.find(ele=>ele.value.find(({attribute})=>attribute === key));
             const {size,stride,offset} = finder.value.find(({attribute})=>attribute === key);
