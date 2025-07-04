@@ -36,10 +36,11 @@ uniform float uCount;
 uniform float uMAXCOL;
 
 
-#define PARMS 4                     // 0: switcher.x, gravity.yzw;
-#value uFieldParams:[0,1,2,3]       // 1: switcher.x, vortexScalar.y, __, __;
-uniform vec4 uFieldParams[PARMS];   // 2: switcher.x, noiseScalar.yzw;
-                                    // 3: switcher.x, dampScalar.y, __, __;
+#define PARMS 4                                                 // 0: switcher.x, gravity.yzw;
+#value uFieldParams:[0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]        // 1: switcher.x, vortexScalar.y, __, __;
+// #value uFieldParams:[vec4(0),vec4(0),vec4(0),vec4(0)]
+uniform vec4 uFieldParams[PARMS];                               // 2: switcher.x, noiseScalar.yzw;
+                                                                // 3: switcher.x, dampScalar.y, __, __;
 
 
 #buffer aPos:particleBuffer, size:3, stride:40, offset:0

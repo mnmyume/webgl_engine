@@ -30,8 +30,10 @@ export function initSnow(gl, canvas, camera) {
         duration: 8,
         lifeTime: 8,
         size: 10,
-        uBlurRadius: 0.1,
-        uPixelNum: 4,
+        radius: 0.8,
+        blurRadius: 0.1,
+        pixelNum: 4,
+        color:[1,1,1],
         emitterSize: 16,
         emitterHeight: 40
     }
@@ -41,7 +43,7 @@ export function initSnow(gl, canvas, camera) {
         gravitySwitcher: 1,
         gravity: [0, -10, 0],
         vortexSwitcher: 1,
-        vortexScalar: 1000,
+        vortexScalar: 1/1000,
         noiseSwitcher: 1,
         noiseScalar: [0.3, 0.3, 0.3],
         dampSwitcher: 1,
@@ -156,7 +158,12 @@ export function initSnow(gl, canvas, camera) {
         shader: particleShader,
     });
     particleMaterial.initialize({gl});
-    // particleMaterial.setUniform('uCount', particleParams.particleCount);
+
+
+    particleMaterial.setUniform('uColor', particleParams.color);
+    particleMaterial.setUniform('uRadius', particleParams.radius);
+    particleMaterial.setUniform('uBlurRadius', particleParams.blurRadius);
+    particleMaterial.setUniform('uPixelNum', particleParams.pixelNum);
 
 
     const particleShape = new Shape('particleShape',{

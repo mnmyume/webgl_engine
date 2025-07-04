@@ -13,6 +13,8 @@ uniform mat4 _uni_viewMat;
 #value _uni_modelMat:mat4(1.0)
 uniform mat4 _uni_modelMat;
 
+
+
 #buffer aPos:particleBuffer, size:3, stride:40, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
@@ -30,12 +32,9 @@ layout(location = SIZE_LOCATION) in float aSize;
 
 
 
-
-
-
 void main()
 {
-    vec3 linVel = aLinVel;
+
     vec3 pos = aPos;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
