@@ -4,8 +4,6 @@ import PerspCamera from "./source/perspCamera.js";
 import Transform from './source/transform.js';
 import Time from './source/time.js';
 
-import { initAniTest } from "./demo/aniTest.js";
-import { autumn } from "./demo/autumnWind.js";
 import { initQuad } from "./demo/quad.js";
 import { initSnow } from "./demo/snow.js";
 
@@ -34,9 +32,7 @@ function main() {
     camera.updateViewInverse();
 
     // initQuad(gl, canvas, camera);
-    // autumn(gl, canvas, camera);
     initSnow(gl, canvas, camera);
-    // initAniTest(gl, canvas, camera);
 }
 
 main();
