@@ -6,9 +6,19 @@ out vec2 vUV;
 
 void main()
 {
-    vec2 vertice = vec2(2.f * float(uint(gl_VertexID) % 2u) - 1.f, 2.f * float(uint(gl_VertexID) / 2u) - 1.f);
-    
-    gl_Position = vec4(vertice, 0.0, 1.0);
 
-    vUV = vertice;
+    vec2 positions[6] = vec2[](
+    vec2(-1.0, -1.0),
+    vec2(1.0, -1.0),
+    vec2(-1.0, 1.0),
+
+    vec2(-1.0, 1.0),
+    vec2(1.0, -1.0),
+    vec2(1.0, 1.0)
+    );
+
+    vec2 pos = positions[gl_VertexID];
+    gl_Position = vec4(pos, 0.0, 1.0);
+
+    vUV = (pos + 1.0) * 0.5;
 }

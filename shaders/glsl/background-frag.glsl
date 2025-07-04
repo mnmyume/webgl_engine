@@ -2,17 +2,15 @@
 precision highp float;
 precision highp int;
 
-uniform vec2 uCanvas;
+in vec2 vUV;
 
 out vec4 fragColor;
 
 void main(void) {
 
-    vec2 uv = gl_FragCoord.xy;
+    float gradient = (1.0 - vUV.y) * 0.4;
 
-    float gradient = (1.0 - uv.y / uCanvas.x)*0.4;    // iResolution.x
-
-    vec3 color = gradient * vec3(0.4,0.8,1.0);
+    vec3 color = gradient * vec3(0.4, 0.8, 1.0);
 
     fragColor = vec4(color, 1.0);
 }

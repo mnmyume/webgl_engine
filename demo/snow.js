@@ -220,10 +220,9 @@ export function initSnow(gl, canvas, camera) {
     bkgMaterial.initialize({gl});
 
     const bkgShape = new Shape('bkgShape', {
-        verticeCount: 6, schema: readAttrSchema(bkgVert.input)
+        verticeCount: 6, state:1
     });
     bkgShape.initialize({gl});
-    bkgShape.update(gl, 'quadBuffer',{material:bkgMaterial});
 
 
     function drawSnow() {
@@ -243,7 +242,15 @@ export function initSnow(gl, canvas, camera) {
         gl.colorMask(true, true, true, true);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+
         // render
+
+        // draw background
+        bkgMaterial.preDraw(gl, camera);
+        bkgShape.draw(gl, bkgMaterial);
+        bkgMaterial.postDraw(gl);
+
+        // draw particle
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         gl.blendEquation(gl.FUNC_ADD);
@@ -260,8 +267,10 @@ export function initSnow(gl, canvas, camera) {
         emitterQuadMaterial.postDraw(gl);
 
         groundQuadMaterial.preDraw(gl, camera);
-        groundQuadShape.draw(gl, emitterQuadMaterial);
+        groundQuadShape.draw(gl, groundQuadMaterial);
         groundQuadMaterial.postDraw(gl);
+
+
 
 
         solverMaterial.setUniform('uDeltaTime', time.Interval);
