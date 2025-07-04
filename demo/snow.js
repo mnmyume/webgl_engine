@@ -18,6 +18,8 @@ import emitVert from "../shaders/glsl/emit-vert.glsl";
 import emitFrag from "../shaders/glsl/emit-frag.glsl";
 import snowVert from "../shaders/glsl/snow-vert.glsl";
 import snowFrag from "../shaders/glsl/snow-frag.glsl";
+import bkgVert from "../shaders/glsl/background-vert.glsl";
+import bkgFrag from "../shaders/glsl/background-frag.glsl";
 
 
 
@@ -192,18 +194,36 @@ export function initSnow(gl, canvas, camera) {
     emitterQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:emitterQuadData});
 
 
-    const groundQuadMaterial = new Material('emitterQuadMaterial', {
+    const groundQuadMaterial = new Material('groundQuadMaterial', {
         shader: quadShader
     })
     groundQuadMaterial.initialize({gl});
 
     const groundQuadData = genQuadUV(5);
-    const groundQuadShape = new Shape('emitterQuadShape', {
+    const groundQuadShape = new Shape('groundQuadShape', {
         verticeCount: 6, schema: readAttrSchema(quadVert.input)
     });
     groundQuadShape.initialize({gl});
     groundQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:groundQuadData});
 
+
+    // init background
+    const bkgShader = new Shader({
+        vertexSource: bkgVert,
+        fragmentSource: bkgFrag
+    });
+    bkgShader.initialize({gl});
+
+    const bkgMaterial = new Material('bkgMaterial', {
+        shader: bkgShader
+    })
+    bkgMaterial.initialize({gl});
+
+    const bkgShape = new Shape('bkgShape', {
+        verticeCount: 6, schema: readAttrSchema(bkgVert.input)
+    });
+    bkgShape.initialize({gl});
+    bkgShape.update(gl, 'quadBuffer',{material:bkgMaterial});
 
 
     function drawSnow() {
