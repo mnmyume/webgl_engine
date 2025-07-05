@@ -1,4 +1,4 @@
-// import { mat4 } from 'gl-matrix';
+import { mat4 } from 'gl-matrix';
 
 export default class Camera {
     constructor({ position = [0, 0, 5], target = [0, 0, 0], up = [0, 1, 0], near = 0.001, far = 1000}) {

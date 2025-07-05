@@ -1,3 +1,5 @@
+import { mat4 } from 'gl-matrix';
+
 export default class Transform {
     constructor() {
         this.position = [0, 0, 0];

@@ -14,5 +14,8 @@
     "magic-string": "^0.30.17",
     "vite": "^6.3.5",
     "vite-plugin-inspect": "^11.1.0"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.4.3"
   }
 }
