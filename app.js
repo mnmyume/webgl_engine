@@ -4,8 +4,9 @@ import PerspCamera from "./source/perspCamera.js";
 import Transform from './source/transform.js';
 import Time from './source/time.js';
 
-import { initQuad } from "./demo/quad.js";
-import { initSnow } from "./demo/snow.js";
+import { initQuad }from "./demo/quad.js";
+import { initSnow }from "./demo/snow.js";
+import { initArrow } from "./demo/arrow.js";
 
 
 function main() {
@@ -32,7 +33,8 @@ function main() {
     camera.updateViewInverse();
 
     // initQuad(gl, canvas, camera);
-    initSnow(gl, canvas, camera);
+    // initSnow(gl, canvas, camera);
+    initArrow(gl, canvas, camera);
 }
 
 main();
