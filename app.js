@@ -33,8 +33,8 @@ function main() {
     camera.updateViewInverse();
 
     // initQuad(gl, canvas, camera);
-    initSnow(gl, canvas, camera);
-    // initArrow(gl, canvas, camera);
+    // initSnow(gl, canvas, camera);
+    initArrow(gl, canvas, camera);
 }
 
 main();
