@@ -31,6 +31,8 @@ layout(location = GENERATION_LOCATION) in float aGeneration;
 layout(location = SIZE_LOCATION) in float aSize;
 
 
+out float vGeneration;
+
 
 void main()
 {
@@ -40,4 +42,5 @@ void main()
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
     gl_PointSize = aSize;
 
+    vGeneration = aGeneration;
 }

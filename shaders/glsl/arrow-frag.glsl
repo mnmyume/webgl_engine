@@ -10,6 +10,7 @@ uniform sampler2D uColorSampler;
 uniform vec3 uColor;
 
 
+in float vGeneration;
 in vec3 vLinVel;
 
 
@@ -36,6 +37,8 @@ vec2 rotateUV(vec2 uv, mat2 rot) {
 void main()
 {
 
+    if(vGeneration < 0.0)
+        discard;
 
     vec2 uv = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
 

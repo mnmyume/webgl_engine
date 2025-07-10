@@ -30,6 +30,8 @@ layout(location = GENERATION_LOCATION) in float aGeneration;
 #buffer aSize:particleBuffer, size:1, stride:40, offset:36
 layout(location = SIZE_LOCATION) in float aSize;
 
+
+out float vGeneration;
 out vec3 vLinVel;
 
 void main()
@@ -40,6 +42,7 @@ void main()
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
     gl_PointSize = aSize;
 
+    vGeneration = aGeneration;
     vLinVel = aLinVel;
 
 }

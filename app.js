@@ -35,8 +35,8 @@ function main() {
 
     // initQuad(gl, canvas, camera);
     // initSnow(gl, canvas, camera);
-    // initArrow(gl, canvas, camera);
-    initRain(gl, canvas, camera);
+    initArrow(gl, canvas, camera);
+    // initRain(gl, canvas, camera);
 }
 
 main();
