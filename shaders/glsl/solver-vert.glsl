@@ -36,9 +36,9 @@ uniform float uCount;
 uniform float uMAXCOL;
 
 
-#define PARMS 4                                                 // 0: switcher.x, gravity.yzw;
-#value uFieldParams:[0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]        // 1: switcher.x, vortexScalar.y, __, __;
-// #value uFieldParams:[vec4(0),vec4(0),vec4(0),vec4(0)]
+#define PARMS 5                                                 // 0: switcher.x, gravity.yzw;
+#value uFieldParams:[0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]        // 1: switcher.x, vortexScalar.y, __, __;
+// #value uFieldParams:[vec4(0),vec4(0),vec4(0),vec4(0),vec4(0)]
 uniform vec4 uFieldParams[PARMS];                               // 2: switcher.x, noiseScalar.yzw;
                                                                 // 3: switcher.x, dampScalar.y, __, __;
 
@@ -77,7 +77,7 @@ vec3 gravityField(vec3 linVel, vec3 gravity) {
     return linVel;
 }
 
-vec3 vortexField(vec3 pos, float scalar){   //vec3 axis, needs Quaternion Helper
+vec3 vortexField(vec3 pos, float scalar) {   //vec3 axis, needs Quaternion Helper
     vec3 linVel = vec3(-pos.z,0, pos.x)*scalar;
     return linVel;
 }
@@ -93,8 +93,28 @@ vec3 noiseField(vec3 pos, vec3 scalar) {
     return scalar*normalize(d);
 }
 
-vec3 damp(vec3 linVel, float k, float dTime){
+vec3 damp(vec3 linVel, float k, float dTime) {
     return linVel*(1.0-k);
+}
+
+vec3 turbulence(vec3 pos) {
+    float freq = 2.0;
+    mat2 rot = mat2(0.6, -0.8, 0.8, 0.6);
+
+    vec2 p = vec2(pos.x, pos.z);
+
+    for(float i=0.0; i<4.0; i++)
+    {
+        float phase = freq * (p * rot).y + 0.3 * uTime + i;
+
+        p += 0.7 * rot[0] * sin(phase) / freq;
+
+        rot *= mat2(0.6, -0.8, 0.8, 0.6);
+
+        freq *= 1.4;
+    }
+
+    return vec3(p.x, 0, p.y);
 }
 
 
@@ -167,6 +187,8 @@ void main()
         if(dampSwitcher == 1.0){
             linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
         }
+
+        linVel += turbulence(pos)*uDeltaTime;
 
         pos = updatePos(pos, oldVel);
     }

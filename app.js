@@ -8,6 +8,7 @@ import { initQuad }from "./demo/quad.js";
 import { initSnow }from "./demo/snow.js";
 import { initArrow } from "./demo/arrow.js";
 import { initRain } from "./demo/rain.js";
+import { initLeaves } from "./demo/leaves.js";
 
 
 function main() {
@@ -35,8 +36,9 @@ function main() {
 
     // initQuad(gl, canvas, camera);
     // initSnow(gl, canvas, camera);
-    initArrow(gl, canvas, camera);
+    // initArrow(gl, canvas, camera);
     // initRain(gl, canvas, camera);
+    initLeaves(gl, canvas, camera);
 }
 
 main();
