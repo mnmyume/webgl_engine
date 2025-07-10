@@ -36,11 +36,15 @@ uniform float uCount;
 uniform float uMAXCOL;
 
 
-#define PARMS 5                                                 // 0: switcher.x, gravity.yzw;
-#value uFieldParams:[0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]        // 1: switcher.x, vortexScalar.y, __, __;
+#define PARMS 5
+#value uFieldParams:[0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0]
 // #value uFieldParams:[vec4(0),vec4(0),vec4(0),vec4(0),vec4(0)]
-uniform vec4 uFieldParams[PARMS];                               // 2: switcher.x, noiseScalar.yzw;
-                                                                // 3: switcher.x, dampScalar.y, __, __;
+uniform mat3 uFieldParams[PARMS];
+// 0: switcher.x, gravity.yzw;
+// 1: switcher.x, vortexScalar.y, __, __;
+// 2: switcher.x, noiseScalar.yzw;
+// 3: switcher.x, dampScalar.y, __, __;
+
 
 
 #buffer aPos:particleBuffer, size:3, stride:40, offset:0
@@ -97,24 +101,22 @@ vec3 damp(vec3 linVel, float k, float dTime) {
     return linVel*(1.0-k);
 }
 
-vec3 turbulence(vec3 pos) {
-    float freq = 2.0;
+vec3 turbulence(vec3 pos, float num, float amp, float speed, float freq, float exp) {
     mat2 rot = mat2(0.6, -0.8, 0.8, 0.6);
+    vec2 p = pos.xz;
 
-    vec2 p = vec2(pos.x, pos.z);
-
-    for(float i=0.0; i<4.0; i++)
+    for(float i=0.0; i<num; i++)
     {
-        float phase = freq * (p * rot).y + 0.3 * uTime + i;
+        float phase = freq * (p * rot).y + speed * uDeltaTime + i;
 
-        p += 0.7 * rot[0] * sin(phase) / freq;
+        p += amp * rot[0] * sin(phase) / freq;
 
         rot *= mat2(0.6, -0.8, 0.8, 0.6);
 
-        freq *= 1.4;
+        freq *= exp;
     }
 
-    return vec3(p.x, 0, p.y);
+    return vec3(p.x, pos.y, p.y);
 }
 
 
@@ -166,14 +168,21 @@ void main()
         vec3 oldVel = aLinVel;
         size = texture(uEmitterSlot0[0], emitterUV).z;
 
-        float gravitySwitcher = uFieldParams[0].x;
-        vec3 gravity = uFieldParams[0].yzw;
-        float vortexSwitcher = uFieldParams[1].x;
-        float vortexScalar = uFieldParams[1].y;
-        float noiseSwitcher = uFieldParams[2].x;
-        vec3 noiseScalar = uFieldParams[2].yzw;
-        float dampSwitcher = uFieldParams[3].x;
-        float dampScalar = uFieldParams[3].y;
+        float gravitySwitcher = uFieldParams[0][0].x;
+        vec3 gravity = vec3(uFieldParams[0][0].yz, uFieldParams[0][1].x);
+        float vortexSwitcher = uFieldParams[1][0].x;
+        float vortexScalar = uFieldParams[1][0].y;
+        float noiseSwitcher = uFieldParams[2][0].x;
+        vec3 noiseScalar = vec3(uFieldParams[2][0].yz, uFieldParams[2][1].x);
+        float dampSwitcher = uFieldParams[3][0].x;
+        float dampScalar = uFieldParams[3][0].y;
+        float turbulenceSwitcher = uFieldParams[4][0].x;
+        float turbulenceNum = uFieldParams[4][0].y;
+        float turbulenceAmp = uFieldParams[4][0].z;
+        float turbulenceSpeed = uFieldParams[4][1].x;
+        float turbulenceFreq = uFieldParams[4][1].y;
+        float turbulenceExp = uFieldParams[4][1].z;
+
 
         if(gravitySwitcher == 1.0) {
             linVel = gravityField(oldVel, gravity);
@@ -187,8 +196,10 @@ void main()
         if(dampSwitcher == 1.0){
             linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
         }
-
-        linVel += turbulence(pos)*uDeltaTime;
+        if(turbulenceSwitcher == 1.0){
+            pos = turbulence(pos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
+            linVel += vortexField(pos, vortexScalar);
+        }
 
         pos = updatePos(pos, oldVel);
     }

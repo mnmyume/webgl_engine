@@ -48,6 +48,11 @@ export function initLeaves(gl, canvas, camera) {
         dampSwitcher: 1,
         dampScalar: 0.8,
         turbulenceSwitcher: 1,
+        turbulenceNum: 4,
+        turbulenceAmp: 0.1,
+        turbulenceSpeed: 0.3,
+        turbulenceFreq: 2.0,
+        turbulenceExp: 1.4
     }
 
     const gridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
@@ -140,11 +145,12 @@ export function initLeaves(gl, canvas, camera) {
 
 
     const fieldParams = [];
-    fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity ];
-    fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0 ];
-    fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar ];
-    fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0 ];
-    fieldParams[4] = [ solverParams.turbulenceSwitcher, 0, 0, 0 ];
+    fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity, 0, 0, 0, 0, 0 ];
+    fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0, 0, 0, 0, 0, 0 ];
+    fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar, 0, 0, 0, 0, 0 ];
+    fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0, 0, 0, 0, 0, 0 ];
+    fieldParams[4] = [ solverParams.turbulenceSwitcher, solverParams.turbulenceNum, solverParams.turbulenceAmp,
+                        solverParams.turbulenceSpeed, solverParams.turbulenceFreq, solverParams.turbulenceExp, 0, 0, 0 ];
     solverMaterial.setUniform('uFieldParams', fieldParams.flat());
 
 
