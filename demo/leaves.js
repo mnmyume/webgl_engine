@@ -54,6 +54,7 @@ export function initLeaves(gl, canvas, camera) {
         turbulenceFreq: 2.0,
         turbulenceExp: 1.4
     }
+    window.solverParams = solverParams;
 
     const gridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
     const emitterTransform = new Transform();
@@ -143,15 +144,6 @@ export function initLeaves(gl, canvas, camera) {
     solverMaterial.setUniform('uLifeTime', particleParams.lifeTime);
     solverMaterial.setUniform('uMAXCOL', MAXCOL);
 
-
-    const fieldParams = [];
-    fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity, 0, 0, 0, 0, 0 ];
-    fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0, 0, 0, 0, 0, 0 ];
-    fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar, 0, 0, 0, 0, 0 ];
-    fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0, 0, 0, 0, 0, 0 ];
-    fieldParams[4] = [ solverParams.turbulenceSwitcher, solverParams.turbulenceNum, solverParams.turbulenceAmp,
-                        solverParams.turbulenceSpeed, solverParams.turbulenceFreq, solverParams.turbulenceExp, 0, 0, 0 ];
-    solverMaterial.setUniform('uFieldParams', fieldParams.flat());
 
 
     // init render
@@ -247,6 +239,16 @@ export function initLeaves(gl, canvas, camera) {
             solverMaterial.setUniform('uTime', time.ElapsedTime);
             solverMaterial.setUniform('uDeltaTime', time.Interval);
             solverMaterial.setUniform('uState', solver.mode);
+
+
+            const fieldParams = [];
+            fieldParams[0] = [ solverParams.gravitySwitcher, ...solverParams.gravity, 0, 0, 0, 0, 0 ];
+            fieldParams[1] = [ solverParams.vortexSwitcher, solverParams.vortexScalar, 0, 0, 0, 0, 0, 0, 0 ];
+            fieldParams[2] = [ solverParams.noiseSwitcher, ...solverParams.noiseScalar, 0, 0, 0, 0, 0 ];
+            fieldParams[3] = [ solverParams.dampSwitcher, solverParams.dampScalar, 0, 0, 0, 0, 0, 0, 0 ];
+            fieldParams[4] = [ solverParams.turbulenceSwitcher, solverParams.turbulenceNum, solverParams.turbulenceAmp,
+                solverParams.turbulenceSpeed, solverParams.turbulenceFreq, solverParams.turbulenceExp, 0, 0, 0 ];
+            solverMaterial.setUniform('uFieldParams', fieldParams.flat());
 
             solver.update(gl);
 

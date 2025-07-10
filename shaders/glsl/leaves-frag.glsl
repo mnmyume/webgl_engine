@@ -42,7 +42,8 @@ void main()
 
     vec2 uv = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
 
-    mat2 rot = rotateVelMatrix(vLinVel.xy);
+    float linVelXZ = dot(vLinVel.xz, normalize(vec2(1.0,1.0)));
+    mat2 rot = rotateVelMatrix(vec2(linVelXZ, vLinVel.y));
 
     vec2 rotUV = rotateUV(uv, rot);
 
