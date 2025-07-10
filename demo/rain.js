@@ -16,26 +16,25 @@ import quadVert from "../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../shaders/glsl/quad-frag.glsl";
 import solverVert from "../shaders/glsl/solver-vert.glsl";
 import solverFrag from "../shaders/glsl/solver-frag.glsl";
-import snowVert from "../shaders/glsl/snow-vert.glsl";
-import snowFrag from "../shaders/glsl/snow-frag.glsl";
+import rainVert from "../shaders/glsl/rain-vert.glsl";
+import rainFrag from "../shaders/glsl/rain-frag.glsl";
 import bkgVert from "../shaders/glsl/background-vert.glsl";
 import bkgFrag from "../shaders/glsl/background-frag.glsl";
 
 
 
-export function initSnow(gl, canvas, camera) {
+export function initRain(gl, canvas, camera) {
 
     const time = new Time();
     const MAXGENSIZE = 2;
     const particleParams = {
-        count: 4,
+        count: 100,
         duration: 8,
         lifeTime: 8,
-        size: 10,
-        radius: 0.8,
-        blurRadius: 0.1,
-        pixelNum: 4,
+        size: 30,
         color:[1,1,1],
+        pixelNum:8,
+        rainHeadSize:0.16,
         emitterSize: 16,
         emitterHeight: 40
     }
@@ -151,26 +150,25 @@ export function initSnow(gl, canvas, camera) {
 
     // init render
     const particleShader = new Shader({
-        vertexSource: snowVert,
-        fragmentSource: snowFrag
+        vertexSource: rainVert,
+        fragmentSource: rainFrag
     });
     particleShader.initialize({gl});
+
 
     const particleMaterial = new Material('particleMaterial',{
         shader: particleShader,
     });
     particleMaterial.initialize({gl});
 
-
     particleMaterial.setUniform('uColor', particleParams.color);
-    particleMaterial.setUniform('uRadius', particleParams.radius);
-    particleMaterial.setUniform('uBlurRadius', particleParams.blurRadius);
     particleMaterial.setUniform('uPixelNum', particleParams.pixelNum);
+    particleMaterial.setUniform('uRainHeadSize', particleParams.rainHeadSize);
 
 
     const particleShape = new Shape('particleShape',{
         state: 3, count: particleParams.count, vaos: solverShape.VAOS,
-        schema: readAttrSchema(snowVert.input)
+        schema: readAttrSchema(rainVert.input)
     });
 
 
@@ -225,9 +223,9 @@ export function initSnow(gl, canvas, camera) {
     bkgShape.initialize({gl});
 
 
-    function drawSnow() {
+    function drawRain() {
 
-        requestAnimationFrame(drawSnow);
+        requestAnimationFrame(drawRain);
 
         time.update();
         solverMaterial.setUniform('uTime', time.ElapsedTime);
@@ -252,7 +250,7 @@ export function initSnow(gl, canvas, camera) {
 
         // draw particle
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         gl.blendEquation(gl.FUNC_ADD);
 
         particleMaterial.preDraw(gl, camera);
@@ -271,8 +269,6 @@ export function initSnow(gl, canvas, camera) {
         groundQuadMaterial.postDraw(gl);
 
 
-
-
         solverMaterial.setUniform('uDeltaTime', time.Interval);
 
         if (solver.Mode === Solver.MODE.init) {
@@ -281,5 +277,5 @@ export function initSnow(gl, canvas, camera) {
 
     }
 
-    drawSnow();
+    drawRain();
 }

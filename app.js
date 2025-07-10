@@ -7,6 +7,7 @@ import Time from './source/time.js';
 import { initQuad }from "./demo/quad.js";
 import { initSnow }from "./demo/snow.js";
 import { initArrow } from "./demo/arrow.js";
+import { initRain } from "./demo/rain.js";
 
 
 function main() {
@@ -34,7 +35,8 @@ function main() {
 
     // initQuad(gl, canvas, camera);
     // initSnow(gl, canvas, camera);
-    initArrow(gl, canvas, camera);
+    // initArrow(gl, canvas, camera);
+    initRain(gl, canvas, camera);
 }
 
 main();

@@ -14,8 +14,8 @@ import {sqrtFloor} from "../source/mathHelper.js";
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../shaders/glsl/quad-frag.glsl";
-import emitVert from "../shaders/glsl/emit-vert.glsl";
-import emitFrag from "../shaders/glsl/emit-frag.glsl";
+import solverVert from "../shaders/glsl/solver-vert.glsl";
+import solverFrag from "../shaders/glsl/solver-frag.glsl";
 import arrowVert from "../shaders/glsl/arrow-vert.glsl";
 import arrowFrag from "../shaders/glsl/arrow-frag.glsl";
 import bkgVert from "../shaders/glsl/background-vert.glsl";
@@ -56,8 +56,8 @@ export function initArrow(gl, canvas, camera) {
 
     // init solver
     const solverShader = new Shader({
-        vertexSource: emitVert,
-        fragmentSource: emitFrag,
+        vertexSource: solverVert,
+        fragmentSource: solverFrag,
     });
     solverShader.initialize({gl});
 
@@ -70,7 +70,7 @@ export function initArrow(gl, canvas, camera) {
     const stride = 10;
     const initData = genInitData(particleParams.count, stride);
     const solverShape = new SolverShape('solverShape', {
-        count:particleParams.count, schema: readAttrSchema(emitVert.input)
+        count:particleParams.count, schema: readAttrSchema(solverVert.input)
     });
     solverShape.initialize({gl});
 
