@@ -31,7 +31,7 @@ export function initArrow(gl, canvas, camera) {
         count: 100,
         duration: 8,
         lifeTime: 8,
-        size: 10,
+        size: 30,
         color:[1,1,1],
         emitterSize: 16,
         emitterHeight: 40
@@ -172,120 +172,120 @@ export function initArrow(gl, canvas, camera) {
 
         particleMaterial.setUniform('uColor', particleParams.color);
         particleMaterial.setTexture('uColorSampler', colorTexture);
-    }
-
-    const particleShape = new Shape('particleShape',{
-        state: 3, count: particleParams.count, vaos: solverShape.VAOS,
-        schema: readAttrSchema(arrowVert.input)
-    });
 
 
-    // init quads
-    const quadShader = new Shader({
-        vertexSource: quadVert,
-        fragmentSource: quadFrag
-    });
-    quadShader.initialize({gl});
-
-    const emitterQuadMaterial = new Material('emitterQuadMaterial', {
-        shader: quadShader
-    })
-    emitterQuadMaterial.initialize({gl});
-
-    const emitterQuadData = genQuadUV(particleParams.emitterSize);
-    const emitterQuadShape = new Shape('emitterQuadShape', {
-        verticeCount: 6, schema: readAttrSchema(quadVert.input)
-    });
-    emitterQuadShape.initialize({gl});
-    emitterQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:emitterQuadData});
+        const particleShape = new Shape('particleShape',{
+            state: 3, count: particleParams.count, vaos: solverShape.VAOS,
+            schema: readAttrSchema(arrowVert.input)
+        });
 
 
-    const groundQuadMaterial = new Material('groundQuadMaterial', {
-        shader: quadShader
-    })
-    groundQuadMaterial.initialize({gl});
+        // init quads
+        const quadShader = new Shader({
+            vertexSource: quadVert,
+            fragmentSource: quadFrag
+        });
+        quadShader.initialize({gl});
 
-    const groundQuadData = genQuadUV(5);
-    const groundQuadShape = new Shape('groundQuadShape', {
-        verticeCount: 6, schema: readAttrSchema(quadVert.input)
-    });
-    groundQuadShape.initialize({gl});
-    groundQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:groundQuadData});
+        const emitterQuadMaterial = new Material('emitterQuadMaterial', {
+            shader: quadShader
+        })
+        emitterQuadMaterial.initialize({gl});
 
-
-    // init background
-    const bkgShader = new Shader({
-        vertexSource: bkgVert,
-        fragmentSource: bkgFrag
-    });
-    bkgShader.initialize({gl});
-
-    const bkgMaterial = new Material('bkgMaterial', {
-        shader: bkgShader
-    })
-    bkgMaterial.initialize({gl});
-
-    const bkgShape = new Shape('bkgShape', {
-        verticeCount: 6, state:1
-    });
-    bkgShape.initialize({gl});
+        const emitterQuadData = genQuadUV(particleParams.emitterSize);
+        const emitterQuadShape = new Shape('emitterQuadShape', {
+            verticeCount: 6, schema: readAttrSchema(quadVert.input)
+        });
+        emitterQuadShape.initialize({gl});
+        emitterQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:emitterQuadData});
 
 
-    function drawArrow() {
+        const groundQuadMaterial = new Material('groundQuadMaterial', {
+            shader: quadShader
+        })
+        groundQuadMaterial.initialize({gl});
 
-        requestAnimationFrame(drawArrow);
-
-        time.update();
-        solverMaterial.setUniform('uTime', time.ElapsedTime);
-        solverMaterial.setUniform('uDeltaTime', time.Interval);
-        solverMaterial.setUniform('uState', solver.mode);
-
-        solver.update(gl);
-
-        gl.viewport(0, 0, canvas.width, canvas.height);
-
-        gl.clearColor(0.2, 0.2, 0.2, 1.0);
-        gl.colorMask(true, true, true, true);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        const groundQuadData = genQuadUV(5);
+        const groundQuadShape = new Shape('groundQuadShape', {
+            verticeCount: 6, schema: readAttrSchema(quadVert.input)
+        });
+        groundQuadShape.initialize({gl});
+        groundQuadShape.update(gl, 'quadBuffer',{material:emitterQuadMaterial, data:groundQuadData});
 
 
-        // render
+        // init background
+        const bkgShader = new Shader({
+            vertexSource: bkgVert,
+            fragmentSource: bkgFrag
+        });
+        bkgShader.initialize({gl});
 
-        // draw background
-        bkgMaterial.preDraw(gl, camera);
-        bkgShape.draw(gl, bkgMaterial);
-        bkgMaterial.postDraw(gl);
+        const bkgMaterial = new Material('bkgMaterial', {
+            shader: bkgShader
+        })
+        bkgMaterial.initialize({gl});
 
-        // draw particle
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-        // gl.blendEquation(gl.FUNC_ADD);
-
-        particleMaterial.preDraw(gl, camera);
-        particleShape.draw(gl, particleMaterial);
-        particleMaterial.postDraw(gl);
-
-        gl.disable(gl.BLEND);
-
-        // draw quad
-        emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
-        emitterQuadShape.draw(gl, emitterQuadMaterial);
-        emitterQuadMaterial.postDraw(gl);
-
-        groundQuadMaterial.preDraw(gl, camera);
-        groundQuadShape.draw(gl, groundQuadMaterial);
-        groundQuadMaterial.postDraw(gl);
+        const bkgShape = new Shape('bkgShape', {
+            verticeCount: 6, state:1
+        });
+        bkgShape.initialize({gl});
 
 
+        function drawArrow() {
+
+            requestAnimationFrame(drawArrow);
+
+            time.update();
+            solverMaterial.setUniform('uTime', time.ElapsedTime);
+            solverMaterial.setUniform('uDeltaTime', time.Interval);
+            solverMaterial.setUniform('uState', solver.mode);
+
+            solver.update(gl);
+
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+            gl.clearColor(0.2, 0.2, 0.2, 1.0);
+            gl.colorMask(true, true, true, true);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-        solverMaterial.setUniform('uDeltaTime', time.Interval);
+            // render
 
-        if (solver.Mode === Solver.MODE.init) {
-            solver.Mode = Solver.MODE.play;
+            // draw background
+            bkgMaterial.preDraw(gl, camera);
+            bkgShape.draw(gl, bkgMaterial);
+            bkgMaterial.postDraw(gl);
+
+            // draw particle
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.blendEquation(gl.FUNC_ADD);
+
+            particleMaterial.preDraw(gl, camera);
+            particleShape.draw(gl, particleMaterial);
+            particleMaterial.postDraw(gl);
+
+            gl.disable(gl.BLEND);
+
+            // draw quad
+            emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+            emitterQuadShape.draw(gl, emitterQuadMaterial);
+            emitterQuadMaterial.postDraw(gl);
+
+            groundQuadMaterial.preDraw(gl, camera);
+            groundQuadShape.draw(gl, groundQuadMaterial);
+            groundQuadMaterial.postDraw(gl);
+
+
+            solverMaterial.setUniform('uDeltaTime', time.Interval);
+
+            if (solver.Mode === Solver.MODE.init) {
+                solver.Mode = Solver.MODE.play;
+            }
+
         }
 
-    }
+        drawArrow();
 
-    drawArrow();
+    }
 }

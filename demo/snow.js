@@ -28,7 +28,7 @@ export function initSnow(gl, canvas, camera) {
     const time = new Time();
     const MAXGENSIZE = 2;
     const particleParams = {
-        count: 100,
+        count: 4,
         duration: 8,
         lifeTime: 8,
         size: 10,
@@ -252,7 +252,7 @@ export function initSnow(gl, canvas, camera) {
 
         // draw particle
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.blendEquation(gl.FUNC_ADD);
 
         particleMaterial.preDraw(gl, camera);
