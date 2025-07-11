@@ -44,5 +44,5 @@ void main()
     gl_PointSize = aSize;
 
     vGeneration = aGeneration;
-    vLinVel = aLinVel;
+    vLinVel = mat3(_uni_viewMat) * aLinVel;
 }

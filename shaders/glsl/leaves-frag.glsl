@@ -38,7 +38,7 @@ void main()
 {
 
     if(vGeneration < 0.0)
-    discard;
+        discard;
 
     vec2 uv = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
 
