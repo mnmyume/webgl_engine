@@ -101,22 +101,26 @@ vec3 damp(vec3 linVel, float k, float dTime) {
     return linVel*(1.0-k);
 }
 
+
+mat3 rot = mat3(
+0.1116, -0.9936,  0.0148,
+0.6333,  0.0820,  0.7697,
+-0.7659, -0.0751,  0.6383
+);
 vec3 turbulence(vec3 pos, float num, float amp, float speed, float freq, float exp) {
-    mat2 rot = mat2(0.6, -0.8, 0.8, 0.6);
-    vec2 p = pos.xz;
 
     for(float i=0.0; i<num; i++)
     {
-        float phase = freq * (p * rot).y + speed * uDeltaTime + i;
+        float phase = freq * (pos * rot).x + speed * uTime + i;
 
-        p += amp * rot[0] * sin(phase) / freq;
+        pos += amp * rot[0] * sin(phase) / freq;
 
-        rot *= mat2(0.6, -0.8, 0.8, 0.6);
+        rot *= rot;
 
         freq *= exp;
     }
 
-    return vec3(p.x, pos.y, p.y);
+    return pos;
 }
 
 
@@ -199,8 +203,8 @@ void main()
         }
         if(turbulenceSwitcher == 1.0){
             vec3 newPos = turbulence(oldPos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
-            vec3 turbVel = (newPos - oldPos)/uDeltaTime;
-            linVel += turbVel;
+            vec3 turbVel = (newPos - oldPos);
+            linVel += length(linVel)*turbVel;
 
 //            vec3 turbPos = turbulence(pos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
 //            linVel += vortexField(turbPos, vortexScalar);
