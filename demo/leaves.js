@@ -28,7 +28,7 @@ export function initLeaves(gl, canvas, camera) {
     const time = new Time();
     const MAXGENSIZE = 2;
     const particleParams = {
-        count: 100,
+        count: 800,
         duration: 8,
         lifeTime: 8,
         size: 30,
