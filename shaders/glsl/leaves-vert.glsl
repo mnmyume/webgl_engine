@@ -45,4 +45,5 @@ void main()
 
     vGeneration = aGeneration;
     vLinVel = mat3(_uni_viewMat) * aLinVel;
+//    vLinVel = vec3(-1,0, 1);
 }

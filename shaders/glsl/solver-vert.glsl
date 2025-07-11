@@ -164,7 +164,8 @@ void main()
     }
     else{
 
-        pos = aPos;
+//        pos = aPos;
+        vec3 oldPos = aPos;
         vec3 oldVel = aLinVel;
         size = texture(uEmitterSlot0[0], emitterUV).z;
 
@@ -197,11 +198,14 @@ void main()
             linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
         }
         if(turbulenceSwitcher == 1.0){
-            pos = turbulence(pos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
-            linVel += vortexField(pos, vortexScalar);
+            oldPos = turbulence(oldPos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
+//            vec3 turbPos = turbulence(pos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
+//            linVel += vortexField(turbPos, vortexScalar);
         }
 
         pos = updatePos(pos, oldVel);
+        linVel = (pos - oldPos)/uDeltaTime;
+
     }
 
     gl_Position = vec4(pos, 1.0);

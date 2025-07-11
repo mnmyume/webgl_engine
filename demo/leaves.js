@@ -49,7 +49,7 @@ export function initLeaves(gl, canvas, camera) {
         dampScalar: 0.8,
         turbulenceSwitcher: 1,
         turbulenceNum: 4,
-        turbulenceAmp: 0.1,
+        turbulenceAmp: 0.01,
         turbulenceSpeed: 0.3,
         turbulenceFreq: 2.0,
         turbulenceExp: 1.4
