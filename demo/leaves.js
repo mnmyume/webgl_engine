@@ -28,7 +28,7 @@ export function initLeaves(gl, canvas, camera) {
     const time = new Time();
     const MAXGENSIZE = 2;
     const particleParams = {
-        count: 800,
+        count: 100,
         duration: 8,
         lifeTime: 8,
         size: 30,
@@ -39,7 +39,7 @@ export function initLeaves(gl, canvas, camera) {
     const MAXCOL = sqrtFloor(particleParams.count);
 
     const solverParams = {
-        gravitySwitcher: 1,
+        gravitySwitcher: 0,
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
@@ -49,7 +49,7 @@ export function initLeaves(gl, canvas, camera) {
         dampScalar: 0.8,
         turbulenceSwitcher: 1,
         turbulenceNum: 4,
-        turbulenceAmp: 0.01,
+        turbulenceAmp: 0.008,
         turbulenceSpeed: 0.3,
         turbulenceFreq: 2.0,
         turbulenceExp: 1.4

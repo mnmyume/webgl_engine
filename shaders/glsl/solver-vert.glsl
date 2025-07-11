@@ -197,19 +197,18 @@ void main()
         if(dampSwitcher == 1.0){
             linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
         }
-        vec3 newPos;
         if(turbulenceSwitcher == 1.0){
-            newPos = turbulence(oldPos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
+            vec3 newPos = turbulence(oldPos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
+            vec3 turbVel = (newPos - oldPos)/uDeltaTime;
+            linVel += turbVel;
+
 //            vec3 turbPos = turbulence(pos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
 //            linVel += vortexField(turbPos, vortexScalar);
         }
 
-//        pos = updatePos(pos, oldVel);
+        pos = updatePos(pos, oldVel);
 
-        linVel = (newPos - oldPos)/uDeltaTime+vec3(0,-2,0) ;
-        //pos = oldPos;
 
-        pos = pos + linVel * uDeltaTime;
 
     }
 
