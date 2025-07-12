@@ -82,7 +82,7 @@ export function initLeaves(gl, canvas, camera) {
     });
     solverMaterial.initialize({gl});
 
-    const stride = 11;
+    const stride = 12;
     const initData = genInitData(particleParams.count, stride);
     const solverShape = new SolverShape('solverShape', {
         count:particleParams.count, schema: readAttrSchema(solverVert.input)

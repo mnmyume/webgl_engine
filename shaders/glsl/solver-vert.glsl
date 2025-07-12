@@ -1,7 +1,7 @@
 #version 300 es
 #define POSITION_LOCATION 0
 #define LINEAR_VELOCITY_LOCATION 1
-#define ANGULAR_VELOCITY_LOCATION 2
+#define ACCELERATION_LOCATION 2
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
 #define PERCENTLIFE_LOCATION 5
@@ -48,27 +48,28 @@ uniform mat3 uFieldParams[PARMS];
 
 
 
-#buffer aPos:particleBuffer, size:3, stride:44, offset:0
+#buffer aPos:particleBuffer, size:3, stride:48, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aLinVel:particleBuffer, size:3, stride:44, offset:12
+#buffer aLinVel:particleBuffer, size:3, stride:48, offset:12
 layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
-#buffer aAngVel:particleBuffer, size:2, stride:44, offset:24
-layout(location = ANGULAR_VELOCITY_LOCATION) in vec2 aAngVel;
+#buffer aAcc:particleBuffer, size:3, stride:48, offset:24
+layout(location = ACCELERATION_LOCATION) in vec3 aAcc;
 
-#buffer aGeneration:particleBuffer, size:1, stride:44, offset:32
+#buffer aGeneration:particleBuffer, size:1, stride:48, offset:36
 layout(location = GENERATION_LOCATION) in float aGeneration;
 
-#buffer aSize:particleBuffer, size:1, stride:44, offset:36
+#buffer aSize:particleBuffer, size:1, stride:48, offset:40
 layout(location = SIZE_LOCATION) in float aSize;
 
-#buffer aPercentLife:particleBuffer, size:1, stride:44, offset:40
+#buffer aPercentLife:particleBuffer, size:1, stride:48, offset:44
 layout(location = PERCENTLIFE_LOCATION) in float aPercentLife;
+
 
 out vec3 vPos;
 out vec3 vLinVel;
-out vec2 vAngVel;
+out vec3 vAcc;
 out float vGeneration;
 out float vSize;
 out float vPercentLife;
@@ -139,7 +140,7 @@ void main()
 
     vec3 pos = aPos;
     vec3 linVel = aLinVel;
-    vec2 angVel = aAngVel;
+    vec3 acc = aAcc;
     float size = aSize;
     float percentLife = aPercentLife;
 
@@ -226,7 +227,7 @@ void main()
 
     vPos = pos;
     vLinVel = linVel;
-    vAngVel =  aAngVel;
+    vAcc =  aAcc;
     vGeneration = generation;
     vSize = size;
     vPercentLife = percentLife;
