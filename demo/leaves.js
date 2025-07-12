@@ -28,7 +28,7 @@ export function initLeaves(gl, canvas, camera) {
     const time = new Time();
     const MAXGENSIZE = 2;
     const particleParams = {
-        count: 100,
+        count: 10,
         duration: 8,
         lifeTime: 8,
         size: 30,
@@ -37,6 +37,10 @@ export function initLeaves(gl, canvas, camera) {
         emitterHeight: 40
     }
     const MAXCOL = sqrtFloor(particleParams.count);
+
+    const gridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
+    const emitterTransform = new Transform();
+    emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
         gravitySwitcher: 1,
@@ -56,9 +60,13 @@ export function initLeaves(gl, canvas, camera) {
     }
     window.solverParams = solverParams;
 
-    const gridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
-    const emitterTransform = new Transform();
-    emitterTransform.translate(0, particleParams.emitterHeight, 0);
+    const aniTexParams = {
+        texWidth: 768,
+        texHeight: 768,
+        tileSize: 128,
+        numFrames: 36,
+        aniSpeed: 3
+    }
 
 
     // init solver
@@ -74,7 +82,7 @@ export function initLeaves(gl, canvas, camera) {
     });
     solverMaterial.initialize({gl});
 
-    const stride = 10;
+    const stride = 11;
     const initData = genInitData(particleParams.count, stride);
     const solverShape = new SolverShape('solverShape', {
         count:particleParams.count, schema: readAttrSchema(solverVert.input)
@@ -156,7 +164,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/arrow2.png';
+    colTexImg.src = '../resources/fire/7761.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
@@ -172,6 +180,11 @@ export function initLeaves(gl, canvas, camera) {
 
         particleMaterial.setUniform('uColor', particleParams.color);
         particleMaterial.setTexture('uColorSampler', colorTexture);
+
+        // aniTex
+        particleMaterial.setUniform('_ANI_TEX_0', [
+            aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
+        particleMaterial.setUniform('_ANI_TEX_0_SPEED', aniTexParams.aniSpeed);
 
 
         const particleShape = new Shape('particleShape',{

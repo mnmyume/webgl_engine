@@ -4,6 +4,9 @@
 #define ANGULAR_VELOCITY_LOCATION 2
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
+#define PERCENTLIFE_LOCATION 5
+
+#include "./includes/aniTex.glsl"
 
 precision highp float;
 precision highp int;
@@ -14,21 +17,23 @@ uniform mat4 _uni_viewMat;
 uniform mat4 _uni_modelMat;
 
 
-
-#buffer aPos:particleBuffer, size:3, stride:40, offset:0
+#buffer aPos:particleBuffer, size:3, stride:44, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aLinVel:particleBuffer, size:3, stride:40, offset:12
+#buffer aLinVel:particleBuffer, size:3, stride:44, offset:12
 layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
-#buffer aAngVel:particleBuffer, size:2, stride:40, offset:24
+#buffer aAngVel:particleBuffer, size:2, stride:44, offset:24
 layout(location = ANGULAR_VELOCITY_LOCATION) in vec2 aAngVel;
 
-#buffer aGeneration:particleBuffer, size:1, stride:40, offset:32
+#buffer aGeneration:particleBuffer, size:1, stride:44, offset:32
 layout(location = GENERATION_LOCATION) in float aGeneration;
 
-#buffer aSize:particleBuffer, size:1, stride:40, offset:36
+#buffer aSize:particleBuffer, size:1, stride:44, offset:36
 layout(location = SIZE_LOCATION) in float aSize;
+
+#buffer aPercentLife:particleBuffer, size:1, stride:44, offset:40
+layout(location = PERCENTLIFE_LOCATION) in float aPercentLife;
 
 
 out float vGeneration;
@@ -40,10 +45,20 @@ void main()
 
     vec3 pos = aPos;
 
+    // aniTex
+    float texWidth = _ANI_TEX_0.x;
+    float texHeight = _ANI_TEX_0.y;
+    float tileSize = _ANI_TEX_0.z;
+    float numFrames = _ANI_TEX_0.w;
+    float aniSpeed = _ANI_TEX_0_SPEED;
+
+    float frame = mod(floor(aPercentLife * numFrames * aniSpeed), numFrames);
+    _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
+
+
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
     gl_PointSize = aSize;
 
     vGeneration = aGeneration;
     vLinVel = mat3(_uni_viewMat) * aLinVel;
-//    vLinVel = vec3(-1,0, 1);
 }

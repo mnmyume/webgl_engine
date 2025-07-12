@@ -4,6 +4,7 @@
 #define ANGULAR_VELOCITY_LOCATION 2
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
+#define PERCENTLIFE_LOCATION 5
 
 precision highp float;
 precision highp int;
@@ -47,26 +48,30 @@ uniform mat3 uFieldParams[PARMS];
 
 
 
-#buffer aPos:particleBuffer, size:3, stride:40, offset:0
+#buffer aPos:particleBuffer, size:3, stride:44, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aLinVel:particleBuffer, size:3, stride:40, offset:12
+#buffer aLinVel:particleBuffer, size:3, stride:44, offset:12
 layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
-#buffer aAngVel:particleBuffer, size:2, stride:40, offset:24
+#buffer aAngVel:particleBuffer, size:2, stride:44, offset:24
 layout(location = ANGULAR_VELOCITY_LOCATION) in vec2 aAngVel;
 
-#buffer aGeneration:particleBuffer, size:1, stride:40, offset:32
+#buffer aGeneration:particleBuffer, size:1, stride:44, offset:32
 layout(location = GENERATION_LOCATION) in float aGeneration;
 
-#buffer aSize:particleBuffer, size:1, stride:40, offset:36
+#buffer aSize:particleBuffer, size:1, stride:44, offset:36
 layout(location = SIZE_LOCATION) in float aSize;
+
+#buffer aPercentLife:particleBuffer, size:1, stride:44, offset:40
+layout(location = PERCENTLIFE_LOCATION) in float aPercentLife;
 
 out vec3 vPos;
 out vec3 vLinVel;
 out vec2 vAngVel;
 out float vGeneration;
 out float vSize;
+out float vPercentLife;
 
 
 vec2 getEmitterCoord(float particleID, float MAXCOL) {
@@ -136,13 +141,14 @@ void main()
     vec3 linVel = aLinVel;
     vec2 angVel = aAngVel;
     float size = aSize;
+    float percentLife = aPercentLife;
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uMAXCOL);
 
     float startTime = texture(uEmitterSlot0[0], emitterUV).w;
     float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
-    float percentLife = localTime / uLifeTime;
+    percentLife = localTime / uLifeTime;
 
     float lastGene = aGeneration;
     float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
@@ -223,4 +229,5 @@ void main()
     vAngVel =  aAngVel;
     vGeneration = generation;
     vSize = size;
+    vPercentLife = percentLife;
 }

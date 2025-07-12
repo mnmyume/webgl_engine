@@ -13,6 +13,8 @@ uniform vec3 uColor;
 in float vGeneration;
 in vec3 vLinVel;
 
+in vec4 _ANI_TEX_UV;
+
 
 out vec4 fragColor;
 
@@ -40,12 +42,17 @@ void main()
     if(vGeneration < 0.0)
         discard;
 
-    vec2 uv = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
+    vec2 localUV = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
+
+    vec2 aniTexCoord = _ANI_TEX_UV.xy;
+    float texColNum = _ANI_TEX_UV.z;
+    float texRowNum = _ANI_TEX_UV.w;
 
     mat2 rot = rotateVelMatrix(vLinVel.xy);
+    vec2 rotatedLocalUV = rotateUV(localUV, rot);
 
-    vec2 rotUV = rotateUV(uv, rot);
+    vec2 finalUV = rotatedLocalUV / vec2(texColNum, texRowNum) + aniTexCoord;
 
-    fragColor = texture(uColorSampler, rotUV);
+    fragColor = texture(uColorSampler, finalUV);
 
 }
