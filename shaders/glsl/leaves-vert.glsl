@@ -4,7 +4,7 @@
 #define ACCELERATION_LOCATION 2
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
-#define PERCENTLIFE_LOCATION 5
+#define FRAME_PHASE_LOCATION 5
 
 precision highp float;
 precision highp int;
@@ -32,12 +32,13 @@ layout(location = GENERATION_LOCATION) in float aGeneration;
 #buffer aSize:particleBuffer, size:1, stride:48, offset:40
 layout(location = SIZE_LOCATION) in float aSize;
 
-#buffer aPercentLife:particleBuffer, size:1, stride:48, offset:44
-layout(location = PERCENTLIFE_LOCATION) in float aPercentLife;
+#buffer aFramePhase:particleBuffer, size:1, stride:48, offset:44
+layout(location = FRAME_PHASE_LOCATION) in float aFramePhase;
 
 
 out float vGeneration;
 out vec3 vLinVel;
+out float vAccLength;
 
 
 void main()
@@ -52,7 +53,8 @@ void main()
     float numFrames = _ANI_TEX_0.w;
     float aniSpeed = _ANI_TEX_0_SPEED;
 
-    float frame = mod(floor(aPercentLife * numFrames * aniSpeed), numFrames);
+    float frame = mod(floor(aFramePhase * numFrames * aniSpeed), numFrames);
+
     _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
 
 
@@ -61,4 +63,5 @@ void main()
 
     vGeneration = aGeneration;
     vLinVel = mat3(_uni_viewMat) * aLinVel;
+    vAccLength = smoothstep(length(aAcc), 0.0, 1.0);
 }

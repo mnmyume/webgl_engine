@@ -4,7 +4,7 @@
 #define ACCELERATION_LOCATION 2
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
-#define PERCENTLIFE_LOCATION 5
+#define FRAME_PHASE_LOCATION 5
 
 precision highp float;
 precision highp int;
@@ -63,8 +63,8 @@ layout(location = GENERATION_LOCATION) in float aGeneration;
 #buffer aSize:particleBuffer, size:1, stride:48, offset:40
 layout(location = SIZE_LOCATION) in float aSize;
 
-#buffer aPercentLife:particleBuffer, size:1, stride:48, offset:44
-layout(location = PERCENTLIFE_LOCATION) in float aPercentLife;
+#buffer aFramePhase:particleBuffer, size:1, stride:48, offset:44
+layout(location = FRAME_PHASE_LOCATION) in float aFramePhase;
 
 
 out vec3 vPos;
@@ -72,7 +72,7 @@ out vec3 vLinVel;
 out vec3 vAcc;
 out float vGeneration;
 out float vSize;
-out float vPercentLife;
+out float vFramePhase;
 
 
 vec2 getEmitterCoord(float particleID, float MAXCOL) {
@@ -142,14 +142,14 @@ void main()
     vec3 linVel = aLinVel;
     vec3 acc = aAcc;
     float size = aSize;
-    float percentLife = aPercentLife;
+    float framePhase = aFramePhase;
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uMAXCOL);
 
     float startTime = texture(uEmitterSlot0[0], emitterUV).w;
     float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
-    percentLife = localTime / uLifeTime;
+    float percentLife = localTime / uLifeTime;
 
     float lastGene = aGeneration;
     float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
@@ -173,9 +173,7 @@ void main()
         pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
         linVel = vec3(0,0,0);
     }
-    else{
-
-//        pos = aPos;
+    else if(generation != -1.0) {
         vec3 oldPos = aPos;
         vec3 oldVel = aLinVel;
         size = texture(uEmitterSlot0[0], emitterUV).z;
@@ -209,26 +207,25 @@ void main()
             linVel = oldVel + damp(linVel-oldVel, dampScalar, uDeltaTime);
         }
         if(turbulenceSwitcher == 1.0){
-            vec3 newPos = turbulence(oldPos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
-            vec3 turbVel = (newPos - oldPos);
-            linVel += length(linVel)*turbVel;
-
-//            vec3 turbPos = turbulence(pos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
-//            linVel += vortexField(turbPos, vortexScalar);
+            vec3 turbPos = turbulence(oldPos, turbulenceNum, turbulenceAmp, turbulenceSpeed, turbulenceFreq, turbulenceExp);
+            vec3 turbVel = (turbPos - oldPos);
+            // linVel += length(linVel) * turbVel;
+            linVel += max(length(linVel), 1.0) * turbVel;
         }
 
         pos = updatePos(pos, oldVel);
 
+        acc = (linVel - oldVel)/uDeltaTime;
 
-
+        framePhase = clamp(mod(framePhase + 0.001*length(acc), 1.0), 0.0, 1.0);
     }
 
     gl_Position = vec4(pos, 1.0);
 
     vPos = pos;
     vLinVel = linVel;
-    vAcc =  aAcc;
+    vAcc =  acc;
     vGeneration = generation;
     vSize = size;
-    vPercentLife = percentLife;
+    vFramePhase = framePhase;
 }

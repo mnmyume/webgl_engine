@@ -4,7 +4,7 @@
 #define ACCELERATION_LOCATION 2
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
-#define PERCENTLIFE_LOCATION 5
+#define FRAME_PHASE_LOCATION 5
 
 precision highp float;
 precision highp int;
@@ -31,8 +31,8 @@ layout(location = GENERATION_LOCATION) in float aGeneration;
 #buffer aSize:particleBuffer, size:1, stride:48, offset:40
 layout(location = SIZE_LOCATION) in float aSize;
 
-#buffer aPercentLife:particleBuffer, size:1, stride:48, offset:44
-layout(location = PERCENTLIFE_LOCATION) in float aPercentLife;
+#buffer aFramePhase:particleBuffer, size:1, stride:48, offset:44
+layout(location = FRAME_PHASE_LOCATION) in float aFramePhase;
 
 
 out float vGeneration;

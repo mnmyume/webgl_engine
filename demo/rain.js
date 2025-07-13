@@ -27,6 +27,7 @@ export function initRain(gl, canvas, camera) {
 
     const time = new Time();
     const MAXGENSIZE = 2;
+    const STRIDE = 12;
     const particleParams = {
         count: 100,
         duration: 8,
@@ -40,6 +41,10 @@ export function initRain(gl, canvas, camera) {
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 
+    const gridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
+    const emitterTransform = new Transform();
+    emitterTransform.translate(0, particleParams.emitterHeight, 0);
+
     const solverParams = {
         gravitySwitcher: 1,
         gravity: [0, -10, 0],
@@ -49,7 +54,7 @@ export function initRain(gl, canvas, camera) {
         noiseScalar: [0.3, 0.3, 0.3],
         dampSwitcher: 1,
         dampScalar: 0.8,
-        turbulenceSwitcher: 1,
+        turbulenceSwitcher: 0,
         turbulenceNum: 4,
         turbulenceAmp: 0.1,
         turbulenceSpeed: 0.3,
@@ -57,10 +62,6 @@ export function initRain(gl, canvas, camera) {
         turbulenceExp: 1.4
     }
     window.solverParams = solverParams;
-
-    const gridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
-    const emitterTransform = new Transform();
-    emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
 
     // init solver
@@ -76,8 +77,7 @@ export function initRain(gl, canvas, camera) {
     });
     solverMaterial.initialize({gl});
 
-    const stride = 10;
-    const initData = genInitData(particleParams.count, stride);
+    const initData = genInitData(particleParams.count, STRIDE);
     const solverShape = new SolverShape('solverShape', {
         count:particleParams.count, schema: readAttrSchema(solverVert.input)
     });
@@ -86,7 +86,7 @@ export function initRain(gl, canvas, camera) {
 
     const solver = new Solver({
         shape: solverShape, material: solverMaterial,
-        count: particleParams.count, mode:1, loop:true, stride: stride
+        count: particleParams.count, mode:1, loop:true, stride: STRIDE
     });
     solver.initialize({gl});
 

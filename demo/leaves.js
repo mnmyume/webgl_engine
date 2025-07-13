@@ -27,10 +27,11 @@ export function initLeaves(gl, canvas, camera) {
 
     const time = new Time();
     const MAXGENSIZE = 2;
+    const STRIDE = 12;
     const particleParams = {
-        count: 10,
-        duration: 8,
-        lifeTime: 8,
+        count: 4,
+        duration: 12,
+        lifeTime: 12,
         size: 30,
         color:[1,1,1],
         emitterSize: 16,
@@ -43,7 +44,7 @@ export function initLeaves(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 1,
+        gravitySwitcher: 0,
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
@@ -61,11 +62,11 @@ export function initLeaves(gl, canvas, camera) {
     window.solverParams = solverParams;
 
     const aniTexParams = {
-        texWidth: 768,
-        texHeight: 768,
+        texWidth: 512,
+        texHeight: 512,
         tileSize: 128,
-        numFrames: 36,
-        aniSpeed: 3
+        numFrames: 16,
+        aniSpeed: 1
     }
 
 
@@ -82,8 +83,7 @@ export function initLeaves(gl, canvas, camera) {
     });
     solverMaterial.initialize({gl});
 
-    const stride = 12;
-    const initData = genInitData(particleParams.count, stride);
+    const initData = genInitData(particleParams.count, STRIDE);
     const solverShape = new SolverShape('solverShape', {
         count:particleParams.count, schema: readAttrSchema(solverVert.input)
     });
@@ -92,7 +92,7 @@ export function initLeaves(gl, canvas, camera) {
 
     const solver = new Solver({
         shape: solverShape, material: solverMaterial,
-        count: particleParams.count, mode:1, loop:true, stride: stride
+        count: particleParams.count, mode:1, loop:true, stride: STRIDE
     });
     solver.initialize({gl});
 
@@ -153,7 +153,6 @@ export function initLeaves(gl, canvas, camera) {
     solverMaterial.setUniform('uMAXCOL', MAXCOL);
 
 
-
     // init render
     const particleShader = new Shader({
         vertexSource: leavesVert,
@@ -164,7 +163,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/fire/7761.png';
+    colTexImg.src = '../resources/numberss.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
@@ -291,9 +290,9 @@ export function initLeaves(gl, canvas, camera) {
             gl.disable(gl.BLEND);
 
             // draw quad
-            emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
-            emitterQuadShape.draw(gl, emitterQuadMaterial);
-            emitterQuadMaterial.postDraw(gl);
+            // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+            // emitterQuadShape.draw(gl, emitterQuadMaterial);
+            // emitterQuadMaterial.postDraw(gl);
 
             groundQuadMaterial.preDraw(gl, camera);
             groundQuadShape.draw(gl, groundQuadMaterial);

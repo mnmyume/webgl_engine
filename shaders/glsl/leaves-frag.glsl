@@ -12,6 +12,7 @@ uniform vec3 uColor;
 
 in float vGeneration;
 in vec3 vLinVel;
+in float vAccLength;
 
 in vec4 _ANI_TEX_UV;
 
@@ -53,6 +54,9 @@ void main()
 
     vec2 finalUV = rotatedLocalUV / vec2(texColNum, texRowNum) + aniTexCoord;
 
-    fragColor = texture(uColorSampler, finalUV);
-
+//    fragColor = texture(uColorSampler, finalUV);
+    vec4 texColor = texture(uColorSampler, finalUV);
+    vec4 blendColor = vec4(vAccLength,0,0,1);
+    float blendFactor = 0.5;
+    fragColor = mix(texColor, blendColor, blendFactor);
 }
