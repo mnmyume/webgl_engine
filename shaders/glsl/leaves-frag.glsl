@@ -12,7 +12,7 @@ uniform vec3 uColor;
 
 in float vGeneration;
 in vec3 vLinVel;
-in float vAccLength;
+in vec3 vAcc;
 
 in vec4 _ANI_TEX_UV;
 
@@ -56,7 +56,14 @@ void main()
 
 //    fragColor = texture(uColorSampler, finalUV);
     vec4 texColor = texture(uColorSampler, finalUV);
-    vec4 blendColor = vec4(vAccLength,0,0,1);
+    float accLength = length(vAcc);
+    float accDir = sign(vAcc.x);
+    vec4 blendColor = vec4(0);
+    if(accDir > 0.0)
+        blendColor = vec4(accLength,0,0,1);
+    else
+        blendColor = vec4(0,accLength,0,1);
+
     float blendFactor = 0.5;
     fragColor = mix(texColor, blendColor, blendFactor);
 }

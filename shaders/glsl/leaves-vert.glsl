@@ -38,7 +38,7 @@ layout(location = FRAME_PHASE_LOCATION) in float aFramePhase;
 
 out float vGeneration;
 out vec3 vLinVel;
-out float vAccLength;
+out vec3 vAcc;
 
 
 void main()
@@ -63,5 +63,5 @@ void main()
 
     vGeneration = aGeneration;
     vLinVel = mat3(_uni_viewMat) * aLinVel;
-    vAccLength = smoothstep(length(aAcc), 0.0, 1.0);
+    vAcc = aAcc;
 }
