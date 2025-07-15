@@ -29,7 +29,7 @@ export function initLeaves(gl, canvas, camera) {
     const MAXGENSIZE = 2;
     const STRIDE = 12;
     const particleParams = {
-        count: 4,
+        count: 1000,
         duration: 12,
         lifeTime: 12,
         size: 30,
@@ -44,8 +44,8 @@ export function initLeaves(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 0,
-        gravity: [0, -10, 0],
+        gravitySwitcher: 1,
+        gravity: [5, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
         noiseSwitcher: 0,
@@ -62,10 +62,10 @@ export function initLeaves(gl, canvas, camera) {
     window.solverParams = solverParams;
 
     const aniTexParams = {
-        texWidth: 512,
-        texHeight: 512,
-        tileSize: 128,
-        numFrames: 16,
+        texWidth: 192,
+        texHeight: 16,
+        tileSize: 16,
+        numFrames: 12,
         aniSpeed: 1
     }
 
@@ -163,7 +163,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/numberss.png';
+    colTexImg.src = '../resources/leaf-Sheet.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
@@ -290,9 +290,9 @@ export function initLeaves(gl, canvas, camera) {
             gl.disable(gl.BLEND);
 
             // draw quad
-            // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
-            // emitterQuadShape.draw(gl, emitterQuadMaterial);
-            // emitterQuadMaterial.postDraw(gl);
+            emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+            emitterQuadShape.draw(gl, emitterQuadMaterial);
+            emitterQuadMaterial.postDraw(gl);
 
             groundQuadMaterial.preDraw(gl, camera);
             groundQuadShape.draw(gl, groundQuadMaterial);

@@ -54,16 +54,16 @@ void main()
 
     vec2 finalUV = rotatedLocalUV / vec2(texColNum, texRowNum) + aniTexCoord;
 
-//    fragColor = texture(uColorSampler, finalUV);
-    vec4 texColor = texture(uColorSampler, finalUV);
-    float accLength = length(vAcc);
-    float accDir = sign(vAcc.x);
-    vec4 blendColor = vec4(0);
-    if(accDir > 0.0)
-        blendColor = vec4(accLength,0,0,1);
-    else
-        blendColor = vec4(0,accLength,0,1);
-
-    float blendFactor = 0.5;
-    fragColor = mix(texColor, blendColor, blendFactor);
+    fragColor = texture(uColorSampler, finalUV);
+//    vec4 texColor = texture(uColorSampler, finalUV);
+//    float accLength = length(vAcc);
+//    float accDir = sign(vAcc.x);
+//    vec4 blendColor = vec4(0);
+//    if(accDir > 0.0)
+//        blendColor = vec4(accLength,0,0,1);
+//    else
+//        blendColor = vec4(0,accLength,0,1);
+//
+//    float blendFactor = 0.5;
+//    fragColor = mix(texColor, blendColor, blendFactor);
 }
