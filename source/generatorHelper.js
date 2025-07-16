@@ -61,7 +61,7 @@ export function genRectHaltonPosOLD(scale, corner, partiCount, geneCount, size, 
 }
 
 
-export function genLinVel(MAXCOL) {
+export function genLinVel(MAXCOL, startLinVel) {
     const posPixels = [];
 
     for(let row = 0; row < MAXCOL; row++)
@@ -70,7 +70,7 @@ export function genLinVel(MAXCOL) {
             const vy = 100*(-Math.random()); // Random value between -1 and 0
 
             // posPixels.push(vx, vy, 0, 1);
-            posPixels.push(0,0,0,1)
+            posPixels.push(...startLinVel, 1)
         }
 
     return new Float32Array(posPixels);

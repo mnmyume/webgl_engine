@@ -29,10 +29,11 @@ export function initLeaves(gl, canvas, camera) {
     const MAXGENSIZE = 2;
     const STRIDE = 12;
     const particleParams = {
-        count: 1000,
+        count: 100,
         duration: 12,
         lifeTime: 12,
         size: 30,
+        startLinVel:[0,-5,0],
         color:[1,1,1],
         emitterSize: 16,
         emitterHeight: 40
@@ -44,8 +45,8 @@ export function initLeaves(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 1,
-        gravity: [5, -10, 0],
+        gravitySwitcher: 0,
+        gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
         noiseSwitcher: 0,
@@ -54,7 +55,7 @@ export function initLeaves(gl, canvas, camera) {
         dampScalar: 0.8,
         turbulenceSwitcher: 1,
         turbulenceNum: 4,
-        turbulenceAmp: 0.02,
+        turbulenceAmp: 0.04,
         turbulenceSpeed: 0,
         turbulenceFreq: 2.0,
         turbulenceExp: 1.4
@@ -63,9 +64,9 @@ export function initLeaves(gl, canvas, camera) {
 
     const aniTexParams = {
         texWidth: 192,
-        texHeight: 16,
+        texHeight: 64,
         tileSize: 16,
-        numFrames: 12,
+        numFrames: 48,
         aniSpeed: 1
     }
 
@@ -115,20 +116,20 @@ export function initLeaves(gl, canvas, camera) {
     solverMaterial.setTexture('uEmitterSlot0', emitterSlot0);
     // solverMaterial.setTexture('uEmitterSlot0[0]', emitterSlot0[0]);
 
-    // const emitterSlot1 = [];
-    // for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
-    //     const emitterTexture = new Texture2D('emitterTexture', {
-    //         width: MAXCOL, height: MAXCOL,
-    //         scaleDown: 'NEAREST',
-    //         // data: texDataArr[genIndex],
-    //         scaleUp: 'NEAREST'
-    //     });
-    //     emitterTexture.initialize({gl});
-    //     emitterTexture.setData(gl, genLinVel(MAXCOL));
-    //     emitterSlot1.push(emitterTexture);
-    // }
-    // solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
-    // // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
+    const emitterSlot1 = [];
+    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
+        const emitterTexture = new Texture2D('emitterTexture', {
+            width: MAXCOL, height: MAXCOL,
+            scaleDown: 'NEAREST',
+            // data: texDataArr[genIndex],
+            scaleUp: 'NEAREST'
+        });
+        emitterTexture.initialize({gl});
+        emitterTexture.setData(gl, genLinVel(MAXCOL, particleParams.startLinVel));
+        emitterSlot1.push(emitterTexture);
+    }
+    solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
+    // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
     //
     // const emitterSlot2 = [];
     // for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
@@ -163,7 +164,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/leaf-Sheet.png';
+    colTexImg.src = '../resources/leaf/leaf-Sheet-2.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
@@ -290,9 +291,9 @@ export function initLeaves(gl, canvas, camera) {
             gl.disable(gl.BLEND);
 
             // draw quad
-            emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
-            emitterQuadShape.draw(gl, emitterQuadMaterial);
-            emitterQuadMaterial.postDraw(gl);
+            // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+            // emitterQuadShape.draw(gl, emitterQuadMaterial);
+            // emitterQuadMaterial.postDraw(gl);
 
             groundQuadMaterial.preDraw(gl, camera);
             groundQuadShape.draw(gl, groundQuadMaterial);

@@ -169,9 +169,7 @@ void main()
             linVel = texture(uEmitterSlot1[1], emitterUV).xyz;
         }
 
-
         pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-        linVel = vec3(0,0,0);
     }
     else if(generation != -1.0) {
         vec3 oldPos = aPos;
@@ -219,7 +217,7 @@ void main()
 
 //        framePhase = clamp(mod(framePhase + 0.001*length(acc), 1.0), 0.0, 1.0);
         vec2 diagDir = normalize(vec2(1.0, 1.0));
-        float accLenghth = 0.001 * length(acc);
+        float accLenghth = 0.0001 * length(acc);
         float accDir = sign(dot(acc.xz, diagDir));
         framePhase = mod(framePhase + accLenghth * accDir, 1.0);
         framePhase = (framePhase < 0.0) ? framePhase + 1.0 : framePhase;
