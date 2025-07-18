@@ -2,6 +2,7 @@
 precision highp float;
 precision highp int;
 
+const float shrink = 0.88;
 
 #value uColorSampler:0
 uniform sampler2D uColorSampler;
@@ -30,6 +31,7 @@ mat2 rotateVelMatrix(vec2 vel) {
 
 vec2 rotateUV(vec2 uv, mat2 rot) {
     vec2 centeredUV = uv - vec2(0.5, 0.5);
+    centeredUV *= shrink;
     vec2 rotatedUV = rot * centeredUV;
     vec2 finalUV = rotatedUV + vec2(0.5);
 

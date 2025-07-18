@@ -45,7 +45,7 @@ export function initLeaves(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 0,
+        gravitySwitcher: 1,
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
@@ -55,7 +55,7 @@ export function initLeaves(gl, canvas, camera) {
         dampScalar: 0.8,
         turbulenceSwitcher: 1,
         turbulenceNum: 4,
-        turbulenceAmp: 0.04,
+        turbulenceAmp: 0.05,
         turbulenceSpeed: 0,
         turbulenceFreq: 2.0,
         turbulenceExp: 1.4
