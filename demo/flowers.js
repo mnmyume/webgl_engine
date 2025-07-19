@@ -23,7 +23,7 @@ import bkgFrag from "../shaders/glsl/background-frag.glsl";
 
 
 
-export function initLeaves(gl, canvas, camera) {
+export function initFlowers(gl, canvas, camera) {
 
     const time = new Time();
     const MAXGENSIZE = 2;
@@ -46,7 +46,7 @@ export function initLeaves(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 1,
+        gravitySwitcher: 0,
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
@@ -54,7 +54,7 @@ export function initLeaves(gl, canvas, camera) {
         noiseScalar: [0.3, 0.3, 0.3],
         dampSwitcher: 1,
         dampScalar: 0.8,
-        turbulenceSwitcher: 1,
+        turbulenceSwitcher: 0,
         turbulenceNum: 4,
         turbulenceAmp: 0.05,
         turbulenceSpeed: 0,
@@ -247,9 +247,9 @@ export function initLeaves(gl, canvas, camera) {
         bkgShape.initialize({gl});
 
 
-        function drawLeaves() {
+        function drawFlowers() {
 
-            requestAnimationFrame(drawLeaves);
+            requestAnimationFrame(drawFlowers);
 
             time.update();
             solverMaterial.setUniform('uTime', time.ElapsedTime);
@@ -311,7 +311,7 @@ export function initLeaves(gl, canvas, camera) {
 
         }
 
-        drawLeaves();
+        drawFlowers();
 
     }
 }

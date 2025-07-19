@@ -9,6 +9,7 @@ import { initSnow }from "./demo/snow.js";
 import { initArrow } from "./demo/arrow.js";
 import { initRain } from "./demo/rain.js";
 import { initLeaves } from "./demo/leaves.js";
+import { initFlowers } from "./demo/flowers.js";
 
 
 function main() {
@@ -38,7 +39,8 @@ function main() {
     // initSnow(gl, canvas, camera);
     // initArrow(gl, canvas, camera);
     // initRain(gl, canvas, camera);
-    initLeaves(gl, canvas, camera);
+    // initLeaves(gl, canvas, camera);
+    initFlowers(gl, canvas, camera);
 }
 
 main();

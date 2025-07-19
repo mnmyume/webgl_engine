@@ -228,7 +228,7 @@ void main()
         vec2 diagDir = normalize(vec2(1.0, 1.0));
         float accLenghth = 0.0001 * length(acc);
         float accDir = sign(dot(acc.xz, diagDir));
-        framePhase = mod(framePhase + accLenghth * accDir, 1.0);
+        framePhase = mod(percentLife + framePhase + accLenghth * accDir, 1.0);
         framePhase = (framePhase < 0.0) ? framePhase + 1.0 : framePhase;
     }
 
