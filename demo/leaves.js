@@ -63,9 +63,9 @@ export function initLeaves(gl, canvas, camera) {
     window.solverParams = solverParams;
 
     const aniTexParams = {
-        texWidth: 192,
-        texHeight: 64,
-        tileSize: 16,
+        texWidth: 384,
+        texHeight: 128,
+        tileSize: 32,
         numFrames: 48,
         aniSpeed: 1
     }
@@ -164,7 +164,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/leaf/leaf-Sheet-2.png';
+    colTexImg.src = '../resources/leaf/leaf-Sheet-3.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
