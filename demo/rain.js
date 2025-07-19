@@ -48,7 +48,7 @@ export function initRain(gl, canvas, camera) {
     const solverParams = {
         gravitySwitcher: 1,
         gravity: [0, -10, 0],
-        vortexSwitcher: 1,
+        vortexSwitcher: 0,
         vortexScalar: 1/1000,
         noiseSwitcher: 1,
         noiseScalar: [0.3, 0.3, 0.3],

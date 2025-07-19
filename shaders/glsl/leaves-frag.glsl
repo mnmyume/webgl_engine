@@ -57,6 +57,7 @@ void main()
     vec2 finalUV = rotatedLocalUV / vec2(texColNum, texRowNum) + aniTexCoord;
 
     fragColor = texture(uColorSampler, finalUV);
+
 //    vec4 texColor = texture(uColorSampler, finalUV);
 //    float accLength = length(vAcc);
 //    float accDir = sign(vAcc.x);

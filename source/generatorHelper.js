@@ -18,7 +18,7 @@ export function genRandCol(MAXCOL) {
 }
 
 
-export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
+export function genRectHaltonPos(scale, corner, MAXCOL, minSize, maxSize, duration) {
 
     const localXStart = corner[0];  
     const localYStart = corner[1];
@@ -31,6 +31,7 @@ export function genRectHaltonPos(scale, corner, MAXCOL, size, duration) {
             const haltonY = halton(3, row * MAXCOL + col);
             const localX = localXStart + haltonX * scale;
             const localZ = localYStart + haltonY * scale;
+            const size = minSize + Math.random() * (maxSize - minSize);
             const startTime = (row * MAXCOL + col) * duration / partiCount;
             posPixels.push(localX, localZ, size, startTime);
         }
@@ -61,16 +62,17 @@ export function genRectHaltonPosOLD(scale, corner, partiCount, geneCount, size, 
 }
 
 
-export function genLinVel(MAXCOL, startLinVel) {
+export function genLinVel(MAXCOL, startLinVel, numTypes=1) {
     const posPixels = [];
 
     for(let row = 0; row < MAXCOL; row++)
         for(let col = 0; col < MAXCOL; col++){
             const vx = 5*(Math.random() * 2 - 1); // Random value between -1 and 1
             const vy = 100*(-Math.random()); // Random value between -1 and 0
+            const aniType = Math.floor(Math.random() * numTypes);
 
             // posPixels.push(vx, vy, 0, 1);
-            posPixels.push(...startLinVel, 1)
+            posPixels.push(...startLinVel, aniType);
         }
 
     return new Float32Array(posPixels);

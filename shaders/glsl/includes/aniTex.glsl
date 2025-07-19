@@ -1,5 +1,5 @@
 uniform vec4 _ANI_TEX_0;  // texWidth.x, texHeight.y, tileSize.z, numFrames.w
-uniform float _ANI_TEX_0_SPEED;
+uniform vec4 _ANI_TEX_1; // numTypes.x, aniSpeed.y
 
 out vec4 _ANI_TEX_UV; // ux.xy, numCols.z, numRows.w
 

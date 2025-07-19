@@ -5,6 +5,7 @@
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
 #define FRAME_PHASE_LOCATION 5
+#define ANI_TYPE_LOCATION 6
 
 precision highp float;
 precision highp int;
@@ -14,7 +15,7 @@ precision highp int;
 #value uEmitterSlot0:[0,1]
 uniform sampler2D uEmitterSlot0[GEN_SIZE];    // posX, posZ, size, startTime
 #value uEmitterSlot1:[2,3]
-uniform sampler2D uEmitterSlot1[GEN_SIZE];    // linVelX, linVelY, linVelZ, _empty
+uniform sampler2D uEmitterSlot1[GEN_SIZE];    // linVelX, linVelY, linVelZ, aniType
 #value uEmitterSlot2:[4,5]
 uniform sampler2D uEmitterSlot2[GEN_SIZE];    // angVelX, angVelZ, _empty, _empty
 
@@ -48,23 +49,26 @@ uniform mat3 uFieldParams[PARMS];
 
 
 
-#buffer aPos:particleBuffer, size:3, stride:48, offset:0
+#buffer aPos:particleBuffer, size:3, stride:52, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aLinVel:particleBuffer, size:3, stride:48, offset:12
+#buffer aLinVel:particleBuffer, size:3, stride:52, offset:12
 layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
-#buffer aAcc:particleBuffer, size:3, stride:48, offset:24
+#buffer aAcc:particleBuffer, size:3, stride:52, offset:24
 layout(location = ACCELERATION_LOCATION) in vec3 aAcc;
 
-#buffer aGeneration:particleBuffer, size:1, stride:48, offset:36
+#buffer aGeneration:particleBuffer, size:1, stride:52, offset:36
 layout(location = GENERATION_LOCATION) in float aGeneration;
 
-#buffer aSize:particleBuffer, size:1, stride:48, offset:40
+#buffer aSize:particleBuffer, size:1, stride:52, offset:40
 layout(location = SIZE_LOCATION) in float aSize;
 
-#buffer aFramePhase:particleBuffer, size:1, stride:48, offset:44
+#buffer aFramePhase:particleBuffer, size:1, stride:52, offset:44
 layout(location = FRAME_PHASE_LOCATION) in float aFramePhase;
+
+#buffer aAniType:particleBuffer, size:1, stride:52, offset:48
+layout(location = ANI_TYPE_LOCATION) in float aAniType;
 
 
 out vec3 vPos;
@@ -73,6 +77,7 @@ out vec3 vAcc;
 out float vGeneration;
 out float vSize;
 out float vFramePhase;
+out float vAniType;
 
 
 vec2 getEmitterCoord(float particleID, float MAXCOL) {
@@ -143,9 +148,13 @@ void main()
     vec3 acc = aAcc;
     float size = aSize;
     float framePhase = aFramePhase;
+    float aniType = aAniType;
+
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uMAXCOL);
+
+    aniType = texture(uEmitterSlot1[0], emitterUV).w;
 
     float startTime = texture(uEmitterSlot0[0], emitterUV).w;
     float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
@@ -231,4 +240,5 @@ void main()
     vGeneration = generation;
     vSize = size;
     vFramePhase = framePhase;
+    vAniType = aniType;
 }

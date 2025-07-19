@@ -27,12 +27,13 @@ export function initLeaves(gl, canvas, camera) {
 
     const time = new Time();
     const MAXGENSIZE = 2;
-    const STRIDE = 12;
+    const STRIDE = 13;
     const particleParams = {
         count: 100,
         duration: 12,
         lifeTime: 12,
-        size: 30,
+        minSize: 30,
+        maxSize: 50,
         startLinVel:[0,-5,0],
         color:[1,1,1],
         emitterSize: 16,
@@ -66,7 +67,8 @@ export function initLeaves(gl, canvas, camera) {
         texWidth: 384,
         texHeight: 128,
         tileSize: 32,
-        numFrames: 36,
+        numFrames: 48,
+        numTypes: 4,
         aniSpeed: 1
     }
 
@@ -108,7 +110,7 @@ export function initLeaves(gl, canvas, camera) {
             // data: texDataArr[genIndex],
             scaleUp: 'NEAREST'
         });
-        const data = genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.size, particleParams.duration);
+        const data = genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.minSize, particleParams.maxSize, particleParams.duration);
         emitterTexture.initialize({gl});
         emitterTexture.setData(gl,data );
         emitterSlot0.push(emitterTexture);
@@ -125,7 +127,7 @@ export function initLeaves(gl, canvas, camera) {
             scaleUp: 'NEAREST'
         });
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl, genLinVel(MAXCOL, particleParams.startLinVel));
+        emitterTexture.setData(gl, genLinVel(MAXCOL, particleParams.startLinVel, aniTexParams.numTypes));
         emitterSlot1.push(emitterTexture);
     }
     solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
@@ -184,7 +186,8 @@ export function initLeaves(gl, canvas, camera) {
         // aniTex
         particleMaterial.setUniform('_ANI_TEX_0', [
             aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
-        particleMaterial.setUniform('_ANI_TEX_0_SPEED', aniTexParams.aniSpeed);
+        particleMaterial.setUniform('_ANI_TEX_1', [
+            aniTexParams.numTypes, aniTexParams.aniSpeed, 0, 0]);
 
 
         const particleShape = new Shape('particleShape',{
