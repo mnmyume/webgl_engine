@@ -66,7 +66,7 @@ export function initLeaves(gl, canvas, camera) {
         texWidth: 384,
         texHeight: 128,
         tileSize: 32,
-        numFrames: 48,
+        numFrames: 36,
         aniSpeed: 1
     }
 
@@ -164,7 +164,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/leaf/leaf-Sheet-3.png';
+    colTexImg.src = '../resources/flower/flower-Sheet.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
