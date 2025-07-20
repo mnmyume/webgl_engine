@@ -4,7 +4,7 @@
 #define ACCELERATION_LOCATION 2
 #define GENERATION_LOCATION 3
 #define SIZE_LOCATION 4
-#define FRAME_PHASE_LOCATION 5
+#define FRAME_LIFE_LOCATION 5
 #define ANI_TYPE_LOCATION 6
 
 precision highp float;
@@ -68,8 +68,8 @@ layout(location = GENERATION_LOCATION) in float aGeneration;
 #buffer aSize:particleBuffer, size:1, stride:52, offset:40
 layout(location = SIZE_LOCATION) in float aSize;
 
-#buffer aFramePhase:particleBuffer, size:1, stride:52, offset:44
-layout(location = FRAME_PHASE_LOCATION) in float aFramePhase;
+#buffer aFrameLife:particleBuffer, size:1, stride:52, offset:44
+layout(location = FRAME_LIFE_LOCATION) in float aFrameLife;
 
 #buffer aAniType:particleBuffer, size:1, stride:52, offset:48
 layout(location = ANI_TYPE_LOCATION) in float aAniType;
@@ -80,7 +80,7 @@ out vec3 vLinVel;
 out vec3 vAcc;
 out float vGeneration;
 out float vSize;
-out float vFramePhase;
+out float vFrameLife;
 out float vAniType;
 
 
@@ -151,7 +151,7 @@ void main()
     vec3 linVel = aLinVel;
     vec3 acc = aAcc;
     float size = aSize;
-    float framePhase = aFramePhase;
+    float frameLife = aFrameLife;
     float aniType = aAniType;
 
 
@@ -229,9 +229,8 @@ void main()
         acc = (linVel - oldVel)/uDeltaTime;
 
         float accFrameOffset = uAccFactor * acc.x / uAccDivisor;
-//        framePhase =  mod(percentLife + accLength * accSign, 1.0);
-        framePhase = mod(framePhase + accFrameOffset, 1.0);
-        framePhase = (framePhase < 0.0) ? framePhase + 1.0 : framePhase;
+        frameLife = mod(frameLife + accFrameOffset * uLifeTime, uLifeTime);
+        frameLife = (frameLife < 0.0) ? frameLife + 1.0 : frameLife;
     }
 
     gl_Position = vec4(pos, 1.0);
@@ -241,6 +240,6 @@ void main()
     vAcc =  acc;
     vGeneration = generation;
     vSize = size;
-    vFramePhase = framePhase;
+    vFrameLife = frameLife;
     vAniType = aniType;
 }
