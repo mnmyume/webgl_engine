@@ -15,6 +15,7 @@ uniform float shrink;
 
 in float vGeneration;
 in vec3 vLinVel;
+in float vAniType;
 in float vFrame;
 
 
@@ -46,9 +47,7 @@ void main()
         discard;
 
 
-    float tileSize = _ANI_TEX_0.z;
-
-    vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, tileSize, vFrame);
+    vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, vAniType, vFrame);
     vec2 aniTexCoord = aniTexParams.xy;
     vec2 numColsRows = aniTexParams.zw;
 

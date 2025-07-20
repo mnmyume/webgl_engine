@@ -39,23 +39,26 @@ layout(location = FRAME_PHASE_LOCATION) in float aFramePhase;
 #buffer aAniType:particleBuffer, size:1, stride:52, offset:48
 layout(location = ANI_TYPE_LOCATION) in float aAniType;
 
+#value uLifeTime:12
+uniform float uLifeTime;
+#value uFps:6
+uniform float uFps;
 
 out float vGeneration;
 out vec3 vLinVel;
+out float vAniType;
 out float vFrame;
 
 void main()
 {
 
     // aniTex
-    float tileSize = _ANI_TEX_0.z;
-    float numFrames = _ANI_TEX_0.w;
-    float numTypes = _ANI_TEX_1.x;
-    float aniSpeed = _ANI_TEX_1.y;
+    float numFrames = _uAniTexNumFrames;
+    float aniFps = _uAniTexFps;
 
-    float aniSeqLen = numFrames / numTypes;
-    float frame = aAniType * aniSeqLen + mod(floor(aFramePhase * aniSpeed * aniSeqLen), aniSeqLen);
-
+    float localTime = uLifeTime * aFramePhase;
+//    float frame = aAniType * aniSeqLen + mod(floor(aFramePhase * aniSpeed * aniSeqLen), aniSeqLen);
+    float frame = mod(floor(localTime*aniFps) , numFrames);
     vec3 pos = aPos;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
@@ -63,5 +66,6 @@ void main()
 
     vGeneration = aGeneration;
     vLinVel = mat3(_uni_viewMat) * aLinVel;
+    vAniType = aAniType;
     vFrame = frame;
 }

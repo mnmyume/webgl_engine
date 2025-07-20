@@ -46,7 +46,7 @@ export function initLeaves(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 1,
+        gravitySwitcher: 0,
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
@@ -64,12 +64,13 @@ export function initLeaves(gl, canvas, camera) {
     window.solverParams = solverParams;
 
     const aniTexParams = {
-        texWidth: 192,
-        texHeight: 64,
-        tileSize: 16,
-        numFrames: 48,
+        texWidth: 384,
+        texHeight: 128,
+        tileSize: 32,
+        numFrames: 36,
         numTypes: 4,
-        aniSpeed: 1
+        aniSpeed: 1,
+        accFactor: 10000
     }
 
 
@@ -154,6 +155,7 @@ export function initLeaves(gl, canvas, camera) {
     solverMaterial.setUniform('uCount', particleParams.count);
     solverMaterial.setUniform('uLifeTime', particleParams.lifeTime);
     solverMaterial.setUniform('uMAXCOL', MAXCOL);
+    solverMaterial.setUniform('uAccFactor', aniTexParams.accFactor);
 
 
     // init render
@@ -166,7 +168,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/flower/flower-Sheet.png';
+    colTexImg.src = '../resources/leaf/leaf-Sheet-3.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,

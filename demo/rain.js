@@ -27,7 +27,7 @@ export function initRain(gl, canvas, camera) {
 
     const time = new Time();
     const MAXGENSIZE = 2;
-    const STRIDE = 12;
+    const STRIDE = 13;
     const particleParams = {
         count: 100,
         duration: 8,

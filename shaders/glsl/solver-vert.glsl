@@ -36,6 +36,9 @@ uniform float uDuration;
 uniform float uLifeTime;
 uniform float uCount;
 uniform float uMAXCOL;
+#value uAccDivisor:10000
+uniform float uAccDivisor;
+#value uAccFactor:1
 uniform float uAccFactor;
 
 
@@ -225,10 +228,9 @@ void main()
 
         acc = (linVel - oldVel)/uDeltaTime;
 
-        vec2 diagDir = normalize(vec2(1.0, 1.0));
-        float accLenghth = length(acc) / uAccFactor;
-        float accDir = sign(dot(acc.xz, diagDir));
-        framePhase = mod(framePhase + uDeltaTime + accLenghth * accDir, 1.0);
+        float accFrameOffset = uAccFactor * acc.x / uAccDivisor;
+//        framePhase =  mod(percentLife + accLength * accSign, 1.0);
+        framePhase = mod(framePhase + accFrameOffset, 1.0);
         framePhase = (framePhase < 0.0) ? framePhase + 1.0 : framePhase;
     }
 

@@ -65,13 +65,16 @@ export function initFlowers(gl, canvas, camera) {
 
     const aniTexParams = {
         texWidth: 192,
-        texHeight: 64,
-        tileSize: 16,
-        numFrames: 48,
+        texHeight: 16,
+        cellWidth: 16,
+        cellHeight: 16,
+        numFrames: 12,
         numTypes: 4,
-        aniSpeed: 1,
-        accFactor: 10000
+        aniFps: 6,
+        accDivisor: 80000,
+        accFactor: 2
     }
+    window.aniTexParams = aniTexParams;
 
 
     // init solver
@@ -156,7 +159,6 @@ export function initFlowers(gl, canvas, camera) {
     solverMaterial.setUniform('uCount', particleParams.count);
     solverMaterial.setUniform('uLifeTime', particleParams.lifeTime);
     solverMaterial.setUniform('uMAXCOL', MAXCOL);
-    solverMaterial.setUniform('uAccFactor', aniTexParams.accFactor);
 
 
     // init render
@@ -188,10 +190,10 @@ export function initFlowers(gl, canvas, camera) {
         particleMaterial.setTexture('uColorSampler', colorTexture);
 
         // aniTex
-        particleMaterial.setUniform('_ANI_TEX_0', [
-            aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
-        particleMaterial.setUniform('_ANI_TEX_1', [
-            aniTexParams.numTypes, aniTexParams.aniSpeed, 0, 0]);
+        particleMaterial.setUniform('_uAniTexBoundarySize', [aniTexParams.texWidth, aniTexParams.texHeight]);
+        particleMaterial.setUniform('_uAniTexCellSize', [aniTexParams.cellWidth, aniTexParams.cellHeight]);
+        particleMaterial.setUniform('_uAniTexNumFrames', aniTexParams.numFrames);
+        particleMaterial.setUniform('_uAniTexFps', aniTexParams.aniFps)
 
 
         const particleShape = new Shape('particleShape',{
@@ -272,6 +274,9 @@ export function initFlowers(gl, canvas, camera) {
                 solverParams.turbulenceSpeed, solverParams.turbulenceFreq, solverParams.turbulenceExp, 0, 0, 0 ];
             solverMaterial.setUniform('uFieldParams', fieldParams.flat());
 
+            solverMaterial.setUniform('uAccDivisor', aniTexParams.accDivisor);
+            solverMaterial.setUniform('uAccFactor', aniTexParams.accFactor);
+
             solver.update(gl);
 
             gl.viewport(0, 0, canvas.width, canvas.height);
@@ -300,9 +305,9 @@ export function initFlowers(gl, canvas, camera) {
             gl.disable(gl.BLEND);
 
             // draw quad
-            // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
-            // emitterQuadShape.draw(gl, emitterQuadMaterial);
-            // emitterQuadMaterial.postDraw(gl);
+            emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+            emitterQuadShape.draw(gl, emitterQuadMaterial);
+            emitterQuadMaterial.postDraw(gl);
 
             groundQuadMaterial.preDraw(gl, camera);
             groundQuadShape.draw(gl, groundQuadMaterial);
