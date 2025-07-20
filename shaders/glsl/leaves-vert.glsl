@@ -42,30 +42,25 @@ layout(location = ANI_TYPE_LOCATION) in float aAniType;
 
 out float vGeneration;
 out vec3 vLinVel;
-out vec3 vAcc;
+out float vFrame;
 
 void main()
 {
 
-    vec3 pos = aPos;
-
     // aniTex
-    float texWidth = _ANI_TEX_0.x;
-    float texHeight = _ANI_TEX_0.y;
     float tileSize = _ANI_TEX_0.z;
     float numFrames = _ANI_TEX_0.w;
     float numTypes = _ANI_TEX_1.x;
     float aniSpeed = _ANI_TEX_1.y;
 
-    float frame = aAniType * (numFrames/numTypes) + mod(floor(aFramePhase * aniSpeed * numFrames/numTypes), numFrames/numTypes);
+    float frame = aAniType * (numFrames/numTypes) + mod(floor(vFramePhase * aniSpeed * numFrames/numTypes), numFrames/numTypes);
 
-    _GEN_ANI_TEX_UV(texWidth, texHeight, tileSize, frame);
-
+    vec3 pos = aPos;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
     gl_PointSize = aSize;
 
     vGeneration = aGeneration;
     vLinVel = mat3(_uni_viewMat) * aLinVel;
-    vAcc = aAcc;
+    vFrame = frame;
 }

@@ -1,20 +1,15 @@
 uniform vec4 _ANI_TEX_0;  // texWidth.x, texHeight.y, tileSize.z, numFrames.w
 uniform vec4 _ANI_TEX_1; // numTypes.x, aniSpeed.y
 
-out vec4 _ANI_TEX_UV; // ux.xy, numCols.z, numRows.w
+ivec2 _GEN_ANI_TEX_UV(sampler2D aniSampler, float tileSize, float frame){
 
-void _GEN_ANI_TEX_UV(float texWidth, float texHeight, float tileSize, float frame){
-    float numCols = texWidth / tileSize;
-    float numRows = texHeight / tileSize;
-    float row = floor(frame / numCols);
-    float col = mod(frame, numCols);
-    float uOffset = col / numCols;
-    float vOffset = row / numRows;
+    int texWidth = textureSize(aniSampler, 0).x;
+    int texHeight = textureSize(aniSampler, 0).y;
 
-    _ANI_TEX_UV = vec4(
-    uOffset, // + (uv.x + 0.5) / numCols
-    vOffset, //  - (uv.y + 0.5) / numRows
-    numCols,
-    numRows
-    );
+    int numCols = texWidth / int(tileSize);
+    int numRows = texHeight / int(tileSize);
+    int row = int(frame) / numCols;
+    int col = int(frame) % numCols;
+
+    return ivec2(col, row);
 }

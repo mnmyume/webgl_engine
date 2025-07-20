@@ -224,7 +224,6 @@ void main()
 
         acc = (linVel - oldVel)/uDeltaTime;
 
-//        framePhase = clamp(mod(framePhase + 0.001*length(acc), 1.0), 0.0, 1.0);
         vec2 diagDir = normalize(vec2(1.0, 1.0));
         float accLenghth = 0.0001 * length(acc);
         float accDir = sign(dot(acc.xz, diagDir));

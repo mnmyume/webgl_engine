@@ -46,7 +46,7 @@ export function initFlowers(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 0,
+        gravitySwitcher: 1,
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
@@ -75,6 +75,7 @@ export function initFlowers(gl, canvas, camera) {
 
     // init solver
     const solverShader = new Shader({
+        name: 'solverShader',
         vertexSource: solverVert,
         fragmentSource: solverFrag,
     });
@@ -158,6 +159,7 @@ export function initFlowers(gl, canvas, camera) {
 
     // init render
     const particleShader = new Shader({
+        name: 'particleShader',
         vertexSource: leavesVert,
         fragmentSource: leavesFrag
     });
@@ -198,6 +200,7 @@ export function initFlowers(gl, canvas, camera) {
 
         // init quads
         const quadShader = new Shader({
+            name: 'quadShader',
             vertexSource: quadVert,
             fragmentSource: quadFrag
         });
@@ -231,6 +234,7 @@ export function initFlowers(gl, canvas, camera) {
 
         // init background
         const bkgShader = new Shader({
+            name: 'bkgShader',
             vertexSource: bkgVert,
             fragmentSource: bkgFrag
         });
