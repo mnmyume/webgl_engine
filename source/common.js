@@ -36,6 +36,7 @@ export function $getShaderInfo(name,gl, shader, file){
 
 
     const [,fileIndex,lineNum] =  $match(/ERROR: ([0-9]+):([0-9]+):/gm, msg);
+    debugger;
     return msg.replace(/ERROR: (.+):[0-9]+:/gm, `file:"${file[fileIndex]}" line:${lineNum}`);
 
 }

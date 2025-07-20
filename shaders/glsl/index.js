@@ -1,2 +1,2 @@
-import emitVert from "./solver-vert.glsl";
+import emitVert from "./leaves-frag.glsl";
 export {emitVert}

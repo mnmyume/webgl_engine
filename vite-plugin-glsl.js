@@ -50,9 +50,13 @@ function generateCode({version,extension,input,output, uniform, code}) {
     return `export default ${JSON.stringify({version,code,extension, input,uniform,output, file:Object.fromEntries(__FILE_MAP.entries())})}`;
 }
 
-function addingLineNum(curFileIndex,srcPath, srcText){
+function setFile(srcPath, fileIndex){
     srcPath = `./${path.relative(__dirname, srcPath)}`;
-    __FILE_MAP.set(curFileIndex,srcPath);
+    __FILE_MAP.set(fileIndex,srcPath);
+}
+
+function addingLineNum(curFileIndex, srcText){
+
     const lines = srcText.split('\n');
     for(const index in lines){
 
@@ -85,15 +89,19 @@ function addIncludeFiles(srcPath,source){
         const location = path.join(srcPath, buffer[i+1]) ;
 
         const file = fs.readFileSync(location, 'utf8');
-        ++fileIndex;
         // result.push(addingLineNum(fileIndex,location,file));
-        result.push(file);
+        result.push({
+            file,
+            index: fileIndex++,
+            path:location,
+        });
     }
+    return result;
 
-    return {
-        includes: result.join(),
-        curFileIndex:++fileIndex,
-    }
+    // return {
+    //     includeRaw: result.join(),
+    //     curFileIndex:++fileIndex,
+    // }
 }
 
 const VERSIONS = {
@@ -285,8 +293,11 @@ export default function glsl(options = {}) {
             if (!filter(id)) return;
 
 
-            const {includes, curFileIndex} = addIncludeFiles(path.dirname(id),sourceRaw);
+            const includes = addIncludeFiles(path.dirname(id),sourceRaw);
+            const curFileIndex = includes.length;
 
+
+            const includeRaw = includes.reduce((acc, cur)=>acc += cur.file+ '\r\n', '');
 
             const version = checkVersion(sourceRaw);
 
@@ -298,14 +309,15 @@ export default function glsl(options = {}) {
 
             let input, vertexAttri, output={};
 
-            if(version === VERSIONS.GLSL_ES1)
-                input = {...checkAttrParams('attribute', `${includes}\r\n${source}`)};
-            else if(version === VERSIONS.GLSL_ES3){
-                input = {...checkAttrParams('in', `${includes}\r\n${source}`)};
-                output = {...checkAttrParams('out', `${includes}\r\n${source}`)};
+            if(version === VERSIONS.GLSL_ES1){
+                input = {...checkAttrParams('attribute', `${source}`)}; //`${includeRaw}\r\n${source}`
+                output = {...checkAttrParams('varying', `${includeRaw}\r\n${source}`)};
+            }else if(version === VERSIONS.GLSL_ES3){
+                input = {...checkAttrParams('in', `${source}`)};
+                output = {...checkAttrParams('out', `${includeRaw}\r\n${source}`)};
             }
 
-            const uniformParams = {...checkUniformParams( `${includes}\r\n${source}`)};
+            const uniformParams = {...checkUniformParams( `${includeRaw}\r\n${source}`)};
 
 
 
@@ -321,7 +333,22 @@ export default function glsl(options = {}) {
 
             //https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)
             //#version has to be first line of the shader, save for comments and whitespace, delete #line 1
-            const glslSrc = `${includes}\n${addingLineNum(curFileIndex,id,source)}`;
+
+            const includeLinesRaw = includes.reduce((acc,{file,index,path})=>{
+                setFile(path,index);
+                file = addingLineNum(index,file);
+                return acc + file+ '\r\n';
+            }, '');
+
+
+            setFile(id,curFileIndex);
+            debugger;
+            const sourceLinesRaw = addingLineNum(curFileIndex,source);
+            let searchContent = $match(/#line[\s|\d|\n]*\s*precision[^\n]*/gm, sourceLinesRaw);
+            searchContent = searchContent[searchContent.length-1];
+            const glslSrc =sourceLinesRaw.replace(searchContent, `${searchContent} \r\n ${includeLinesRaw}` );
+
+            //const glslSrc = `${addingLineNum(curFileIndex,source)}\r\n${includeRawLines}`;
             const code = generateCode({version,extension:extensionParmas,input,output, uniform:uniformParams, code:glslSrc}),
                 magicString = new MagicString(code);
 
