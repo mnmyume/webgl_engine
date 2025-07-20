@@ -54,7 +54,7 @@ export function initFlowers(gl, canvas, camera) {
         noiseScalar: [0.3, 0.3, 0.3],
         dampSwitcher: 1,
         dampScalar: 0.8,
-        turbulenceSwitcher: 0,
+        turbulenceSwitcher: 1,
         turbulenceNum: 4,
         turbulenceAmp: 0.05,
         turbulenceSpeed: 0,
@@ -69,7 +69,8 @@ export function initFlowers(gl, canvas, camera) {
         tileSize: 16,
         numFrames: 48,
         numTypes: 4,
-        aniSpeed: 1
+        aniSpeed: 1,
+        accFactor: 10000
     }
 
 
@@ -155,6 +156,7 @@ export function initFlowers(gl, canvas, camera) {
     solverMaterial.setUniform('uCount', particleParams.count);
     solverMaterial.setUniform('uLifeTime', particleParams.lifeTime);
     solverMaterial.setUniform('uMAXCOL', MAXCOL);
+    solverMaterial.setUniform('uAccFactor', aniTexParams.accFactor);
 
 
     // init render

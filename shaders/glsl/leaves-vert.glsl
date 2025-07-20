@@ -53,7 +53,8 @@ void main()
     float numTypes = _ANI_TEX_1.x;
     float aniSpeed = _ANI_TEX_1.y;
 
-    float frame = aAniType * (numFrames/numTypes) + mod(floor(vFramePhase * aniSpeed * numFrames/numTypes), numFrames/numTypes);
+    float aniSeqLen = numFrames / numTypes;
+    float frame = aAniType * aniSeqLen + mod(floor(aFramePhase * aniSpeed * aniSeqLen), aniSeqLen);
 
     vec3 pos = aPos;
 

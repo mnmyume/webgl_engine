@@ -36,6 +36,7 @@ uniform float uDuration;
 uniform float uLifeTime;
 uniform float uCount;
 uniform float uMAXCOL;
+uniform float uAccFactor;
 
 
 #define PARMS 5
@@ -225,9 +226,9 @@ void main()
         acc = (linVel - oldVel)/uDeltaTime;
 
         vec2 diagDir = normalize(vec2(1.0, 1.0));
-        float accLenghth = 0.0001 * length(acc);
+        float accLenghth = length(acc) / uAccFactor;
         float accDir = sign(dot(acc.xz, diagDir));
-        framePhase = mod(percentLife + framePhase + accLenghth * accDir, 1.0);
+        framePhase = mod(framePhase + uDeltaTime + accLenghth * accDir, 1.0);
         framePhase = (framePhase < 0.0) ? framePhase + 1.0 : framePhase;
     }
 

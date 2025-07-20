@@ -9,6 +9,8 @@ uniform sampler2D uColorSampler;
 
 
 uniform vec3 uColor;
+#value shrink:0.88
+uniform float shrink;
 
 
 in float vGeneration;
@@ -29,6 +31,7 @@ mat2 rotateVelMatrix(vec2 vel) {
 
 vec2 rotateUV(vec2 uv, mat2 rot) {
     vec2 centeredUV = uv - vec2(0.5, 0.5);
+    centeredUV *= shrink;
     vec2 rotatedUV = rot * centeredUV;
     vec2 finalUV = rotatedUV + vec2(0.5);
 
@@ -45,15 +48,17 @@ void main()
 
     float tileSize = _ANI_TEX_0.z;
 
-    ivec2 aniTexCoord = _GEN_ANI_TEX_UV(uColorSampler, tileSize, vFrame);
+    vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, tileSize, vFrame);
+    vec2 aniTexCoord = aniTexParams.xy;
+    vec2 numColsRows = aniTexParams.zw;
 
     vec2 localUV = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
 
     mat2 rot = rotateVelMatrix(vLinVel.xy);
     vec2 rotatedLocalUV = rotateUV(localUV, rot);
 
-    ivec2 finalUV = ivec2(rotatedLocalUV) + aniTexCoord;
+    vec2 finalUV = rotatedLocalUV/numColsRows + aniTexCoord;
 
-    fragColor = texelFetch(uColorSampler, finalUV, 0);
+    fragColor = texture(uColorSampler, finalUV);
 
 }
