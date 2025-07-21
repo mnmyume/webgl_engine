@@ -46,7 +46,6 @@ void main()
     if(vGeneration < 0.0)
         discard;
 
-
     vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, vAniType, vFrame);
     vec2 aniTexCoord = aniTexParams.xy;
     vec2 numColsRows = aniTexParams.zw;
@@ -58,6 +57,11 @@ void main()
 
     vec2 finalUV = rotatedLocalUV/numColsRows + aniTexCoord;
 
-    fragColor = texture(uColorSampler, finalUV);
+    vec4 color = texture(uColorSampler, finalUV);
+
+    if(color.a<0.8)
+        discard;
+
+    fragColor = color;
 
 }

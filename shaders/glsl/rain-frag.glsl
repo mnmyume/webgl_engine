@@ -45,17 +45,19 @@ void main()
     vec3 rainDir = normalize(vLinVel);
 
     float rainLength = length(vLinVel);
-    rainLength = smoothstep(0.0, 1.0, rainLength);
-    vec2 origin = vec2(0.5),
-    halfSeg = rainLength * vec2(rainDir.xy),
-    A = origin + halfSeg,
-    B = origin - halfSeg;
+    rainLength = smoothstep(0.0, 0.85, rainLength);
+    vec2 halfSeg = rainLength * rainDir.xy * 0.5;
+    vec2 origin = vec2(0.5, 0.5);
+
+    // vec2(0.15), vec2(0.85)
+    vec2 A = origin + halfSeg;
+    vec2 B = origin - halfSeg;
 
 
     vec2 p = uv - A;
-    B -= A;
+    vec2 segment = B - A;
 
-    float t = clamp(dot(p, B) / dot(B, B), 0., 1.);
-    float v = smoothstep(uRainHeadSize*(1.-t), .0, length(p - B *t) );
+    float t = clamp(dot(p, segment) / dot(segment, segment), 0., 1.);
+    float v = smoothstep(uRainHeadSize*(1.0-t), 0.0, length(p - segment *t) );
     fragColor = vec4(v,v,v,0.2);
 }

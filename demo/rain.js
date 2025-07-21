@@ -30,16 +30,16 @@ export function initRain(gl, canvas, camera) {
     const STRIDE = 13;
     const particleParams = {
         count: 1000,
-        duration: 8,
-        lifeTime: 8,
+        duration: 20,
+        lifeTime: 20,
         minSize: 60,
         maxSize: 80,
-        startLinVel:[60,-90,0],
+        startLinVel:[-20,0,0],
         color:[1,1,1],
         pixelNum:32,
         rainHeadSize:0.16,
-        emitterSize: 64,
-        emitterHeight: 70
+        emitterSize: 90,
+        emitterHeight: 20
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 
@@ -268,9 +268,9 @@ export function initRain(gl, canvas, camera) {
         bkgMaterial.postDraw(gl);
 
         // draw particle
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-        gl.blendEquation(gl.FUNC_ADD);
+        // gl.enable(gl.BLEND);
+        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        // gl.blendEquation(gl.FUNC_ADD);
 
         particleMaterial.preDraw(gl, camera);
         particleShape.draw(gl, particleMaterial);
@@ -279,13 +279,13 @@ export function initRain(gl, canvas, camera) {
         gl.disable(gl.BLEND);
 
         // draw quad
-        emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
-        emitterQuadShape.draw(gl, emitterQuadMaterial);
-        emitterQuadMaterial.postDraw(gl);
-
-        groundQuadMaterial.preDraw(gl, camera);
-        groundQuadShape.draw(gl, groundQuadMaterial);
-        groundQuadMaterial.postDraw(gl);
+        // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+        // emitterQuadShape.draw(gl, emitterQuadMaterial);
+        // emitterQuadMaterial.postDraw(gl);
+        //
+        // groundQuadMaterial.preDraw(gl, camera);
+        // groundQuadShape.draw(gl, groundQuadMaterial);
+        // groundQuadMaterial.postDraw(gl);
 
 
         solverMaterial.setUniform('uDeltaTime', time.Interval);

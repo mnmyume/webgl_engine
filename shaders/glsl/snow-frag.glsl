@@ -21,15 +21,19 @@ out vec4 fragColor;
 void main()
 {
 
+    if(vGeneration < 0.0)
+        discard;
+
 //     vec2 p = 2.0 * (gl_PointCoord - 0.5);
     float pixelNum = uPixelNum / 2.0;
     vec2 p = floor((2.0 * (gl_PointCoord - 0.5))*pixelNum)/pixelNum;
     float dist = length(p);
+    float alpha = dist < uBlurRadius ? 1.0 : smoothstep(1.0, uBlurRadius, dist);
 
-    if( dist > uRadius || vGeneration < 0.0 ) {
+    if( dist > uRadius || alpha < 0.5 ) {
         discard;
     } else {
-        float alpha = dist < uBlurRadius ? 1.0 : smoothstep(1.0, uBlurRadius, dist);
+
         fragColor = vec4(uColor, alpha);
     }
 }

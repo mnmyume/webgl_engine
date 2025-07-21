@@ -45,7 +45,7 @@ function main() {
     camera.updateViewInverse();
 
 
-    switchEffect("snow");
+    switchEffect("rain");
 
     function switchEffect(name) {
         const fx = effects[name];
