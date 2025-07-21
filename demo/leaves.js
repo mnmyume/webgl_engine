@@ -29,15 +29,15 @@ export function initLeaves(gl, canvas, camera) {
     const MAXGENSIZE = 2;
     const STRIDE = 13;
     const particleParams = {
-        count: 100,
+        count: 1000,
         duration: 12,
         lifeTime: 12,
         minSize: 30,
         maxSize: 50,
         startLinVel:[0,-5,0],
         color:[1,1,1],
-        emitterSize: 16,
-        emitterHeight: 40
+        emitterSize: 64,
+        emitterHeight: 70
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 
@@ -175,7 +175,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/leaf/leaf-Sheet-3.png';
+    colTexImg.src = '../resources/leaf/leaf-Sheet-4.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,

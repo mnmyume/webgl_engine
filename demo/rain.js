@@ -39,7 +39,7 @@ export function initRain(gl, canvas, camera) {
         pixelNum:32,
         rainHeadSize:0.16,
         emitterSize: 64,
-        emitterHeight: 80
+        emitterHeight: 70
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 

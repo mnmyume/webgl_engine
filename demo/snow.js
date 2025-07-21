@@ -29,7 +29,7 @@ export function initSnow(gl, canvas, camera) {
     const MAXGENSIZE = 2;
     const STRIDE = 13;
     const particleParams = {
-        count: 4000,
+        count: 1000,
         duration: 12,
         lifeTime: 12,
         minSize: 12,
@@ -39,8 +39,8 @@ export function initSnow(gl, canvas, camera) {
         blurRadius: 0.1,
         pixelNum: 4,
         color:[0.85,0.85,0.85],
-        emitterSize: 16,
-        emitterHeight: 40
+        emitterSize: 64,
+        emitterHeight: 70
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 
