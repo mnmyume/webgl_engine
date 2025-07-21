@@ -6,7 +6,7 @@ import Time from './source/time.js';
 
 import { initQuad }from "./demo/quad.js";
 import { initSnow }from "./demo/snow.js";
-import { initArrow } from "./demo/arrow.js";
+import { initArrows } from "./demo/arrows.js";
 import { initRain } from "./demo/rain.js";
 import { initLeaves } from "./demo/leaves.js";
 import { initFlowers } from "./demo/flowers.js";
@@ -15,7 +15,7 @@ import { initFlowers } from "./demo/flowers.js";
 const effects = {
     quad: initQuad,
     snow: initSnow,
-    arrow: initArrow,
+    arrows: initArrows,
     rain: initRain,
     leaves: initLeaves,
     flowers: initFlowers
@@ -45,7 +45,7 @@ function main() {
     camera.updateViewInverse();
 
 
-    switchEffect("quad");
+    switchEffect("rain");
 
     function switchEffect(name) {
         const fx = effects[name];

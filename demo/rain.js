@@ -29,17 +29,17 @@ export function initRain(gl, canvas, camera) {
     const MAXGENSIZE = 2;
     const STRIDE = 13;
     const particleParams = {
-        count: 100,
+        count: 1000,
         duration: 8,
         lifeTime: 8,
-        minSize: 30,
-        maxSize: 50,
-        startLinVel:[0,0,0],
+        minSize: 60,
+        maxSize: 80,
+        startLinVel:[60,-90,0],
         color:[1,1,1],
-        pixelNum:8,
+        pixelNum:32,
         rainHeadSize:0.16,
-        emitterSize: 16,
-        emitterHeight: 40
+        emitterSize: 64,
+        emitterHeight: 80
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 
@@ -52,9 +52,9 @@ export function initRain(gl, canvas, camera) {
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
-        noiseSwitcher: 0,
-        noiseScalar: [0.3, 0.3, 0.3],
-        dampSwitcher: 0,
+        noiseSwitcher: 1,
+        noiseScalar: [0.15, 0.15, 0.15],
+        dampSwitcher: 1,
         dampScalar: 0.8,
         turbulenceSwitcher: 0,
         turbulenceNum: 4,
@@ -64,6 +64,11 @@ export function initRain(gl, canvas, camera) {
         turbulenceExp: 1.4
     }
     window.solverParams = solverParams;
+
+    const bkgParams = {
+        colorTop: [0.1, 0.2, 0.25],
+        colorBottom: [0.2, 0.4, 0.5],
+    }
 
 
     // init solver
@@ -217,6 +222,8 @@ export function initRain(gl, canvas, camera) {
         shader: bkgShader
     })
     bkgMaterial.initialize({gl});
+    bkgMaterial.setUniform('uColorTop', bkgParams.colorTop);
+    bkgMaterial.setUniform('uColorBottom', bkgParams.colorBottom);
 
     const bkgShape = new Shape('bkgShape', {
         verticeCount: 6, state:1

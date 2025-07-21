@@ -63,6 +63,11 @@ export function initFlowers(gl, canvas, camera) {
     }
     window.solverParams = solverParams;
 
+    const bkgParams = {
+        colorTop: [0.4, 0.8, 0.9],
+        colorBottom: [0.5, 0.9, 1.0],
+    }
+
     const aniTexParams = {
         texWidth: 192,
         texHeight: 16,
@@ -248,6 +253,8 @@ export function initFlowers(gl, canvas, camera) {
             shader: bkgShader
         })
         bkgMaterial.initialize({gl});
+        bkgMaterial.setUniform('uColorTop', bkgParams.colorTop);
+        bkgMaterial.setUniform('uColorBottom', bkgParams.colorBottom);
 
         const bkgShape = new Shape('bkgShape', {
             verticeCount: 6, state:1

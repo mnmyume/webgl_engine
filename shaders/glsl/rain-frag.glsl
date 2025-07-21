@@ -45,7 +45,7 @@ void main()
     vec3 rainDir = normalize(vLinVel);
 
     float rainLength = length(vLinVel);
-    rainLength = clamp(rainLength, .0, .4);
+    rainLength = smoothstep(0.0, 1.0, rainLength);
     vec2 origin = vec2(0.5),
     halfSeg = rainLength * vec2(rainDir.xy),
     A = origin + halfSeg,

@@ -23,7 +23,7 @@ import bkgFrag from "../shaders/glsl/background-frag.glsl";
 
 
 
-export function initArrow(gl, canvas, camera) {
+export function initArrows(gl, canvas, camera) {
 
     const time = new Time();
     const MAXGENSIZE = 2;
@@ -62,6 +62,11 @@ export function initArrow(gl, canvas, camera) {
         turbulenceExp: 1.4
     }
     window.solverParams = solverParams;
+
+    const bkgParams = {
+        colorTop: [0.2, 0.4, 0.5],
+        colorBottom: [0.4, 0.8, 1.0],
+    }
 
 
     // init solver
@@ -225,6 +230,8 @@ export function initArrow(gl, canvas, camera) {
             shader: bkgShader
         })
         bkgMaterial.initialize({gl});
+        bkgMaterial.setUniform('uColorTop', bkgParams.colorTop);
+        bkgMaterial.setUniform('uColorBottom', bkgParams.colorBottom);
 
         const bkgShape = new Shape('bkgShape', {
             verticeCount: 6, state:1
@@ -232,9 +239,9 @@ export function initArrow(gl, canvas, camera) {
         bkgShape.initialize({gl});
 
 
-        function drawArrow() {
+        function drawArrows() {
 
-            requestAnimationFrame(drawArrow);
+            requestAnimationFrame(drawArrows);
 
             time.update();
             solverMaterial.setUniform('uTime', time.ElapsedTime);
@@ -296,7 +303,7 @@ export function initArrow(gl, canvas, camera) {
 
         }
 
-        drawArrow();
+        drawArrows();
 
     }
 }

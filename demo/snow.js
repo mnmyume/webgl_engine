@@ -29,16 +29,16 @@ export function initSnow(gl, canvas, camera) {
     const MAXGENSIZE = 2;
     const STRIDE = 13;
     const particleParams = {
-        count: 100,
+        count: 4000,
         duration: 12,
         lifeTime: 12,
-        minSize: 30,
-        maxSize: 50,
-        startLinVel:[0,-5,0],
+        minSize: 12,
+        maxSize: 20,
+        startLinVel:[0,0,0],
         radius: 0.8,
         blurRadius: 0.1,
         pixelNum: 4,
-        color:[1,1,1],
+        color:[0.85,0.85,0.85],
         emitterSize: 16,
         emitterHeight: 40
     }
@@ -65,6 +65,12 @@ export function initSnow(gl, canvas, camera) {
         turbulenceExp: 1.4
     }
     window.solverParams = solverParams;
+
+
+    const bkgParams = {
+        colorTop: [0, 0, 0],
+        colorBottom: [0.4, 0.8, 1.0],
+    }
 
 
     // init solver
@@ -219,6 +225,8 @@ export function initSnow(gl, canvas, camera) {
         shader: bkgShader
     })
     bkgMaterial.initialize({gl});
+    bkgMaterial.setUniform('uColorTop', bkgParams.colorTop);
+    bkgMaterial.setUniform('uColorBottom', bkgParams.colorBottom);
 
     const bkgShape = new Shape('bkgShape', {
         verticeCount: 6, state:1

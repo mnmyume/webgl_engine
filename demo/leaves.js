@@ -46,7 +46,7 @@ export function initLeaves(gl, canvas, camera) {
     emitterTransform.translate(0, particleParams.emitterHeight, 0);
 
     const solverParams = {
-        gravitySwitcher: 0,
+        gravitySwitcher: 1,
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
@@ -63,14 +63,21 @@ export function initLeaves(gl, canvas, camera) {
     }
     window.solverParams = solverParams;
 
+    const bkgParams = {
+        colorTop: [0.85, 0.55, 0.25],
+        colorBottom: [0.95, 0.75, 0.45],
+    }
+
     const aniTexParams = {
         texWidth: 384,
-        texHeight: 128,
-        tileSize: 32,
-        numFrames: 36,
-        numTypes: 4,
-        aniSpeed: 1,
-        accFactor: 10000
+        texHeight: 32,
+        cellWidth: 32,
+        cellHeight: 32,
+        numFrames: 12,
+        numTypes: 3,
+        aniFps: 6,
+        accDivisor: 80000,
+        accFactor: 2
     }
 
 
@@ -186,10 +193,10 @@ export function initLeaves(gl, canvas, camera) {
         particleMaterial.setTexture('uColorSampler', colorTexture);
 
         // aniTex
-        particleMaterial.setUniform('_ANI_TEX_0', [
-            aniTexParams.texWidth, aniTexParams.texHeight, aniTexParams.tileSize, aniTexParams.numFrames]);
-        particleMaterial.setUniform('_ANI_TEX_1', [
-            aniTexParams.numTypes, aniTexParams.aniSpeed, 0, 0]);
+        particleMaterial.setUniform('_uAniTexBoundarySize', [aniTexParams.texWidth, aniTexParams.texHeight]);
+        particleMaterial.setUniform('_uAniTexCellSize', [aniTexParams.cellWidth, aniTexParams.cellHeight]);
+        particleMaterial.setUniform('_uAniTexNumFrames', aniTexParams.numFrames);
+        particleMaterial.setUniform('_uAniTexFps', aniTexParams.aniFps)
 
 
         const particleShape = new Shape('particleShape',{
@@ -242,6 +249,8 @@ export function initLeaves(gl, canvas, camera) {
             shader: bkgShader
         })
         bkgMaterial.initialize({gl});
+        bkgMaterial.setUniform('uColorTop', bkgParams.colorTop);
+        bkgMaterial.setUniform('uColorBottom', bkgParams.colorBottom);
 
         const bkgShape = new Shape('bkgShape', {
             verticeCount: 6, state:1
@@ -267,6 +276,9 @@ export function initLeaves(gl, canvas, camera) {
             fieldParams[4] = [ solverParams.turbulenceSwitcher, solverParams.turbulenceNum, solverParams.turbulenceAmp,
                 solverParams.turbulenceSpeed, solverParams.turbulenceFreq, solverParams.turbulenceExp, 0, 0, 0 ];
             solverMaterial.setUniform('uFieldParams', fieldParams.flat());
+
+            solverMaterial.setUniform('uAccDivisor', aniTexParams.accDivisor);
+            solverMaterial.setUniform('uAccFactor', aniTexParams.accFactor);
 
             solver.update(gl);
 
@@ -296,9 +308,9 @@ export function initLeaves(gl, canvas, camera) {
             gl.disable(gl.BLEND);
 
             // draw quad
-            // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
-            // emitterQuadShape.draw(gl, emitterQuadMaterial);
-            // emitterQuadMaterial.postDraw(gl);
+            emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
+            emitterQuadShape.draw(gl, emitterQuadMaterial);
+            emitterQuadMaterial.postDraw(gl);
 
             groundQuadMaterial.preDraw(gl, camera);
             groundQuadShape.draw(gl, groundQuadMaterial);
