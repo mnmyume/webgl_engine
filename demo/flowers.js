@@ -117,7 +117,7 @@ export function initFlowers(gl, canvas, camera) {
         });
         const data = genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.minSize, particleParams.maxSize, particleParams.duration);
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl,data );
+        emitterTexture.setData(gl,data);
         emitterSlot0.push(emitterTexture);
     }
     solverMaterial.setTexture('uEmitterSlot0', emitterSlot0);

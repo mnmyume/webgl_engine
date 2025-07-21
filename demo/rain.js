@@ -32,7 +32,9 @@ export function initRain(gl, canvas, camera) {
         count: 100,
         duration: 8,
         lifeTime: 8,
-        size: 30,
+        minSize: 30,
+        maxSize: 50,
+        startLinVel:[0,0,0],
         color:[1,1,1],
         pixelNum:8,
         rainHeadSize:0.16,
@@ -50,9 +52,9 @@ export function initRain(gl, canvas, camera) {
         gravity: [0, -10, 0],
         vortexSwitcher: 0,
         vortexScalar: 1/1000,
-        noiseSwitcher: 1,
+        noiseSwitcher: 0,
         noiseScalar: [0.3, 0.3, 0.3],
-        dampSwitcher: 1,
+        dampSwitcher: 0,
         dampScalar: 0.8,
         turbulenceSwitcher: 0,
         turbulenceNum: 4,
@@ -101,29 +103,29 @@ export function initRain(gl, canvas, camera) {
             // data: texDataArr[genIndex],
             scaleUp: 'NEAREST'
         });
-        const data = genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.size, particleParams.duration);
+        const data = genRectHaltonPos(particleParams.emitterSize, gridCorner, MAXCOL, particleParams.minSize, particleParams.maxSize, particleParams.duration);
         emitterTexture.initialize({gl});
-        emitterTexture.setData(gl,data );
+        emitterTexture.setData(gl,data);
         emitterSlot0.push(emitterTexture);
     }
     solverMaterial.setTexture('uEmitterSlot0', emitterSlot0);
     // solverMaterial.setTexture('uEmitterSlot0[0]', emitterSlot0[0]);
 
-    // const emitterSlot1 = [];
-    // for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
-    //     const emitterTexture = new Texture2D('emitterTexture', {
-    //         width: MAXCOL, height: MAXCOL,
-    //         scaleDown: 'NEAREST',
-    //         // data: texDataArr[genIndex],
-    //         scaleUp: 'NEAREST'
-    //     });
-    //     emitterTexture.initialize({gl});
-    //     emitterTexture.setData(gl, genLinVel(MAXCOL));
-    //     emitterSlot1.push(emitterTexture);
-    // }
-    // solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
-    // // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
-    //
+    const emitterSlot1 = [];
+    for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
+        const emitterTexture = new Texture2D('emitterTexture', {
+            width: MAXCOL, height: MAXCOL,
+            scaleDown: 'NEAREST',
+            // data: texDataArr[genIndex],
+            scaleUp: 'NEAREST'
+        });
+        emitterTexture.initialize({gl});
+        emitterTexture.setData(gl, genLinVel(MAXCOL, particleParams.startLinVel));
+        emitterSlot1.push(emitterTexture);
+    }
+    solverMaterial.setTexture('uEmitterSlot1', emitterSlot1);
+    // solverMaterial.setTexture('uEmitterSlot1[0]', emitterSlot1[0]);
+
     // const emitterSlot2 = [];
     // for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
     //     const emitterTexture = new Texture2D('emitterTexture', {

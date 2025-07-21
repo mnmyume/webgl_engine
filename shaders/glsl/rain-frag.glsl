@@ -57,6 +57,5 @@ void main()
 
     float t = clamp(dot(p, B) / dot(B, B), 0., 1.);
     float v = smoothstep(uRainHeadSize*(1.-t), .0, length(p - B *t) );
-//    fragColor = vec4(v,v,v,0.2);
-    fragColor = vec4(1);
+    fragColor = vec4(v,v,v,0.2);
 }

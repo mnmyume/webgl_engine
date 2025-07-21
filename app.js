@@ -12,6 +12,15 @@ import { initLeaves } from "./demo/leaves.js";
 import { initFlowers } from "./demo/flowers.js";
 
 
+const effects = {
+    quad: initQuad,
+    snow: initSnow,
+    arrow: initArrow,
+    rain: initRain,
+    leaves: initLeaves,
+    flowers: initFlowers
+};
+
 function main() {
 
     const canvas = document.getElementById('game-surface');
@@ -35,12 +44,22 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    // initQuad(gl, canvas, camera);
-    // initSnow(gl, canvas, camera);
-    // initArrow(gl, canvas, camera);
-    // initRain(gl, canvas, camera);
-    // initLeaves(gl, canvas, camera);
-    initFlowers(gl, canvas, camera);
+
+    switchEffect("quad");
+
+    function switchEffect(name) {
+        const fx = effects[name];
+        if (fx) {
+            console.log(`Switching to "${name}"`);
+            fx(gl, canvas, camera);
+        } else {
+            console.warn(`"${name}" doesn’t exist.`);
+        }
+    }
+
+    window.switchEffect = switchEffect;
+
 }
+
 
 main();
