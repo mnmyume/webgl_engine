@@ -32,8 +32,8 @@ export function initFlowers(gl, canvas, camera) {
         count: 400,
         duration: 20,
         lifeTime: 20,
-        minSize: 20,
-        maxSize: 35,
+        minSize: 10,
+        maxSize: 20,
         startLinVel:[0,-5,0],
         color:[1,1,1],
         emitterSize: 64,
@@ -301,15 +301,9 @@ export function initFlowers(gl, canvas, camera) {
             bkgMaterial.postDraw(gl);
 
             // draw particle
-            gl.enable(gl.BLEND);
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-            gl.blendEquation(gl.FUNC_ADD);
-
             particleMaterial.preDraw(gl, camera);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);
-
-            gl.disable(gl.BLEND);
 
             // draw quad
             // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);

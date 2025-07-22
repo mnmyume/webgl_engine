@@ -39,6 +39,7 @@ export function initSnow(gl, canvas, camera) {
         blurRadius: 0.1,
         pixelNum: 4,
         color:[0.85,0.85,0.85],
+        alpha:0.8,
         emitterSize: 64,
         emitterHeight: 170
     }
@@ -164,7 +165,7 @@ export function initSnow(gl, canvas, camera) {
     particleShader.initialize({gl});
 
     const particleMaterial = new Material('particleMaterial',{
-        shader: particleShader,
+        shader: particleShader, blend:1
     });
     particleMaterial.initialize({gl});
 
@@ -173,6 +174,7 @@ export function initSnow(gl, canvas, camera) {
     particleMaterial.setUniform('uRadius', particleParams.radius);
     particleMaterial.setUniform('uBlurRadius', particleParams.blurRadius);
     particleMaterial.setUniform('uPixelNum', particleParams.pixelNum);
+    particleMaterial.setUniform('uAlpha', particleParams.alpha);
 
 
     const particleShape = new Shape('particleShape',{
@@ -270,15 +272,10 @@ export function initSnow(gl, canvas, camera) {
         bkgMaterial.postDraw(gl);
 
         // draw particle
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        // gl.blendEquation(gl.FUNC_ADD);
-
         particleMaterial.preDraw(gl, camera);
         particleShape.draw(gl, particleMaterial);
         particleMaterial.postDraw(gl);
 
-        // gl.disable(gl.BLEND);
 
         // draw quad
         // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);

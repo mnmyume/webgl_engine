@@ -29,17 +29,19 @@ export function initRain(gl, canvas, camera) {
     const MAXGENSIZE = 2;
     const STRIDE = 13;
     const particleParams = {
-        count: 1000,
+        count: 10000,
         duration: 20,
         lifeTime: 20,
-        minSize: 60,
+        minSize: 80,
         maxSize: 80,
-        startLinVel:[-20,0,0],
-        color:[1,1,1],
-        pixelNum:32,
-        rainHeadSize:0.16,
-        emitterSize: 90,
-        emitterHeight: 20
+        startLinVel:[70,-110,0],
+        color:[0.2, 0.2, 0.2],
+        pixelNum:64,
+        thickness:0.02,
+        stretchFactor:0.005,
+        alpha:0.5,
+        emitterSize: 128,
+        emitterHeight: 170
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 
@@ -163,13 +165,15 @@ export function initRain(gl, canvas, camera) {
 
 
     const particleMaterial = new Material('particleMaterial',{
-        shader: particleShader,
+        shader: particleShader, blend:1
     });
     particleMaterial.initialize({gl});
 
     particleMaterial.setUniform('uColor', particleParams.color);
     particleMaterial.setUniform('uPixelNum', particleParams.pixelNum);
-    particleMaterial.setUniform('uRainHeadSize', particleParams.rainHeadSize);
+    particleMaterial.setUniform('uThickness', particleParams.thickness);
+    particleMaterial.setUniform('uStretchFactor', particleParams.stretchFactor);
+    particleMaterial.setUniform('uAlpha', particleParams.alpha);
 
 
     const particleShape = new Shape('particleShape',{
@@ -268,15 +272,9 @@ export function initRain(gl, canvas, camera) {
         bkgMaterial.postDraw(gl);
 
         // draw particle
-        // gl.enable(gl.BLEND);
-        // gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-        // gl.blendEquation(gl.FUNC_ADD);
-
         particleMaterial.preDraw(gl, camera);
         particleShape.draw(gl, particleMaterial);
         particleMaterial.postDraw(gl);
-
-        gl.disable(gl.BLEND);
 
         // draw quad
         // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);

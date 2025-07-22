@@ -172,7 +172,7 @@ export function initArrows(gl, canvas, camera) {
         colorTexture.initialize({gl});
 
         particleMaterial = new Material('particleMaterial',{
-            shader: particleShader,
+            shader: particleShader, blend:1
         });
         particleMaterial.initialize({gl});
 
@@ -275,15 +275,9 @@ export function initArrows(gl, canvas, camera) {
             bkgMaterial.postDraw(gl);
 
             // draw particle
-            gl.enable(gl.BLEND);
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-            gl.blendEquation(gl.FUNC_ADD);
-
             particleMaterial.preDraw(gl, camera);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);
-
-            gl.disable(gl.BLEND);
 
             // draw quad
             emitterQuadMaterial.preDraw(gl, camera, emitterTransform);

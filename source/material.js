@@ -15,6 +15,7 @@ export default class Material {
     constructor(name,params = {}) {
         this.name = name;
         this.shader = params.shader || null;
+        this.blend = params.blend || 0;
     }
 
 
@@ -100,6 +101,12 @@ export default class Material {
 
 
     preDraw(gl, camera, transform) {
+
+        if(this.blend) {
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.blendEquation(gl.FUNC_ADD);
+        }
 
         gl.useProgram(this.shaderProgram);
         const setTex =
@@ -248,6 +255,9 @@ export default class Material {
                 gl.bindTexture(gl.TEXTURE_2D, null);
             }
 
+        }
+        if(this.blend) {
+            gl.disable(gl.BLEND);
         }
     }
 }

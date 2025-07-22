@@ -34,7 +34,7 @@ export function initLeaves(gl, canvas, camera) {
         lifeTime: 20,
         minSize: 30,
         maxSize: 50,
-        startLinVel:[0,-5,0],
+        startLinVel:[0,-2,0],
         color:[1,1,1],
         emitterSize: 64,
         emitterHeight: 170
@@ -56,7 +56,7 @@ export function initLeaves(gl, canvas, camera) {
         dampScalar: 0.8,
         turbulenceSwitcher: 1,
         turbulenceNum: 4,
-        turbulenceAmp: 0.05,
+        turbulenceAmp: 0.1,
         turbulenceSpeed: 0,
         turbulenceFreq: 2.0,
         turbulenceExp: 1.4
@@ -175,7 +175,7 @@ export function initLeaves(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/leaf/leaf-Sheet-4.png';
+    colTexImg.src = '../resources/leaf/leaf-Sheet-5.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
@@ -297,15 +297,9 @@ export function initLeaves(gl, canvas, camera) {
             bkgMaterial.postDraw(gl);
 
             // draw particle
-            // gl.enable(gl.BLEND);
-            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-            // gl.blendEquation(gl.FUNC_ADD);
-
             particleMaterial.preDraw(gl, camera);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);
-
-            // gl.disable(gl.BLEND);
 
             // draw quad
             // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
