@@ -105,11 +105,10 @@ export function initFlowers(gl, canvas, camera) {
 
     const solver = new Solver({
         shape: solverShape, material: solverMaterial,
-        count: particleParams.count, mode:1, loop:true, stride: STRIDE
+        count: particleParams.count, mode:1, loop:true, stride: STRIDE,
+        data:initData
     });
     solver.initialize({gl});
-
-    solverShape.update(gl, 'particleBuffer',{material:solverMaterial, solver:solver, data:initData});
 
 
     const emitterSlot0 = [];

@@ -103,7 +103,6 @@ export function initSnow(gl, canvas, camera) {
 
     // solverShape.update(gl, 'particleBuffer',{material:solverMaterial, solver:solver, data:initData});
 
-
     const emitterSlot0 = [];
     for (let genIndex = 0; genIndex < MAXGENSIZE; genIndex++) {
         const emitterTexture = new Texture2D('emitterTexture', {
