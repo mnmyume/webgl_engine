@@ -18,12 +18,15 @@ export default class Solver {
         this.mode = params.mode || 0;
         this.loop = params.loop || false;
         this.stride = params.stride || null;
+        this.data = params.data || null;
     }
 
     initialize({ gl }) {
         this.transformFeedbacks = [gl.createTransformFeedback(), gl.createTransformFeedback()];
 
         this.material.setUniform('uLoop', this.loop);
+
+        this.shape.update(gl, 'particleBuffer',{material:this.material, solver:this, data:this.data});
     }
 
     update(gl) {

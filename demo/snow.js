@@ -40,8 +40,8 @@ export function initSnow(gl, canvas, camera) {
         pixelNum: 4,
         color:[0.85,0.85,0.85],
         alpha:0.8,
-        emitterSize: 64,
-        emitterHeight: 170
+        emitterSize: 32,
+        emitterHeight: 40
     }
     const MAXCOL = sqrtFloor(particleParams.count);
 
@@ -96,11 +96,12 @@ export function initSnow(gl, canvas, camera) {
 
     const solver = new Solver({
         shape: solverShape, material: solverMaterial,
-        count: particleParams.count, mode:1, loop:true, stride: STRIDE
+        count: particleParams.count, mode:1, loop:true, stride: STRIDE,
+        data: initData
     });
     solver.initialize({gl});
 
-    solverShape.update(gl, 'particleBuffer',{material:solverMaterial, solver:solver, data:initData});
+    // solverShape.update(gl, 'particleBuffer',{material:solverMaterial, solver:solver, data:initData});
 
 
     const emitterSlot0 = [];
@@ -271,12 +272,6 @@ export function initSnow(gl, canvas, camera) {
         bkgShape.draw(gl, bkgMaterial);
         bkgMaterial.postDraw(gl);
 
-        // draw particle
-        particleMaterial.preDraw(gl, camera);
-        particleShape.draw(gl, particleMaterial);
-        particleMaterial.postDraw(gl);
-
-
         // draw quad
         // emitterQuadMaterial.preDraw(gl, camera, emitterTransform);
         // emitterQuadShape.draw(gl, emitterQuadMaterial);
@@ -285,6 +280,14 @@ export function initSnow(gl, canvas, camera) {
         // groundQuadMaterial.preDraw(gl, camera);
         // groundQuadShape.draw(gl, groundQuadMaterial);
         // groundQuadMaterial.postDraw(gl);
+
+        // draw particle
+        particleMaterial.preDraw(gl, camera);
+        particleShape.draw(gl, particleMaterial);
+        particleMaterial.postDraw(gl);
+
+
+
 
 
 
