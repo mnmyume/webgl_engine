@@ -74,7 +74,7 @@ export function initLeaves(gl, canvas, camera) {
         cellWidth: 32,
         cellHeight: 32,
         numFrames: 12,
-        numTypes: 3,
+        numTypes: 4,
         aniFps: 6,
         accDivisor: 80000,
         accFactor: 2
