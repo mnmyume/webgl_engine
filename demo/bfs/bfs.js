@@ -29,7 +29,7 @@ function initGrid() {
                 c: c,
                 type: cellType,
                 // If obstacle, set specific distance, else keep it null
-                distance: null
+                distance: cellType === 'obstacle' ? Infinity : null,
             });
         }
         grid.push(row);
@@ -76,7 +76,7 @@ function drawCell(cell) {
 
     if (cell.type === 'end') {
         ctx.fillText('e', centerX, centerY);
-    } else if (cell.distance !== null && cell.type !== 'obstacle') {
+    } else if (cell.type === 'empty' && cell.distance !== null) {
         ctx.fillText(cell.distance, centerX, centerY);
     }
 
@@ -129,6 +129,7 @@ function drawArrow(ctx, fromx, fromy, tox, toy) {
     ctx.lineWidth = 3;
     ctx.stroke();
 }
+
 
 // --- BFS Algorithm ---
 
@@ -197,18 +198,22 @@ function runGradient() {
                 continue;
             }
 
+            let leftCell = grid[r][c - 1];
             let rightCell = grid[r][c + 1];
+            let topCell = grid[r-1][c];
             let bottomCell = grid[r + 1][c];
 
-            // Get distances (treat null neighbor as infinity/very high to force gradient away)
-            // Obstacles already have high distance (2*GRID_SIZE) from initGrid
             let dCurrent = cell.distance;
-            let dRight = rightCell.distance !== null ? rightCell.distance : 999;
-            let dBottom = bottomCell.distance !== null ? bottomCell.distance : 999;
+            let dx = (rightCell.distance - leftCell.distance)/2;
+            let dy = (bottomCell.distance - topCell.distance)/2;
 
-            // Calculate Gradient: (df/dx, df/dy)
-            let dx = rightCell.distance !== null ? rightCell.distance - dCurrent : 0;
-            let dy = bottomCell.distance !== null ? bottomCell.distance - dCurrent : 0;
+
+            ({dx, dy} = isNearObstacle(cell,'left', leftCell, rightCell, topCell, bottomCell, dx, dy));
+            ({dx, dy} = isNearObstacle(cell,'right', leftCell, rightCell, topCell, bottomCell, dx, dy));
+            ({dx, dy} = isNearObstacle(cell,'top', leftCell, rightCell, topCell, bottomCell, dx, dy));
+            ({dx, dy} = isNearObstacle(cell,'bottom', leftCell, rightCell, topCell, bottomCell, dx, dy));
+
+
 
             // Store vector in the cell
             cell.vec = { x: dx, y: dy };
@@ -216,6 +221,35 @@ function runGradient() {
     }
 
     draw(); // Redraw the grid with vectors
+}
+
+function isNearObstacle(cell, direction, leftCell, rightCell, topCell, bottomCell, dx, dy) {
+    if (direction === 'left' && leftCell.type === 'obstacle') {
+        if (rightCell.distance < cell.distance)
+            dx = rightCell.distance - cell.distance;
+        else
+            dx = 0;
+    }
+    if (direction === 'right' && rightCell.type === 'obstacle') {
+        if (leftCell.distance < cell.distance)
+            dx = cell.distance - leftCell.distance;
+        else
+            dx = 0;
+    }
+    if (direction === 'top' && topCell.type === 'obstacle') {
+        if (bottomCell.distance < cell.distance)
+            dy = bottomCell.distance - cell.distance;
+        else
+            dy = 0;
+    }
+    if (direction === 'bottom' && bottomCell.type === 'obstacle') {
+        if (topCell.distance < cell.distance)
+            dy = cell.distance - topCell.distance;
+        else
+            dy = 0;
+    }
+
+    return {dx, dy};
 }
 
 function isValid(r, c) {
