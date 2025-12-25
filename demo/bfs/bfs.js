@@ -99,21 +99,11 @@ function drawArrow(ctx, fromx, fromy, tox, toy) {
     // 1. Calculate the vector and original magnitude
     const dx = tox - fromx;
     const dy = toy - fromy;
-    const magnitude = Math.sqrt(dx * dx + dy * dy);
-
-    if (magnitude === 0) return;
-
-    // 2. Determine Color (Green -> Red) based on magnitude
-    // We clamp the magnitude at 5.0 for the color scale
-    const maxMag = 5;
-    const ratio = Math.min(magnitude / maxMag, 1);
-    const hue = 120 * (1 - ratio); // 120=Green, 0=Red
-    const color = `hsl(${hue}, 100%, 40%)`;
 
     // 3. Normalize the vector to the fixed visual length
     const angle = Math.atan2(dy, dx);
-    const endX = fromx + Math.cos(angle) * fixedLength;
-    const endY = fromy + Math.sin(angle) * fixedLength;
+    const endX = fromx - Math.cos(angle) * fixedLength;
+    const endY = fromy - Math.sin(angle) * fixedLength;
 
     // 4. Draw the Arrow
     ctx.beginPath();
@@ -121,11 +111,11 @@ function drawArrow(ctx, fromx, fromy, tox, toy) {
     ctx.lineTo(endX, endY);
 
     // Draw the arrowhead tips
-    ctx.lineTo(endX - headlen * Math.cos(angle - Math.PI / 6), endY - headlen * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(endX + headlen * Math.cos(angle - Math.PI / 6), endY + headlen * Math.sin(angle - Math.PI / 6));
     ctx.moveTo(endX, endY);
-    ctx.lineTo(endX - headlen * Math.cos(angle + Math.PI / 6), endY - headlen * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(endX + headlen * Math.cos(angle + Math.PI / 6), endY + headlen * Math.sin(angle + Math.PI / 6));
 
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = 'lime';
     ctx.lineWidth = 3;
     ctx.stroke();
 }
@@ -178,6 +168,67 @@ function runBFS() {
     draw();
 }
 
+function runWavefront() {
+    if (!endCell) {
+        alert("Please select an 'end' cell first.");
+        return;
+    }
+
+    // 1. Reset distances
+    for (let r = 1; r < GRID_SIZE - 1; r++) {
+        for (let c = 1; c < GRID_SIZE - 1; c++) {
+            grid[r][c].distance = null;
+        }
+    }
+
+    // 2. Initialize the first wave
+    let currentWave = [];
+
+    // Set start distance
+    grid[endCell.r][endCell.c].distance = 0;
+    currentWave.push(grid[endCell.r][endCell.c]);
+
+    const directions = [
+        [-1, 0], // Up
+        [1, 0],  // Down
+        [0, -1], // Left
+        [0, 1]   // Right
+    ];
+
+    // 3. Process waves layer by layer
+    while (currentWave.length > 0) {
+        let nextWave = []; // Accumulate neighbors for the next layer here
+
+        for (let i = 0; i < currentWave.length; i++) {
+            let current = currentWave[i];
+
+            for (let [dr, dc] of directions) {
+                let nr = current.r + dr;
+                let nc = current.c + dc;
+
+                if (isValid(nr, nc)) {
+                    let neighbor = grid[nr][nc];
+
+                    // If not visited and not an obstacle
+                    if (neighbor.distance === null && neighbor.type !== 'obstacle') {
+                        // Assign distance (current wave + 1)
+                        neighbor.distance = current.distance + 1;
+
+                        // Add to next wave layer
+                        nextWave.push(neighbor);
+                    }
+                }
+            }
+        }
+
+        // Move to the next wave
+        currentWave = nextWave;
+    }
+
+    // 4. Draw the final result once the propagation is complete
+    draw();
+}
+
 function runGradient() {
     // 1. Check if BFS has been run (distances exist)
     if (!endCell || grid[endCell.r][endCell.c].distance === null) {
@@ -185,71 +236,55 @@ function runGradient() {
         return;
     }
 
-    // 2. Iterate grid to calculate derivatives
-    // We stop at GRID_SIZE - 1 because we need a right/bottom neighbor
-    for (let r = 0; r < GRID_SIZE - 1; r++) {
-        for (let c = 0; c < GRID_SIZE - 1; c++) {
+    // Define all 8 possible directions (Cardinal + Diagonal)
+    const directions = [
+        { dr: -1, dc: 0 },  // N
+        { dr: -1, dc: 1 },  // NE
+        { dr: 0,  dc: 1 },  // E
+        { dr: 1,  dc: 1 },  // SE
+        { dr: 1,  dc: 0 },  // S
+        { dr: 1,  dc: -1 }, // SW
+        { dr: 0,  dc: -1 }, // W
+        { dr: -1, dc: -1 }  // NW
+    ];
 
+    for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
             let cell = grid[r][c];
 
-            // Skip obstacles or unvisited cells
-            if (cell.type === 'obstacle' || cell.type === 'end' || cell.distance === null) {
+            // Skip obstacles, unvisited cells, or the goal (distance 0)
+            if (cell.type === 'obstacle' || cell.distance === null || cell.distance === 0) {
                 cell.vec = null;
                 continue;
             }
 
-            let leftCell = grid[r][c - 1];
-            let rightCell = grid[r][c + 1];
-            let topCell = grid[r-1][c];
-            let bottomCell = grid[r + 1][c];
+            // Start assuming the current cell is the best option
+            let minDistance = cell.distance;
+            let bestDir = { x: 0, y: 0 };
 
-            let dCurrent = cell.distance;
-            let dx = (rightCell.distance - leftCell.distance)/2;
-            let dy = (bottomCell.distance - topCell.distance)/2;
+            // 2. Iterate through all 8 neighbors to find the smallest distance
+            for (let { dr, dc } of directions) {
+                let nr = r + dr;
+                let nc = c + dc;
 
+                if (isValid(nr, nc)) {
+                    let neighbor = grid[nr][nc];
 
-            ({dx, dy} = isNearObstacle(cell,'left', leftCell, rightCell, topCell, bottomCell, dx, dy));
-            ({dx, dy} = isNearObstacle(cell,'right', leftCell, rightCell, topCell, bottomCell, dx, dy));
-            ({dx, dy} = isNearObstacle(cell,'top', leftCell, rightCell, topCell, bottomCell, dx, dy));
-            ({dx, dy} = isNearObstacle(cell,'bottom', leftCell, rightCell, topCell, bottomCell, dx, dy));
+                    // Check if neighbor is visited and has a smaller distance
+                    // (Note: Obstacles usually have distance: null, so they are skipped here)
+                    if (neighbor.distance !== null && neighbor.distance < minDistance) {
+                        minDistance = neighbor.distance;
+                        bestDir = { x: dc, y: dr }; // Point towards this neighbor
+                    }
+                }
+            }
 
-
-
-            // Store vector in the cell
-            cell.vec = { x: dx, y: dy };
+            // Store the vector pointing to the "downhill" neighbor
+            cell.vec = bestDir;
         }
     }
 
-    draw(); // Redraw the grid with vectors
-}
-
-function isNearObstacle(cell, direction, leftCell, rightCell, topCell, bottomCell, dx, dy) {
-    if (direction === 'left' && leftCell.type === 'obstacle') {
-        if (rightCell.distance < cell.distance)
-            dx = rightCell.distance - cell.distance;
-        else
-            dx = 0;
-    }
-    if (direction === 'right' && rightCell.type === 'obstacle') {
-        if (leftCell.distance < cell.distance)
-            dx = cell.distance - leftCell.distance;
-        else
-            dx = 0;
-    }
-    if (direction === 'top' && topCell.type === 'obstacle') {
-        if (bottomCell.distance < cell.distance)
-            dy = bottomCell.distance - cell.distance;
-        else
-            dy = 0;
-    }
-    if (direction === 'bottom' && bottomCell.type === 'obstacle') {
-        if (topCell.distance < cell.distance)
-            dy = cell.distance - topCell.distance;
-        else
-            dy = 0;
-    }
-
-    return {dx, dy};
+    draw(); // Redraw the grid with the new vectors
 }
 
 function isValid(r, c) {
@@ -306,6 +341,7 @@ function setMode(mode, btnId) {
 document.getElementById('btn-obstacle').addEventListener('click', () => setMode('obstacle', 'btn-obstacle'));
 document.getElementById('btn-end').addEventListener('click', () => setMode('end', 'btn-end'));
 document.getElementById('btn-bfs').addEventListener('click', runBFS);
+document.getElementById('btn-wavefront').addEventListener('click', runWavefront);
 document.getElementById('btn-gradient').addEventListener('click', runGradient);
 canvas.addEventListener('click', handleCanvasClick);
 
