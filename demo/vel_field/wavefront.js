@@ -1,8 +1,29 @@
-const canvas = document.getElementById('gridCanvas');
-const ctx = canvas.getContext('2d');
+import Shader from "../../source/shader.js";
+import Transform from "../../source/transform.js";
+import Material from "../../source/material.js";
+import Shape from "../../source/shape.js";
+import Texture2D from "../../source/texture2d.js";
+import Solver from "../../source/solver.js";
+import SolverMaterial from "../../source/solverMaterial.js";
+import SolverShape from "../../source/solverShape.js";
+import {readAttrSchema} from "../../source/shapeHelper.js";
+import {genInitData} from "../../source/generatorHelper.js";
 
-const GRID_SIZE = 8;
+import quadVert from "../../shaders/glsl/quad-vert.glsl";
+import quadFrag from "../../shaders/glsl/quad-frag.glsl";
+import wavefrontVert from "../../shaders/glsl/wavefront-vert.glsl";
+import wavefrontFrag from "../../shaders/glsl/wavefront-frag.glsl";
+
+
+
+const canvas = document.getElementById('2dCanvas');
+const glCanvas = document.getElementById("glCanvas");
+const ctx = canvas.getContext('2d');
+const gl = glCanvas.getContext('webgl2');
+
+const GRID_SIZE = 16;
 const CELL_SIZE = canvas.width / GRID_SIZE;
+const STRIDE = 2;
 
 let grid = [];
 let currentMode = null; // 'obstacle' or 'end'
@@ -10,12 +31,16 @@ let endCell = null;
 
 // --- Initialization ---
 
-function initGrid() {
+function initGrid(count, stride) {
     grid = [];
+    const initData = new Float32Array(count * stride);
+
     for (let r = 0; r < GRID_SIZE; r++) {
         let row = [];
         for (let c = 0; c < GRID_SIZE; c++) {
 
+            const distanceIdx = 2* (r * GRID_SIZE + c);
+            const obstacleIdx = 2* (r * GRID_SIZE + c) + 1;
             // Determine if the cell is on the boundary
             let cellType = 'empty';
 
@@ -31,9 +56,14 @@ function initGrid() {
                 // If obstacle, set specific distance, else keep it null
                 distance: cellType === 'obstacle' ? Infinity : null,
             });
+
+            initData[distanceIdx] = Infinity;
+            initData[obstacleIdx] = cellType === 'obstacle' ? 1 : 0;
         }
         grid.push(row);
     }
+
+    return initData;
 }
 
 // --- Drawing Functions ---
@@ -120,112 +150,32 @@ function drawArrow(ctx, fromx, fromy, tox, toy) {
     ctx.stroke();
 }
 
+// --- Shortest Path Algorithm ---
 
-// --- BFS Algorithm ---
+function runWavefront(solver, material, shape) {
 
-function runBFS() {
     if (!endCell) {
         alert("Please select an 'end' cell first.");
         return;
     }
 
-    // Reset distances
+    material.setUniform('uGoal', [endCell.r, endCell.c]);
+
+    solver.update(gl);
+
+    const readbackArray = readBuffer(solver, material,shape);
+
     for (let r = 1; r < GRID_SIZE-1; r++) {
         for (let c = 1; c < GRID_SIZE-1; c++) {
-            grid[r][c].distance = null;
+            if(grid[r][c].type === 'end')
+                continue;
+            const distanceIdx = 2 * (r * GRID_SIZE + c);
+            const obstacleIdx = 2 * (r * GRID_SIZE + c) + 1;
+            grid[r][c].distance = readbackArray[distanceIdx];
+            grid[r][c].type = readbackArray[obstacleIdx] === 1 ? 'obstacle' : 'empty';
         }
     }
 
-    // Initialize Queue with the end cell for reverse BFS
-    let queue = [];
-    grid[endCell.r][endCell.c].distance = 0;
-    queue.push(grid[endCell.r][endCell.c]);
-
-    const directions = [
-        [-1, 0], // Up
-        [1, 0],  // Down
-        [0, -1], // Left
-        [0, 1]   // Right
-    ];
-
-    while (queue.length > 0) {
-        let current = queue.shift();
-
-        for (let [dr, dc] of directions) {
-            let nr = current.r + dr;
-            let nc = current.c + dc;
-
-            if (isValid(nr, nc)) {
-                let neighbor = grid[nr][nc];
-                // If not visited and not an obstacle
-                if (neighbor.distance === null && neighbor.type !== 'obstacle') {
-                    neighbor.distance = current.distance + 1;
-                    queue.push(neighbor);
-                }
-            }
-        }
-    }
-    draw();
-}
-
-function runWavefront() {
-    if (!endCell) {
-        alert("Please select an 'end' cell first.");
-        return;
-    }
-
-    // 1. Reset distances
-    for (let r = 1; r < GRID_SIZE - 1; r++) {
-        for (let c = 1; c < GRID_SIZE - 1; c++) {
-            grid[r][c].distance = null;
-        }
-    }
-
-    // 2. Initialize the first wave
-    let currentWave = [];
-
-    // Set start distance
-    grid[endCell.r][endCell.c].distance = 0;
-    currentWave.push(grid[endCell.r][endCell.c]);
-
-    const directions = [
-        [-1, 0], // Up
-        [1, 0],  // Down
-        [0, -1], // Left
-        [0, 1]   // Right
-    ];
-
-    // 3. Process waves layer by layer
-    while (currentWave.length > 0) {
-        let nextWave = []; // Accumulate neighbors for the next layer here
-
-        for (let i = 0; i < currentWave.length; i++) {
-            let current = currentWave[i];
-
-            for (let [dr, dc] of directions) {
-                let nr = current.r + dr;
-                let nc = current.c + dc;
-
-                if (isValid(nr, nc)) {
-                    let neighbor = grid[nr][nc];
-
-                    // If not visited and not an obstacle
-                    if (neighbor.distance === null && neighbor.type !== 'obstacle') {
-                        // Assign distance (current wave + 1)
-                        neighbor.distance = current.distance + 1;
-
-                        // Add to next wave layer
-                        nextWave.push(neighbor);
-                    }
-                }
-            }
-        }
-
-        // Move to the next wave
-        currentWave = nextWave;
-    }
-
-    // 4. Draw the final result once the propagation is complete
     draw();
 }
 
@@ -291,6 +241,18 @@ function isValid(r, c) {
     return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
 }
 
+function readBuffer(solver, material, shape) {
+    // Read data from transform feedback buffer
+    const bufferIdx = solver.currIndex;
+    const targetVAO = shape.vaos[bufferIdx];
+    const targetBuffer = targetVAO.dataBuffer.buffer;
+    gl.bindBuffer(gl.ARRAY_BUFFER, targetBuffer);
+    const readbackArray = new Float32Array(solver.count * solver.stride);
+    gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
+
+    return readbackArray;
+}
+
 // --- Event Listeners ---
 
 function handleCanvasClick(e) {
@@ -338,13 +300,54 @@ function setMode(mode, btnId) {
     }
 }
 
-document.getElementById('btn-obstacle').addEventListener('click', () => setMode('obstacle', 'btn-obstacle'));
-document.getElementById('btn-end').addEventListener('click', () => setMode('end', 'btn-end'));
-document.getElementById('btn-bfs').addEventListener('click', runBFS);
-document.getElementById('btn-wavefront').addEventListener('click', runWavefront);
-document.getElementById('btn-gradient').addEventListener('click', runGradient);
-canvas.addEventListener('click', handleCanvasClick);
-
 // --- Start ---
-initGrid();
-draw();
+
+function main() {
+
+    const gridCount = GRID_SIZE*GRID_SIZE;
+    const initData = initGrid(gridCount, STRIDE);
+
+    const wavefrontShader = new Shader({
+        vertexSource: wavefrontVert,
+        fragmentSource: wavefrontFrag,
+    });
+    wavefrontShader.initialize({gl});
+
+    const wavefrontMaterial = new SolverMaterial('wavefrontMaterial',{
+        shader: wavefrontShader,
+    });
+    wavefrontMaterial.initialize({gl});
+
+    const wavefrontShape = new SolverShape('wavefrontShape', {
+        count:gridCount, schema: readAttrSchema(wavefrontVert.input)
+    });
+    wavefrontShape.initialize({gl});
+
+    const wavefrontSolver = new Solver({
+        shape: wavefrontShape, material: wavefrontMaterial,
+        count: gridCount, mode:1, stride: STRIDE,
+        data: initData
+    })
+    wavefrontSolver.initialize({gl}, 'wavefrontBuffer');
+
+    wavefrontMaterial.setUniform('uGridSize', GRID_SIZE);
+
+    draw();
+
+    document.getElementById('btn-obstacle').addEventListener('click', () => setMode('obstacle', 'btn-obstacle'));
+    document.getElementById('btn-end').addEventListener('click', () => setMode('end', 'btn-end'));
+    document.getElementById('btn-wavefront').addEventListener('click', () =>runWavefront(wavefrontSolver, wavefrontMaterial, wavefrontShape));
+    document.getElementById('btn-gradient').addEventListener('click', () => runGradient);
+    canvas.addEventListener('click', handleCanvasClick);
+}
+
+// This listens to EVERY click on the page and tells you exactly what got hit
+// window.addEventListener('click', (e) => {
+//     console.log("------------------------------");
+//     console.log("TARGET HIT:", e.target);
+//     console.log("ID:", e.target.id);
+//     console.log("Pointer Events:", getComputedStyle(e.target).pointerEvents);
+//     console.log("Z-Index:", getComputedStyle(e.target).zIndex);
+// }, true);
+
+main();

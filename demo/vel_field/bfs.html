@@ -22,15 +22,34 @@
         }
 
         #canvas-container {
-            border: 3px solid #ff4444; /* Red border like in the image */
+            position: relative;
+            width: 800px;
+            height: 800px;
+            margin: 0 auto;
+            border: 3px solid #ff4444;
             padding: 10px;
             border-radius: 5px;
+            box-sizing: content-box;
         }
 
         canvas {
-            background-color: #333;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            /*background-color: #333;*/
             display: block;
             cursor: crosshair;
+        }
+
+        #glCanvas {
+            z-index: 0;
+            pointer-events: none;
+            /*background-color: #333;*/
+        }
+
+        #2dCanvas {
+            z-index: 1;
+            /*background-color: transparent;*/
         }
 
         .controls {
@@ -111,7 +130,8 @@
 
 <div class="container">
     <div id="canvas-container">
-        <canvas id="gridCanvas" width="400" height="400"></canvas>
+        <canvas id="2dCanvas" width="800" height="800"></canvas>
+        <canvas id="glCanvas" width="800" height="800"></canvas>
     </div>
     <div class="controls">
         <button id="btn-obstacle">obstacle</button>
@@ -122,7 +142,7 @@
     </div>
 </div>
 
-<script src="bfs.js"></script>
+<script type="module" src="wavefront.js"></script>
 
 </body>
 </html>

@@ -1,7 +1,7 @@
 import Texture2D from "./texture2d.js";
 import {$assert} from "./common.js";
 
-export default class FrameBuffer{
+export default class Framebuffer {
 
     textures = [];
     constructor(name = 'frameBuffer', params) {

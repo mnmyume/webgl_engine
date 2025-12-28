@@ -98,7 +98,7 @@ export function initRain(gl, canvas, camera) {
         count: particleParams.count, mode:1, loop:true, stride: STRIDE,
         data:initData
     });
-    solver.initialize({gl});
+    solver.initialize({gl}, 'particleBuffer');
 
 
     const emitterSlot0 = [];

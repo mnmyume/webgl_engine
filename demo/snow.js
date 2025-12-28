@@ -99,7 +99,7 @@ export function initSnow(gl, canvas, camera) {
         count: particleParams.count, mode:1, loop:true, stride: STRIDE,
         data: initData
     });
-    solver.initialize({gl});
+    solver.initialize({gl}, 'particleBuffer');
 
     // solverShape.update(gl, 'particleBuffer',{material:solverMaterial, solver:solver, data:initData});
 

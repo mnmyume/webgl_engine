@@ -21,12 +21,12 @@ export default class Solver {
         this.data = params.data || null;
     }
 
-    initialize({ gl }) {
+    initialize({ gl }, solverBuffer) {
         this.transformFeedbacks = [gl.createTransformFeedback(), gl.createTransformFeedback()];
 
         this.material.setUniform('uLoop', this.loop);
 
-        this.shape.update(gl, 'particleBuffer',{material:this.material, solver:this, data:this.data});
+        this.shape.update(gl, solverBuffer,{material:this.material, solver:this, data:this.data});
     }
 
     update(gl) {
