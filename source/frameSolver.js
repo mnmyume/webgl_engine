@@ -7,10 +7,8 @@ export default class FrameSolver{
     frontBuffer = [];
     backBuffer = [];
     backBufferTextures = [];
-    obstacleBuffer = [];
     shape = [];
     material = [];
-    ext = null;
 
     get Mode(){return this.mode}
 
@@ -30,16 +28,11 @@ export default class FrameSolver{
     }
     initialize({gl}){
 
-        this.ext = gl.getExtension("WEBGL_draw_buffers");
-        $assert(this.ext);
         this.backBuffer = new FrameBuffer('bFrameBuff', {width:this.width,height:this.height});
         this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
 
         this.backBuffer.initialize({gl});
         this.frontBuffer.initialize({gl});
-
-        this.obstacleBuffer = new FrameBuffer('oFrameBuff', {width:this.screenWidth,height:this.screenHeight});
-        this.obstacleBuffer.initialize({gl});
 
     }
 
@@ -51,34 +44,13 @@ export default class FrameSolver{
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
-    addObstacles(gl){
-
-        gl.viewport(0, 0, this.screenWidth, this.screenHeight);
-        gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
-        gl.blendFunc(gl.ONE, gl.ZERO);
-
-        // attach
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.obstacleBuffer.framebuffer);
-
-        this.material[1].preDraw(gl);
-        this.shape[1].draw(gl, this.material[1]);
-        this.material[1].postDraw(gl);
-
-        // detach
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    }
-
-
     update(gl){
-
 
         if(!(this.mode & FrameSolver.MODE.play || this.mode & FrameSolver.MODE.init ))
             return;
 
         // gl.disable(gl.BLEND);
         // this.attach(gl);
-
-        // this.addObstacles(gl);
 
         gl.viewport(0, 0, this.width, this.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -92,8 +64,6 @@ export default class FrameSolver{
         this.material[0].setTexture('uDataSlot1', this.backBuffer.textures[1]);
         this.material[0].setTexture('uDataSlot2', this.backBuffer.textures[2]);
         this.material[0].setTexture('uDataSlot3', this.backBuffer.textures[3]);
-
-        // this.material[0].setTexture('obsSampler', this.obstacleBuffer.textures[0]);
 
         this.material[0].preDraw(gl);
         this.shape[0].draw(gl, this.material[0]);

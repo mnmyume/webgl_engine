@@ -11,8 +11,10 @@ import {genInitData} from "../../source/generatorHelper.js";
 
 import quadVert from "../../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../../shaders/glsl/quad-frag.glsl";
-import wavefrontVert from "../../shaders/glsl/wavefront-vert.glsl";
+import bkgVert from "../../shaders/glsl/background-vert.glsl";
+import bkgFrag from "../../shaders/glsl/background-frag.glsl";
 import wavefrontFrag from "../../shaders/glsl/wavefront-frag.glsl";
+import FrameSolver from "../../source/frameSolver.js";
 
 
 
@@ -23,7 +25,6 @@ const gl = glCanvas.getContext('webgl2');
 
 const GRID_SIZE = 16;
 const CELL_SIZE = canvas.width / GRID_SIZE;
-const STRIDE = 2;
 
 let grid = [];
 let currentMode = null; // 'obstacle' or 'end'
@@ -31,16 +32,15 @@ let endCell = null;
 
 // --- Initialization ---
 
-function initGrid(count, stride) {
+function initGrid(gridSize) {
     grid = [];
-    const initData = new Float32Array(count * stride);
+    const initData = [];
 
     for (let r = 0; r < GRID_SIZE; r++) {
         let row = [];
         for (let c = 0; c < GRID_SIZE; c++) {
+            const index = r * GRID_SIZE + c;
 
-            const distanceIdx = 2* (r * GRID_SIZE + c);
-            const obstacleIdx = 2* (r * GRID_SIZE + c) + 1;
             // Determine if the cell is on the boundary
             let cellType = 'empty';
 
@@ -57,13 +57,12 @@ function initGrid(count, stride) {
                 distance: cellType === 'obstacle' ? Infinity : null,
             });
 
-            initData[distanceIdx] = Infinity;
-            initData[obstacleIdx] = cellType === 'obstacle' ? 1 : 0;
+            initData.push(r, c, Infinity, cellType === 'obstacle' ? 1 : 0);
         }
         grid.push(row);
     }
 
-    return initData;
+    return new Float32Array(initData);
 }
 
 // --- Drawing Functions ---
@@ -241,18 +240,6 @@ function isValid(r, c) {
     return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
 }
 
-function readBuffer(solver, material, shape) {
-    // Read data from transform feedback buffer
-    const bufferIdx = solver.currIndex;
-    const targetVAO = shape.vaos[bufferIdx];
-    const targetBuffer = targetVAO.dataBuffer.buffer;
-    gl.bindBuffer(gl.ARRAY_BUFFER, targetBuffer);
-    const readbackArray = new Float32Array(solver.count * solver.stride);
-    gl.getBufferSubData(gl.ARRAY_BUFFER, 0, readbackArray);
-
-    return readbackArray;
-}
-
 // --- Event Listeners ---
 
 function handleCanvasClick(e) {
@@ -304,11 +291,8 @@ function setMode(mode, btnId) {
 
 function main() {
 
-    const gridCount = GRID_SIZE*GRID_SIZE;
-    const initData = initGrid(gridCount, STRIDE);
-
     const wavefrontShader = new Shader({
-        vertexSource: wavefrontVert,
+        vertexSource: bkgVert,
         fragmentSource: wavefrontFrag,
     });
     wavefrontShader.initialize({gl});
@@ -318,19 +302,28 @@ function main() {
     });
     wavefrontMaterial.initialize({gl});
 
-    const wavefrontShape = new SolverShape('wavefrontShape', {
-        count:gridCount, schema: readAttrSchema(wavefrontVert.input)
+    const wavefrontShape = new Shape('wavefrontShape', {
+        count:6, schema: readAttrSchema(bkgVert.input)
     });
     wavefrontShape.initialize({gl});
 
-    const wavefrontSolver = new Solver({
+    const wavefrontSolver = new FrameSolver({
         shape: wavefrontShape, material: wavefrontMaterial,
-        count: gridCount, mode:1, stride: STRIDE,
-        data: initData
+        width: GRID_SIZE, height: GRID_SIZE,
+        screenWidth: glCanvas.width, screenHeight: glCanvas.height,
+        mode:1,
     })
-    wavefrontSolver.initialize({gl}, 'wavefrontBuffer');
+    wavefrontSolver.initialize({gl});
 
     wavefrontMaterial.setUniform('uGridSize', GRID_SIZE);
+
+    const wavefrontTexture = new Texture2D('wavefrontTexture', {
+        width: GRID_SIZE, height: GRID_SIZE,
+        scaleDown: 'LINEAR', scaleUp: 'LINEAR',
+    })
+    wavefrontTexture.initialize({gl});
+    wavefrontTexture.setData(gl, initGrid(GRID_SIZE))
+    wavefrontMaterial.setTexture('uWavefrontTexture', wavefrontTexture);
 
     draw();
 

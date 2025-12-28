@@ -23,75 +23,71 @@ export default class Framebuffer {
         for(const tex of this.textures)
             tex.initialize({gl});
 
-        const ext =  gl.getExtension("WEBGL_draw_buffers");
-        $assert(ext);
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT0_WEBGL,
+            gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D,
             this.textures[0].texture,
             0,
         );
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT1_WEBGL,
+            gl.COLOR_ATTACHMENT1,
             gl.TEXTURE_2D,
             this.textures[1].texture,
             0,
         );
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT2_WEBGL,
+            gl.COLOR_ATTACHMENT2,
             gl.TEXTURE_2D,
             this.textures[2].texture,
             0,
         );
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT3_WEBGL,
+            gl.COLOR_ATTACHMENT3,
             gl.TEXTURE_2D,
             this.textures[3].texture,
             0,
         );
-        this.ext = ext;
-        ext.drawBuffersWEBGL([
-            ext.COLOR_ATTACHMENT0_WEBGL, // gl_FragData[0]
-            ext.COLOR_ATTACHMENT1_WEBGL, // gl_FragData[1]
-            ext.COLOR_ATTACHMENT2_WEBGL, // gl_FragData[2]
-            ext.COLOR_ATTACHMENT3_WEBGL, // gl_FragData[3]
+
+        gl.drawBuffers([
+            gl.COLOR_ATTACHMENT0, // gl_FragData[0]
+            gl.COLOR_ATTACHMENT1, // gl_FragData[1]
+            gl.COLOR_ATTACHMENT2, // gl_FragData[2]
+            gl.COLOR_ATTACHMENT3, // gl_FragData[3]
         ]);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
 
     delete(gl){
-        const  ext = this.ext ;
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT0_WEBGL,
+            gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D,
             null,
             0,
         );
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT1_WEBGL,
+            gl.COLOR_ATTACHMENT1,
             gl.TEXTURE_2D,
             null,
             0,
         );
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT2_WEBGL,
+            gl.COLOR_ATTACHMENT2,
             gl.TEXTURE_2D,
             null,
             0,
         );
         gl.framebufferTexture2D(
             gl.FRAMEBUFFER,
-            ext.COLOR_ATTACHMENT3_WEBGL,
+            gl.COLOR_ATTACHMENT3,
             gl.TEXTURE_2D,
             null,
             0,
