@@ -7,7 +7,6 @@ import Solver from "../../source/solver.js";
 import SolverMaterial from "../../source/solverMaterial.js";
 import SolverShape from "../../source/solverShape.js";
 import {readAttrSchema} from "../../source/shapeHelper.js";
-import {genInitData} from "../../source/generatorHelper.js";
 
 import quadVert from "../../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../../shaders/glsl/quad-frag.glsl";
@@ -32,16 +31,13 @@ let endCell = null;
 
 // --- Initialization ---
 
-function initGrid(gridSize) {
+function initGrid() {
     grid = [];
-    const initData = [];
 
     for (let r = 0; r < GRID_SIZE; r++) {
         let row = [];
         for (let c = 0; c < GRID_SIZE; c++) {
-            const index = r * GRID_SIZE + c;
 
-            // Determine if the cell is on the boundary
             let cellType = 'empty';
 
             // Check top, bottom, left, and right edges
@@ -57,9 +53,18 @@ function initGrid(gridSize) {
                 distance: cellType === 'obstacle' ? Infinity : null,
             });
 
-            initData.push(r, c, Infinity, cellType === 'obstacle' ? 1 : 0);
         }
         grid.push(row);
+    }
+}
+
+function genInitData(gridSize) {
+    const initData = [];
+
+    for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+            initData.push(Infinity, grid[r][c].type === 'obstacle' ? 1 : 0, 0, 0);
+        }
     }
 
     return new Float32Array(initData);
@@ -98,14 +103,14 @@ function drawCell(cell) {
     const centerX = x + CELL_SIZE / 2;
     const centerY = y + CELL_SIZE / 2;
 
-    ctx.fillStyle = 'black';
-    ctx.font = 'bold 20px sans-serif';
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 18px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     if (cell.type === 'end') {
         ctx.fillText('e', centerX, centerY);
-    } else if (cell.type === 'empty' && cell.distance !== null) {
+    } else if (cell.distance !== null) {    // && cell.type === 'empty'
         ctx.fillText(cell.distance, centerX, centerY);
     }
 
@@ -151,32 +156,7 @@ function drawArrow(ctx, fromx, fromy, tox, toy) {
 
 // --- Shortest Path Algorithm ---
 
-function runWavefront(solver, material, shape) {
 
-    if (!endCell) {
-        alert("Please select an 'end' cell first.");
-        return;
-    }
-
-    material.setUniform('uGoal', [endCell.r, endCell.c]);
-
-    solver.update(gl);
-
-    const readbackArray = readBuffer(solver, material,shape);
-
-    for (let r = 1; r < GRID_SIZE-1; r++) {
-        for (let c = 1; c < GRID_SIZE-1; c++) {
-            if(grid[r][c].type === 'end')
-                continue;
-            const distanceIdx = 2 * (r * GRID_SIZE + c);
-            const obstacleIdx = 2 * (r * GRID_SIZE + c) + 1;
-            grid[r][c].distance = readbackArray[distanceIdx];
-            grid[r][c].type = readbackArray[obstacleIdx] === 1 ? 'obstacle' : 'empty';
-        }
-    }
-
-    draw();
-}
 
 function runGradient() {
     // 1. Check if BFS has been run (distances exist)
@@ -291,13 +271,15 @@ function setMode(mode, btnId) {
 
 function main() {
 
+    initGrid();
+
     const wavefrontShader = new Shader({
         vertexSource: bkgVert,
         fragmentSource: wavefrontFrag,
     });
     wavefrontShader.initialize({gl});
 
-    const wavefrontMaterial = new SolverMaterial('wavefrontMaterial',{
+    const wavefrontMaterial = new Material('wavefrontMaterial',{
         shader: wavefrontShader,
     });
     wavefrontMaterial.initialize({gl});
@@ -322,14 +304,43 @@ function main() {
         scaleDown: 'LINEAR', scaleUp: 'LINEAR',
     })
     wavefrontTexture.initialize({gl});
-    wavefrontTexture.setData(gl, initGrid(GRID_SIZE))
     wavefrontMaterial.setTexture('uWavefrontTexture', wavefrontTexture);
+
+    wavefrontSolver.Mode = FrameSolver.MODE.init;
 
     draw();
 
+    function runWavefront() {
+
+        if (!endCell) {
+            alert("Please select an 'end' cell first.");
+            return;
+        }
+
+        wavefrontTexture.setData(gl, genInitData(GRID_SIZE))
+        wavefrontMaterial.setUniform('uGoal', [endCell.c, endCell.r]);
+
+        wavefrontSolver.update(gl);
+
+        const pixels = wavefrontSolver.pixels;
+
+        for(let i=1; i<GRID_SIZE-1; i++)
+            for (let j=1; j<GRID_SIZE-1; j++) {
+                grid[i][j].distance = pixels[4*(i*GRID_SIZE+j)];
+            }
+
+        if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
+            wavefrontSolver.Mode = FrameSolver.MODE.play;
+        }
+
+        draw();
+
+        requestAnimationFrame(runWavefront);
+    }
+
     document.getElementById('btn-obstacle').addEventListener('click', () => setMode('obstacle', 'btn-obstacle'));
     document.getElementById('btn-end').addEventListener('click', () => setMode('end', 'btn-end'));
-    document.getElementById('btn-wavefront').addEventListener('click', () =>runWavefront(wavefrontSolver, wavefrontMaterial, wavefrontShape));
+    document.getElementById('btn-wavefront').addEventListener('click', () =>runWavefront());
     document.getElementById('btn-gradient').addEventListener('click', () => runGradient);
     canvas.addEventListener('click', handleCanvasClick);
 }

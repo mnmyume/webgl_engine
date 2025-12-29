@@ -9,6 +9,7 @@ export default class FrameSolver{
     backBufferTextures = [];
     shape = [];
     material = [];
+    pixels = null;
 
     get Mode(){return this.mode}
 
@@ -58,30 +59,31 @@ export default class FrameSolver{
 
         this.attach(gl);
 
-        this.material[0].setUniform('uState', this.mode);
-        this.material[0].setUniform('uLoop', this.loop);
-        this.material[0].setTexture('uDataSlot0', this.backBuffer.textures[0]);
-        this.material[0].setTexture('uDataSlot1', this.backBuffer.textures[1]);
-        this.material[0].setTexture('uDataSlot2', this.backBuffer.textures[2]);
-        this.material[0].setTexture('uDataSlot3', this.backBuffer.textures[3]);
+        this.material.setUniform('uState', this.mode);
+        this.material.setUniform('uLoop', this.loop);
+        this.material.setTexture('uDataSlot0', this.backBuffer.textures[0]);
+        this.material.setTexture('uDataSlot1', this.backBuffer.textures[1]);
+        this.material.setTexture('uDataSlot2', this.backBuffer.textures[2]);
+        this.material.setTexture('uDataSlot3', this.backBuffer.textures[3]);
 
-        this.material[0].preDraw(gl);
-        this.shape[0].draw(gl, this.material[0]);
+        this.material.preDraw(gl);
+        this.shape.draw(gl, this.material);
 
-        // const pixels = new Float32Array(
-        //     this.width * this.height * 4,
-        // );
-        // gl.readPixels(
-        //     0,
-        //     0,
-        //     this.width,
-        //     this.height,
-        //     gl.RGBA,
-        //     gl.FLOAT,
-        //     pixels,
-        // );
+        const pixels = new Float32Array(
+            this.width * this.height * 4,
+        );
+        gl.readPixels(
+            0,
+            0,
+            this.width,
+            this.height,
+            gl.RGBA,
+            gl.FLOAT,
+            pixels,
+        );
+        this.pixels = pixels;
 
-        this.material[0].postDraw(gl);
+        this.material.postDraw(gl);
 
         this.swap();
 
