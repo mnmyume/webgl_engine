@@ -73,6 +73,7 @@ export default class Texture2D {
             gl.generateMipmap(gl.TEXTURE_2D);
 
         gl.getExtension('OES_texture_float_linear');
+        gl.getExtension('EXT_color_buffer_float');
 
         //FILTERing
         //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

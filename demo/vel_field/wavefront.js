@@ -6,6 +6,7 @@ import Texture2D from "../../source/texture2d.js";
 import Solver from "../../source/solver.js";
 import SolverMaterial from "../../source/solverMaterial.js";
 import SolverShape from "../../source/solverShape.js";
+import FrameSolver from "../../source/frameSolver.js";
 import {readAttrSchema} from "../../source/shapeHelper.js";
 
 import quadVert from "../../shaders/glsl/quad-vert.glsl";
@@ -13,8 +14,6 @@ import quadFrag from "../../shaders/glsl/quad-frag.glsl";
 import bkgVert from "../../shaders/glsl/background-vert.glsl";
 import bkgFrag from "../../shaders/glsl/background-frag.glsl";
 import wavefrontFrag from "../../shaders/glsl/wavefront-frag.glsl";
-import FrameSolver from "../../source/frameSolver.js";
-
 
 
 const canvas = document.getElementById('2dCanvas');
@@ -158,63 +157,7 @@ function drawArrow(ctx, fromx, fromy, tox, toy) {
 
 
 
-function runGradient() {
-    // 1. Check if BFS has been run (distances exist)
-    if (!endCell || grid[endCell.r][endCell.c].distance === null) {
-        alert("Please run BFS first to calculate distances.");
-        return;
-    }
 
-    // Define all 8 possible directions (Cardinal + Diagonal)
-    const directions = [
-        { dr: -1, dc: 0 },  // N
-        { dr: -1, dc: 1 },  // NE
-        { dr: 0,  dc: 1 },  // E
-        { dr: 1,  dc: 1 },  // SE
-        { dr: 1,  dc: 0 },  // S
-        { dr: 1,  dc: -1 }, // SW
-        { dr: 0,  dc: -1 }, // W
-        { dr: -1, dc: -1 }  // NW
-    ];
-
-    for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
-            let cell = grid[r][c];
-
-            // Skip obstacles, unvisited cells, or the goal (distance 0)
-            if (cell.type === 'obstacle' || cell.distance === null || cell.distance === 0) {
-                cell.vec = null;
-                continue;
-            }
-
-            // Start assuming the current cell is the best option
-            let minDistance = cell.distance;
-            let bestDir = { x: 0, y: 0 };
-
-            // 2. Iterate through all 8 neighbors to find the smallest distance
-            for (let { dr, dc } of directions) {
-                let nr = r + dr;
-                let nc = c + dc;
-
-                if (isValid(nr, nc)) {
-                    let neighbor = grid[nr][nc];
-
-                    // Check if neighbor is visited and has a smaller distance
-                    // (Note: Obstacles usually have distance: null, so they are skipped here)
-                    if (neighbor.distance !== null && neighbor.distance < minDistance) {
-                        minDistance = neighbor.distance;
-                        bestDir = { x: dc, y: dr }; // Point towards this neighbor
-                    }
-                }
-            }
-
-            // Store the vector pointing to the "downhill" neighbor
-            cell.vec = bestDir;
-        }
-    }
-
-    draw(); // Redraw the grid with the new vectors
-}
 
 function isValid(r, c) {
     return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
@@ -273,6 +216,8 @@ function main() {
 
     initGrid();
 
+    // --- wavefront ---
+
     const wavefrontShader = new Shader({
         vertexSource: bkgVert,
         fragmentSource: wavefrontFrag,
@@ -308,6 +253,10 @@ function main() {
 
     wavefrontSolver.Mode = FrameSolver.MODE.init;
 
+    // --- gradient ---
+
+
+
     draw();
 
     function runWavefront() {
@@ -338,10 +287,83 @@ function main() {
         requestAnimationFrame(runWavefront);
     }
 
+    function runGradient() {
+
+        if (!endCell || grid[endCell.r][endCell.c].distance === null) {
+            alert("Please run Wavefront first to calculate distances.");
+            return;
+        }
+
+        // Define all 8 possible directions (Cardinal + Diagonal)
+        const directions = [
+            { dr: -1, dc: 0 },  // N
+            { dr: -1, dc: 1 },  // NE
+            { dr: 0,  dc: 1 },  // E
+            { dr: 1,  dc: 1 },  // SE
+            { dr: 1,  dc: 0 },  // S
+            { dr: 1,  dc: -1 }, // SW
+            { dr: 0,  dc: -1 }, // W
+            { dr: -1, dc: -1 }  // NW
+        ];
+
+        for (let r = 0; r < GRID_SIZE; r++) {
+            for (let c = 0; c < GRID_SIZE; c++) {
+                let cell = grid[r][c];
+
+                // Skip obstacles, unvisited cells, or the goal (distance 0)
+                if (cell.type === 'obstacle' || cell.distance === null || cell.distance === 0) {
+                    cell.vec = null;
+                    continue;
+                }
+
+                // Start assuming the current cell is the best option
+                let minDistance = cell.distance;
+                let bestDir = { x: 0, y: 0 };
+
+                for (let { dr, dc } of directions) {
+                    let nr = r + dr;
+                    let nc = c + dc;
+
+                    if (isValid(nr, nc)) {
+
+                        // --- FIX STARTS HERE ---
+                        // Check if this is a diagonal move (both dr and dc are non-zero)
+                        if (dr !== 0 && dc !== 0) {
+                            // Check the two cardinal neighbors involved in this diagonal
+                            // 1. Same row, new column (Horizontal neighbor)
+                            // 2. New row, same column (Vertical neighbor)
+                            let horizontalCell = grid[r][nc];
+                            let verticalCell = grid[nr][c];
+
+                            // If either "side" is an obstacle, don't allow squeezing through
+                            if (horizontalCell.type === 'obstacle' || verticalCell.type === 'obstacle') {
+                                continue;
+                            }
+                        }
+                        // --- FIX ENDS HERE ---
+
+                        let neighbor = grid[nr][nc];
+
+                        // Standard check: Is this neighbor walkable and "downhill"?
+                        if (neighbor.distance !== null && neighbor.distance < minDistance) {
+                            minDistance = neighbor.distance;
+                            bestDir = { x: dc, y: dr };
+                        }
+                    }
+                }
+
+                // Store the vector pointing to the "downhill" neighbor
+                cell.vec = bestDir;
+            }
+        }
+
+        draw(); // Redraw the grid with the new vectors
+    }
+
     document.getElementById('btn-obstacle').addEventListener('click', () => setMode('obstacle', 'btn-obstacle'));
     document.getElementById('btn-end').addEventListener('click', () => setMode('end', 'btn-end'));
     document.getElementById('btn-wavefront').addEventListener('click', () =>runWavefront());
-    document.getElementById('btn-gradient').addEventListener('click', () => runGradient);
+    document.getElementById('btn-gradient').addEventListener('click', () => runGradient());
     canvas.addEventListener('click', handleCanvasClick);
 }
 

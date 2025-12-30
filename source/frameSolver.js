@@ -89,8 +89,6 @@ export default class FrameSolver{
 
         this.detach(gl);
 
-        // gl.flush();
-
     }
 
     swap(){
