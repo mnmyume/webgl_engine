@@ -138,3 +138,14 @@ export function genQuadUV(size){
     ]
 }
 
+export function genWavefrontInitData(gridSize) {
+    const initData = [];
+
+    for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+            initData.push(Infinity, 0, 0, 0);
+        }
+    }
+
+    return new Float32Array(initData);
+}

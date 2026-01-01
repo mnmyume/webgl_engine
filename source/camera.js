@@ -35,5 +35,4 @@ export default class Camera {
         this.target = target;
         this.updateView();
     }
-
 }

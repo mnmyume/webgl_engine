@@ -1,7 +1,7 @@
 const canvas = document.getElementById('2dCanvas');
 const ctx = canvas.getContext('2d');
 
-const GRID_SIZE = 16;
+const GRID_SIZE = 8;
 const CELL_SIZE = canvas.width / GRID_SIZE;
 
 let grid = [];

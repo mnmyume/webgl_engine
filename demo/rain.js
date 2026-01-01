@@ -93,7 +93,7 @@ export function initRain(gl, canvas, camera) {
     solverShape.initialize({gl});
 
 
-    const solver = new Solver({
+    const solver = new Solver('solver',{
         shape: solverShape, material: solverMaterial,
         count: particleParams.count, mode:1, loop:true, stride: STRIDE,
         data:initData

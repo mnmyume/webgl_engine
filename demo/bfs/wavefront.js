@@ -14,6 +14,7 @@ import quadFrag from "../../shaders/glsl/quad-frag.glsl";
 import bkgVert from "../../shaders/glsl/background-vert.glsl";
 import bkgFrag from "../../shaders/glsl/background-frag.glsl";
 import wavefrontFrag from "../../shaders/glsl/wavefront-frag.glsl";
+import gradientFrag from "../../shaders/glsl/gradient-frag.glsl";
 
 
 const canvas = document.getElementById('2dCanvas');
@@ -21,7 +22,7 @@ const glCanvas = document.getElementById("glCanvas");
 const ctx = canvas.getContext('2d');
 const gl = glCanvas.getContext('webgl2');
 
-const GRID_SIZE = 16;
+const GRID_SIZE = 64;
 const CELL_SIZE = canvas.width / GRID_SIZE;
 
 let grid = [];
@@ -115,9 +116,6 @@ function drawCell(cell) {
 
     // --- Arrow Drawing ---
     if (cell.vec) {
-        // Multiplier to make the arrow visible (since gradient is usually just 1 or -1)
-        const scale = 15;
-
         const endX = centerX - cell.vec.x;
         const endY = centerY - cell.vec.y;
 
@@ -152,12 +150,6 @@ function drawArrow(ctx, fromx, fromy, tox, toy) {
     ctx.lineWidth = 3;
     ctx.stroke();
 }
-
-// --- Shortest Path Algorithm ---
-
-
-
-
 
 function isValid(r, c) {
     return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
@@ -216,7 +208,7 @@ function main() {
 
     initGrid();
 
-    // --- wavefront ---
+    // --- wavefront init ---
 
     const wavefrontShader = new Shader({
         vertexSource: bkgVert,
@@ -234,12 +226,12 @@ function main() {
     });
     wavefrontShape.initialize({gl});
 
-    const wavefrontSolver = new FrameSolver({
+    const wavefrontSolver = new FrameSolver('wavefrontSolver', {
         shape: wavefrontShape, material: wavefrontMaterial,
         width: GRID_SIZE, height: GRID_SIZE,
         screenWidth: glCanvas.width, screenHeight: glCanvas.height,
         mode:1,
-    })
+    });
     wavefrontSolver.initialize({gl});
 
     wavefrontMaterial.setUniform('uGridSize', GRID_SIZE);
@@ -253,8 +245,33 @@ function main() {
 
     wavefrontSolver.Mode = FrameSolver.MODE.init;
 
-    // --- gradient ---
+    // --- gradient init ---
 
+    const gradientShader = new Shader({
+        vertexSource: bkgVert,
+        fragmentSource: gradientFrag,
+    });
+    gradientShader.initialize({gl});
+
+    const gradientMaterial = new Material('gradientMaterial', {
+        shader: gradientShader,
+    });
+    gradientMaterial.initialize({gl});
+
+    const gradientShape = new Shape('gradientShape', {
+        count:6, schema: readAttrSchema(bkgVert.input)
+    });
+    gradientShape.initialize({gl});
+
+    const gradientSolver = new FrameSolver('gradientSolver', {
+        shape: gradientShape, material: gradientMaterial,
+        width: GRID_SIZE, height: GRID_SIZE,
+        screenWidth: glCanvas.width, screenHeight: glCanvas.height,
+        mode:1,
+    });
+    gradientSolver.initialize({gl});
+
+    gradientMaterial.setUniform('uGridSize', GRID_SIZE);
 
 
     draw();
@@ -289,75 +306,26 @@ function main() {
 
     function runGradient() {
 
-        if (!endCell || grid[endCell.r][endCell.c].distance === null) {
-            alert("Please run Wavefront first to calculate distances.");
+        if (!endCell) {
+            alert("Please select an 'end' cell first.");
             return;
         }
 
-        // Define all 8 possible directions (Cardinal + Diagonal)
-        const directions = [
-            { dr: -1, dc: 0 },  // N
-            { dr: -1, dc: 1 },  // NE
-            { dr: 0,  dc: 1 },  // E
-            { dr: 1,  dc: 1 },  // SE
-            { dr: 1,  dc: 0 },  // S
-            { dr: 1,  dc: -1 }, // SW
-            { dr: 0,  dc: -1 }, // W
-            { dr: -1, dc: -1 }  // NW
-        ];
+        gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
 
-        for (let r = 0; r < GRID_SIZE; r++) {
-            for (let c = 0; c < GRID_SIZE; c++) {
-                let cell = grid[r][c];
+        gradientSolver.update(gl);
 
-                // Skip obstacles, unvisited cells, or the goal (distance 0)
-                if (cell.type === 'obstacle' || cell.distance === null || cell.distance === 0) {
-                    cell.vec = null;
-                    continue;
-                }
+        const pixels = gradientSolver.pixels;
 
-                // Start assuming the current cell is the best option
-                let minDistance = cell.distance;
-                let bestDir = { x: 0, y: 0 };
-
-                for (let { dr, dc } of directions) {
-                    let nr = r + dr;
-                    let nc = c + dc;
-
-                    if (isValid(nr, nc)) {
-
-                        // --- FIX STARTS HERE ---
-                        // Check if this is a diagonal move (both dr and dc are non-zero)
-                        if (dr !== 0 && dc !== 0) {
-                            // Check the two cardinal neighbors involved in this diagonal
-                            // 1. Same row, new column (Horizontal neighbor)
-                            // 2. New row, same column (Vertical neighbor)
-                            let horizontalCell = grid[r][nc];
-                            let verticalCell = grid[nr][c];
-
-                            // If either "side" is an obstacle, don't allow squeezing through
-                            if (horizontalCell.type === 'obstacle' || verticalCell.type === 'obstacle') {
-                                continue;
-                            }
-                        }
-                        // --- FIX ENDS HERE ---
-
-                        let neighbor = grid[nr][nc];
-
-                        // Standard check: Is this neighbor walkable and "downhill"?
-                        if (neighbor.distance !== null && neighbor.distance < minDistance) {
-                            minDistance = neighbor.distance;
-                            bestDir = { x: dc, y: dr };
-                        }
-                    }
-                }
-
-                // Store the vector pointing to the "downhill" neighbor
-                cell.vec = bestDir;
+        for(let i=1; i<GRID_SIZE-1; i++)
+            for (let j=1; j<GRID_SIZE-1; j++) {
+                if (grid[i][j].type !== 'obstacle' && grid[i][j].type !== 'end')
+                    grid[i][j].vec = { x: pixels[4*(i*GRID_SIZE+j)], y: pixels[4*(i*GRID_SIZE+j)+1] };
             }
-        }
 
-        draw(); // Redraw the grid with the new vectors
+        draw();
+
+        requestAnimationFrame(runGradient);
     }
 
     document.getElementById('btn-obstacle').addEventListener('click', () => setMode('obstacle', 'btn-obstacle'));

@@ -11,7 +11,8 @@ export default class Solver {
     get Mode(){return this.mode;}
     set Mode(value){this.mode=value;}
 
-    constructor(params) {
+    constructor(name, params={}) {
+        this.name = name;
         this.shape = params.shape || null;
         this.material = params.material || null;
         this.count = params.count || 1;

@@ -10,6 +10,7 @@ import { initArrows } from "./demo/arrows.js";
 import { initRain } from "./demo/rain.js";
 import { initLeaves } from "./demo/leaves.js";
 import { initFlowers } from "./demo/flowers.js";
+import { initWavefrontField } from "./demo/wavefrontField.js";
 
 
 const effects = {
@@ -28,11 +29,14 @@ function main() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.disable(gl.CULL_FACE);
 
     // init camera
     const camera = new OrthCamera({
         widthSpan: 70,
-        aspect: canvas.width / canvas.height });
+        aspect: canvas.width / canvas.height,
+        up: [0,0,1]
+    });
     // const camera = new PerspCamera({
     //     target:[0,10,0]
     // });
@@ -40,12 +44,14 @@ function main() {
         cos45 = Math.cos(45 * Math.PI / 180),
         sin35 = Math.sin(35 * Math.PI / 180);
     camera.setPosition([r * cos45, r * sin35, r * cos45]);
+    camera.setPosition([0, r, 0]);
     camera.updateProjection();
     camera.updateView();
     camera.updateViewInverse();
 
 
-    switchEffect("snow");
+    initWavefrontField(gl, canvas, camera);
+    // switchEffect("snow");
 
     function switchEffect(name) {
         const fx = effects[name];

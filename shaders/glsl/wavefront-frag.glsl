@@ -21,6 +21,7 @@ uniform bool uLoop;
 
 uniform float uGridSize;
 uniform vec2 uGoal;
+uniform float uEmitterSize;
 
 vec2 direction[4] = vec2[](
     vec2(-1, 0),   // left
@@ -35,6 +36,7 @@ void main()
 {
     vec2 gridCoord = gl_FragCoord.xy - vec2(0.5);
     vec2 uv = gl_FragCoord.xy / vec2(uGridSize);
+    vec2 goal = uGoal / vec2(uEmitterSize) * uGridSize;
     float distance;
     float isObastacle;
 
@@ -42,7 +44,7 @@ void main()
     if(uState == 1) {
         distance = texture(uWavefrontTexture, uv).r;
         isObastacle = texture(uWavefrontTexture, uv).g;
-        if(gridCoord == uGoal)
+        if(gridCoord == goal)
             distance = 0.0;
     } else if(uState == 2) {
         distance = texture(uDataSlot0, uv).r;

@@ -17,7 +17,8 @@ export default class FrameSolver{
         this.mode = value;
     }
 
-    constructor(params) {
+    constructor(name, params={}) {
+        this.name = name;
         this.width = params.width??128;
         this.height = params.height??128;
         this.screenWidth = params.screenWidth??null;
@@ -70,8 +71,8 @@ export default class FrameSolver{
         this.shape.draw(gl, this.material);
 
         const pixels = new Float32Array(
-            this.width * this.height * 4,
-        );
+            this.width * this.height * 4);
+        gl.readBuffer(gl.COLOR_ATTACHMENT0); // gl.COLOR_ATTACHMENT0 is default
         gl.readPixels(
             0,
             0,
