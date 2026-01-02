@@ -70,7 +70,6 @@ vec3 updatePos(vec3 pos, vec3 linVel) {
     return pos = pos + linVel * uDeltaTime;
 }
 
-
 void main()
 {
 

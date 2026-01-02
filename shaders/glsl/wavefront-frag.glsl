@@ -3,10 +3,10 @@ precision highp float;
 precision highp int;
 
 #value uWavefrontTexture:0
-uniform sampler2D uWavefrontTexture;    // distance.r, isObstacle.g ( 1.0 == 'obstacle' )
+uniform sampler2D uWavefrontTexture;    // currDist.r, isObstacle.g ( 1.0 == 'obstacle' )
 
 #value uDataSlot0:1
-uniform sampler2D uDataSlot0;    // distance.r, isObstacle.g ( 1.0 == 'obstacle' )
+uniform sampler2D uDataSlot0;    // currDist.r, isObstacle.g ( 1.0 == 'obstacle' )
 #value uDataSlot1:2
 uniform sampler2D uDataSlot1;
 #value uDataSlot2:3
@@ -36,18 +36,23 @@ void main()
 {
     vec2 gridCoord = gl_FragCoord.xy - vec2(0.5);
     vec2 uv = gl_FragCoord.xy / vec2(uGridSize);
-    vec2 goal = uGoal / vec2(uEmitterSize) * uGridSize;
-    float distance;
+
+//    vec2 localGoal = uGoal - vec2(uEmitterSize/2.0);
+//    localGoal = clamp(localGoal, vec2(0.0), vec2(uEmitterSize));
+//    vec2 goal = localGoal/vec2(uEmitterSize) * uGridSize;
+
+    float currDist;
     float isObastacle;
 
     // init
     if(uState == 1) {
-        distance = texture(uWavefrontTexture, uv).r;
+        currDist = texture(uWavefrontTexture, uv).r;
         isObastacle = texture(uWavefrontTexture, uv).g;
-        if(gridCoord == goal)
-            distance = 0.0;
+        bool isGoal = distance(gridCoord, uGoal) < 0.5;
+        if(isGoal)
+            currDist = 0.0;
     } else if(uState == 2) {
-        distance = texture(uDataSlot0, uv).r;
+        currDist = texture(uDataSlot0, uv).r;
         isObastacle = texture(uDataSlot0, uv).g;
         if(isObastacle==0.0) {
             float L = texture(uDataSlot0, uv + direction[0]/uGridSize).r;
@@ -56,11 +61,11 @@ void main()
             float B = texture(uDataSlot0, uv + direction[3]/uGridSize).r;
 
             float minNeighbor = min(min(L, R), min(T, B));
-            distance = min(distance, minNeighbor + 1.0);
+            currDist = min(currDist, minNeighbor + 1.0);
         }
     }
 
-    fragData[0] = vec4(distance, isObastacle, 0.0, 1.0);
+    fragData[0] = vec4(currDist, isObastacle, 0.0, 1.0);
     fragData[1] = vec4(1.0, 1.0, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);

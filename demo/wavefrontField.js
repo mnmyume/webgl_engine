@@ -43,7 +43,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const solverParams = {
         gridSize: 128,
-        goal: [31, 31],  // pos in emitter quad
+        goal: [1, 1],
     }
 
     const emitterGridSize = sqrtFloor(particleParams.count);
