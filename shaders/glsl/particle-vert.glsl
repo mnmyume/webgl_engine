@@ -1,42 +1,62 @@
 #version 300 es
 #define POSITION_LOCATION 0
-#define GENERATION_LOCATION 1
-#define SIZE_LOCATION 2
-#define FRAME_LIFE_LOCATION 3
-#define ANI_TYPE_LOCATION 4
+#define LINEAR_VELOCITY_LOCATION 1
+#define ACCELERATION_LOCATION 2
+#define GENERATION_LOCATION 3
+#define SIZE_LOCATION 4
+#define FRAME_LIFE_LOCATION 5
+#define ANI_TYPE_LOCATION 6
 
 precision highp float;
 precision highp int;
+
+#include "./includes/aniTex.glsl"
 
 uniform mat4 _uni_projMat;
 uniform mat4 _uni_viewMat;
 #value _uni_modelMat:mat4(1.0)
 uniform mat4 _uni_modelMat;
 
-#buffer aPos:mapBuffer, size:3, stride:28, offset:0
+#buffer aPos:particleBuffer, size:3, stride:52, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aGeneration:mapBuffer, size:1, stride:28, offset:12
+#buffer aLinVel:particleBuffer, size:3, stride:52, offset:12
+layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
+
+#buffer aAcc:particleBuffer, size:3, stride:52, offset:24
+layout(location = ACCELERATION_LOCATION) in vec3 aAcc;
+
+#buffer aGeneration:particleBuffer, size:1, stride:52, offset:36
 layout(location = GENERATION_LOCATION) in float aGeneration;
 
-#buffer aSize:mapBuffer, size:1, stride:28, offset:16
+#buffer aSize:particleBuffer, size:1, stride:52, offset:40
 layout(location = SIZE_LOCATION) in float aSize;
 
-#buffer aFrameLife:mapBuffer, size:1, stride:28, offset:20
+#buffer aFrameLife:particleBuffer, size:1, stride:52, offset:44
 layout(location = FRAME_LIFE_LOCATION) in float aFrameLife;
 
-#buffer aAniType:mapBuffer, size:1, stride:28, offset:24
+#buffer aAniType:particleBuffer, size:1, stride:52, offset:48
 layout(location = ANI_TYPE_LOCATION) in float aAniType;
 
 out float vGeneration;
+out vec3 vLinVel;
+out float vAniType;
+out float vFrame;
 
 void main()
 {
+    // aniTex
+    float numFrames = _uAniTexNumFrames;
+    float aniFps = _uAniTexFps;
 
+    float frame = mod(floor(aFrameLife*aniFps) , numFrames);
     vec3 pos = aPos;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
-    gl_PointSize = 10.0;
+    gl_PointSize = aSize;
 
     vGeneration = aGeneration;
+    vLinVel = mat3(_uni_viewMat) * aLinVel;
+    vAniType = aAniType;
+    vFrame = frame;
 }

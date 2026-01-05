@@ -10,7 +10,8 @@ import SolverShape from "../source/solverShape.js";
 import SolverMaterial from "../source/solverMaterial.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import {sqrtFloor} from "../source/mathHelper.js";
-import {genQuadUV, genInitData, genWavefrontInitData, genRectHaltonPos} from "../source/generatorHelper.js";
+import {genQuadUV, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON} from "../source/generatorHelper.js";
+import gridConfig from './bfs/grid_config.json';
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../shaders/glsl/quad-frag.glsl";
@@ -27,13 +28,13 @@ import particleFrag from "../shaders/glsl/particle-frag.glsl";
 export function initWavefrontField(gl, canvas, camera) {
 
     const time = new Time();
-    const STRIDE = 7;
+    const STRIDE = 13;
     const particleParams = {
-        count: 16,
+        count: 1000,
         duration: 20,
         lifeTime: 20,
-        minSize: 10,
-        maxSize: 10,
+        minSize: 15,
+        maxSize: 15,
         startLinVel:[0,0,0],
         color:[0.85,0.85,0.85],
         alpha:0.8,
@@ -41,9 +42,16 @@ export function initWavefrontField(gl, canvas, camera) {
         emitterHeight: 40
     }
 
-    const solverParams = {
-        gridSize: 128,
-        goal: [0.9, 0.5], // 0~1
+    const aniTexParams = {
+        texWidth: 384,
+        texHeight: 32,
+        cellWidth: 32,
+        cellHeight: 32,
+        numFrames: 12,
+        numTypes: 4,
+        aniFps: 6,
+        accDivisor: 80000,
+        accFactor: 2
     }
 
     const emitterGridSize = sqrtFloor(particleParams.count);
@@ -62,8 +70,7 @@ export function initWavefrontField(gl, canvas, camera) {
         shader: wavefrontShader,
     });
     wavefrontMaterial.initialize({gl});
-    wavefrontMaterial.setUniform('uGridSize', solverParams.gridSize);
-    wavefrontMaterial.setUniform('uGoal', solverParams.goal);
+    wavefrontMaterial.setUniform('uGridSize', gridConfig.gridSize);
     wavefrontMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
 
     const wavefrontShape = new Shape('wavefrontShape', {
@@ -73,18 +80,18 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const wavefrontSolver = new FrameSolver('wavefrontSolver', {
         shape: wavefrontShape, material: wavefrontMaterial,
-        width: solverParams.gridSize, height: solverParams.gridSize,
+        width: gridConfig.gridSize, height: gridConfig.gridSize,
         screenWidth: canvas.width, screenHeight: canvas.height,
         mode:1,
     });
     wavefrontSolver.initialize({gl});
 
     const wavefrontTexture = new Texture2D('wavefrontTexture', {
-        width: solverParams.gridSize, height: solverParams.gridSize,
+        width: gridConfig.gridSize, height: gridConfig.gridSize,
         scaleDown: 'LINEAR', scaleUp: 'LINEAR',
     })
     wavefrontTexture.initialize({gl});
-    wavefrontTexture.setData(gl, genWavefrontInitData(solverParams.gridSize));
+    wavefrontTexture.setData(gl, genWavefrontInitDataJSON(gridConfig));
     wavefrontMaterial.setTexture('uWavefrontTexture', wavefrontTexture);
 
     wavefrontSolver.Mode = FrameSolver.MODE.init;
@@ -100,7 +107,7 @@ export function initWavefrontField(gl, canvas, camera) {
         shader: gradientShader,
     });
     gradientMaterial.initialize({gl});
-    gradientMaterial.setUniform('uGridSize', solverParams.gridSize);
+    gradientMaterial.setUniform('uGridSize', gridConfig.gridSize);
 
     const gradientShape = new Shape('gradientShape', {
         count:6, schema: readAttrSchema(bkgVert.input)
@@ -109,7 +116,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const gradientSolver = new FrameSolver('gradientSolver', {
         shape: gradientShape, material: gradientMaterial,
-        width: solverParams.gridSize, height: solverParams.gridSize,
+        width: gridConfig.gridSize, height: gridConfig.gridSize,
         screenWidth: canvas.width, screenHeight: canvas.height,
         mode:1,
     });
@@ -134,7 +141,7 @@ export function initWavefrontField(gl, canvas, camera) {
     mapMaterial.setUniform('uLifeTime', particleParams.lifeTime);
     mapMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
     mapMaterial.setUniform('uEmitterGridSize', emitterGridSize);
-    mapMaterial.setUniform('uGradientGridSize', solverParams.gridSize);
+    mapMaterial.setUniform('uGradientGridSize', gridConfig.gridSize);
 
     const initData = genInitData(particleParams.count, STRIDE);
     const mapShape = new SolverShape('mapShape', {
@@ -147,7 +154,7 @@ export function initWavefrontField(gl, canvas, camera) {
         count: particleParams.count, mode:1, loop:true, stride:STRIDE,
         data: initData
     });
-    mapSolver.initialize({gl},'mapBuffer');
+    mapSolver.initialize({gl},'particleBuffer');
 
     const emitterTexture = new Texture2D('emitterTexture', {
         width: emitterGridSize, height: emitterGridSize,
@@ -167,91 +174,110 @@ export function initWavefrontField(gl, canvas, camera) {
     });
     particleShader.initialize({gl});
 
-    const particleMaterial = new Material('particleMaterial',{
-        shader: particleShader, blend:1
-    });
-    particleMaterial.initialize({gl});
+    let particleMaterial;
 
-    particleMaterial.setUniform('uColor', particleParams.color);
-    particleMaterial.setUniform('uAlpha', particleParams.alpha);
+    const colTexImg = new Image();
+    colTexImg.src = '../resources/leaf/leaf-Sheet-5.png';
+    colTexImg.onload = _ => {
+        const colorTexture = new Texture2D('colorTexture', {
+            image: colTexImg,
+            scaleDown: 'LINEAR',
+            scaleUp: 'LINEAR'
+        });
+        colorTexture.initialize({gl});
 
-    const particleShape = new Shape('particleShape',{
-        state: 3, count: particleParams.count, vaos: mapShape.VAOS,
-        schema: readAttrSchema(particleVert.input)
-    });
+        particleMaterial = new Material('particleMaterial',{
+            shader: particleShader, blend:1
+        });
+        particleMaterial.initialize({gl});
 
-    // --- init emitter quad ---
-    const quadShader = new Shader({
-        vertexSource: quadVert,
-        fragmentSource: quadFrag,
-    });
-    quadShader.initialize({gl});
+        particleMaterial.setUniform('uColor', particleParams.color);
+        particleMaterial.setTexture('uColorSampler', colorTexture);
 
-    const quadMaterial = new Material('quadMaterial', {
-        shader: quadShader,
-    });
-    quadMaterial.initialize({gl});
+        // aniTex
+        particleMaterial.setUniform('_uAniTexBoundarySize', [aniTexParams.texWidth, aniTexParams.texHeight]);
+        particleMaterial.setUniform('_uAniTexCellSize', [aniTexParams.cellWidth, aniTexParams.cellHeight]);
+        particleMaterial.setUniform('_uAniTexNumFrames', aniTexParams.numFrames);
+        particleMaterial.setUniform('_uAniTexFps', aniTexParams.aniFps)
 
-    const quadData = genQuadUV(particleParams.emitterSize);
-    const quadShape = new Shape(
-        'quad',
-        {verticeCount: 6, schema: readAttrSchema(quadVert.input)});
-    quadShape.initialize({gl});
-    quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
+        const particleShape = new Shape('particleShape',{
+            state: 3, count: particleParams.count, vaos: mapShape.VAOS,
+            schema: readAttrSchema(particleVert.input)
+        });
 
-    function drawWavefront() {
-        requestAnimationFrame(drawWavefront);
-        // --- wavefront solver update ---
-        wavefrontMaterial.setUniform('uState', wavefrontSolver.mode);
-        wavefrontSolver.update(gl);
+        // --- init emitter quad ---
+        const quadShader = new Shader({
+            vertexSource: quadVert,
+            fragmentSource: quadFrag,
+        });
+        quadShader.initialize({gl});
 
-        if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
-            wavefrontSolver.Mode = FrameSolver.MODE.play;
-        }
-    }
+        const quadMaterial = new Material('quadMaterial', {
+            shader: quadShader,
+        });
+        quadMaterial.initialize({gl});
 
-    function drawGradient() {
+        const quadData = genQuadUV(particleParams.emitterSize);
+        const quadShape = new Shape(
+            'quad',
+            {verticeCount: 6, schema: readAttrSchema(quadVert.input)});
+        quadShape.initialize({gl});
+        quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
 
-        requestAnimationFrame(drawGradient);
+        function drawWavefront() {
+            requestAnimationFrame(drawWavefront);
+            // --- wavefront solver update ---
+            wavefrontMaterial.setUniform('uState', wavefrontSolver.mode);
+            wavefrontSolver.update(gl);
 
-        time.update();
-
-        // --- gradient solver update ---
-        gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
-        gradientSolver.update(gl);
-
-        // --- map solver update ---
-        mapMaterial.setUniform('uTime', time.ElapsedTime);
-        mapMaterial.setUniform('uDeltaTime', time.Interval);
-        mapMaterial.setUniform('uState', mapSolver.mode);
-        mapMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
-        mapSolver.update(gl);
-
-        if (mapSolver.Mode === Solver.MODE.init) {
-            mapSolver.Mode = Solver.MODE.play;
+            if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
+                wavefrontSolver.Mode = FrameSolver.MODE.play;
+            }
         }
 
-        // gl
-        gl.viewport(0, 0, canvas.width, canvas.height);
+        function drawGradient() {
 
-        gl.clearColor(0.2, 0.2, 0.2, 1.0);
-        gl.colorMask(true, true, true, true);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            requestAnimationFrame(drawGradient);
 
-        // --- draw emitter quad ---
-        quadMaterial.preDraw(gl, camera, emitterTransform);
-        quadShape.draw(gl, quadMaterial);
-        quadMaterial.postDraw(gl);
+            time.update();
 
-        // --- draw particle ---
-        particleMaterial.preDraw(gl, camera);
-        particleShape.draw(gl, particleMaterial);
-        particleMaterial.postDraw(gl);
+            // --- gradient solver update ---
+            gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
+            gradientSolver.update(gl);
+
+            // --- map solver update ---
+            mapMaterial.setUniform('uTime', time.ElapsedTime);
+            mapMaterial.setUniform('uDeltaTime', time.Interval);
+            mapMaterial.setUniform('uState', mapSolver.mode);
+            mapMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
+            mapSolver.update(gl);
+
+            if (mapSolver.Mode === Solver.MODE.init) {
+                mapSolver.Mode = Solver.MODE.play;
+            }
+
+            // gl
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+            gl.clearColor(0.2, 0.2, 0.2, 1.0);
+            gl.colorMask(true, true, true, true);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            // --- draw emitter quad ---
+            quadMaterial.preDraw(gl, camera, emitterTransform);
+            quadShape.draw(gl, quadMaterial);
+            quadMaterial.postDraw(gl);
+
+            // --- draw particle ---
+            particleMaterial.preDraw(gl, camera);
+            particleShape.draw(gl, particleMaterial);
+            particleMaterial.postDraw(gl);
+        }
+
+        // for(let i = 0; i < 50; i++) {
+        //     drawWavefront()
+        // }
+        drawWavefront();
+        drawGradient();
     }
-
-    // for(let i = 0; i < 50; i++) {
-    //     drawWavefront()
-    // }
-    drawWavefront();
-    drawGradient();
 }

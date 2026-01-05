@@ -70,19 +70,19 @@ export default class FrameSolver{
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
 
-        const pixels = new Float32Array(
-            this.width * this.height * 4);
-        gl.readBuffer(gl.COLOR_ATTACHMENT0); // gl.COLOR_ATTACHMENT0 is default
-        gl.readPixels(
-            0,
-            0,
-            this.width,
-            this.height,
-            gl.RGBA,
-            gl.FLOAT,
-            pixels,
-        );
-        this.pixels = pixels;
+        // const pixels = new Float32Array(
+        //     this.width * this.height * 4);
+        // gl.readBuffer(gl.COLOR_ATTACHMENT0); // gl.COLOR_ATTACHMENT0 is default
+        // gl.readPixels(
+        //     0,
+        //     0,
+        //     this.width,
+        //     this.height,
+        //     gl.RGBA,
+        //     gl.FLOAT,
+        //     pixels,
+        // );
+        // this.pixels = pixels;
 
         this.material.postDraw(gl);
 

@@ -149,3 +149,27 @@ export function genWavefrontInitData(gridSize) {
 
     return new Float32Array(initData);
 }
+
+export function genWavefrontInitDataJSON(config) {
+    const { gridSize, goal, obstacles } = config;
+    const initData = [];
+
+    const obstacleSet = new Set();
+    obstacles.forEach(([x, y]) => {
+        obstacleSet.add(`${x},${y}`);
+    });
+
+
+    for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+
+            const isObstacle = obstacleSet.has(`${c},${r}`) ? 1 : 0;
+            const isGoal = (c === goal[0] && r === goal[1]) ? 1 : 0;
+            const dist = isGoal ? 0 : Infinity;
+
+            initData.push(dist, isObstacle, isGoal, 0);
+        }
+    }
+
+    return new Float32Array(initData);
+}

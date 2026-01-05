@@ -22,12 +22,57 @@ const glCanvas = document.getElementById("glCanvas");
 const ctx = canvas.getContext('2d');
 const gl = glCanvas.getContext('webgl2');
 
-const GRID_SIZE = 64;
+const GRID_SIZE = 32;
 const CELL_SIZE = canvas.width / GRID_SIZE;
 
 let grid = [];
 let currentMode = null; // 'obstacle' or 'end'
 let endCell = null;
+
+function exportMapConfig() {
+    if (!endCell) {
+        alert("Cannot export: Please select an 'end' cell first.");
+        return;
+    }
+
+    const obstacles = [];
+
+    // Iterate through the grid to find all obstacles
+    for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+            // We verify it's an obstacle
+            if (grid[r][c].type === 'obstacle') {
+                // Normalize coordinates (0.0 to 1.0)
+                // c = x-axis, r = y-axis
+                obstacles.push([
+                    c,
+                    r
+                ]);
+            }
+        }
+    }
+
+    // Construct the data object
+    const mapData = {
+        gridSize: GRID_SIZE,
+        goal: [
+            endCell.c,
+            endCell.r
+        ],
+        obstacles: obstacles
+    };
+
+    // Convert to JSON and create a download link
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mapData, null, 2));
+    const downloadAnchor = document.createElement('a');
+
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "grid_config.json");
+
+    document.body.appendChild(downloadAnchor); // Required for Firefox
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
 
 // --- Initialization ---
 
@@ -40,10 +85,10 @@ function initGrid() {
 
             let cellType = 'empty';
 
-            // Check top, bottom, left, and right edges
-            if (r === 0 || r === GRID_SIZE - 1 || c === 0 || c === GRID_SIZE - 1) {
-                cellType = 'obstacle';
-            }
+            // Boundary
+            // if (r === 0 || r === GRID_SIZE - 1 || c === 0 || c === GRID_SIZE - 1) {
+            //     cellType = 'obstacle';
+            // }
 
             row.push({
                 r: r,
@@ -330,6 +375,7 @@ function main() {
 
     document.getElementById('btn-obstacle').addEventListener('click', () => setMode('obstacle', 'btn-obstacle'));
     document.getElementById('btn-end').addEventListener('click', () => setMode('end', 'btn-end'));
+    document.getElementById('btn-export').addEventListener('click', () => exportMapConfig());
     document.getElementById('btn-wavefront').addEventListener('click', () =>runWavefront());
     document.getElementById('btn-gradient').addEventListener('click', () => runGradient());
     canvas.addEventListener('click', handleCanvasClick);

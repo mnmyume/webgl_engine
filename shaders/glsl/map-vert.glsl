@@ -1,12 +1,16 @@
 #version 300 es
 #define POSITION_LOCATION 0
-#define SIZE_LOCATION 1
-#define GENERATION_LOCATION 2
-#define FRAME_LIFE_LOCATION 3
-#define ANI_TYPE_LOCATION 4
+#define LINEAR_VELOCITY_LOCATION 1
+#define ACCELERATION_LOCATION 2
+#define GENERATION_LOCATION 3
+#define SIZE_LOCATION 4
+#define FRAME_LIFE_LOCATION 5
+#define ANI_TYPE_LOCATION 6
 
 precision highp float;
 precision highp int;
+
+#define GEN_SIZE 2
 
 #value uEmitterTexture:0
 uniform sampler2D uEmitterTexture;  // posX, posZ, size, startTime
@@ -35,24 +39,32 @@ uniform float uEmitterSize;
 uniform float uEmitterGridSize;
 uniform float uGradientGridSize;
 
-#buffer aPos:mapBuffer, size:3, stride:28, offset:0
+#buffer aPos:particleBuffer, size:3, stride:52, offset:0
 layout(location = POSITION_LOCATION) in vec3 aPos;
 
-#buffer aSize:mapBuffer, size:1, stride:28, offset:12
-layout(location = SIZE_LOCATION) in float aSize;
+#buffer aLinVel:particleBuffer, size:3, stride:52, offset:12
+layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
 
-#buffer aGeneration:mapBuffer, size:1, stride:28, offset:16
+#buffer aAcc:particleBuffer, size:3, stride:52, offset:24
+layout(location = ACCELERATION_LOCATION) in vec3 aAcc;
+
+#buffer aGeneration:particleBuffer, size:1, stride:52, offset:36
 layout(location = GENERATION_LOCATION) in float aGeneration;
 
-#buffer aFrameLife:mapBuffer, size:1, stride:28, offset:20
+#buffer aSize:particleBuffer, size:1, stride:52, offset:40
+layout(location = SIZE_LOCATION) in float aSize;
+
+#buffer aFrameLife:particleBuffer, size:1, stride:52, offset:44
 layout(location = FRAME_LIFE_LOCATION) in float aFrameLife;
 
-#buffer aAniType:mapBuffer, size:1, stride:28, offset:24
+#buffer aAniType:particleBuffer, size:1, stride:52, offset:48
 layout(location = ANI_TYPE_LOCATION) in float aAniType;
 
 out vec3 vPos;
-out float vSize;
+out vec3 vLinVel;
+out vec3 vAcc;
 out float vGeneration;
+out float vSize;
 out float vFrameLife;
 out float vAniType;
 
@@ -76,7 +88,11 @@ void main()
 {
 
     vec3 pos = aPos;
+    vec3 linVel = aLinVel;
+    vec3 acc = aAcc;
     float size = aSize;
+    float frameLife = aFrameLife;
+    float aniType = aAniType;
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uEmitterGridSize);
@@ -85,12 +101,14 @@ void main()
     vec2 gridPos = vec2(inversedPos.x, inversedPos.z);
     vec2 gradientUV = getGradientCoord(gridPos, uEmitterSize);
 
-//    float startTime = texture(uEmitterSlot0[0], emitterUV).w;
-//    float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
-//    float percentLife = localTime / uLifeTime;
-//
-//    float lastGene = aGeneration;
-//    float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
+    aniType = texture(uEmitterTexture, emitterUV).w;
+
+    float startTime = texture(uEmitterTexture, emitterUV).w;
+    float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;
+    float percentLife = localTime / uLifeTime;
+
+    float lastGene = aGeneration;
+    float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
 //
 //    bool emit = generation!=lastGene && generation!=-1.0;
 
@@ -101,19 +119,21 @@ void main()
         pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
     }
     else if(uState == 2) {
-        vec3 vel = vec3(texture(uGradientTexture,gradientUV).x, 0.0, texture(uGradientTexture,gradientUV).y);
-        pos = updatePos(pos, vel);
+        linVel = vec3(texture(uGradientTexture,gradientUV).x, 0.0, texture(uGradientTexture,gradientUV).y);
+        pos = updatePos(pos, linVel);
 
 //        float accFrameOffset = uAccFactor * acc.x / uAccDivisor;
-//        frameLife = mod(frameLife + accFrameOffset * uLifeTime, uLifeTime);
-//        frameLife = (frameLife < 0.0) ? frameLife + 1.0 : frameLife;
+        frameLife = mod(frameLife, uLifeTime);
+        frameLife = (frameLife < 0.0) ? frameLife + 1.0 : frameLife;
     }
 
     gl_Position = vec4(pos, 1.0);
 
     vPos = pos;
+    vLinVel = linVel;
+    vAcc =  acc;
     vSize = size;
-    vGeneration = 0.0;
-    vFrameLife = 0.0;
-    vAniType = 0.0;
+    vGeneration = generation;
+    vFrameLife = frameLife;
+    vAniType = aniType;
 }
