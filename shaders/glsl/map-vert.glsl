@@ -19,6 +19,8 @@ uniform float uDeltaTime;
 
 #value uEmitterTransform:mat4(1.0)
 uniform mat4 uEmitterTransform;
+#value uEmitterInverseTransform:mat4(1.0)
+uniform mat4 uEmitterInverseTransform;
 
 #value uState:0
 uniform int uState; // 1: init mode, 2: play mode
@@ -62,7 +64,7 @@ vec2 getEmitterCoord(float particleID, float gridSize) {
 }
 
 vec2 getGradientCoord(vec2 pos, float emitterSize) {
-    vec2 uv = pos/vec2(emitterSize);
+    vec2 uv = (pos + vec2(emitterSize/2.0))/vec2(emitterSize);
     return uv;
 }
 
@@ -78,7 +80,10 @@ void main()
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uEmitterGridSize);
-    vec2 gradientUV = getGradientCoord(vec2(pos.x,pos.z), uEmitterSize);
+
+    vec4 inversedPos = uEmitterInverseTransform * vec4(pos, 1);
+    vec2 gridPos = vec2(inversedPos.x, inversedPos.z);
+    vec2 gradientUV = getGradientCoord(gridPos, uEmitterSize);
 
 //    float startTime = texture(uEmitterSlot0[0], emitterUV).w;
 //    float localTime = uTime - startTime > 0.0 ? mod(uTime - startTime, uLifeTime) : 0.0;

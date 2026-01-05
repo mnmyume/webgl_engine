@@ -43,7 +43,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const solverParams = {
         gridSize: 128,
-        goal: [1, 1],
+        goal: [0.9, 0.5], // 0~1
     }
 
     const emitterGridSize = sqrtFloor(particleParams.count);
@@ -127,7 +127,8 @@ export function initWavefrontField(gl, canvas, camera) {
     });
     mapMaterial.initialize({gl});
 
-    mapMaterial.setUniform('uEmitterTransform', emitterTransform.matrix);
+    mapMaterial.setUniform('uEmitterTransform', emitterTransform.getMatrix());
+    mapMaterial.setUniform('uEmitterInverseTransform', emitterTransform.getInverseMatrix());
     mapMaterial.setUniform('uDuration', particleParams.duration);
     mapMaterial.setUniform('uCount', particleParams.count);
     mapMaterial.setUniform('uLifeTime', particleParams.lifeTime);

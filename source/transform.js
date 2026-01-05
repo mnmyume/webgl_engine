@@ -4,7 +4,10 @@ export default class Transform {
     constructor() {
         this.position = [0, 0, 0];
         this.matrix = mat4.create();
+        this.inverseMatrix = mat4.create();
+
         mat4.identity(this.matrix);
+        mat4.identity(this.inverseMatrix);
     }
 
     setPosition(x, y, z) {
@@ -30,8 +33,14 @@ export default class Transform {
         return this.matrix;
     }
 
+    getInverseMatrix() {
+        mat4.invert(this.inverseMatrix, this.matrix);
+        return this.inverseMatrix;
+    }
+
     reset() {
         mat4.identity(this.matrix);
+        mat4.identity(this.inverseMatrix);
     }
 
 

@@ -37,9 +37,7 @@ void main()
     vec2 gridCoord = gl_FragCoord.xy - vec2(0.5);
     vec2 uv = gl_FragCoord.xy / vec2(uGridSize);
 
-//    vec2 localGoal = uGoal - vec2(uEmitterSize/2.0);
-//    localGoal = clamp(localGoal, vec2(0.0), vec2(uEmitterSize));
-//    vec2 goal = localGoal/vec2(uEmitterSize) * uGridSize;
+    vec2 goal = clamp(uGoal * uGridSize, vec2(0.0), vec2(uGridSize - 1.0));
 
     float currDist;
     float isObastacle;
@@ -48,7 +46,9 @@ void main()
     if(uState == 1) {
         currDist = texture(uWavefrontTexture, uv).r;
         isObastacle = texture(uWavefrontTexture, uv).g;
-        bool isGoal = distance(gridCoord, uGoal) < 0.5;
+
+        vec2 diff = abs(gridCoord - goal);
+        bool isGoal = (diff.x < 0.5) && (diff.y < 0.5);
         if(isGoal)
             currDist = 0.0;
     } else if(uState == 2) {
