@@ -9,7 +9,7 @@ import SolverMaterial from "../source/solverMaterial.js";
 import SolverShape from "../source/solverShape.js";
 
 import {readAttrSchema} from "../source/shapeHelper.js";
-import {genAngVel, genLinVel, genQuadUV, genRectHaltonPos, genInitData} from "../source/generatorHelper.js";
+import {genAngVel, genLinVel, genQuadUVXZ, genRectHaltonPos, genInitData} from "../source/generatorHelper.js";
 import {sqrtFloor} from "../source/mathHelper.js";
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
@@ -197,7 +197,7 @@ export function initArrows(gl, canvas, camera) {
         })
         emitterQuadMaterial.initialize({gl});
 
-        const emitterQuadData = genQuadUV(particleParams.emitterSize);
+        const emitterQuadData = genQuadUVXZ(particleParams.emitterSize);
         const emitterQuadShape = new Shape('emitterQuadShape', {
             verticeCount: 6, schema: readAttrSchema(quadVert.input)
         });
@@ -210,7 +210,7 @@ export function initArrows(gl, canvas, camera) {
         })
         groundQuadMaterial.initialize({gl});
 
-        const groundQuadData = genQuadUV(5);
+        const groundQuadData = genQuadUVXZ(5);
         const groundQuadShape = new Shape('groundQuadShape', {
             verticeCount: 6, schema: readAttrSchema(quadVert.input)
         });

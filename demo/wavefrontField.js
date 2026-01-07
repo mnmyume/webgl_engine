@@ -10,7 +10,7 @@ import SolverShape from "../source/solverShape.js";
 import SolverMaterial from "../source/solverMaterial.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import {sqrtFloor} from "../source/mathHelper.js";
-import {genQuadUV, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON} from "../source/generatorHelper.js";
+import {genQuadUVXZ, genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON} from "../source/generatorHelper.js";
 import gridConfig from './bfs/grid_config.json';
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
@@ -217,7 +217,7 @@ export function initWavefrontField(gl, canvas, camera) {
         });
         quadMaterial.initialize({gl});
 
-        const quadData = genQuadUV(particleParams.emitterSize);
+        const quadData = genQuadUVXY(particleParams.emitterSize);
         const quadShape = new Shape(
             'quad',
             {verticeCount: 6, schema: readAttrSchema(quadVert.input)});

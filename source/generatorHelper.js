@@ -30,10 +30,10 @@ export function genRectHaltonPos(scale, corner, MAXCOL, minSize, maxSize, durati
             const haltonX = halton(2, row * MAXCOL + col);
             const haltonY = halton(3, row * MAXCOL + col);
             const localX = localXStart + haltonX * scale;
-            const localZ = localYStart + haltonY * scale;
+            const localY = localYStart + haltonY * scale;
             const size = minSize + Math.random() * (maxSize - minSize);
             const startTime = (row * MAXCOL + col) * duration / partiCount;
-            posPixels.push(localX, localZ, size, startTime);
+            posPixels.push(localX, localY, size, startTime);
         }
     }
 
@@ -126,7 +126,7 @@ export function generateCirclePosVelRandom(partiCount, startSize, endSize) {
     return posPixels;
 }
 
-export function genQuadUV(size){
+export function genQuadUVXZ(size){
     const halfSize = 0.5*size;
     return [
         -halfSize,      0,    -halfSize,        0, 0,
@@ -135,6 +135,18 @@ export function genQuadUV(size){
         -halfSize,      0,    -halfSize,        0, 0,
         halfSize,       0,    halfSize,         1, 1,
         halfSize,       0,     -halfSize,       1, 0,
+    ]
+}
+
+export function genQuadUVXY(size){
+    const halfSize = 0.5*size;
+    return [
+        -halfSize,     -halfSize,   0,  0, 0,
+        -halfSize,     halfSize,    0,  0, 1,
+        halfSize,       halfSize,   0,  1, 1,
+        -halfSize,     -halfSize,   0,  0, 0,
+        halfSize,      halfSize,    0,  1, 1,
+        halfSize,       -halfSize,  0,  1, 0,
     ]
 }
 

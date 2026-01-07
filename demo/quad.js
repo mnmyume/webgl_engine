@@ -5,7 +5,7 @@ import Shape from "../source/shape.js";
 import Texture2D from "../source/texture2d.js";
 
 import { readAttrSchema } from "../source/shapeHelper.js";
-import { genQuadUV } from "../source/generatorHelper.js";
+import { genQuadUVXZ } from "../source/generatorHelper.js";
 
 import quadVert from "../shaders/glsl/quad-vert.glsl"
 import quadFrag from "../shaders/glsl/quad-frag.glsl"
@@ -39,7 +39,7 @@ export function initQuad(gl, canvas, camera) {
     // quadMaterial.setTexture('uTex', texture);
 
     // init quad shape
-    const quadData = genQuadUV(quadParams.quadSize);
+    const quadData = genQuadUVXZ(quadParams.quadSize);
     const quadShape = new Shape(
         'quad',
         {verticeCount: 6, schema: readAttrSchema(quadVert.input)});

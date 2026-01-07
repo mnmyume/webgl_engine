@@ -35,16 +35,15 @@ function main() {
     const camera = new OrthCamera({
         widthSpan: 70,
         aspect: canvas.width / canvas.height,
-        up: [0,0,1]
     });
     // const camera = new PerspCamera({
     //     target:[0,10,0]
     // });
-    const r = 700,
-        cos45 = Math.cos(45 * Math.PI / 180),
-        sin35 = Math.sin(35 * Math.PI / 180);
-    camera.setPosition([r * cos45, r * sin35, r * cos45]);
-    camera.setPosition([0, -r, 0]);
+    // const r = 700,
+    //     cos45 = Math.cos(45 * Math.PI / 180),
+    //     sin35 = Math.sin(35 * Math.PI / 180);
+    // camera.setPosition([r * cos45, r * sin35, r * cos45]);
+    camera.setPosition([0, 0, 10]);
     camera.updateProjection();
     camera.updateView();
     camera.updateViewInverse();

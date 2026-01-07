@@ -97,9 +97,7 @@ void main()
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uEmitterGridSize);
 
-    vec4 inversedPos = uEmitterInverseTransform * vec4(pos, 1);
-//    vec2 gridPos = vec2(inversedPos.x, inversedPos.z);
-    vec2 gridPos = vec2(pos.x, pos.z);
+    vec2 gridPos = vec2(pos.x, pos.y);
     vec2 gradientUV = getGradientCoord(gridPos, uEmitterSize);
 
     aniType = texture(uEmitterTexture, emitterUV).w;
@@ -117,11 +115,10 @@ void main()
         vec2 emitterPos = vec2(0,0);
         size = texture(uEmitterTexture, emitterUV).z;
         emitterPos = texture(uEmitterTexture, emitterUV).xy;
-//        pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
-        pos = vec3(emitterPos.x,0,emitterPos.y);
+        pos = vec3(emitterPos.x, emitterPos.y, 0);
     }
     else if(uState == 2) {
-        linVel = vec3(texture(uGradientTexture,gradientUV).x, 0.0, texture(uGradientTexture,gradientUV).y);
+        linVel = vec3(texture(uGradientTexture,gradientUV).x, texture(uGradientTexture,gradientUV).y, 0.0);
         pos = updatePos(pos, linVel);
 
 //        float accFrameOffset = uAccFactor * acc.x / uAccDivisor;
