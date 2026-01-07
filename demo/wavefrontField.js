@@ -264,7 +264,7 @@ export function initWavefrontField(gl, canvas, camera) {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
             // --- draw emitter quad ---
-            quadMaterial.preDraw(gl, camera, emitterTransform);
+            quadMaterial.preDraw(gl, camera);
             quadShape.draw(gl, quadMaterial);
             quadMaterial.postDraw(gl);
 

@@ -42,9 +42,10 @@ void main()
 
     // init
     if(uState == 1) {
-        currDist = texture(uWavefrontTexture, uv).r;
-        isObastacle = texture(uWavefrontTexture, uv).g;
-        isGoal = texture(uWavefrontTexture, uv).b;
+        vec2 initUV = vec2(uv.x, 1.0 - uv.y);
+        currDist = texture(uWavefrontTexture, initUV).r;
+        isObastacle = texture(uWavefrontTexture, initUV).g;
+        isGoal = texture(uWavefrontTexture, initUV).b;
 
     } else if(uState == 2) {
         currDist = texture(uDataSlot0, uv).r;

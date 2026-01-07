@@ -98,7 +98,8 @@ void main()
     vec2 emitterUV = getEmitterCoord(particleID, uEmitterGridSize);
 
     vec4 inversedPos = uEmitterInverseTransform * vec4(pos, 1);
-    vec2 gridPos = vec2(inversedPos.x, inversedPos.z);
+//    vec2 gridPos = vec2(inversedPos.x, inversedPos.z);
+    vec2 gridPos = vec2(pos.x, pos.z);
     vec2 gradientUV = getGradientCoord(gridPos, uEmitterSize);
 
     aniType = texture(uEmitterTexture, emitterUV).w;
@@ -116,7 +117,8 @@ void main()
         vec2 emitterPos = vec2(0,0);
         size = texture(uEmitterTexture, emitterUV).z;
         emitterPos = texture(uEmitterTexture, emitterUV).xy;
-        pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+//        pos = (uEmitterTransform * vec4(emitterPos.x, 0, emitterPos.y, 1)).xyz;
+        pos = vec3(emitterPos.x,0,emitterPos.y);
     }
     else if(uState == 2) {
         linVel = vec3(texture(uGradientTexture,gradientUV).x, 0.0, texture(uGradientTexture,gradientUV).y);
