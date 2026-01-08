@@ -47,28 +47,29 @@ void main()
     float minDist = currentDist;
 
     float surrDistance[8] = float[](
-        texture(uWavefrontTexture, uv + direction[0]/uGridSize).r, // left
-        texture(uWavefrontTexture, uv + direction[1]/uGridSize).r, // left-top
-        texture(uWavefrontTexture, uv + direction[2]/uGridSize).r, // top
-        texture(uWavefrontTexture, uv + direction[3]/uGridSize).r, // right-top
-        texture(uWavefrontTexture, uv + direction[4]/uGridSize).r, // right
-        texture(uWavefrontTexture, uv + direction[5]/uGridSize).r, // right-bottom
-        texture(uWavefrontTexture, uv + direction[6]/uGridSize).r, // bottom
-        texture(uWavefrontTexture, uv + direction[7]/uGridSize).r  // left-bottom
+    texture(uWavefrontTexture, uv + direction[0]/uGridSize).r, // left
+    texture(uWavefrontTexture, uv + direction[1]/uGridSize).r, // left-top
+    texture(uWavefrontTexture, uv + direction[2]/uGridSize).r, // top
+    texture(uWavefrontTexture, uv + direction[3]/uGridSize).r, // right-top
+    texture(uWavefrontTexture, uv + direction[4]/uGridSize).r, // right
+    texture(uWavefrontTexture, uv + direction[5]/uGridSize).r, // right-bottom
+    texture(uWavefrontTexture, uv + direction[6]/uGridSize).r, // bottom
+    texture(uWavefrontTexture, uv + direction[7]/uGridSize).r  // left-bottom
     );
 
     float surrObstacle[8] = float[](
-        texture(uWavefrontTexture, uv + direction[0]/uGridSize).g, // left
-        texture(uWavefrontTexture, uv + direction[1]/uGridSize).g, // left-top
-        texture(uWavefrontTexture, uv + direction[2]/uGridSize).g, // top
-        texture(uWavefrontTexture, uv + direction[3]/uGridSize).g, // right-top
-        texture(uWavefrontTexture, uv + direction[4]/uGridSize).g, // right
-        texture(uWavefrontTexture, uv + direction[5]/uGridSize).g, // right-bottom
-        texture(uWavefrontTexture, uv + direction[6]/uGridSize).g, // bottom
-        texture(uWavefrontTexture, uv + direction[7]/uGridSize).g  // left-bottom
+    texture(uWavefrontTexture, uv + direction[0]/uGridSize).g, // left
+    texture(uWavefrontTexture, uv + direction[1]/uGridSize).g, // left-top
+    texture(uWavefrontTexture, uv + direction[2]/uGridSize).g, // top
+    texture(uWavefrontTexture, uv + direction[3]/uGridSize).g, // right-top
+    texture(uWavefrontTexture, uv + direction[4]/uGridSize).g, // right
+    texture(uWavefrontTexture, uv + direction[5]/uGridSize).g, // right-bottom
+    texture(uWavefrontTexture, uv + direction[6]/uGridSize).g, // bottom
+    texture(uWavefrontTexture, uv + direction[7]/uGridSize).g  // left-bottom
     );
 
     if (currentObs < 0.5 && currentDist > 0.0) {
+
         for (int i = 0; i < 8; i++) {
 
             // Diagonals check

@@ -9,7 +9,7 @@ export default class FrameSolver{
     backBufferTextures = [];
     shape = [];
     material = [];
-    pixels = null;
+    pixels=[];
 
     get Mode(){return this.mode}
 
@@ -69,21 +69,6 @@ export default class FrameSolver{
 
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
-
-        // const pixels = new Float32Array(
-        //     this.width * this.height * 4);
-        // gl.readBuffer(gl.COLOR_ATTACHMENT0); // gl.COLOR_ATTACHMENT0 is default
-        // gl.readPixels(
-        //     0,
-        //     0,
-        //     this.width,
-        //     this.height,
-        //     gl.RGBA,
-        //     gl.FLOAT,
-        //     pixels,
-        // );
-        // this.pixels = pixels;
-
         this.material.postDraw(gl);
 
         this.swap();
@@ -97,5 +82,26 @@ export default class FrameSolver{
         const tmp = this.frontBuffer;
         this.frontBuffer = this.backBuffer;
         this.backBuffer = tmp;
+    }
+
+    readFrameBuffer(gl){
+        const targetBuffer = this.frontBuffer;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, targetBuffer.framebuffer);
+
+        const pixels = new Float32Array(
+            this.width * this.height * 4);
+        gl.readBuffer(gl.COLOR_ATTACHMENT0); // gl.COLOR_ATTACHMENT0 is default
+        gl.readPixels(
+            0,
+            0,
+            this.width,
+            this.height,
+            gl.RGBA,
+            gl.FLOAT,
+            pixels,
+        );
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        return pixels;
     }
 }

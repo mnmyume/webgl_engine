@@ -13,7 +13,7 @@ import quadVert from "../../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../../shaders/glsl/quad-frag.glsl";
 import bkgVert from "../../shaders/glsl/background-vert.glsl";
 import bkgFrag from "../../shaders/glsl/background-frag.glsl";
-import wavefrontFrag from "../../shaders/glsl/wavefront-frag.glsl";
+import wavefrontFrag from "./_wavefront-frag.glsl";
 import gradientFrag from "../../shaders/glsl/gradient-frag.glsl";
 
 
@@ -170,7 +170,7 @@ function drawCell(cell) {
 
 function drawArrow(ctx, fromx, fromy, tox, toy) {
     const headlen = 8;      // Size of the arrow tip
-    const fixedLength = 20; // Fixed visual length in pixels (fits in cell)
+    const fixedLength = 20; // Fixed visual length in frameData (fits in cell)
 
     // 1. Calculate the vector and original magnitude
     const dx = tox - fromx;
@@ -333,11 +333,11 @@ function main() {
 
         wavefrontSolver.update(gl);
 
-        const pixels = wavefrontSolver.pixels;
+        const frameData = wavefrontSolver.readFrameBuffer(gl);
 
-        for(let i=1; i<GRID_SIZE-1; i++)
-            for (let j=1; j<GRID_SIZE-1; j++) {
-                grid[i][j].distance = pixels[4*(i*GRID_SIZE+j)];
+        for(let i=0; i<GRID_SIZE; i++)
+            for (let j=0; j<GRID_SIZE; j++) {
+                grid[i][j].distance = frameData[4*(i*GRID_SIZE+j)];
             }
 
         if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
@@ -360,12 +360,12 @@ function main() {
 
         gradientSolver.update(gl);
 
-        const pixels = gradientSolver.pixels;
+        const frameData = gradientSolver.readFrameBuffer(gl);
 
-        for(let i=1; i<GRID_SIZE-1; i++)
-            for (let j=1; j<GRID_SIZE-1; j++) {
+        for(let i=0; i<GRID_SIZE; i++)
+            for (let j=0; j<GRID_SIZE; j++) {
                 if (grid[i][j].type !== 'obstacle' && grid[i][j].type !== 'end')
-                    grid[i][j].vec = { x: pixels[4*(i*GRID_SIZE+j)], y: pixels[4*(i*GRID_SIZE+j)+1] };
+                    grid[i][j].vec = { x: frameData[4*(i*GRID_SIZE+j)], y: frameData[4*(i*GRID_SIZE+j)+1] };
             }
 
         draw();

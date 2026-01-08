@@ -11,7 +11,7 @@ import SolverMaterial from "../source/solverMaterial.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import {sqrtFloor} from "../source/mathHelper.js";
 import {genQuadUVXZ, genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON} from "../source/generatorHelper.js";
-import gridConfig from './bfs/grid_config.json';
+import gridConfig from './gridHelper/grid_config.json';
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../shaders/glsl/quad-frag.glsl";
