@@ -108,7 +108,7 @@ void main()
 
     float lastGene = aGeneration;
     float generation = uTime - startTime > 0.0 ? mod(floor((uTime - startTime)/uLifeTime), float(GEN_SIZE)) : -1.0;
-//
+
 //    bool emit = generation!=lastGene && generation!=-1.0;
 
     if(uState == 1){
@@ -118,7 +118,12 @@ void main()
         pos = vec3(emitterPos.x, emitterPos.y, 0);
     }
     else if(uState == 2) {
+        float obstacle = texture(uGradientTexture, gradientUV).w;
         linVel = vec3(texture(uGradientTexture,gradientUV).x, texture(uGradientTexture,gradientUV).y, 0.0);
+        // obstacle
+        if (obstacle > 0.5) {
+            linVel = linVel * 20.0;
+        }
         pos = updatePos(pos, linVel);
 
 //        float accFrameOffset = uAccFactor * acc.x / uAccDivisor;

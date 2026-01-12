@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GPU Boids (Fixed)</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #111; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+<canvas id="glcanvas"></canvas>
+
+<script id="fs-simulation" type="x-shader/x-fragment">
+    #version 300 es
+    precision highp float;
+
+    uniform sampler2D u_currState;
+    uniform float u_width;
+    uniform float u_dt;
+    uniform vec2 u_mouse;
+
+    out vec4 fragColor;
+
+    // Boids Parameters
+    const float VIEW_RADIUS = 0.15;
+    const float SEPARATION_DIST = 0.05;
+    const float MAX_SPEED = 0.5;
+    const float MAX_FORCE = 2.0;
+
+    // Weights
+    const float W_SEP = 1.5;
+    const float W_ALI = 1.0;
+    const float W_COH = 1.0;
+
+    void main() {
+        ivec2 selfCoord = ivec2(gl_FragCoord.xy);
+        vec4 selfState = texelFetch(u_currState, selfCoord, 0);
+        vec2 pos = selfState.xy;
+        vec2 vel = selfState.zw;
+
+        vec2 sep = vec2(0.0);
+        vec2 ali = vec2(0.0);
+        vec2 coh = vec2(0.0);
+
+        float count = 0.0;
+
+        // --- Brute Force Loop ---
+        int size = int(u_width);
+        for(int y = 0; y < size; y++) {
+            for(int x = 0; x < size; x++) {
+                if (x == selfCoord.x && y == selfCoord.y) continue;
+
+                vec4 otherState = texelFetch(u_currState, ivec2(x, y), 0);
+                vec2 otherPos = otherState.xy;
+                vec2 otherVel = otherState.zw;
+
+                float d = distance(pos, otherPos);
+
+                if (d > 0.0 && d < VIEW_RADIUS) {
+                    ali += otherVel;
+                    coh += otherPos;
+                    if (d < SEPARATION_DIST) {
+                        vec2 diff = pos - otherPos;
+                        diff = normalize(diff) / d;
+                        sep += diff;
+                    }
+                    count++;
+                }
+            }
+        }
+
+        vec2 acc = vec2(0.0);
+
+        if (count > 0.0) {
+            ali /= count;
+            coh /= count;
+
+            if (length(ali) > 0.0) {
+                ali = normalize(ali) * MAX_SPEED;
+                ali -= vel;
+                if(length(ali) > MAX_FORCE) ali = normalize(ali) * MAX_FORCE;
+            }
+
+            vec2 desired = coh - pos;
+            if (length(desired) > 0.0) {
+                desired = normalize(desired) * MAX_SPEED;
+                vec2 steer = desired - vel;
+                if(length(steer) > MAX_FORCE) steer = normalize(steer) * MAX_FORCE;
+                coh = steer;
+            }
+
+            if (length(sep) > 0.0) {
+                sep = normalize(sep) * MAX_SPEED;
+                sep -= vel;
+                if(length(sep) > MAX_FORCE) sep = normalize(sep) * MAX_FORCE;
+            }
+        }
+
+        acc += sep * W_SEP;
+        acc += ali * W_ALI;
+        acc += coh * W_COH;
+
+        // Mouse Repulsion
+        vec2 mouseForce = u_mouse - pos;
+        if(length(mouseForce) < 0.3) {
+            acc -= normalize(mouseForce) * 2.0;
+        } else {
+            acc += normalize(mouseForce) * 0.1;
+        }
+
+        vel += acc * u_dt;
+
+        if (length(vel) > MAX_SPEED) {
+            vel = normalize(vel) * MAX_SPEED;
+        }
+
+        pos += vel * u_dt;
+
+        if(pos.x > 1.0) pos.x = 0.0;
+        if(pos.x < 0.0) pos.x = 1.0;
+        if(pos.y > 1.0) pos.y = 0.0;
+        if(pos.y < 0.0) pos.y = 1.0;
+
+        fragColor = vec4(pos, vel);
+    }
+</script>
+
+<script id="vs-render" type="x-shader/x-vertex">
+    #version 300 es
+    layout(location = 0) in float dummy;
+    uniform sampler2D u_currState;
+    uniform float u_width;
+
+    out vec2 v_vel;
+
+    void main() {
+        float id = float(gl_VertexID);
+        vec2 texSize = vec2(u_width, u_width);
+        vec2 uv = vec2(mod(id, u_width), floor(id / u_width)) / texSize;
+        uv += (1.0 / texSize) * 0.5;
+
+        vec4 state = texture(u_currState, uv);
+        gl_Position = vec4(state.xy * 2.0 - 1.0, 0.0, 1.0);
+        gl_PointSize = 4.0;
+
+        v_vel = state.zw;
+    }
+</script>
+
+<script id="fs-render" type="x-shader/x-fragment">
+    #version 300 es
+    precision highp float;
+    in vec2 v_vel;
+    out vec4 fragColor;
+    void main() {
+        vec3 color = vec3(0.5) + 0.5 * normalize(vec3(v_vel, 0.5));
+        fragColor = vec4(color, 1.0);
+    }
+</script>
+
+<script>
+    const canvas = document.getElementById('glcanvas');
+    const gl = canvas.getContext('webgl2');
+    if (!gl) { alert('WebGL2 required'); }
+
+    const TEX_WIDTH = 32;
+    const NUM_PARTICLES = TEX_WIDTH * TEX_WIDTH;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function createShader(gl, type, sourceId) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, document.getElementById(sourceId).text.trim());
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error(gl.getShaderInfoLog(shader)); return null;
+        }
+        return shader;
+    }
+
+    // 1. Fullscreen Triangle VS
+    const vsFull = `#version 300 es
+void main() {
+    float x = float((gl_VertexID & 1) << 2);
+    float y = float((gl_VertexID & 2) << 1);
+    gl_Position = vec4(x - 1.0, y - 1.0, 0.0, 1.0);
+}`.trim();
+    const vsFullShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vsFullShader, vsFull);
+    gl.compileShader(vsFullShader);
+
+    // 2. Simulation Program
+    const simProg = gl.createProgram();
+    gl.attachShader(simProg, vsFullShader);
+    gl.attachShader(simProg, createShader(gl, gl.FRAGMENT_SHADER, 'fs-simulation'));
+    gl.linkProgram(simProg);
+
+    // 3. Render Program
+    const renderProg = gl.createProgram();
+    gl.attachShader(renderProg, createShader(gl, gl.VERTEX_SHADER, 'vs-render'));
+    gl.attachShader(renderProg, createShader(gl, gl.FRAGMENT_SHADER, 'fs-render'));
+    gl.linkProgram(renderProg);
+
+    // 4. Init Data
+    const data = new Float32Array(NUM_PARTICLES * 4);
+    for (let i = 0; i < NUM_PARTICLES; i++) {
+        data[i * 4 + 0] = Math.random();
+        data[i * 4 + 1] = Math.random();
+        let angle = Math.random() * Math.PI * 2;
+        data[i * 4 + 2] = Math.cos(angle) * 0.005;
+        data[i * 4 + 3] = Math.sin(angle) * 0.005;
+    }
+
+    let textures = [], framebuffers = [];
+    for(let i=0; i<2; i++) {
+        const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, TEX_WIDTH, TEX_WIDTH, 0, gl.RGBA, gl.FLOAT, data);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        textures.push(tex);
+        const fb = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+        framebuffers.push(fb);
+    }
+    gl.getExtension('EXT_color_buffer_float');
+
+    let mouse = {x: 0.5, y: 0.5};
+    window.addEventListener('mousemove', e => {
+        mouse.x = e.clientX / canvas.width;
+        mouse.y = 1.0 - e.clientY / canvas.height;
+    });
+
+    let readIndex = 0;
+
+    function loop() {
+        const writeIndex = (readIndex + 1) % 2;
+
+        // --- Step 1: Compute Physics ---
+        gl.useProgram(simProg);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[writeIndex]);
+        gl.viewport(0, 0, TEX_WIDTH, TEX_WIDTH);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textures[readIndex]);
+        gl.uniform1i(gl.getUniformLocation(simProg, 'u_currState'), 0);
+        gl.uniform1f(gl.getUniformLocation(simProg, 'u_width'), TEX_WIDTH);
+        gl.uniform1f(gl.getUniformLocation(simProg, 'u_dt'), 0.01);
+        gl.uniform2f(gl.getUniformLocation(simProg, 'u_mouse'), mouse.x, mouse.y);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+        // --- Step 2: Render ---
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+
+        // FIX: Use gl.clear() instead of gl.fillRect()
+        gl.clearColor(0.05, 0.05, 0.05, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.useProgram(renderProg);
+        gl.bindTexture(gl.TEXTURE_2D, textures[writeIndex]);
+        gl.uniform1i(gl.getUniformLocation(renderProg, 'u_currState'), 0);
+        gl.uniform1f(gl.getUniformLocation(renderProg, 'u_width'), TEX_WIDTH);
+
+        gl.drawArrays(gl.POINTS, 0, NUM_PARTICLES);
+
+        readIndex = writeIndex;
+        requestAnimationFrame(loop);
+    }
+    loop();
+</script>
+</body>
+</html>

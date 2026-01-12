@@ -20,7 +20,8 @@ import bkgFrag from "../shaders/glsl/background-frag.glsl";
 import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
 import mapVert from "../shaders/glsl/map-vert.glsl";
-import mapFrag from "../shaders/glsl/map-frag.glsl";
+import mapFrag from "../shaders/glsl/solver-frag.glsl";
+import boidsFrag from "../shaders/glsl/solver-frag.glsl";
 import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
 
@@ -121,6 +122,40 @@ export function initWavefrontField(gl, canvas, camera) {
         mode:1,
     });
     gradientSolver.initialize({gl});
+
+    // // -- init boids --
+    // const boidsShader = new Shader({
+    //     vertexSource: bkgVert,
+    //     fragmentSource: boidsFrag,
+    // })
+    // boidsShader.initialize({gl});
+    //
+    // const boidsMaterial = new Material('boidsMaterial', {
+    //     shader: boidsShader,
+    // });
+    // boidsMaterial.initialize({gl});
+    //
+    // boidsMaterial.setUniform('uEmitterTransform', emitterTransform.getMatrix());
+    // boidsMaterial.setUniform('uEmitterInverseTransform', emitterTransform.getInverseMatrix());
+    // boidsMaterial.setUniform('uDuration', particleParams.duration);
+    // boidsMaterial.setUniform('uCount', particleParams.count);
+    // boidsMaterial.setUniform('uLifeTime', particleParams.lifeTime);
+    // boidsMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
+    // boidsMaterial.setUniform('uEmitterGridSize', emitterGridSize);
+    // boidsMaterial.setUniform('uGradientGridSize', gridConfig.gridSize);
+    //
+    // const boidsShape = new Shape('boidsShape', {
+    //     count:6, schema: readAttrSchema(bkgVert.input)
+    // });
+    // boidsShape.initialize({gl});
+    //
+    // const boidsSolver = new FrameSolver('boidsSolver', {
+    //     shape: boidsShape, material: boidsMaterial,
+    //     width: emitterGridSize, height: emitterGridSize,
+    //     screenWidth: canvas.width, screenHeight: canvas.height,
+    //     mode:1,
+    // });
+    // boidsSolver.initialize({gl});
 
     // --- init map solver ---
     const mapShader = new Shader({
