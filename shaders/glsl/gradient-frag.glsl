@@ -68,7 +68,7 @@ void main()
         texture(uWavefrontTexture, uv + direction[7]/uGridSize).g  // left-bottom
     );
 
-    if (currentObs < 0.5 && currentDist > 0.0) {
+    if (currentDist > 0.0) {   // currentObs < 0.5 &&
         for (int i = 0; i < 8; i++) {
 
             // Diagonals check
@@ -93,7 +93,7 @@ void main()
     }
 
 
-    fragData[0] = vec4(bestDir, 0.0, 1.0);
+    fragData[0] = vec4(bestDir, currentDist, currentObs);
     fragData[1] = vec4(1.0, 1.0, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);

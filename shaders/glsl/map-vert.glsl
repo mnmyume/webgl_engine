@@ -16,7 +16,7 @@ precision highp int;
 uniform sampler2D uEmitterTexture;  // posX, posZ, size, startTime
 
 #value uGradientTexture:1
-uniform sampler2D uGradientTexture; // gradientX, gradientZ, ___, ___
+uniform sampler2D uGradientTexture; // direction.xy, distance.z, obstacle.w
 
 #value uDeltaTime:0.01666
 uniform float uDeltaTime;
