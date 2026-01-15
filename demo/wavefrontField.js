@@ -31,7 +31,7 @@ export function initWavefrontField(gl, canvas, camera) {
     const time = new Time();
     const STRIDE = 13;
     const particleParams = {
-        count: 1000,
+        count: 16,
         duration: 20,
         lifeTime: 20,
         minSize: 15,
@@ -53,6 +53,17 @@ export function initWavefrontField(gl, canvas, camera) {
         aniFps: 6,
         accDivisor: 80000,
         accFactor: 2
+    }
+
+    const boidsParams = {
+        maxSpeed: 20,
+        maxForce: 0.5,
+        perceptionRadius: 5.0,
+        checkCount: 8,
+        separationWeight: 1.5,
+        alignmentWeight: 1.0,
+        cohesionWeight: 1.0,
+        flowWeight: 1.0,
     }
 
     const emitterGridSize = sqrtFloor(particleParams.count);
@@ -136,6 +147,14 @@ export function initWavefrontField(gl, canvas, camera) {
     boidsMaterial.initialize({gl});
     boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
     boidsMaterial.setUniform('uEmitterGridSize', emitterGridSize);
+    boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
+    boidsMaterial.setUniform('uMaxForce', boidsParams.maxSpeed);
+    boidsMaterial.setUniform('uPercepRadius', boidsParams.perceptionRadius);
+    boidsMaterial.setUniform('uCheckCount', boidsParams.checkCount);
+    boidsMaterial.setUniform('uSepaWeight', boidsParams.separationWeight);
+    boidsMaterial.setUniform('uAligWeight', boidsParams.alignmentWeight);
+    boidsMaterial.setUniform('uCoheWeight', boidsParams.cohesionWeight);
+    boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
 
     const emitterTexture = new Texture2D('emitterTexture', {
         width: emitterGridSize, height: emitterGridSize,
@@ -161,42 +180,6 @@ export function initWavefrontField(gl, canvas, camera) {
         mode:1,
     });
     boidsSolver.initialize({gl});
-
-    // --- init map solver ---
-    // const mapShader = new Shader({
-    //     vertexSource: mapVert,
-    //     fragmentSource: mapFrag,
-    // });
-    // mapShader.initialize({gl});
-    //
-    // const mapMaterial = new SolverMaterial('mapMaterial', {
-    //     shader: mapShader,
-    // });
-    // mapMaterial.initialize({gl});
-    //
-    // mapMaterial.setUniform('uEmitterTransform', emitterTransform.getMatrix());
-    // mapMaterial.setUniform('uEmitterInverseTransform', emitterTransform.getInverseMatrix());
-    // mapMaterial.setUniform('uDuration', particleParams.duration);
-    // mapMaterial.setUniform('uCount', particleParams.count);
-    // mapMaterial.setUniform('uLifeTime', particleParams.lifeTime);
-    // mapMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
-    // mapMaterial.setUniform('uEmitterGridSize', emitterGridSize);
-    // mapMaterial.setUniform('uGradientGridSize', gridConfig.gridSize);
-    //
-    // mapMaterial.setTexture('uEmitterTexture', emitterTexture);
-    //
-    // const initData = genInitData(particleParams.count, STRIDE);
-    // const mapShape = new SolverShape('mapShape', {
-    //     count:particleParams.count, schema: readAttrSchema(mapVert.input)
-    // });
-    // mapShape.initialize({gl});
-    //
-    // const mapSolver = new Solver('mapSolver',{
-    //     shape: mapShape, material: mapMaterial,
-    //     count: particleParams.count, mode:1, loop:true, stride:STRIDE,
-    //     data: initData
-    // });
-    // mapSolver.initialize({gl},'particleBuffer');
 
     // --- init renderer ---
     const particleShader = new Shader({
@@ -232,7 +215,7 @@ export function initWavefrontField(gl, canvas, camera) {
         particleMaterial.setUniform('_uAniTexFps', aniTexParams.aniFps)
 
         const particleShape = new Shape('particleShape',{
-            state: 3, count: particleParams.count, // vaos: mapShape.VAOS,
+            state: 3, count: particleParams.count,
             schema: readAttrSchema(particleVert.input)
         });
 
@@ -277,23 +260,14 @@ export function initWavefrontField(gl, canvas, camera) {
             gradientSolver.update(gl);
 
             // --- boids solver update ---
+            boidsMaterial.setUniform('uTime', time.ElapsedTime);
+            boidsMaterial.setUniform('uDeltaTime', time.Interval);
             boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
             boidsSolver.update(gl);
 
             if (boidsSolver.Mode === FrameSolver.MODE.init) {
                 boidsSolver.Mode = FrameSolver.MODE.play;
             }
-
-            // --- map solver update ---
-            // mapMaterial.setUniform('uTime', time.ElapsedTime);
-            // mapMaterial.setUniform('uDeltaTime', time.Interval);
-            // mapMaterial.setUniform('uState', mapSolver.mode);
-            // mapMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
-            // mapSolver.update(gl);
-            //
-            // if (mapSolver.Mode === Solver.MODE.init) {
-            //     mapSolver.Mode = Solver.MODE.play;
-            // }
 
             // gl
             gl.viewport(0, 0, canvas.width, canvas.height);
