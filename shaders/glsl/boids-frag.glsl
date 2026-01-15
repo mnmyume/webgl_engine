@@ -26,80 +26,108 @@ uniform int uState;  // init mode, uState = 1; play mode, uState = 2;
 uniform bool uLoop;
 
 uniform float uGridSize;
-
-vec2 direction[8] = vec2[](
-vec2(-1, 0),    // left
-vec2(-1, 1),    // left-top
-vec2(0, 1),     // top
-vec2(1, 1),     // right-top
-vec2(1, 0),     // right
-vec2(1, -1),    // right-bottom
-vec2(0, -1),    // bottom
-vec2(-1, -1)     // left-bottom
-);
+uniform float uEmitterGridSize;
 
 out vec4[4] fragData;
 
+// --- boids params ---
+const float MAX_SPEED = 20.0;
+const float MAX_FORCE = 0.5;
+const float PERCEPTION_RADIUS = 5.0;
+const int CHECK_COUNT = 8;
+
+// weights
+const float W_SEPARATION = 1.5;
+const float W_ALIGNMENT  = 1.0;
+const float W_COHESION   = 1.0;
+const float W_FLOW       = 2.0;
+
+float rand(vec2 co){
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+vec2 getGradientCoord(vec2 pos, float emitterSize) {
+    vec2 uv = (pos + vec2(emitterSize/2.0))/vec2(emitterSize);
+    return uv;
+}
+
+vec2 updatePos(vec2 pos, vec2 linVel) {
+    return pos = pos + linVel * uDeltaTime;
+}
 
 void main()
 {
-    vec2 gridCoord = gl_FragCoord.xy - vec2(0.5);
-    vec2 uv = gl_FragCoord.xy / vec2(uGridSize);
+    vec2 uv = gl_FragCoord.xy/vec2(uEmitterGridSize);
 
-    float currentDist = texture(uWavefrontTexture, uv).r;
-    float currentObs = texture(uWavefrontTexture, uv).g;
+    vec2 pos = texture(uDataSlot0, uv).xy;
+    vec2 vel = texture(uDataSlot0, uv).zw;
 
-    vec2 bestDir = vec2(0.0);
-    float minDist = currentDist;
+    vec2 gradientUV = getGradientCoord(pos, uEmitterGridSize);
 
-    float surrDistance[8] = float[](
-    texture(uWavefrontTexture, uv + direction[0]/uGridSize).r, // left
-    texture(uWavefrontTexture, uv + direction[1]/uGridSize).r, // left-top
-    texture(uWavefrontTexture, uv + direction[2]/uGridSize).r, // top
-    texture(uWavefrontTexture, uv + direction[3]/uGridSize).r, // right-top
-    texture(uWavefrontTexture, uv + direction[4]/uGridSize).r, // right
-    texture(uWavefrontTexture, uv + direction[5]/uGridSize).r, // right-bottom
-    texture(uWavefrontTexture, uv + direction[6]/uGridSize).r, // bottom
-    texture(uWavefrontTexture, uv + direction[7]/uGridSize).r  // left-bottom
-    );
 
-    float surrObstacle[8] = float[](
-    texture(uWavefrontTexture, uv + direction[0]/uGridSize).g, // left
-    texture(uWavefrontTexture, uv + direction[1]/uGridSize).g, // left-top
-    texture(uWavefrontTexture, uv + direction[2]/uGridSize).g, // top
-    texture(uWavefrontTexture, uv + direction[3]/uGridSize).g, // right-top
-    texture(uWavefrontTexture, uv + direction[4]/uGridSize).g, // right
-    texture(uWavefrontTexture, uv + direction[5]/uGridSize).g, // right-bottom
-    texture(uWavefrontTexture, uv + direction[6]/uGridSize).g, // bottom
-    texture(uWavefrontTexture, uv + direction[7]/uGridSize).g  // left-bottom
-    );
+    if(uState == 1){
+        pos = texture(uEmitterTexture, uv).xy;
+    }
+    else if(uState == 2) {
+        vec2 sep = vec2(0.0); // separation
+        vec2 ali = vec2(0.0); // alignment
+        vec2 coh = vec2(0.0); // cohesion
+        int count = 0;
 
-    if (currentDist > 0.0) {   // currentObs < 0.5 &&
-        for (int i = 0; i < 8; i++) {
+        for(int i=0; i<CHECK_COUNT; i++) {
+            float noise = rand(uv + vec2(float(i) * 0.1, uDeltaTime));
+            vec2 sampleUV = vec2(noise, fract(noise * 123.45));
 
-            // Diagonals check
-            bool isDiagonal = (i % 2 != 0);
+            vec4 neighborData = texture(uDataSlot0, sampleUV);
+            vec2 neighborPos = neighborData.xy;
+            vec2 neighborVel = neighborData.zw;
 
-            if (isDiagonal) {
-                float cardinal1 = surrObstacle[(i + 7) % 8];
-                float cardinal2 = surrObstacle[(i + 1) % 8];
+            float d = distance(pos, neighborPos);
 
-                if (cardinal1 > 0.5 || cardinal2 > 0.5) {
-                    continue;
-                }
-            }
+            if (d > 0.001 && d < PERCEPTION_RADIUS) {
+                sep += normalize(pos - neighborPos) / d;
+                ali += neighborVel;
+                coh += neighborPos;
 
-            float neighborDist = surrDistance[i];
-
-            if (neighborDist < minDist) {
-                minDist = neighborDist;
-                bestDir = direction[i];
+                count++;
             }
         }
+
+        vec2 acc = vec2(0.0);
+
+        if (count > 0) {
+            sep /= float(count);
+            ali /= float(count);
+            coh = (coh / float(count)) - pos;
+
+            if(length(sep) > 0.0) acc += normalize(sep) * W_SEPARATION;
+            if(length(ali) > 0.0) acc += normalize(ali) * W_ALIGNMENT;
+            if(length(coh) > 0.0) acc += normalize(coh) * W_COHESION;
+        }
+
+        vec2 gradientUV = getGradientCoord(pos, uGridSize);
+        vec2 flowForce = texture(uGradientTexture, gradientUV).xy;
+
+        acc += flowForce * W_FLOW;
+
+        if(length(acc) > MAX_FORCE) acc = normalize(acc) * MAX_FORCE;
+
+        vel += acc;
+
+        if(length(vel) > MAX_SPEED) vel = normalize(vel) * MAX_SPEED;
+
+        pos += vel * uDeltaTime;
+
+//        // boundary
+//        if (uLoop) {
+//            if (myPos.x > uGridSize) myPos.x -= uGridSize;
+//            if (myPos.x < 0.0)       myPos.x += uGridSize;
+//            if (myPos.y > uGridSize) myPos.y -= uGridSize;
+//            if (myPos.y < 0.0)       myPos.y += uGridSize;
+//        }
     }
 
-
-    fragData[0] = vec4(bestDir, currentDist, currentObs);
+    fragData[0] = vec4(pos, vel);
     fragData[1] = vec4(1.0, 1.0, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
