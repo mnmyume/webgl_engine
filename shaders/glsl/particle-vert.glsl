@@ -17,31 +17,21 @@ uniform mat4 _uni_viewMat;
 #value _uni_modelMat:mat4(1.0)
 uniform mat4 _uni_modelMat;
 
-#buffer aPos:particleBuffer, size:3, stride:52, offset:0
-layout(location = POSITION_LOCATION) in vec3 aPos;
+#value uBoidsTexture:0
+uniform sampler2D uBoidsTexture;
 
-#buffer aLinVel:particleBuffer, size:3, stride:52, offset:12
-layout(location = LINEAR_VELOCITY_LOCATION) in vec3 aLinVel;
-
-#buffer aAcc:particleBuffer, size:3, stride:52, offset:24
-layout(location = ACCELERATION_LOCATION) in vec3 aAcc;
-
-#buffer aGeneration:particleBuffer, size:1, stride:52, offset:36
-layout(location = GENERATION_LOCATION) in float aGeneration;
-
-#buffer aSize:particleBuffer, size:1, stride:52, offset:40
-layout(location = SIZE_LOCATION) in float aSize;
-
-#buffer aFrameLife:particleBuffer, size:1, stride:52, offset:44
-layout(location = FRAME_LIFE_LOCATION) in float aFrameLife;
-
-#buffer aAniType:particleBuffer, size:1, stride:52, offset:48
-layout(location = ANI_TYPE_LOCATION) in float aAniType;
+uniform float uEmitterGridSize;
 
 out float vGeneration;
-out vec3 vLinVel;
+out vec2 vLinVel;
 out float vAniType;
 out float vFrame;
+
+vec2 getEmitterCoord(float particleID, float gridSize) {
+    vec2 uv = vec2(mod(particleID,gridSize), floor(particleID/gridSize))/gridSize;
+    uv += vec2(1.0/gridSize*0.5);    //  offset to center of pixel
+    return uv;
+}
 
 void main()
 {
@@ -49,14 +39,19 @@ void main()
     float numFrames = _uAniTexNumFrames;
     float aniFps = _uAniTexFps;
 
-    float frame = mod(floor(aFrameLife*aniFps) , numFrames);
-    vec3 pos = aPos;
+//    float frame = mod(floor(aFrameLife*aniFps) , numFrames);
 
-    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 1.0);
-    gl_PointSize = aSize;
+    float particleID = float(gl_InstanceID);
+    vec2 emitterUV = getEmitterCoord(particleID, uEmitterGridSize);
 
-    vGeneration = aGeneration;
-    vLinVel = mat3(_uni_viewMat) * aLinVel;
-    vAniType = aAniType;
-    vFrame = frame;
+    vec2 pos = texture(uBoidsTexture,emitterUV).xy;
+    vec2 vel = texture(uBoidsTexture,emitterUV).zw;
+
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
+    gl_PointSize = 10.0;
+
+    vGeneration = 0.0;
+    vLinVel = vel;
+    vAniType = 0.0;
+    vFrame = 0.0;
 }

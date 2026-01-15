@@ -163,40 +163,40 @@ export function initWavefrontField(gl, canvas, camera) {
     boidsSolver.initialize({gl});
 
     // --- init map solver ---
-    const mapShader = new Shader({
-        vertexSource: mapVert,
-        fragmentSource: mapFrag,
-    });
-    mapShader.initialize({gl});
-
-    const mapMaterial = new SolverMaterial('mapMaterial', {
-        shader: mapShader,
-    });
-    mapMaterial.initialize({gl});
-
-    mapMaterial.setUniform('uEmitterTransform', emitterTransform.getMatrix());
-    mapMaterial.setUniform('uEmitterInverseTransform', emitterTransform.getInverseMatrix());
-    mapMaterial.setUniform('uDuration', particleParams.duration);
-    mapMaterial.setUniform('uCount', particleParams.count);
-    mapMaterial.setUniform('uLifeTime', particleParams.lifeTime);
-    mapMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
-    mapMaterial.setUniform('uEmitterGridSize', emitterGridSize);
-    mapMaterial.setUniform('uGradientGridSize', gridConfig.gridSize);
-
-    mapMaterial.setTexture('uEmitterTexture', emitterTexture);
-
-    const initData = genInitData(particleParams.count, STRIDE);
-    const mapShape = new SolverShape('mapShape', {
-        count:particleParams.count, schema: readAttrSchema(mapVert.input)
-    });
-    mapShape.initialize({gl});
-
-    const mapSolver = new Solver('mapSolver',{
-        shape: mapShape, material: mapMaterial,
-        count: particleParams.count, mode:1, loop:true, stride:STRIDE,
-        data: initData
-    });
-    mapSolver.initialize({gl},'particleBuffer');
+    // const mapShader = new Shader({
+    //     vertexSource: mapVert,
+    //     fragmentSource: mapFrag,
+    // });
+    // mapShader.initialize({gl});
+    //
+    // const mapMaterial = new SolverMaterial('mapMaterial', {
+    //     shader: mapShader,
+    // });
+    // mapMaterial.initialize({gl});
+    //
+    // mapMaterial.setUniform('uEmitterTransform', emitterTransform.getMatrix());
+    // mapMaterial.setUniform('uEmitterInverseTransform', emitterTransform.getInverseMatrix());
+    // mapMaterial.setUniform('uDuration', particleParams.duration);
+    // mapMaterial.setUniform('uCount', particleParams.count);
+    // mapMaterial.setUniform('uLifeTime', particleParams.lifeTime);
+    // mapMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
+    // mapMaterial.setUniform('uEmitterGridSize', emitterGridSize);
+    // mapMaterial.setUniform('uGradientGridSize', gridConfig.gridSize);
+    //
+    // mapMaterial.setTexture('uEmitterTexture', emitterTexture);
+    //
+    // const initData = genInitData(particleParams.count, STRIDE);
+    // const mapShape = new SolverShape('mapShape', {
+    //     count:particleParams.count, schema: readAttrSchema(mapVert.input)
+    // });
+    // mapShape.initialize({gl});
+    //
+    // const mapSolver = new Solver('mapSolver',{
+    //     shape: mapShape, material: mapMaterial,
+    //     count: particleParams.count, mode:1, loop:true, stride:STRIDE,
+    //     data: initData
+    // });
+    // mapSolver.initialize({gl},'particleBuffer');
 
     // --- init renderer ---
     const particleShader = new Shader({
@@ -221,7 +221,7 @@ export function initWavefrontField(gl, canvas, camera) {
             shader: particleShader, blend:1
         });
         particleMaterial.initialize({gl});
-
+        particleMaterial.setUniform('uEmitterGridSize', emitterGridSize)
         particleMaterial.setUniform('uColor', particleParams.color);
         particleMaterial.setTexture('uColorSampler', colorTexture);
 
@@ -232,7 +232,7 @@ export function initWavefrontField(gl, canvas, camera) {
         particleMaterial.setUniform('_uAniTexFps', aniTexParams.aniFps)
 
         const particleShape = new Shape('particleShape',{
-            state: 3, count: particleParams.count, vaos: mapShape.VAOS,
+            state: 3, count: particleParams.count, // vaos: mapShape.VAOS,
             schema: readAttrSchema(particleVert.input)
         });
 
@@ -285,15 +285,15 @@ export function initWavefrontField(gl, canvas, camera) {
             }
 
             // --- map solver update ---
-            mapMaterial.setUniform('uTime', time.ElapsedTime);
-            mapMaterial.setUniform('uDeltaTime', time.Interval);
-            mapMaterial.setUniform('uState', mapSolver.mode);
-            mapMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
-            mapSolver.update(gl);
-
-            if (mapSolver.Mode === Solver.MODE.init) {
-                mapSolver.Mode = Solver.MODE.play;
-            }
+            // mapMaterial.setUniform('uTime', time.ElapsedTime);
+            // mapMaterial.setUniform('uDeltaTime', time.Interval);
+            // mapMaterial.setUniform('uState', mapSolver.mode);
+            // mapMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
+            // mapSolver.update(gl);
+            //
+            // if (mapSolver.Mode === Solver.MODE.init) {
+            //     mapSolver.Mode = Solver.MODE.play;
+            // }
 
             // gl
             gl.viewport(0, 0, canvas.width, canvas.height);
@@ -308,6 +308,7 @@ export function initWavefrontField(gl, canvas, camera) {
             quadMaterial.postDraw(gl);
 
             // --- draw particle ---
+            particleMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
             particleMaterial.preDraw(gl, camera);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);

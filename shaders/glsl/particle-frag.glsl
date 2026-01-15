@@ -4,7 +4,7 @@ precision highp int;
 
 #include "./includes/aniTex.glsl"
 
-#value uColorSampler:0
+#value uColorSampler:1
 uniform sampler2D uColorSampler;
 
 uniform vec3 uColor;
@@ -12,7 +12,7 @@ uniform vec3 uColor;
 uniform float shrink;
 
 in float vGeneration;
-in vec3 vLinVel;
+in vec2 vLinVel;
 in float vAniType;
 in float vFrame;
 
@@ -56,7 +56,7 @@ void main()
 
     vec2 localUV = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
 
-    vec2 linVel = vec2(vLinVel.x, vLinVel.y);
+    vec2 linVel = vLinVel;
 
     mat2 rot = rotateVelMatrix(linVel);
     vec2 rotatedLocalUV = rotateUV(localUV, rot);
