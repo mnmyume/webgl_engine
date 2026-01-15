@@ -2,8 +2,8 @@
 precision highp float;
 precision highp int;
 
-#value uWavefrontTexture:0
-uniform sampler2D uWavefrontTexture;    // currDist.r, isObstacle.g ( 1.0 == 'obstacle' ), isGoal.b ( 1.0 == 'goal')
+#value uInitGridTexture:0
+uniform sampler2D uInitGridTexture;    // currDist.r, isObstacle.g ( 1.0 == 'obstacle' ), isGoal.b ( 1.0 == 'goal')
 
 #value uDataSlot0:1
 uniform sampler2D uDataSlot0;    // currDist.r, isObstacle.g ( 1.0 == 'obstacle' ), isGoal.b ( 1.0 == 'goal')
@@ -43,9 +43,9 @@ void main()
     // init
     if(uState == 1) {
         vec2 initUV = vec2(uv.x, 1.0 - uv.y);
-        currDist = texture(uWavefrontTexture, initUV).r;
-        isObastacle = texture(uWavefrontTexture, initUV).g;
-        isGoal = texture(uWavefrontTexture, initUV).b;
+        currDist = texture(uInitGridTexture, initUV).r;
+        isObastacle = texture(uInitGridTexture, initUV).g;
+        isGoal = texture(uInitGridTexture, initUV).b;
 
     } else if(uState == 2) {
         currDist = texture(uDataSlot0, uv).r;

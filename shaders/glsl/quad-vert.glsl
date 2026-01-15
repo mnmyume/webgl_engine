@@ -24,7 +24,7 @@ layout(location = POSITION_LOCATION) in vec3 aPos;
 #buffer aUV:quadBuffer, size:2, stride:20, offset:12
 layout(location = UV_LOCATION) in vec2 aUV;
 
-flat out vec2 vUV;
+out vec2 vUV;
 
 
 void main()

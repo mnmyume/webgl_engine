@@ -24,6 +24,7 @@ import mapFrag from "../shaders/glsl/solver-frag.glsl";
 import boidsFrag from "../shaders/glsl/boids-frag.glsl";
 import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
+import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 
 
 export function initWavefrontField(gl, canvas, camera) {
@@ -31,7 +32,7 @@ export function initWavefrontField(gl, canvas, camera) {
     const time = new Time();
     const STRIDE = 13;
     const particleParams = {
-        count: 16,
+        count: 1600,
         duration: 20,
         lifeTime: 20,
         minSize: 15,
@@ -68,8 +69,6 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const emitterGridSize = sqrtFloor(particleParams.count);
     const emitterGridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
-    const emitterTransform = new Transform();
-    emitterTransform.setPosition(0, 0, 18);
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader({
@@ -98,13 +97,13 @@ export function initWavefrontField(gl, canvas, camera) {
     });
     wavefrontSolver.initialize({gl});
 
-    const wavefrontTexture = new Texture2D('wavefrontTexture', {
+    const initGridTexture = new Texture2D('initGridTexture', {
         width: gridConfig.gridSize, height: gridConfig.gridSize,
         scaleDown: 'LINEAR', scaleUp: 'LINEAR',
     })
-    wavefrontTexture.initialize({gl});
-    wavefrontTexture.setData(gl, genWavefrontInitDataJSON(gridConfig));
-    wavefrontMaterial.setTexture('uWavefrontTexture', wavefrontTexture);
+    initGridTexture.initialize({gl});
+    initGridTexture.setData(gl, genWavefrontInitDataJSON(gridConfig));
+    wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
 
     wavefrontSolver.Mode = FrameSolver.MODE.init;
 
@@ -181,7 +180,7 @@ export function initWavefrontField(gl, canvas, camera) {
     });
     boidsSolver.initialize({gl});
 
-    // --- init renderer ---
+    // --- init particle renderer ---
     const particleShader = new Shader({
         vertexSource: particleVert,
         fragmentSource: particleFrag
@@ -219,7 +218,7 @@ export function initWavefrontField(gl, canvas, camera) {
             schema: readAttrSchema(particleVert.input)
         });
 
-        // --- init emitter quad ---
+        // --- init emitter quad renderer---
         const quadShader = new Shader({
             vertexSource: quadVert,
             fragmentSource: quadFrag,
@@ -237,6 +236,19 @@ export function initWavefrontField(gl, canvas, camera) {
             {verticeCount: 6, schema: readAttrSchema(quadVert.input)});
         quadShape.initialize({gl});
         quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
+
+        // --- init obstacle renderer ---
+        const obstacleShader = new Shader({
+            vertexSource: quadVert,
+            fragmentSource: obstacleFrag,
+        });
+        obstacleShader.initialize({gl});
+
+        const obstacleMaterial = new Material('obstacleMaterial', {
+            shader: obstacleShader, blend:1
+        });
+        obstacleMaterial.initialize({gl});
+        obstacleMaterial.setTexture('uInitGridTexture', initGridTexture);
 
         function drawWavefront() {
             requestAnimationFrame(drawWavefront);
@@ -280,6 +292,11 @@ export function initWavefrontField(gl, canvas, camera) {
             quadMaterial.preDraw(gl, camera);
             quadShape.draw(gl, quadMaterial);
             quadMaterial.postDraw(gl);
+
+            // --- draw obstacle ---
+            obstacleMaterial.preDraw(gl, camera);
+            quadShape.draw(gl, quadMaterial);
+            obstacleMaterial.postDraw(gl);
 
             // --- draw particle ---
             particleMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);

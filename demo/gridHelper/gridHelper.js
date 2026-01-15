@@ -86,9 +86,9 @@ function initGrid() {
             let cellType = 'empty';
 
             // Boundary
-            // if (r === 0 || r === GRID_SIZE - 1 || c === 0 || c === GRID_SIZE - 1) {
-            //     cellType = 'obstacle';
-            // }
+            if (r === 0 || r === GRID_SIZE - 1 || c === 0 || c === GRID_SIZE - 1) {
+                cellType = 'obstacle';
+            }
 
             row.push({
                 r: r,
@@ -148,15 +148,16 @@ function drawCell(cell) {
     const centerX = x + CELL_SIZE / 2;
     const centerY = y + CELL_SIZE / 2;
 
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 18px sans-serif';
+    ctx.fillStyle = 'gainsboro';
+    ctx.font = '13px serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     if (cell.type === 'end') {
         ctx.fillText('e', centerX, centerY);
     } else if (cell.distance !== null) {    // && cell.type === 'empty'
-        ctx.fillText(cell.distance, centerX, centerY);
+        const text = cell.distance === Infinity ? '∞' : cell.distance;
+        ctx.fillText(text, centerX, centerY);
     }
 
     // --- Arrow Drawing ---
