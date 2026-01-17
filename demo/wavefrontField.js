@@ -23,6 +23,8 @@ import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 
+import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
+
 
 export function initWavefrontField(gl, canvas, camera) {
 
@@ -55,7 +57,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const boidsParams = {
         maxSpeed: 20,
-        maxForce: 0.5,
+        maxForce: 10,
         perceptionRadius: 5.0,
         checkCount: 8,
         separationWeight: 1.5,
@@ -64,6 +66,47 @@ export function initWavefrontField(gl, canvas, camera) {
         flowWeight: 2.0,
         dampScalar: 0.98
     }
+
+    // --- GUI SETUP ---
+    const gui = new GUI({ title: 'Wavefront Settings' });
+
+    // 1. Particle Folder
+    const fParticles = gui.addFolder('Particles');
+    fParticles.add(particleParams, 'count', 100, 5000, 100).name('Count'); // min, max, step
+    fParticles.add(particleParams, 'duration', 1, 100).name('Duration');
+    fParticles.add(particleParams, 'lifeTime', 1, 100).name('Life Time');
+    fParticles.add(particleParams, 'minSize', 1, 100).name('Min Size');
+    fParticles.add(particleParams, 'maxSize', 1, 100).name('Max Size');
+    fParticles.add(particleParams, 'alpha', 0, 1).name('Alpha');
+    fParticles.add(particleParams, 'emitterSize', 1, 100).name('Emitter Size');
+    fParticles.add(particleParams, 'emitterHeight', 1, 100).name('Emitter Height');
+
+    // Colors handle [r,g,b] arrays automatically (make sure your renderer handles 0-1 range)
+    fParticles.addColor(particleParams, 'color').name('Color');
+
+    // Vector handling: startLinVel is an array, so we tweak indices manually
+    const fVel = fParticles.addFolder('Start Velocity');
+    fVel.add(particleParams.startLinVel, '0', -10, 10).name('X');
+    fVel.add(particleParams.startLinVel, '1', -10, 10).name('Y');
+    fVel.add(particleParams.startLinVel, '2', -10, 10).name('Z');
+
+    // 2. Animation Texture Folder
+    const fAni = gui.addFolder('Animation Texture');
+    fAni.add(aniTexParams, 'numFrames', 1, 64, 1).name('Num Frames');
+    fAni.add(aniTexParams, 'aniFps', 1, 60, 1).name('FPS');
+    fAni.add(aniTexParams, 'accFactor', 0, 10).name('Acc Factor');
+    fAni.close(); // Start closed to save space
+
+    // 3. Boids Folder
+    const fBoids = gui.addFolder('Boids Physics');
+    fBoids.add(boidsParams, 'maxSpeed', 0, 50).name('Max Speed');
+    fBoids.add(boidsParams, 'maxForce', 0, 5).name('Max Force');
+    fBoids.add(boidsParams, 'perceptionRadius', 0, 20).name('Radius');
+    fBoids.add(boidsParams, 'separationWeight', 0, 5).name('Separation');
+    fBoids.add(boidsParams, 'alignmentWeight', 0, 5).name('Alignment');
+    fBoids.add(boidsParams, 'cohesionWeight', 0, 5).name('Cohesion');
+    fBoids.add(boidsParams, 'flowWeight', 0, 5).name('Flow');
+    fBoids.add(boidsParams, 'dampScalar', 0.8, 1.0).name('Damping');
 
     const emitterGridSize = sqrtFloor(particleParams.count);
     const emitterGridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
@@ -145,7 +188,7 @@ export function initWavefrontField(gl, canvas, camera) {
     boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
     boidsMaterial.setUniform('uEmitterGridSize', emitterGridSize);
     boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
-    boidsMaterial.setUniform('uMaxForce', boidsParams.maxSpeed);
+    boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
     boidsMaterial.setUniform('uPercepRadius', boidsParams.perceptionRadius);
     boidsMaterial.setUniform('uCheckCount', boidsParams.checkCount);
     boidsMaterial.setUniform('uSepaWeight', boidsParams.separationWeight);
