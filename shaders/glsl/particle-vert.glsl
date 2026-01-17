@@ -12,15 +12,11 @@ precision highp int;
 
 #include "./includes/aniTex.glsl"
 
-uniform mat4 _uni_projMat;
-uniform mat4 _uni_viewMat;
-#value _uni_modelMat:mat4(1.0)
-uniform mat4 _uni_modelMat;
-
 #value uBoidsTexture:0
 uniform sampler2D uBoidsTexture;
 
-uniform float uEmitterGridSize;
+uniform float uEmitterTexSize;
+uniform float uAspect;
 
 out float vGeneration;
 out vec2 vLinVel;
@@ -42,12 +38,12 @@ void main()
 //    float frame = mod(floor(aFrameLife*aniFps) , numFrames);
 
     float particleID = float(gl_InstanceID);
-    vec2 emitterUV = getEmitterCoord(particleID, uEmitterGridSize);
+    vec2 emitterUV = getEmitterCoord(particleID, uEmitterTexSize);
 
-    vec2 pos = texture(uBoidsTexture,emitterUV).xy;
-    vec2 vel = texture(uBoidsTexture,emitterUV).zw;
+    vec2 pos = vec2(texture(uBoidsTexture,emitterUV).x / uAspect, texture(uBoidsTexture,emitterUV).y);
+    vec2 vel = vec2(texture(uBoidsTexture,emitterUV).z / uAspect, texture(uBoidsTexture,emitterUV).w);
 
-    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
+    gl_Position = vec4(pos, 0, 1);
     gl_PointSize = 10.0;
 
     vGeneration = 0.0;

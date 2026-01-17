@@ -10,7 +10,7 @@ import SolverShape from "../source/solverShape.js";
 import SolverMaterial from "../source/solverMaterial.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import {sqrtFloor} from "../source/mathHelper.js";
-import {genQuadUVXZ, genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON} from "../source/generatorHelper.js";
+import {genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON} from "../source/generatorHelper.js";
 import gridConfig from './gridHelper/grid_config.json';
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
@@ -26,10 +26,10 @@ import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 
-export function initWavefrontField(gl, canvas, camera) {
+export function initWavefrontField(gl, canvas) {
 
+    const aspect = canvas.width / canvas.height;
     const time = new Time();
-    const STRIDE = 13;
     const particleParams = {
         count: 1600,
         duration: 20,
@@ -39,7 +39,7 @@ export function initWavefrontField(gl, canvas, camera) {
         startLinVel:[0,0,0],
         color:[0.85,0.85,0.85],
         alpha:0.8,
-        emitterSize: 32,
+        emitterSize: 2,
         emitterHeight: 40
     }
 
@@ -57,7 +57,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const boidsParams = {
         maxSpeed: 20,
-        maxForce: 10,
+        maxForce: 5,
         perceptionRadius: 5.0,
         checkCount: 8,
         separationWeight: 1.5,
@@ -108,8 +108,8 @@ export function initWavefrontField(gl, canvas, camera) {
     fBoids.add(boidsParams, 'flowWeight', 0, 5).name('Flow');
     fBoids.add(boidsParams, 'dampScalar', 0.8, 1.0).name('Damping');
 
-    const emitterGridSize = sqrtFloor(particleParams.count);
-    const emitterGridCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
+    const emitterTexSize = sqrtFloor(particleParams.count);
+    const emitterCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader({
@@ -123,7 +123,6 @@ export function initWavefrontField(gl, canvas, camera) {
     });
     wavefrontMaterial.initialize({gl});
     wavefrontMaterial.setUniform('uGridSize', gridConfig.gridSize);
-    wavefrontMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
 
     const wavefrontShape = new Shape('wavefrontShape', {
         count:6, schema: readAttrSchema(screenQuadVert.input)
@@ -186,7 +185,8 @@ export function initWavefrontField(gl, canvas, camera) {
     });
     boidsMaterial.initialize({gl});
     boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
-    boidsMaterial.setUniform('uEmitterGridSize', emitterGridSize);
+    boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
+    boidsMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
     boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
     boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
     boidsMaterial.setUniform('uPercepRadius', boidsParams.perceptionRadius);
@@ -198,14 +198,14 @@ export function initWavefrontField(gl, canvas, camera) {
     boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
 
     const emitterTexture = new Texture2D('emitterTexture', {
-        width: emitterGridSize, height: emitterGridSize,
+        width: emitterTexSize, height: emitterTexSize,
         scaleDown: 'NEAREST',
         // data: texDataArr[genIndex],
         scaleUp: 'NEAREST'
     });
     emitterTexture.initialize({gl});
     emitterTexture.setData(gl,
-        genRectHaltonPos(particleParams.emitterSize, emitterGridCorner, emitterGridSize, particleParams.minSize, particleParams.maxSize, particleParams.duration));
+        genRectHaltonPos(particleParams.emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
 
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
 
@@ -216,7 +216,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     const boidsSolver = new FrameSolver('boidsSolver', {
         shape: boidsShape, material: boidsMaterial,
-        width: emitterGridSize, height: emitterGridSize,
+        width: emitterTexSize, height: emitterTexSize,
         screenWidth: canvas.width, screenHeight: canvas.height,
         mode:1,
     });
@@ -245,8 +245,9 @@ export function initWavefrontField(gl, canvas, camera) {
             shader: particleShader, blend:1
         });
         particleMaterial.initialize({gl});
-        particleMaterial.setUniform('uEmitterGridSize', emitterGridSize)
+        particleMaterial.setUniform('uEmitterTexSize', emitterTexSize)
         particleMaterial.setUniform('uColor', particleParams.color);
+        particleMaterial.setUniform('uAspect', aspect);
         particleMaterial.setTexture('uColorSampler', colorTexture);
 
         // aniTex
@@ -271,6 +272,7 @@ export function initWavefrontField(gl, canvas, camera) {
             shader: quadShader,
         });
         quadMaterial.initialize({gl});
+        quadMaterial.setUniform('uAspect', aspect);
 
         const quadData = genQuadUVXY(particleParams.emitterSize);
         const quadShape = new Shape(
@@ -291,6 +293,7 @@ export function initWavefrontField(gl, canvas, camera) {
         });
         obstacleMaterial.initialize({gl});
         obstacleMaterial.setTexture('uInitGridTexture', initGridTexture);
+        obstacleMaterial.setUniform('uAspect', aspect);
 
         function drawWavefront() {
             requestAnimationFrame(drawWavefront);
@@ -331,18 +334,18 @@ export function initWavefrontField(gl, canvas, camera) {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
             // --- draw emitter quad ---
-            quadMaterial.preDraw(gl, camera);
+            quadMaterial.preDraw(gl);
             quadShape.draw(gl, quadMaterial);
             quadMaterial.postDraw(gl);
 
             // --- draw obstacle ---
-            obstacleMaterial.preDraw(gl, camera);
+            obstacleMaterial.preDraw(gl);
             quadShape.draw(gl, quadMaterial);
             obstacleMaterial.postDraw(gl);
 
             // --- draw particle ---
             particleMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
-            particleMaterial.preDraw(gl, camera);
+            particleMaterial.preDraw(gl);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);
         }

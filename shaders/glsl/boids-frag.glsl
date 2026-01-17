@@ -26,7 +26,8 @@ uniform int uState;  // init mode, uState = 1; play mode, uState = 2;
 uniform bool uLoop;
 
 uniform float uGridSize;
-uniform float uEmitterGridSize;
+uniform float uEmitterTexSize;
+uniform float uEmitterSize;
 // --- boids params ---
 uniform float uMaxSpeed;
 uniform float uMaxForce;
@@ -67,12 +68,12 @@ vec2 damp(vec2 vel, float k) {
 }
 
 void main() {
-    vec2 uv = gl_FragCoord.xy/vec2(uEmitterGridSize);
+    vec2 uv = gl_FragCoord.xy/vec2(uEmitterTexSize);
 
     vec2 pos = texture(uDataSlot0, uv).xy;
     vec2 vel = texture(uDataSlot0, uv).zw;
 
-    vec2 gradientUV = getGradientCoord(pos, uEmitterGridSize);
+    vec2 gradientUV = getGradientCoord(pos, uEmitterSize);
 
     if(uState == 1){
         pos = texture(uEmitterTexture, uv).xy;
@@ -136,7 +137,7 @@ void main() {
 //        if (length(vel) > 0.0) {
 //            probePos = pos + normalize(vel) * lookAheadDist;
 //        }
-//        vec2 probeUV = getGradientCoord(probePos, uEmitterGridSize);
+//        vec2 probeUV = getGradientCoord(probePos, uEmitterTexSize);
 //        float isObstacleAhead = texture(uGradientTexture, probeUV).w;
 //
 //        if (isObstacleAhead > 0.5) {
