@@ -64,7 +64,8 @@ export function initWavefrontField(gl, canvas, camera) {
         separationWeight: 1.5,
         alignmentWeight: 1.0,
         cohesionWeight: 1.0,
-        flowWeight: 1.0,
+        flowWeight: 2.0,
+        dampScalar: 0.98
     }
 
     const emitterGridSize = sqrtFloor(particleParams.count);
@@ -154,6 +155,7 @@ export function initWavefrontField(gl, canvas, camera) {
     boidsMaterial.setUniform('uAligWeight', boidsParams.alignmentWeight);
     boidsMaterial.setUniform('uCoheWeight', boidsParams.cohesionWeight);
     boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
+    boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
 
     const emitterTexture = new Texture2D('emitterTexture', {
         width: emitterGridSize, height: emitterGridSize,

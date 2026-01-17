@@ -365,7 +365,7 @@ function main() {
 
         for(let i=0; i<GRID_SIZE; i++)
             for (let j=0; j<GRID_SIZE; j++) {
-                if (grid[i][j].type !== 'obstacle' && grid[i][j].type !== 'end')
+                if (grid[i][j].type !== 'end')
                     grid[i][j].vec = { x: frameData[4*(i*GRID_SIZE+j)], y: frameData[4*(i*GRID_SIZE+j)+1] };
             }
 

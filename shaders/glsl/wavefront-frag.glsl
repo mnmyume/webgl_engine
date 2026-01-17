@@ -51,14 +51,18 @@ void main()
         currDist = texture(uDataSlot0, uv).r;
         isObastacle = texture(uDataSlot0, uv).g;
         isGoal = texture(uDataSlot0, uv).b;
-        if(isObastacle==0.0) {
-            float L = texture(uDataSlot0, uv + direction[0]/uGridSize).r;
-            float R = texture(uDataSlot0, uv + direction[1]/uGridSize).r;
-            float T = texture(uDataSlot0, uv + direction[2]/uGridSize).r;
-            float B = texture(uDataSlot0, uv + direction[3]/uGridSize).r;
 
-            float minNeighbor = min(min(L, R), min(T, B));
+        float L = texture(uDataSlot0, uv + direction[0]/uGridSize).r;
+        float R = texture(uDataSlot0, uv + direction[1]/uGridSize).r;
+        float T = texture(uDataSlot0, uv + direction[2]/uGridSize).r;
+        float B = texture(uDataSlot0, uv + direction[3]/uGridSize).r;
+
+        float minNeighbor = min(min(L, R), min(T, B));
+
+        if(isObastacle==0.0) {
             currDist = min(currDist, minNeighbor + 1.0);
+        } else {
+            currDist = min(currDist, minNeighbor + 50.0);
         }
     }
 

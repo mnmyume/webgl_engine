@@ -34,7 +34,6 @@ vec2(-1, -1)     // left-bottom
 
 out vec4[4] fragData;
 
-
 void main()
 {
     vec2 gridCoord = gl_FragCoord.xy - vec2(0.5);
@@ -45,6 +44,7 @@ void main()
 
     vec2 bestDir = vec2(0.0);
     float minDist = currentDist;
+    vec2 vel = vec2(0.0);
 
     float surrDistance[8] = float[](
         texture(uWavefrontTexture, uv + direction[0]/uGridSize).r, // left
@@ -68,7 +68,7 @@ void main()
         texture(uWavefrontTexture, uv + direction[7]/uGridSize).g  // left-bottom
     );
 
-    if (currentDist > 0.0) {   // currentObs < 0.5 &&
+    if (currentDist > 0.0) {    // currentObs < 0.5 &&
         for (int i = 0; i < 8; i++) {
 
             // Diagonals check

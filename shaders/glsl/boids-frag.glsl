@@ -36,6 +36,7 @@ uniform float uSepaWeight;
 uniform float uAligWeight;
 uniform float uCoheWeight;
 uniform float uFlowWeight;
+uniform float uDampScalar;
 
 out vec4[4] fragData;
 
@@ -48,8 +49,21 @@ vec2 getGradientCoord(vec2 pos, float emitterSize) {
     return uv;
 }
 
+vec2 updateAcc(vec2 acc, vec2 force, float weight) {
+    acc = acc + normalize(force) * weight;
+    return acc;
+}
+
+vec2 updateVel(vec2 vel, vec2 acc) {
+    return vel = vel + acc * uDeltaTime;
+}
+
 vec2 updatePos(vec2 pos, vec2 linVel) {
     return pos = pos + linVel * uDeltaTime;
+}
+
+vec2 damp(vec2 vel, float k) {
+    return vel*k;
 }
 
 void main() {
@@ -64,77 +78,95 @@ void main() {
         pos = texture(uEmitterTexture, uv).xy;
     }
     else if(uState == 2) {
+        vec2 oldVel = texture(uDataSlot0, uv).zw;
         vec2 sep = vec2(0.0); // separation
         vec2 ali = vec2(0.0); // alignment
         vec2 coh = vec2(0.0); // cohesion
         vec2 acc = vec2(0.0);
-        int count = 0;
+        int inPercepCount = 0;
 
         for(int i=0; i<uCheckCount; i++) {
             float noise = rand(uv + vec2(float(i) * 0.1, uDeltaTime));
             vec2 sampleUV = vec2(noise, fract(noise * 123.45));
 
-            vec4 neighborData = texture(uDataSlot0, sampleUV);
-            vec2 neighborPos = neighborData.xy;
-            vec2 neighborVel = neighborData.zw;
+            vec4 sampleData = texture(uDataSlot0, sampleUV);
+            vec2 samplePos = sampleData.xy;
+            vec2 sampleVel = sampleData.zw;
 
-            float d = distance(pos, neighborPos);
+            float d = distance(pos, samplePos);
 
-            if (d > 0.001 && d < uPercepRadius) {
-                sep += normalize(pos - neighborPos) / d;
-                ali += neighborVel;
-                coh += neighborPos;
+            bool insidePerception = d > 0.001 && d < uPercepRadius;
 
-                count++;
+            if (insidePerception) {
+                sep += normalize(pos - samplePos) / d;
+                ali += sampleVel;
+                coh += samplePos;
+
+                inPercepCount++;
             }
         }
 
-        if (count > 0) {
-            sep /= float(count);
-            ali /= float(count);
-            coh = (coh / float(count)) - pos;
+        if (inPercepCount > 0) {
+            sep /= float(inPercepCount);
+            ali /= float(inPercepCount);
+            coh = (coh / float(inPercepCount)) - pos;
 
-            if(length(sep) > 0.0) acc += normalize(sep) * uSepaWeight;
-            if(length(ali) > 0.0) acc += normalize(ali) * uAligWeight;
-            if(length(coh) > 0.0) acc += normalize(coh) * uCoheWeight;
+            if(length(sep) > 0.0)
+                acc = updateAcc(acc, sep, uSepaWeight);
+            if(length(ali) > 0.0)
+                acc = updateAcc(acc, ali, uAligWeight);
+            if(length(coh) > 0.0)
+                acc = updateAcc(acc, coh, uCoheWeight);
         }
 
-        vec2 flowForce = texture(uGradientTexture, gradientUV).xy;
+        vec2 flowDir = texture(uGradientTexture, gradientUV).xy;
+        if (length(flowDir) > 0.0) {
+            // steer force
+            vec2 desired = normalize(flowDir) * uMaxSpeed;
+            vec2 steer = desired - vel;
 
-        acc += flowForce * uFlowWeight;
+            if(length(steer) > uMaxForce) steer = normalize(steer) * uMaxForce;
+
+            acc += steer * 1.0;
+        }
 
         // --- obstacle ---
-        float lookAheadDist = uPercepRadius * 1.5;
-        vec2 probePos = pos;
-        if (length(vel) > 0.0) {
-            probePos = pos + normalize(vel) * lookAheadDist;
-        }
-        vec2 probeUV = getGradientCoord(probePos, uEmitterGridSize);
-        float isObstacleAhead = texture(uGradientTexture, probeUV).w;
+//        float lookAheadDist = uPercepRadius * 1.5;
+//        vec2 probePos = pos;
+//        if (length(vel) > 0.0) {
+//            probePos = pos + normalize(vel) * lookAheadDist;
+//        }
+//        vec2 probeUV = getGradientCoord(probePos, uEmitterGridSize);
+//        float isObstacleAhead = texture(uGradientTexture, probeUV).w;
+//
+//        if (isObstacleAhead > 0.5) {
+//            // steer back
+//            vec2 avoidForce = vec2(0.0);
+//
+//            if (length(vel) > 0.0) {
+//                avoidForce = -normalize(vel) * uMaxForce * 10.0; // 5.0 is avoidWeight
+//            } else {
+//                avoidForce = vec2(rand(uv) - 0.5, rand(uv + 1.0) - 0.5) * uMaxForce * 5.0;
+//            }
+//
+//            acc += avoidForce;
+//        }
+//        float isInside = texture(uGradientTexture, gradientUV).w;
+//        if (isInside > 0.5) {
+//            vel *= -0.5;
+//            acc = vec2(0.0);
+//        }
 
-        if (isObstacleAhead > 0.5) {
-            // steer back
-            vec2 avoidForce = vec2(0.0);
+//        if(length(acc) > uMaxForce) acc = normalize(acc) * uMaxForce;
+//
+//        vel = updateVel(vel, acc);
+//
+//        if(length(vel) > uMaxSpeed) vel = normalize(vel) * uMaxSpeed;
 
-            if (length(vel) > 0.0) {
-                avoidForce = -normalize(vel) * uMaxForce * 10.0; // 5.0 is avoidWeight
-            } else {
-                avoidForce = vec2(rand(uv) - 0.5, rand(uv + 1.0) - 0.5) * uMaxForce * 5.0;
-            }
+        vel = updateVel(vel, acc);
 
-            acc += avoidForce;
-        }
-        float isInside = texture(uGradientTexture, gradientUV).w;
-        if (isInside > 0.5) {
-            vel *= -0.5;
-            acc = vec2(0.0);
-        }
+        vel = damp(vel, uDampScalar);
 
-        if(length(acc) > uMaxForce) acc = normalize(acc) * uMaxForce;
-
-        vel += acc;
-
-        if(length(vel) > uMaxSpeed) vel = normalize(vel) * uMaxSpeed;
 
         pos = updatePos(pos, vel);
     }
