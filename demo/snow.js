@@ -18,8 +18,8 @@ import solverVert from "../shaders/glsl/solver-vert.glsl";
 import solverFrag from "../shaders/glsl/solver-frag.glsl";
 import snowVert from "../shaders/glsl/snow-vert.glsl";
 import snowFrag from "../shaders/glsl/snow-frag.glsl";
-import screenQuadVert from "../shaders/glsl/background-vert.glsl";
-import screenQuadFrag from "../shaders/glsl/background-frag.glsl";
+import screenQuadVert from "../shaders/glsl/screenQuad-vert.glsl";
+import screenQuadFrag from "../shaders/glsl/screenQuad-frag.glsl";
 
 
 
