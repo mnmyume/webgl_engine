@@ -15,8 +15,8 @@ import gridConfig from './gridHelper/grid_config.json';
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../shaders/glsl/quad-frag.glsl";
-import bkgVert from "../shaders/glsl/background-vert.glsl";
-import bkgFrag from "../shaders/glsl/background-frag.glsl";
+import screenQuadVert from "../shaders/glsl/background-vert.glsl";
+import screenQuadFrag from "../shaders/glsl/background-frag.glsl";
 import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
 import mapVert from "../shaders/glsl/map-vert.glsl";
@@ -73,7 +73,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader({
-        vertexSource: bkgVert,
+        vertexSource: screenQuadVert,
         fragmentSource: wavefrontFrag,
     });
     wavefrontShader.initialize({gl});
@@ -86,7 +86,7 @@ export function initWavefrontField(gl, canvas, camera) {
     wavefrontMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
 
     const wavefrontShape = new Shape('wavefrontShape', {
-        count:6, schema: readAttrSchema(bkgVert.input)
+        count:6, schema: readAttrSchema(screenQuadVert.input)
     });
     wavefrontShape.initialize({gl});
 
@@ -110,7 +110,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     // --- init gradient solver ---
     const gradientShader = new Shader({
-        vertexSource: bkgVert,
+        vertexSource: screenQuadVert,
         fragmentSource: gradientFrag,
     });
     gradientShader.initialize({gl});
@@ -122,7 +122,7 @@ export function initWavefrontField(gl, canvas, camera) {
     gradientMaterial.setUniform('uGridSize', gridConfig.gridSize);
 
     const gradientShape = new Shape('gradientShape', {
-        count:6, schema: readAttrSchema(bkgVert.input)
+        count:6, schema: readAttrSchema(screenQuadVert.input)
     });
     gradientShape.initialize({gl});
 
@@ -136,7 +136,7 @@ export function initWavefrontField(gl, canvas, camera) {
 
     // -- init boids --
     const boidsShader = new Shader({
-        vertexSource: bkgVert,
+        vertexSource: screenQuadVert,
         fragmentSource: boidsFrag,
     })
     boidsShader.initialize({gl});
@@ -170,7 +170,7 @@ export function initWavefrontField(gl, canvas, camera) {
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
 
     const boidsShape = new Shape('boidsShape', {
-        count:6, schema: readAttrSchema(bkgVert.input)
+        count:6, schema: readAttrSchema(screenQuadVert.input)
     });
     boidsShape.initialize({gl});
 

@@ -18,8 +18,8 @@ import solverVert from "../shaders/glsl/solver-vert.glsl";
 import solverFrag from "../shaders/glsl/solver-frag.glsl";
 import snowVert from "../shaders/glsl/snow-vert.glsl";
 import snowFrag from "../shaders/glsl/snow-frag.glsl";
-import bkgVert from "../shaders/glsl/background-vert.glsl";
-import bkgFrag from "../shaders/glsl/background-frag.glsl";
+import screenQuadVert from "../shaders/glsl/background-vert.glsl";
+import screenQuadFrag from "../shaders/glsl/background-frag.glsl";
 
 
 
@@ -218,8 +218,8 @@ export function initSnow(gl, canvas, camera) {
 
     // init background
     const bkgShader = new Shader({
-        vertexSource: bkgVert,
-        fragmentSource: bkgFrag
+        vertexSource: screenQuadVert,
+        fragmentSource: screenQuadFrag
     });
     bkgShader.initialize({gl});
 

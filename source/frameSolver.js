@@ -1,6 +1,6 @@
 import Texture2D from "./texture2d.js";
 import {$assert} from "./common.js";
-import FrameBuffer from "./frameBuffer.js";
+import Framebuffer from "./framebuffer.js";
 
 export default class FrameSolver{
     static MODE = {init:1, play:2}
@@ -30,8 +30,8 @@ export default class FrameSolver{
     }
     initialize({gl}){
 
-        this.backBuffer = new FrameBuffer('bFrameBuff', {width:this.width,height:this.height});
-        this.frontBuffer = new FrameBuffer('fFrameBuff', {width:this.width,height:this.height});
+        this.backBuffer = new Framebuffer('bFrameBuff', {width:this.width,height:this.height});
+        this.frontBuffer = new Framebuffer('fFrameBuff', {width:this.width,height:this.height});
 
         this.backBuffer.initialize({gl});
         this.frontBuffer.initialize({gl});
@@ -84,7 +84,7 @@ export default class FrameSolver{
         this.backBuffer = tmp;
     }
 
-    readFrameBuffer(gl){
+    readFramebuffer(gl){
         const targetBuffer = this.frontBuffer;
         gl.bindFramebuffer(gl.FRAMEBUFFER, targetBuffer.framebuffer);
 

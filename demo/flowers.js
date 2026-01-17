@@ -18,8 +18,8 @@ import solverVert from "../shaders/glsl/solver-vert.glsl";
 import solverFrag from "../shaders/glsl/solver-frag.glsl";
 import leavesVert from "../shaders/glsl/leaves-vert.glsl";
 import leavesFrag from "../shaders/glsl/leaves-frag.glsl";
-import bkgVert from "../shaders/glsl/background-vert.glsl";
-import bkgFrag from "../shaders/glsl/background-frag.glsl";
+import screenQuadVert from "../shaders/glsl/background-vert.glsl";
+import screenQuadFrag from "../shaders/glsl/background-frag.glsl";
 
 
 
@@ -243,8 +243,8 @@ export function initFlowers(gl, canvas, camera) {
         // init background
         const bkgShader = new Shader({
             name: 'bkgShader',
-            vertexSource: bkgVert,
-            fragmentSource: bkgFrag
+            vertexSource: screenQuadVert,
+            fragmentSource: screenQuadFrag
         });
         bkgShader.initialize({gl});
 

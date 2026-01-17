@@ -11,8 +11,8 @@ import {readAttrSchema} from "../../source/shapeHelper.js";
 
 import quadVert from "../../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../../shaders/glsl/quad-frag.glsl";
-import bkgVert from "../../shaders/glsl/background-vert.glsl";
-import bkgFrag from "../../shaders/glsl/background-frag.glsl";
+import screenQuadVert from "../../shaders/glsl/background-vert.glsl";
+import screenQuadFrag from "../../shaders/glsl/background-frag.glsl";
 import wavefrontFrag from "./_wavefront-frag.glsl";
 import gradientFrag from "../../shaders/glsl/gradient-frag.glsl";
 
@@ -257,7 +257,7 @@ function main() {
     // --- wavefront init ---
 
     const wavefrontShader = new Shader({
-        vertexSource: bkgVert,
+        vertexSource: screenQuadVert,
         fragmentSource: wavefrontFrag,
     });
     wavefrontShader.initialize({gl});
@@ -268,7 +268,7 @@ function main() {
     wavefrontMaterial.initialize({gl});
 
     const wavefrontShape = new Shape('wavefrontShape', {
-        count:6, schema: readAttrSchema(bkgVert.input)
+        count:6, schema: readAttrSchema(screenQuadVert.input)
     });
     wavefrontShape.initialize({gl});
 
@@ -294,7 +294,7 @@ function main() {
     // --- gradient init ---
 
     const gradientShader = new Shader({
-        vertexSource: bkgVert,
+        vertexSource: screenQuadVert,
         fragmentSource: gradientFrag,
     });
     gradientShader.initialize({gl});
@@ -305,7 +305,7 @@ function main() {
     gradientMaterial.initialize({gl});
 
     const gradientShape = new Shape('gradientShape', {
-        count:6, schema: readAttrSchema(bkgVert.input)
+        count:6, schema: readAttrSchema(screenQuadVert.input)
     });
     gradientShape.initialize({gl});
 
