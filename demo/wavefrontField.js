@@ -27,9 +27,6 @@ import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 
 export function initWavefrontField(gl, canvas) {
-
-    const aspect = canvas.width / canvas.height;
-    const time = new Time();
     const particleParams = {
         count: 1600,
         duration: 20,
@@ -40,7 +37,6 @@ export function initWavefrontField(gl, canvas) {
         color:[0.85,0.85,0.85],
         alpha:0.8,
         emitterSize: 2,
-        emitterHeight: 40
     }
 
     const aniTexParams = {
@@ -57,15 +53,22 @@ export function initWavefrontField(gl, canvas) {
 
     const boidsParams = {
         maxSpeed: 20,
-        maxForce: 5,
+        maxForce: 1,
         perceptionRadius: 5.0,
         checkCount: 8,
-        separationWeight: 1.5,
-        alignmentWeight: 1.0,
-        cohesionWeight: 1.0,
-        flowWeight: 2.0,
-        dampScalar: 0.98
+        separationWeight: 2.0,
+        alignmentWeight: 1.5,
+        cohesionWeight: 1.5,
+        flowWeight: 3.0,
+        avoidWeight: 10.0,
+        dampScalar: 0.8
     }
+
+    const aspect = canvas.width / canvas.height;
+    const time = new Time();
+    const emitterSize = 2;
+    const emitterTexSize = sqrtFloor(particleParams.count);
+    const emitterCorner = [-emitterSize/2, -emitterSize/2];
 
     // --- GUI SETUP ---
     const gui = new GUI({ title: 'Wavefront Settings' });
@@ -78,8 +81,6 @@ export function initWavefrontField(gl, canvas) {
     fParticles.add(particleParams, 'minSize', 1, 100).name('Min Size');
     fParticles.add(particleParams, 'maxSize', 1, 100).name('Max Size');
     fParticles.add(particleParams, 'alpha', 0, 1).name('Alpha');
-    fParticles.add(particleParams, 'emitterSize', 1, 100).name('Emitter Size');
-    fParticles.add(particleParams, 'emitterHeight', 1, 100).name('Emitter Height');
 
     // Colors handle [r,g,b] arrays automatically (make sure your renderer handles 0-1 range)
     fParticles.addColor(particleParams, 'color').name('Color');
@@ -106,10 +107,8 @@ export function initWavefrontField(gl, canvas) {
     fBoids.add(boidsParams, 'alignmentWeight', 0, 5).name('Alignment');
     fBoids.add(boidsParams, 'cohesionWeight', 0, 5).name('Cohesion');
     fBoids.add(boidsParams, 'flowWeight', 0, 5).name('Flow');
+    fBoids.add(boidsParams, 'avoidWeight', 0, 20).name('Avoid');
     fBoids.add(boidsParams, 'dampScalar', 0.8, 1.0).name('Damping');
-
-    const emitterTexSize = sqrtFloor(particleParams.count);
-    const emitterCorner = [-particleParams.emitterSize/2, -particleParams.emitterSize/2];
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader({
@@ -186,7 +185,7 @@ export function initWavefrontField(gl, canvas) {
     boidsMaterial.initialize({gl});
     boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
     boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
-    boidsMaterial.setUniform('uEmitterSize', particleParams.emitterSize);
+    boidsMaterial.setUniform('uEmitterSize', emitterSize);
     boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
     boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
     boidsMaterial.setUniform('uPercepRadius', boidsParams.perceptionRadius);
@@ -195,6 +194,7 @@ export function initWavefrontField(gl, canvas) {
     boidsMaterial.setUniform('uAligWeight', boidsParams.alignmentWeight);
     boidsMaterial.setUniform('uCoheWeight', boidsParams.cohesionWeight);
     boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
+    boidsMaterial.setUniform('uAvoidWeight', boidsParams.avoidWeight);
     boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
 
     const emitterTexture = new Texture2D('emitterTexture', {
@@ -205,7 +205,7 @@ export function initWavefrontField(gl, canvas) {
     });
     emitterTexture.initialize({gl});
     emitterTexture.setData(gl,
-        genRectHaltonPos(particleParams.emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
+        genRectHaltonPos(emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
 
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
 
@@ -274,7 +274,7 @@ export function initWavefrontField(gl, canvas) {
         quadMaterial.initialize({gl});
         quadMaterial.setUniform('uAspect', aspect);
 
-        const quadData = genQuadUVXY(particleParams.emitterSize);
+        const quadData = genQuadUVXY(emitterSize);
         const quadShape = new Shape(
             'quad',
             {verticeCount: 6, schema: readAttrSchema(quadVert.input)});
