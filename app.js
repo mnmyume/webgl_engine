@@ -5,22 +5,8 @@ import Transform from './source/transform.js';
 import Time from './source/time.js';
 
 import { initQuad }from "./demo/quad.js";
-import { initSnow }from "./demo/snow.js";
-import { initArrows } from "./demo/arrows.js";
-import { initRain } from "./demo/rain.js";
-import { initLeaves } from "./demo/leaves.js";
-import { initFlowers } from "./demo/flowers.js";
 import { initWavefrontField } from "./demo/wavefrontField.js";
 
-
-const effects = {
-    quad: initQuad,
-    snow: initSnow,
-    arrows: initArrows,
-    rain: initRain,
-    leaves: initLeaves,
-    flowers: initFlowers
-};
 
 function main() {
 
@@ -50,20 +36,6 @@ function main() {
 
 
     initWavefrontField(gl, canvas, camera);
-    // switchEffect("snow");
-
-    function switchEffect(name) {
-        const fx = effects[name];
-        if (fx) {
-            console.log(`Switching to "${name}"`);
-            fx(gl, canvas, camera);
-        } else {
-            console.warn(`"${name}" doesn’t exist.`);
-        }
-    }
-
-    window.switchEffect = switchEffect;
-
 }
 
 
