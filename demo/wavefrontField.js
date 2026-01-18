@@ -33,7 +33,6 @@ export function initWavefrontField(gl, canvas) {
         lifeTime: 20,
         minSize: 15,
         maxSize: 15,
-        startLinVel:[0,0,0],
         color:[0.85,0.85,0.85],
         alpha:0.8,
         emitterSize: 2,
@@ -59,7 +58,7 @@ export function initWavefrontField(gl, canvas) {
         separationWeight: 2.0,
         alignmentWeight: 1.5,
         cohesionWeight: 1.5,
-        flowWeight: 3.0,
+        flowWeight: 1.0,
         avoidWeight: 10.0,
         dampScalar: 0.8
     }
@@ -85,12 +84,6 @@ export function initWavefrontField(gl, canvas) {
     // Colors handle [r,g,b] arrays automatically (make sure your renderer handles 0-1 range)
     fParticles.addColor(particleParams, 'color').name('Color');
 
-    // Vector handling: startLinVel is an array, so we tweak indices manually
-    const fVel = fParticles.addFolder('Start Velocity');
-    fVel.add(particleParams.startLinVel, '0', -10, 10).name('X');
-    fVel.add(particleParams.startLinVel, '1', -10, 10).name('Y');
-    fVel.add(particleParams.startLinVel, '2', -10, 10).name('Z');
-
     // 2. Animation Texture Folder
     const fAni = gui.addFolder('Animation Texture');
     fAni.add(aniTexParams, 'numFrames', 1, 64, 1).name('Num Frames');
@@ -102,11 +95,12 @@ export function initWavefrontField(gl, canvas) {
     const fBoids = gui.addFolder('Boids Physics');
     fBoids.add(boidsParams, 'maxSpeed', 0, 50).name('Max Speed');
     fBoids.add(boidsParams, 'maxForce', 0, 5).name('Max Force');
+    fBoids.add(boidsParams, 'checkCount', 0, 100).name('Check Count');
     fBoids.add(boidsParams, 'perceptionRadius', 0, 20).name('Radius');
-    fBoids.add(boidsParams, 'separationWeight', 0, 5).name('Separation');
-    fBoids.add(boidsParams, 'alignmentWeight', 0, 5).name('Alignment');
-    fBoids.add(boidsParams, 'cohesionWeight', 0, 5).name('Cohesion');
-    fBoids.add(boidsParams, 'flowWeight', 0, 5).name('Flow');
+    fBoids.add(boidsParams, 'separationWeight', 0, 10).name('Separation');
+    fBoids.add(boidsParams, 'alignmentWeight', 0, 10).name('Alignment');
+    fBoids.add(boidsParams, 'cohesionWeight', 0, 10).name('Cohesion');
+    fBoids.add(boidsParams, 'flowWeight', 0, 10).name('Flow');
     fBoids.add(boidsParams, 'avoidWeight', 0, 20).name('Avoid');
     fBoids.add(boidsParams, 'dampScalar', 0.8, 1.0).name('Damping');
 
@@ -186,16 +180,6 @@ export function initWavefrontField(gl, canvas) {
     boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
     boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
     boidsMaterial.setUniform('uEmitterSize', emitterSize);
-    boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
-    boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
-    boidsMaterial.setUniform('uPercepRadius', boidsParams.perceptionRadius);
-    boidsMaterial.setUniform('uCheckCount', boidsParams.checkCount);
-    boidsMaterial.setUniform('uSepaWeight', boidsParams.separationWeight);
-    boidsMaterial.setUniform('uAligWeight', boidsParams.alignmentWeight);
-    boidsMaterial.setUniform('uCoheWeight', boidsParams.cohesionWeight);
-    boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
-    boidsMaterial.setUniform('uAvoidWeight', boidsParams.avoidWeight);
-    boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
 
     const emitterTexture = new Texture2D('emitterTexture', {
         width: emitterTexSize, height: emitterTexSize,
@@ -320,6 +304,18 @@ export function initWavefrontField(gl, canvas) {
             boidsMaterial.setUniform('uTime', time.ElapsedTime);
             boidsMaterial.setUniform('uDeltaTime', time.Interval);
             boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
+
+            boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
+            boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
+            boidsMaterial.setUniform('uPercepRadius', boidsParams.perceptionRadius);
+            boidsMaterial.setUniform('uCheckCount', boidsParams.checkCount);
+            boidsMaterial.setUniform('uSepaWeight', boidsParams.separationWeight);
+            boidsMaterial.setUniform('uAligWeight', boidsParams.alignmentWeight);
+            boidsMaterial.setUniform('uCoheWeight', boidsParams.cohesionWeight);
+            boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
+            boidsMaterial.setUniform('uAvoidWeight', boidsParams.avoidWeight);
+            boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
+
             boidsSolver.update(gl);
 
             if (boidsSolver.Mode === FrameSolver.MODE.init) {

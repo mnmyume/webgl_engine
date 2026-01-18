@@ -20,6 +20,7 @@ uniform int uState;  // init mode, uState = 1; play mode, uState = 2;
 uniform bool uLoop;
 
 uniform float uGridSize;
+uniform vec2 uGoalCoord;
 
 vec2 direction[4] = vec2[](
     vec2(-1, 0),   // left
@@ -63,6 +64,7 @@ void main()
         } else {
             currDist = min(currDist, minNeighbor + 50.0);
         }
+
     }
 
     fragData[0] = vec4(currDist, isObastacle, isGoal, 1.0);

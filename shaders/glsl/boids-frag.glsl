@@ -56,20 +56,6 @@ vec2 updateAcc(vec2 acc, vec2 force, float weight) {
     return acc;
 }
 
-vec2 updateFlowAcc(vec2 acc, vec2 vel, vec2 flowDir) {
-    if (length(flowDir) > 0.0) {
-        // steer force
-        vec2 desired = normalize(flowDir) * uMaxSpeed;
-        vec2 steer = desired - vel;
-
-        if(length(steer) > uMaxForce) steer = normalize(steer) * uMaxForce;
-
-        acc += steer * uFlowWeight;
-    }
-
-    return acc;
-}
-
 vec2 updateVel(vec2 vel, vec2 acc) {
     return vel = vel + acc * uDeltaTime;
 }
@@ -104,18 +90,18 @@ void main() {
 
         for(int i=0; i<uCheckCount; i++) {
             float noise = rand(uv + vec2(float(i) * 0.1, uDeltaTime));
-            vec2 sampleUV = vec2(noise, fract(noise * 123.45));
-            vec2 samplePos = texture(uDataSlot0, sampleUV).xy;
-            vec2 sampleVel = texture(uDataSlot0, sampleUV).zw;
+            vec2 checkUV = vec2(noise, fract(noise * 123.45));
+            vec2 checkPos = texture(uDataSlot0, checkUV).xy;
+            vec2 checkVel = texture(uDataSlot0, checkUV).zw;
 
-            float sampleDist = distance(pos, samplePos);
+            float sampleDist = distance(pos, checkPos);
 
             bool insidePerception = sampleDist > 0.001 && sampleDist < uPercepRadius;
 
             if (insidePerception) {
-                sep += normalize(pos - samplePos) / sampleDist;
-                ali += sampleVel;
-                coh += samplePos;
+                sep += normalize(pos - checkPos) / sampleDist;
+                ali += checkVel;
+                coh += checkPos;
 
                 inPercepCount++;
             }
@@ -135,7 +121,7 @@ void main() {
         }
 
         vec2 flowDir = texture(uGradientTexture, gradientUV).xy;
-        acc = updateFlowAcc(acc, vel, flowDir);
+        acc += flowDir * uFlowWeight;
 
         // --- obstacle ---
         float lookAheadDist = uPercepRadius * 1.5;
