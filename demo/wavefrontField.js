@@ -57,7 +57,7 @@ export function initWavefrontField(gl, canvas) {
         perceptionRadius: 5.0,
         checkCount: 8,
         separationWeight: 2.0,
-        alignmentWeight: 1.5,
+        alignmentWeight: 1.0,
         cohesionWeight: 1.5,
         flowWeight: 1.0,
         avoidWeight: 10.0,
@@ -133,7 +133,7 @@ export function initWavefrontField(gl, canvas) {
 
     const initGridTexture = new Texture2D('initGridTexture', {
         width: gridConfig.gridSize, height: gridConfig.gridSize,
-        scaleDown: 'LINEAR', scaleUp: 'LINEAR',
+        scaleDown: 'NEAREST', scaleUp: 'NEAREST',
     })
     initGridTexture.initialize({gl});
     initGridTexture.setData(gl, genWavefrontInitDataJSON(gridConfig));

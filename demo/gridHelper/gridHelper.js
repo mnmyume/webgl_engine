@@ -11,8 +11,8 @@ import {readAttrSchema} from "../../source/shapeHelper.js";
 
 import quadVert from "../../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../../shaders/glsl/quad-frag.glsl";
-import screenQuadVert from "../../shaders/glsl/background-vert.glsl";
-import screenQuadFrag from "../../shaders/glsl/background-frag.glsl";
+import screenQuadVert from "../../shaders/glsl/screenQuad-vert.glsl";
+import screenQuadFrag from "../../shaders/glsl/screenQuad-frag.glsl";
 import wavefrontFrag from "./_wavefront-frag.glsl";
 import gradientFrag from "../../shaders/glsl/gradient-frag.glsl";
 
@@ -334,7 +334,7 @@ function main() {
 
         wavefrontSolver.update(gl);
 
-        const frameData = wavefrontSolver.readFrameBuffer(gl);
+        const frameData = wavefrontSolver.readFramebuffer(gl);
 
         for(let i=0; i<GRID_SIZE; i++)
             for (let j=0; j<GRID_SIZE; j++) {
@@ -361,7 +361,7 @@ function main() {
 
         gradientSolver.update(gl);
 
-        const frameData = gradientSolver.readFrameBuffer(gl);
+        const frameData = gradientSolver.readFramebuffer(gl);
 
         for(let i=0; i<GRID_SIZE; i++)
             for (let j=0; j<GRID_SIZE; j++) {
