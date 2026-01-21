@@ -68,13 +68,6 @@ vec2 damp(vec2 vel, float k) {
     return vel*k;
 }
 
-vec2 limit(vec2 v, float maxVal) {
-    float len = length(v);
-    if (len > maxVal && len > 0.0) {
-        return normalize(v) * maxVal;
-    }
-    return v;
-}
 
 void main() {
     vec2 uv = gl_FragCoord.xy/vec2(uEmitterTexSize);
