@@ -10,7 +10,7 @@ import SolverShape from "../source/solverShape.js";
 import SolverMaterial from "../source/solverMaterial.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import {sqrtFloor} from "../source/mathHelper.js";
-import {genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON} from "../source/generatorHelper.js";
+import {genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON, genWavefrontDataClick, getMouseGridPosition} from "../source/generatorHelper.js";
 import gridConfig from './gridHelper/grid_config.json';
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
@@ -24,6 +24,7 @@ import particleFrag from "../shaders/glsl/particle-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
+
 
 
 export function initWavefrontField(gl, canvas) {
@@ -281,6 +282,22 @@ export function initWavefrontField(gl, canvas) {
 
         function drawWavefront() {
             requestAnimationFrame(drawWavefront);
+            // update goal from mouse click
+            canvas.addEventListener('mousedown', (e) => {
+                const clickPos = getMouseGridPosition(e, canvas, gridConfig.gridSize);
+
+                if (!clickPos) return;
+
+                console.log("Click grid:", clickPos);
+
+                const newData = genWavefrontDataClick(gridConfig, clickPos);
+
+                initGridTexture.setData(gl, newData);
+                wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
+
+                wavefrontSolver.Mode = FrameSolver.MODE.init;
+            });
+
             // --- wavefront solver update ---
             wavefrontMaterial.setUniform('uState', wavefrontSolver.mode);
             wavefrontSolver.update(gl);

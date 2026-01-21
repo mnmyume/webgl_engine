@@ -124,3 +124,45 @@ export function genWavefrontInitDataJSON(config) {
 
     return new Float32Array(initData);
 }
+
+export function genWavefrontDataClick(config, clickPos) {
+    const { gridSize, obstacles } = config;
+    const initData = [];
+
+    const obstacleSet = new Set();
+    obstacles.forEach(([x, y]) => {
+        obstacleSet.add(`${x},${y}`);
+    });
+
+    for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+
+            const isGoal = (clickPos && c === clickPos.x && r === clickPos.y);
+            const isObstacle = obstacleSet.has(`${c},${r}`) ? 1 : 0;
+            const dist = isGoal ? 0 : Infinity;
+
+            initData.push(dist, isObstacle, 0, 1);
+        }
+    }
+
+    return new Float32Array(initData);
+}
+
+export function getMouseGridPosition(event, canvas, gridSize) {
+    const rect = canvas.getBoundingClientRect();
+
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const normX = mouseX / rect.width;
+    const normY = mouseY / rect.height;
+
+    const gridX = Math.floor(normX * gridSize);
+    const gridY = Math.floor(normY * gridSize);
+
+    if (gridX < 0 || gridX >= gridSize || gridY < 0 || gridY >= gridSize) {
+        return null;
+    }
+
+    return { x: gridX, y: gridY };
+}

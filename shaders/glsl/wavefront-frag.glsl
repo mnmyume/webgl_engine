@@ -38,19 +38,16 @@ void main()
 
     float currDist;
     float isObastacle;
-    float isGoal;
 
     // init
     if(uState == 1) {
         vec2 initUV = vec2(uv.x, 1.0 - uv.y);
         currDist = texture(uInitGridTexture, initUV).r;
         isObastacle = texture(uInitGridTexture, initUV).g;
-        isGoal = texture(uInitGridTexture, initUV).b;
 
     } else if(uState == 2) {
         currDist = texture(uDataSlot0, uv).r;
         isObastacle = texture(uDataSlot0, uv).g;
-        isGoal = texture(uDataSlot0, uv).b;
 
         float L = texture(uDataSlot0, uv + direction[0]/uGridSize).r;
         float R = texture(uDataSlot0, uv + direction[1]/uGridSize).r;
@@ -67,7 +64,7 @@ void main()
 
     }
 
-    fragData[0] = vec4(currDist, isObastacle, isGoal, 1.0);
+    fragData[0] = vec4(currDist, isObastacle, 0.0, 1.0);
     fragData[1] = vec4(1.0, 1.0, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);

@@ -80,6 +80,7 @@ void main() {
         pos = texture(uEmitterTexture, uv).xy;
     }
     else if(uState == 2) {
+        vec2 oldPos = texture(uDataSlot0, uv).xy;
         vec2 oldVel = texture(uDataSlot0, uv).zw;
         vec2 acc = vec2(0.0);
 
@@ -123,20 +124,19 @@ void main() {
         vec2 flowDir = texture(uGradientTexture, gradientUV).xy;
         acc += flowDir * uFlowWeight;
 
-        // --- obstacle ---
-        float lookAheadDist = uPercepRadius * 1.5;
-        vec2 probePos = pos;
-        if (length(vel) > 0.0) {
-            probePos = pos + normalize(vel) * lookAheadDist;
-        }
-        vec2 probeUV = getGradientCoord(probePos, uEmitterTexSize);
+        vel = updateVel(vel, acc);
 
-        float aheadObstacle = texture(uGradientTexture, probeUV).w;
+        vel = damp(vel, uDampScalar);
+
+        pos = updatePos(pos, vel);
+
+        gradientUV = getGradientCoord(pos, uEmitterSize);
+
+        // --- obstacle ---
+        float aheadObstacle = texture(uGradientTexture, gradientUV).w;
         bool isAheadObstacle = aheadObstacle > 0.5;
-        float insideObstacle = texture(uGradientTexture, gradientUV).w;
-        bool isInsideObstacle = insideObstacle > 0.5;
         if (isAheadObstacle) {
-            vec2 avoidDir = texture(uGradientTexture, probeUV).xy;
+            vec2 avoidDir = texture(uGradientTexture, gradientUV).xy;
             vec2 avoidForce = vec2(0.0);
 
             if (length(vel) > 0.0) {
@@ -145,19 +145,10 @@ void main() {
                 avoidForce = vec2(rand(uv) - 0.5, rand(uv + 1.0) - 0.5) * uMaxForce * 5.0;
             }
 
+            pos = oldPos;
+            vel = -0.5*oldVel;
             acc += avoidForce;
         }
-        if (isInsideObstacle) {
-            vec2 outDir = texture(uGradientTexture, gradientUV).xy;
-            vel *= outDir;
-            pos = pos + outDir * uDeltaTime;
-        }
-
-        vel = updateVel(vel, acc);
-
-        vel = damp(vel, uDampScalar);
-
-        pos = updatePos(pos, vel);
     }
 
     fragData[0] = vec4(pos, vel);
