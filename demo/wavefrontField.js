@@ -18,13 +18,14 @@ import quadFrag from "../shaders/glsl/quad-frag.glsl";
 import screenQuadVert from "../shaders/glsl/screenQuad-vert.glsl";
 import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
+import mapVert from "../shaders/glsl/map-vert.glsl";
+import mapFrag from "../shaders/glsl/map-frag.glsl";
 import boidsFrag from "../shaders/glsl/boids-frag.glsl";
 import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
-
 
 
 export function initWavefrontField(gl, canvas) {
@@ -57,7 +58,7 @@ export function initWavefrontField(gl, canvas) {
         perceptionRadius: 5.0,
         checkCount: 8,
         separationWeight: 2.0,
-        alignmentWeight: 1.0,
+        alignmentWeight: 1.5,
         cohesionWeight: 1.5,
         flowWeight: 1.0,
         avoidWeight: 10.0,
@@ -168,20 +169,7 @@ export function initWavefrontField(gl, canvas) {
     gradientSolver.initialize({gl});
 
     // -- init boids --
-    const boidsShader = new Shader({
-        vertexSource: screenQuadVert,
-        fragmentSource: boidsFrag,
-    })
-    boidsShader.initialize({gl});
-
-    const boidsMaterial = new Material('boidsMaterial', {
-        shader: boidsShader,
-    });
-    boidsMaterial.initialize({gl});
-    boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
-    boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
-    boidsMaterial.setUniform('uEmitterSize', emitterSize);
-
+    // store the pos and vel in framebuffer for avg pos and vel in boids
     const emitterTexture = new Texture2D('emitterTexture', {
         width: emitterTexSize, height: emitterTexSize,
         scaleDown: 'NEAREST',
@@ -191,6 +179,48 @@ export function initWavefrontField(gl, canvas) {
     emitterTexture.initialize({gl});
     emitterTexture.setData(gl,
         genRectHaltonPos(emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
+
+    const mapShader = new Shader({
+        vertexSource: mapVert,
+        fragmentSource: mapFrag,
+    });
+    mapShader.initialize({gl});
+
+    const mapMaterial = new Material('mapMaterial', {
+       shader: mapShader,
+    });
+    mapMaterial.initialize({gl});
+    // mapMaterial.setTexture('uEmitterTexture', emitterTexture);
+    mapMaterial.setUniform('uEmitterTexSize', emitterTexSize);
+
+    const mapShape = new Shape('mapShape', {
+        state: 3,
+        count:particleParams.count, schema: readAttrSchema(mapVert.input)
+    });
+    mapShape.initialize({gl});
+
+    const mapSolver = new FrameSolver('mapSolver', {
+        shape: mapShape, material: mapMaterial,
+        width: gridConfig.gridSize, height: gridConfig.gridSize,
+        screenWidth: canvas.width, screenHeight: canvas.height,
+        mode:1, blendState:FrameSolver.BLENDSTATE.add
+    });
+    mapSolver.initialize({gl});
+
+    // boids solver
+    const boidsShader = new Shader({
+        vertexSource: screenQuadVert,
+        fragmentSource: boidsFrag,
+    });
+    boidsShader.initialize({gl});
+
+    const boidsMaterial = new Material('boidsMaterial', {
+        shader: boidsShader,
+    });
+    boidsMaterial.initialize({gl});
+    boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
+    boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
+    boidsMaterial.setUniform('uEmitterSize', emitterSize);
 
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
 
@@ -321,6 +351,7 @@ export function initWavefrontField(gl, canvas) {
             boidsMaterial.setUniform('uTime', time.ElapsedTime);
             boidsMaterial.setUniform('uDeltaTime', time.Interval);
             boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
+            boidsMaterial.setTexture('uMapTexture', mapSolver.frontBuffer.textures[0]);
 
             boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
             boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
@@ -339,12 +370,16 @@ export function initWavefrontField(gl, canvas) {
                 boidsSolver.Mode = FrameSolver.MODE.play;
             }
 
+            mapMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
+            mapSolver.update(gl);
+
             // gl
             gl.viewport(0, 0, canvas.width, canvas.height);
 
             gl.clearColor(0.2, 0.2, 0.2, 1.0);
             gl.colorMask(true, true, true, true);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.blendFunc(gl.ONE, gl.ZERO);
 
             // --- draw emitter quad ---
             quadMaterial.preDraw(gl);
@@ -362,10 +397,6 @@ export function initWavefrontField(gl, canvas) {
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);
         }
-
-        // for(let i = 0; i < 50; i++) {
-        //     drawWavefront()
-        // }
         drawWavefront();
         drawGradient();
     }

@@ -4,6 +4,7 @@ import Framebuffer from "./framebuffer.js";
 
 export default class FrameSolver{
     static MODE = {init:1, play:2}
+    static BLENDSTATE = {none:0, add:1};
     frontBuffer = [];
     backBuffer = [];
     backBufferTextures = [];
@@ -27,6 +28,7 @@ export default class FrameSolver{
         this.material = params.material || null;
         this.mode = params.mode || 0;
         this.loop = params.loop || false;
+        this.blendState = params.blendState || FrameSolver.BLENDSTATE.none;
     }
     initialize({gl}){
 
@@ -46,6 +48,17 @@ export default class FrameSolver{
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    setBlendState(gl, state){
+        gl.enable(gl.BLEND);
+
+        if (state === FrameSolver.BLENDSTATE.none) {
+            gl.blendFunc(gl.ONE, gl.ZERO);
+        }
+        else if (state === FrameSolver.BLENDSTATE.add) {
+            gl.blendFunc(gl.ONE, gl.ONE);
+        }
+    }
+
     update(gl){
 
         if(!(this.mode & FrameSolver.MODE.play || this.mode & FrameSolver.MODE.init ))
@@ -56,7 +69,8 @@ export default class FrameSolver{
 
         gl.viewport(0, 0, this.width, this.height);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.blendFunc(gl.ONE, gl.ZERO);  // so alpha output color draws correctly
+
+        this.setBlendState(gl, this.blendState);
 
         this.attach(gl);
 
@@ -69,6 +83,7 @@ export default class FrameSolver{
 
         this.material.preDraw(gl);
         this.shape.draw(gl, this.material);
+        this.readFramebuffer(gl)
         this.material.postDraw(gl);
 
         this.swap();

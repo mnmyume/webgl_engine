@@ -15,6 +15,8 @@ uniform sampler2D uDataSlot3;
 uniform sampler2D uEmitterTexture;  // pos.xy, size.z, startTime.w
 #value uGradientTexture:5
 uniform sampler2D uGradientTexture; // direction.xy, distance.z, obstacle.w
+#value uMapTexture:6
+uniform sampler2D uMapTexture;
 
 #value uDeltaTime:0.01666
 uniform float uDeltaTime;
@@ -42,8 +44,8 @@ uniform float uDampScalar;
 
 out vec4[4] fragData;
 
-float rand(vec2 co){
-    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+vec2 rand(vec2 n){
+    return fract(sin(vec2(n.x,n.y*7.0))*43758.5);
 }
 
 vec2 getGradientCoord(vec2 pos, float emitterSize) {
@@ -91,14 +93,13 @@ void main() {
         int inPercepCount = 0;
 
         for(int i=0; i<uCheckCount; i++) {
-            float noise = rand(uv + vec2(float(i) * 0.1, uDeltaTime));
-            vec2 checkUV = vec2(noise, fract(noise * 123.45));
+            vec2 checkUV = rand(uv + vec2(float(i) * 0.1, uDeltaTime));
             vec2 checkPos = texture(uDataSlot0, checkUV).xy;
             vec2 checkVel = texture(uDataSlot0, checkUV).zw;
 
             float sampleDist = distance(pos, checkPos);
 
-            bool insidePerception = sampleDist > 0.001 && sampleDist < uPercepRadius;
+            bool insidePerception = sampleDist > 0.0 && sampleDist < uPercepRadius;
 
             if (insidePerception) {
                 sep += normalize(pos - checkPos) / sampleDist;
@@ -142,7 +143,7 @@ void main() {
             if (length(vel) > 0.0) {
                 avoidForce = avoidDir * uMaxForce * uAvoidWeight;
             } else {
-                avoidForce = vec2(rand(uv) - 0.5, rand(uv + 1.0) - 0.5) * uMaxForce * 5.0;
+                avoidForce = rand(uv) * uMaxForce * 5.0;
             }
 
             pos = oldPos;
