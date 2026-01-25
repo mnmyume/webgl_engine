@@ -57,12 +57,12 @@ export function initWavefrontField(gl, canvas) {
         maxForce: 1,
         perceptionRadius: 5.0,
         checkCount: 8,
-        separationWeight: 2.0,
-        alignmentWeight: 1.5,
-        cohesionWeight: 1.5,
+        separationWeight: 1.0,
+        alignmentWeight: 1.0,
+        cohesionWeight: 1.0,
         flowWeight: 1.0,
         avoidWeight: 10.0,
-        dampScalar: 0.8
+        dampScalar: 1.0
     }
 
     const aspect = canvas.width / canvas.height;
@@ -351,7 +351,8 @@ export function initWavefrontField(gl, canvas) {
             boidsMaterial.setUniform('uTime', time.ElapsedTime);
             boidsMaterial.setUniform('uDeltaTime', time.Interval);
             boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
-            boidsMaterial.setTexture('uMapTexture', mapSolver.frontBuffer.textures[0]);
+            boidsMaterial.setTexture('uMapTexture1', mapSolver.frontBuffer.textures[0]);
+            boidsMaterial.setTexture('uMapTexture2', mapSolver.frontBuffer.textures[1]);
 
             boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
             boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
