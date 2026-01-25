@@ -134,7 +134,7 @@ void main() {
         acc += flowDir * uFlowWeight;
 
         vel = updateVel(vel, acc);
-//        vel = damp(vel, uDampScalar);
+        vel = damp(vel, uDampScalar);
 
         pos = updatePos(pos, vel);
 
@@ -143,18 +143,11 @@ void main() {
         float aheadObstacle = texture(uGradientTexture, gridUV).w;
         bool isAheadObstacle = aheadObstacle > 0.5;
         if (isAheadObstacle) {
-            vec2 avoidDir = texture(uGradientTexture, gridUV).xy;
-            vec2 avoidForce = vec2(0.0);
+            vec2 obstacleNormal = normalize(texture(uGradientTexture, gridUV).xy);
 
-            if (length(vel) > 0.0) {
-                avoidForce = avoidDir * uMaxForce * uAvoidWeight;
-            } else {
-                avoidForce = rand(uv) * uMaxForce * 5.0;
-            }
+            pos = oldPos + (obstacleNormal * 0.005);
 
-            pos = oldPos;
-            vel = -0.5*oldVel;
-            acc += avoidForce;
+            vel = reflect(vel, obstacleNormal);
         }
     }
 
