@@ -28,7 +28,7 @@ import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 
-export function initWavefrontField(gl, canvas) {
+export function initFlyEnemy(gl, canvas) {
     const particleParams = {
         count: 1600,
         duration: 20,

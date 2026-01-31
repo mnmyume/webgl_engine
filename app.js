@@ -5,7 +5,8 @@ import Transform from './source/transform.js';
 import Time from './source/time.js';
 
 import { initQuad }from "./demo/quad.js";
-import { initWavefrontField } from "./demo/wavefrontField.js";
+import { initFlyEnemy } from "./demo/flyEnemy.js";
+import { initGroundEnemy } from "./demo/groundEnemy.js";
 
 
 function main() {
@@ -17,7 +18,8 @@ function main() {
     // gl.viewport(0, 0, canvas.width, canvas.height);
     gl.disable(gl.CULL_FACE);
 
-    initWavefrontField(gl, canvas);
+    // initFlyEnemy(gl, canvas);
+    initGroundEnemy(gl, canvas);
 }
 
 
