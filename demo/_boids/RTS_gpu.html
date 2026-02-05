@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebGL2 Stable Sliding (Final)</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #111; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+<canvas id="glcanvas"></canvas>
+
+<script id="vs-sim" type="x-shader/x-vertex">
+    #version 300 es
+    layout(location=0) in vec2 a_pos;
+    void main() { gl_Position = vec4(a_pos, 0, 1); }
+</script>
+
+<script id="fs-sim" type="x-shader/x-fragment">
+    #version 300 es
+    precision highp float;
+
+    uniform sampler2D u_texState;
+    uniform vec2 u_resolution;
+    uniform vec2 u_target;
+    uniform float u_wake;
+
+    out vec4 outState;
+
+    const float SPEED = 3.5;
+    const float STOP_DIST = 10.0;
+    const float COLLISION_RAD = 11.0;
+    const int GRID_DIM = 32;
+
+    void main() {
+        ivec2 myCoord = ivec2(gl_FragCoord.xy);
+        vec4 myData = texelFetch(u_texState, myCoord, 0);
+
+        vec2 pos = myData.xy;
+        float angle = myData.z;
+        float uState = myData.w;
+
+        // 1. Global Wake (Mouse Click) overrides everything
+        if (u_wake > 0.5) uState = 1.0;
+
+        float distToTarget = distance(pos, u_target);
+        bool atTarget = distToTarget < STOP_DIST;
+
+        // Track if we are currently blocked by a stationary neighbor
+        bool blocked = false;
+
+        vec2 force = vec2(0.0);
+
+        // 2. Collision Loop
+        for (int y = 0; y < GRID_DIM; y++) {
+            for (int x = 0; x < GRID_DIM; x++) {
+                if (x == myCoord.x && y == myCoord.y) continue;
+
+                vec4 other = texelFetch(u_texState, ivec2(x, y), 0);
+                vec2 delta = pos - other.xy;
+                float dSq = dot(delta, delta);
+                float minDist = COLLISION_RAD * 2.0;
+
+                if (dSq < minDist * minDist && dSq > 0.001) {
+                    float d = sqrt(dSq);
+                    float overlap = minDist - d;
+                    vec2 n = delta / d;
+
+                    overlap = min(overlap, 0.5);
+
+                    // Pushing Logic
+                    if (uState > 0.5) {
+                        float pushFactor = (other.w < 0.5) ? 1.0 : 0.5;
+                        force += n * overlap * pushFactor;
+                    }
+
+                    // --- BLOCKAGE CHECK ---
+                    // If neighbor is sleeping AND closer to target, they are a wall.
+                    if (other.w < 0.5) {
+                        if (distance(pos, u_target) > distance(other.xy, u_target)) {
+                            // Only count as blockage if we are relatively close to target
+                            // (This keeps units moving freely in the open field)
+                            if (distToTarget < 300.0) {
+                                blocked = true;
+                            }
+                        }
+                    }
+
+                    // --- WAKE UP LOGIC ---
+                    // Only wake up if:
+                    // 1. I am NOT at the target
+                    // 2. I am NOT blocked
+                    // 3. I was hit by an active unit
+                    if (uState < 0.5 && !atTarget && !blocked) {
+                        if (other.w > 0.5) {
+                            uState = 1.0; // Wake up
+                            force += n * overlap * 0.5;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Apply Forces & Movement
+        if (uState > 0.5) {
+            vec2 toTarget = u_target - pos;
+            vec2 dir = normalize(toTarget);
+            angle = atan(dir.y, dir.x);
+            force += dir * (SPEED * 0.125);
+        }
+
+        // 4. Final Sleep Decision
+        // If I am at target OR blocked, I MUST sleep.
+        if (atTarget || blocked) {
+            uState = 0.0;
+        }
+
+        pos += force;
+        pos = clamp(pos, vec2(0), u_resolution);
+        outState = vec4(pos, angle, uState);
+    }
+</script>
+
+<script id="vs-render" type="x-shader/x-vertex">
+    #version 300 es
+    layout(location=0) in vec2 a_geometry;
+    layout(location=1) in vec2 a_texIndex;
+
+    uniform sampler2D u_texState;
+    uniform vec2 u_resolution;
+
+    out vec3 v_color;
+
+    void main() {
+        vec4 data = texelFetch(u_texState, ivec2(a_texIndex), 0);
+        vec2 pos = data.xy;
+        float angle = data.z;
+        float state = data.w;
+
+        float c = cos(angle);
+        float s = sin(angle);
+        mat2 rot = mat2(c, -s, s, c);
+
+        vec2 vPos = (rot * a_geometry * 18.0) + pos;
+        gl_Position = vec4((vPos / u_resolution * 2.0 - 1.0) * vec2(1, -1), 0, 1);
+
+        // Blue = Active, Red = Sleeping
+        v_color = (state > 0.5) ? vec3(0.2, 0.6, 1.0) : vec3(0.8, 0.1, 0.1);
+    }
+</script>
+
+<script id="fs-render" type="x-shader/x-fragment">
+    #version 300 es
+    precision mediump float;
+    in vec3 v_color;
+    out vec4 outColor;
+    void main() { outColor = vec4(v_color, 1.0); }
+</script>
+
+<script>
+    const SIM_SIZE = 4;
+    const UNIT_COUNT = SIM_SIZE * SIM_SIZE;
+    const canvas = document.getElementById("glcanvas");
+    const gl = canvas.getContext("webgl2", { alpha: false });
+
+    if (!gl.getExtension("EXT_color_buffer_float")) alert("Need EXT_color_buffer_float");
+
+    function createProgram(vsSrc, fsSrc) {
+        const vs = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vs, vsSrc); gl.compileShader(vs);
+        if(!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) console.error("VS:", gl.getShaderInfoLog(vs));
+        const fs = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fs, fsSrc); gl.compileShader(fs);
+        if(!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) console.error("FS:", gl.getShaderInfoLog(fs));
+        const p = gl.createProgram();
+        gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
+        if(!gl.getProgramParameter(p, gl.LINK_STATUS)) console.error("Link:", gl.getProgramInfoLog(p));
+        return p;
+    }
+
+    const pSim = createProgram(document.getElementById("vs-sim").text.trim(), document.getElementById("fs-sim").text.trim());
+    const pRender = createProgram(document.getElementById("vs-render").text.trim(), document.getElementById("fs-render").text.trim());
+
+    if (!pSim || !pRender) throw new Error("Shader Error");
+
+    const initData = new Float32Array(UNIT_COUNT * 4);
+    const indices = new Float32Array(UNIT_COUNT * 2);
+    for(let i=0; i<UNIT_COUNT; i++) {
+        let x = i % SIM_SIZE; let y = Math.floor(i / SIM_SIZE);
+        initData[i*4+0] = 50 + x * 25;
+        initData[i*4+1] = 50 + y * 25;
+        initData[i*4+2] = 0; initData[i*4+3] = 0;
+        indices[i*2+0] = x; indices[i*2+1] = y;
+    }
+
+    const triVerts = new Float32Array([-0.5,-0.5, 0.5,-0.5, -0.5,0.5, -0.5,0.5, 0.5,-0.5, 0.5,0.5, 0.3,0.0, 0.0,0.2, 0.0,-0.2]);
+    const quadVerts = new Float32Array([-1,-1, 1,-1, -1,1, 1,1]);
+
+    const bufQuad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bufQuad); gl.bufferData(gl.ARRAY_BUFFER, quadVerts, gl.STATIC_DRAW);
+    const bufTri = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bufTri); gl.bufferData(gl.ARRAY_BUFFER, triVerts, gl.STATIC_DRAW);
+    const bufIdx = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bufIdx); gl.bufferData(gl.ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+    const vaoSim = gl.createVertexArray();
+    gl.bindVertexArray(vaoSim);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufQuad);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+
+    const vaoRender = gl.createVertexArray();
+    gl.bindVertexArray(vaoRender);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufTri);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufIdx);
+    gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribDivisor(1, 1);
+    gl.bindVertexArray(null);
+
+    function createTexture(data) {
+        const t = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, SIM_SIZE, SIM_SIZE, 0, gl.RGBA, gl.FLOAT, data);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        return t;
+    }
+
+    let texA = createTexture(initData);
+    let texB = createTexture(null);
+    const fbo = gl.createFramebuffer();
+
+    let width, height;
+    function resize() { width=canvas.width=window.innerWidth; height=canvas.height=window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    let target = { x: width/2, y: height/2, wake: 0.0 };
+    window.addEventListener('mousedown', e => { target.x = e.clientX; target.y = e.clientY; target.wake = 1.0; });
+
+    function render() {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+        gl.viewport(0, 0, SIM_SIZE, SIM_SIZE);
+        gl.useProgram(pSim);
+        gl.uniform2f(gl.getUniformLocation(pSim, "u_resolution"), width, height);
+        gl.uniform2f(gl.getUniformLocation(pSim, "u_target"), target.x, target.y);
+        gl.bindVertexArray(vaoSim);
+
+        const uWakeLoc = gl.getUniformLocation(pSim, "u_wake");
+        const uTexLoc = gl.getUniformLocation(pSim, "u_texState");
+
+        for(let i=0; i<8; i++) {
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texB, 0);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texA);
+            gl.uniform1i(uTexLoc, 0);
+            gl.uniform1f(uWakeLoc, (i === 0) ? target.wake : 0.0);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            let tmp = texA; texA = texB; texB = tmp;
+        }
+        target.wake = 0.0;
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, width, height);
+        gl.clearColor(0.1, 0.1, 0.1, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.useProgram(pRender);
+        gl.bindTexture(gl.TEXTURE_2D, texA);
+        gl.uniform1i(gl.getUniformLocation(pRender, "u_texState"), 0);
+        gl.uniform2f(gl.getUniformLocation(pRender, "u_resolution"), width, height);
+
+        gl.bindVertexArray(vaoRender);
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, 9, UNIT_COUNT);
+
+        requestAnimationFrame(render);
+    }
+    render();
+</script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebGL2 Stable Sliding</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1a1a1a; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+<canvas id="glcanvas"></canvas>
+
+<script id="vs" type="x-shader/x-vertex">
+    #version 300 es
+    in vec2 a_position;
+    in vec2 a_instancePos;
+    in float a_instanceAngle;
+    in vec3 a_instanceColor;
+    uniform vec2 u_resolution;
+    uniform float u_size;
+    out vec3 v_color;
+    void main() {
+        float c = cos(a_instanceAngle);
+        float s = sin(a_instanceAngle);
+        mat2 rot = mat2(c, -s, s, c);
+        vec2 pos = (rot * a_position * u_size) + a_instancePos;
+        gl_Position = vec4((pos/u_resolution * 2.0 - 1.0) * vec2(1, -1), 0, 1);
+        v_color = a_instanceColor;
+    }
+</script>
+
+<script id="fs" type="x-shader/x-fragment">
+    #version 300 es
+    precision mediump float;
+    in vec3 v_color;
+    out vec4 outColor;
+    void main() { outColor = vec4(v_color, 1.0); }
+</script>
+
+<script>
+    // --- CONFIG ---
+    const UNIT_COUNT = 500;
+    const UNIT_SIZE = 18;
+    const COLLISION_RAD = 11;
+    const SPEED = 3.5;
+    const STOP_DIST = 5.0; // Absolute center arrival
+
+    // --- STATE ---
+    const units = new Float32Array(UNIT_COUNT * 4); // x,y,ang,active
+    const colors = new Float32Array(UNIT_COUNT * 3);
+    let target = { x: window.innerWidth/2, y: window.innerHeight/2 };
+
+    // Init
+    let cols = Math.ceil(Math.sqrt(UNIT_COUNT));
+    for(let i=0; i<UNIT_COUNT; i++) {
+        let r = Math.floor(i / cols);
+        let c = i % cols;
+        units[i*4 + 0] = 50 + c * 30;
+        units[i*4 + 1] = 50 + r * 30;
+        units[i*4 + 2] = 0;
+        units[i*4 + 3] = 0;
+
+        let isBlue = Math.random() > 0.5;
+        colors[i*3+0] = isBlue ? 0.2 : 0.9;
+        colors[i*3+1] = isBlue ? 0.5 : 0.2;
+        colors[i*3+2] = isBlue ? 1.0 : 0.2;
+    }
+
+    // --- WEBGL ---
+    const canvas = document.getElementById("glcanvas");
+    const gl = canvas.getContext("webgl2");
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function createShader(gl, type, src) {
+        const s = gl.createShader(type);
+        gl.shaderSource(s, src);
+        gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) return null;
+        return s;
+    }
+    const vs = createShader(gl, gl.VERTEX_SHADER, document.getElementById("vs").text.trim());
+    const fs = createShader(gl, gl.FRAGMENT_SHADER, document.getElementById("fs").text.trim());
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog); gl.useProgram(prog);
+
+    // --- GEOMETRY ---
+    const vertices = new Float32Array([
+        -0.5, -0.5,   0.5, -0.5,  -0.5,  0.5,
+        -0.5,  0.5,   0.5, -0.5,   0.5,  0.5,
+        0.3,  0.0,   0.0,  0.2,   0.0, -0.2
+    ]);
+    const bufPos = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufPos); gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    const bufInst = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufInst); gl.bufferData(gl.ARRAY_BUFFER, units, gl.DYNAMIC_DRAW);
+    const bufCol = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufCol); gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
+
+    const locPos = gl.getAttribLocation(prog, "a_position");
+    const locIPos = gl.getAttribLocation(prog, "a_instancePos");
+    const locIAng = gl.getAttribLocation(prog, "a_instanceAngle");
+    const locICol = gl.getAttribLocation(prog, "a_instanceColor");
+    const locRes = gl.getUniformLocation(prog, "u_resolution");
+    const locSize = gl.getUniformLocation(prog, "u_size");
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufPos);
+    gl.enableVertexAttribArray(locPos); gl.vertexAttribPointer(locPos, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufInst);
+    gl.enableVertexAttribArray(locIPos); gl.vertexAttribPointer(locIPos, 2, gl.FLOAT, false, 16, 0); gl.vertexAttribDivisor(locIPos, 1);
+    gl.enableVertexAttribArray(locIAng); gl.vertexAttribPointer(locIAng, 1, gl.FLOAT, false, 16, 8); gl.vertexAttribDivisor(locIAng, 1);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufCol);
+    gl.enableVertexAttribArray(locICol); gl.vertexAttribPointer(locICol, 3, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(locICol, 1);
+
+    // --- PHYSICS (The Logic) ---
+    const ITERATIONS = 4;
+
+    function update() {
+        // We need to track who was actually able to move
+        // Temp array to store "Start Position" for this frame
+        // We can't reuse 'units' array for this or we lose state
+        // Just grab it on the fly in the loop below.
+
+        // 1. Movement Proposal
+        for(let i=0; i<UNIT_COUNT; i++) {
+            let idx = i*4;
+            let active = units[idx+3];
+
+            if (active > 0.5) {
+                let x = units[idx];
+                let y = units[idx+1];
+
+                let dx = target.x - x;
+                let dy = target.y - y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+
+                if (dist < STOP_DIST) {
+                    units[idx+3] = 0;
+                    continue;
+                }
+
+                let angle = Math.atan2(dy, dx);
+                units[idx+2] = angle;
+
+                let moveX = Math.cos(angle) * SPEED;
+                let moveY = Math.sin(angle) * SPEED;
+
+                units[idx] += moveX;
+                units[idx+1] += moveY;
+            }
+        }
+
+        // 2. Hard Collisions
+        for(let iter=0; iter<ITERATIONS; iter++) {
+            for(let i=0; i<UNIT_COUNT; i++) {
+                for(let j=i+1; j<UNIT_COUNT; j++) {
+                    let idxI = i*4;
+                    let idxJ = j*4;
+
+                    let xi = units[idxI], yi = units[idxI+1];
+                    let xj = units[idxJ], yj = units[idxJ+1];
+
+                    let dx = xi - xj;
+                    let dy = yi - yj;
+                    let distSq = dx*dx + dy*dy;
+                    let minDist = COLLISION_RAD * 2;
+
+                    if (distSq < minDist * minDist && distSq > 0.001) {
+                        let dist = Math.sqrt(distSq);
+                        let overlap = minDist - dist;
+                        let nx = dx / dist;
+                        let ny = dy / dist;
+
+                        let activeI = units[idxI+3];
+                        let activeJ = units[idxJ+3];
+
+                        // Standard Pushing
+                        // If one is stopped, it acts as a wall
+                        if (activeI < 0.5 && activeJ > 0.5) {
+                            units[idxJ] -= nx * overlap;
+                            units[idxJ+1] -= ny * overlap;
+                        } else if (activeJ < 0.5 && activeI > 0.5) {
+                            units[idxI] += nx * overlap;
+                            units[idxI+1] += ny * overlap;
+                        } else {
+                            let half = overlap * 0.5;
+                            units[idxI] += nx * half;
+                            units[idxI+1] += ny * half;
+                            units[idxJ] -= nx * half;
+                            units[idxJ+1] -= ny * half;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. CONGESTION CHECK (The Fix)
+        // We check if a unit *wanted* to move but ended up effectively stationary.
+        // To do this properly without extra memory, we check:
+        // Is the unit Active? Yes.
+        // Is it colliding with stopped neighbors? (Implicitly handled by physics)
+        // Is it NOT getting closer to the target?
+
+        // Actually, simpler heuristic:
+        // If you are touching a STOPPED unit, and you are generally pointing at the center,
+        // and you are somewhat close to the center... stop.
+
+        // Better Heuristic:
+        // We can't easily check "prevPos" without an extra array.
+        // Instead, let's look at the result of the collision.
+        // If a unit is inside the "Collision Cloud" of the target, we turn it off.
+
+        // We iterate one last time. If a unit is Active, but it is overlapping
+        // a unit that is Stopped (or barely moving), we check alignment.
+
+        // Actually, the cleanest way in a single file without extra arrays:
+        // We just iterate collisions again. If Active touches Stopped,
+        // check if the Active unit is "behind" the Stopped unit relative to target.
+        // If so, Stop.
+
+        for(let i=0; i<UNIT_COUNT; i++) {
+            let idxI = i*4;
+            if(units[idxI+3] < 0.5) continue; // Already stopped
+
+            let xi = units[idxI];
+            let yi = units[idxI+1];
+
+            // Distance to target
+            let dxT = target.x - xi;
+            let dyT = target.y - yi;
+            let distTarget = Math.sqrt(dxT*dxT + dyT*dyT);
+
+            // If we are far away, never auto-stop (allow sliding)
+            if(distTarget > 300) continue;
+
+            // Check against neighbors
+            for(let j=0; j<UNIT_COUNT; j++) {
+                if(i===j) continue;
+                let idxJ = j*4;
+
+                // If neighbor is stopped
+                if(units[idxJ+3] < 0.5) {
+                    let xj = units[idxJ];
+                    let yj = units[idxJ+1];
+
+                    let dx = xi - xj;
+                    let dy = yi - yj;
+                    let d = Math.sqrt(dx*dx + dy*dy);
+
+                    // If touching a stopped unit
+                    if(d < COLLISION_RAD * 2.2) {
+                        // And that stopped unit is CLOSER to the target than we are (we are behind it)
+                        let distNeighborToTarget = Math.sqrt( (target.x-xj)**2 + (target.y-yj)**2 );
+
+                        if(distNeighborToTarget < distTarget) {
+                            // We are blocked by a wall closer to the center.
+                            // Random chance to stop (simulates reaction time/filling gaps)
+                            // High chance = instant freeze (no sliding). Low chance = lots of sliding.
+                            if(Math.random() > 0.1) {
+                                units[idxI+3] = 0; // Sleep
+                                break; // Done with this unit
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufInst);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, units);
+    }
+
+    function render() {
+        update();
+        gl.clearColor(0.1, 0.1, 0.1, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(prog);
+        gl.uniform2f(locRes, canvas.width, canvas.height);
+        gl.uniform1f(locSize, UNIT_SIZE);
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufPos);
+        gl.vertexAttribPointer(locPos, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, 9, UNIT_COUNT);
+        requestAnimationFrame(render);
+    }
+
+    window.addEventListener('mousedown', (e) => {
+        target.x = e.clientX;
+        target.y = e.clientY;
+        for(let i=0; i<UNIT_COUNT; i++) units[i*4+3] = 1.0;
+    });
+
+    render();
+</script>
+</body>
+</html>

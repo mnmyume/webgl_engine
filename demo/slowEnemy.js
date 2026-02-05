@@ -18,9 +18,7 @@ import quadFrag from "../shaders/glsl/quad-frag.glsl";
 import screenQuadVert from "../shaders/glsl/screenQuad-vert.glsl";
 import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
-import mapVert from "../shaders/glsl/map-vert.glsl";
-import mapFrag from "../shaders/glsl/map-frag.glsl";
-import boidsFrag from "../shaders/glsl/boids-frag.glsl";
+import slowFrag from "../shaders/glsl/slow-frag.glsl";
 import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
@@ -28,16 +26,15 @@ import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 
-export function initGroundEnemy(gl, canvas) {
+export function initSlowEnemy(gl, canvas) {
     const particleParams = {
-        count: 1600,
+        count: 36,
         duration: 20,
         lifeTime: 20,
         minSize: 15,
         maxSize: 15,
         color:[0.85,0.85,0.85],
         alpha:0.8,
-        emitterSize: 2,
     }
 
     const aniTexParams = {
@@ -168,8 +165,7 @@ export function initGroundEnemy(gl, canvas) {
     });
     gradientSolver.initialize({gl});
 
-    // -- init boids --
-    // store the pos and vel in framebuffer for avg pos and vel in boids
+    // -- init slow enemy solver --
     const emitterTexture = new Texture2D('emitterTexture', {
         width: emitterTexSize, height: emitterTexSize,
         scaleDown: 'NEAREST',
@@ -180,37 +176,10 @@ export function initGroundEnemy(gl, canvas) {
     emitterTexture.setData(gl,
         genRectHaltonPos(emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
 
-    const mapShader = new Shader({
-        vertexSource: mapVert,
-        fragmentSource: mapFrag,
-    });
-    mapShader.initialize({gl});
-
-    const mapMaterial = new Material('mapMaterial', {
-        shader: mapShader,
-    });
-    mapMaterial.initialize({gl});
-    // mapMaterial.setTexture('uEmitterTexture', emitterTexture);
-    mapMaterial.setUniform('uEmitterTexSize', emitterTexSize);
-
-    const mapShape = new Shape('mapShape', {
-        state: 3,
-        count:particleParams.count, schema: readAttrSchema(mapVert.input)
-    });
-    mapShape.initialize({gl});
-
-    const mapSolver = new FrameSolver('mapSolver', {
-        shape: mapShape, material: mapMaterial,
-        width: gridConfig.gridSize, height: gridConfig.gridSize,
-        screenWidth: canvas.width, screenHeight: canvas.height,
-        mode:1, blendState:FrameSolver.BLENDSTATE.add
-    });
-    mapSolver.initialize({gl});
-
     // boids solver
     const boidsShader = new Shader({
         vertexSource: screenQuadVert,
-        fragmentSource: boidsFrag,
+        fragmentSource: slowFrag,
     });
     boidsShader.initialize({gl});
 
@@ -218,9 +187,10 @@ export function initGroundEnemy(gl, canvas) {
         shader: boidsShader,
     });
     boidsMaterial.initialize({gl});
-    boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
     boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
     boidsMaterial.setUniform('uEmitterSize', emitterSize);
+    boidsMaterial.setUniform('uGoal', [gridConfig.goal[0], gridConfig.goal[1]]);
+    boidsMaterial.setUniform('uWake', 0.0);
 
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
 
@@ -324,6 +294,8 @@ export function initGroundEnemy(gl, canvas) {
 
                 initGridTexture.setData(gl, newData);
                 wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
+                boidsMaterial.setUniform('uGoal', [clickPos.x, clickPos.y]);
+                boidsMaterial.setUniform('uWake', 1.0);
 
                 wavefrontSolver.Mode = FrameSolver.MODE.init;
             });
@@ -351,19 +323,8 @@ export function initGroundEnemy(gl, canvas) {
             boidsMaterial.setUniform('uTime', time.ElapsedTime);
             boidsMaterial.setUniform('uDeltaTime', time.Interval);
             boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
-            boidsMaterial.setTexture('uMapTexture1', mapSolver.frontBuffer.textures[0]);
-            boidsMaterial.setTexture('uMapTexture2', mapSolver.frontBuffer.textures[1]);
 
-            boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
-            boidsMaterial.setUniform('uMaxForce', boidsParams.maxForce);
-            boidsMaterial.setUniform('uPercepRadius', boidsParams.perceptionRadius);
-            boidsMaterial.setUniform('uCheckCount', boidsParams.checkCount);
-            boidsMaterial.setUniform('uSepaWeight', boidsParams.separationWeight);
-            boidsMaterial.setUniform('uAligWeight', boidsParams.alignmentWeight);
-            boidsMaterial.setUniform('uCoheWeight', boidsParams.cohesionWeight);
             boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
-            boidsMaterial.setUniform('uAvoidWeight', boidsParams.avoidWeight);
-            boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
 
             boidsSolver.update(gl);
 
@@ -371,8 +332,6 @@ export function initGroundEnemy(gl, canvas) {
                 boidsSolver.Mode = FrameSolver.MODE.play;
             }
 
-            mapMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
-            mapSolver.update(gl);
 
             // gl
             gl.viewport(0, 0, canvas.width, canvas.height);
@@ -394,6 +353,7 @@ export function initGroundEnemy(gl, canvas) {
 
             // --- draw particle ---
             particleMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
+            particleMaterial.setTexture('uBoidsTexture1', boidsSolver.frontBuffer.textures[1]);
             particleMaterial.preDraw(gl);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);

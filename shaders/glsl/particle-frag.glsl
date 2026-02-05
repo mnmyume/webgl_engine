@@ -4,7 +4,7 @@ precision highp int;
 
 #include "./includes/aniTex.glsl"
 
-#value uColorSampler:1
+#value uColorSampler:2
 uniform sampler2D uColorSampler;
 
 uniform vec3 uColor;
@@ -15,6 +15,7 @@ in float vGeneration;
 in vec2 vLinVel;
 in float vAniType;
 in float vFrame;
+in float vActiveState;
 
 out vec4 fragColor;
 
@@ -80,5 +81,8 @@ void main()
 //        discard;
 //    fragColor = color;
 
-    fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    if(vActiveState > 0.5)
+        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    else
+        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
 }

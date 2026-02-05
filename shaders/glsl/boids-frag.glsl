@@ -117,6 +117,7 @@ void main() {
         vec2 avgPos = pos;
         vec2 avgVel = vec2(0.0);
 
+
         if(density > 0.0) {
             avgPos = gridPosData.xy / density;
             avgVel = gridVelData.xy / density;

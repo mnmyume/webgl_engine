@@ -14,6 +14,9 @@ precision highp int;
 
 #value uBoidsTexture:0
 uniform sampler2D uBoidsTexture;
+#value uBoidsTexture1:1
+uniform sampler2D uBoidsTexture1;
+
 
 uniform float uEmitterTexSize;
 uniform float uAspect;
@@ -22,6 +25,7 @@ out float vGeneration;
 out vec2 vLinVel;
 out float vAniType;
 out float vFrame;
+out float vActiveState;
 
 vec2 getEmitterCoord(float particleID, float gridSize) {
     vec2 uv = vec2(mod(particleID,gridSize), floor(particleID/gridSize))/gridSize;
@@ -42,12 +46,14 @@ void main()
 
     vec2 pos = vec2(texture(uBoidsTexture,emitterUV).x / uAspect, texture(uBoidsTexture,emitterUV).y);
     vec2 vel = vec2(texture(uBoidsTexture,emitterUV).z / uAspect, texture(uBoidsTexture,emitterUV).w);
+    float activeState = texture(uBoidsTexture1,emitterUV).x;
 
     gl_Position = vec4(pos, 0, 1);
-    gl_PointSize = 10.0;
+    gl_PointSize = 15.0;
 
     vGeneration = 0.0;
     vLinVel = vel;
     vAniType = 0.0;
     vFrame = 0.0;
+    vActiveState = activeState;
 }
