@@ -34,6 +34,7 @@ uniform float uFlowWeight;
 const float SPEED = 0.15;
 const float STOP_DIST = 0.05;
 const float COLLISION_RAD = 0.03;
+const float FRICTION = 0.9; // Keeps the movement controlled and snappy
 
 out vec4[4] fragData;
 
@@ -48,20 +49,18 @@ void main() {
 
     vec4 data0 = texture(uDataSlot0, uv);
     vec2 pos = data0.xy;
-    vec2 vel = data0.zw;
+    vec2 vel = data0.zw; // Now we actively use and update velocity
     float activeState = texture(uDataSlot1, uv).x;
 
     vec2 gridUV = getGridCoord(pos, uEmitterSize);
 
-    // Force Wake on Click
     if(uWake > 0.5) activeState = 1.0;
 
     float distToGoal = distance(pos, goal);
     bool atGoal = distToGoal < STOP_DIST;
     bool blocked = false;
 
-    vec2 separation = vec2(0.0);
-    vec2 moveForce = vec2(0.0);
+    vec2 totalImpulse = vec2(0.0);
 
     // --- INITIALIZE ---
     if(uState == 1){
@@ -71,10 +70,9 @@ void main() {
     }
     // --- UPDATE LOOP ---
     else if(uState == 2) {
-
         vec2 oldPos = pos;
 
-        // --- COLLISION LOOP ---
+        // --- COLLISION/IMPULSE LOOP ---
         for(float y = 0.0; y < uEmitterTexSize; y++) {
             for(float x = 0.0; x < uEmitterTexSize; x++) {
                 if (x == gl_FragCoord.x && y == gl_FragCoord.y) continue;
@@ -83,6 +81,7 @@ void main() {
                 vec4 otherData = texture(uDataSlot0, otherUV);
                 float otherActive = texture(uDataSlot1, otherUV).x;
                 vec2 otherPos = otherData.xy;
+                vec2 otherVel = otherData.zw;
 
                 vec2 delta = pos - otherPos;
                 float dSq = dot(delta, delta);
@@ -93,41 +92,47 @@ void main() {
                     float overlap = minDist - d;
                     vec2 n = delta / d;
 
-                    overlap = min(overlap, 0.05); // Cap overlap to reduce explosion
-
-                    // Physical Push (Separation)
-                    // We calculate this even if sleeping, BUT we only apply it later if we are awake.
+                    // Impulse Calculation: Convert overlap into a restorative force
+                    // We use a pseudo-spring impulse to resolve penetration over time
+                    float stiffness = 0.5;
                     float pushFactor = (otherActive < 0.5) ? 1.0 : 0.5;
-                    separation += n * overlap * pushFactor;
 
-                    // Blockage Logic
+                    // The impulse magnitude is proportional to how much we need to move
+                    // to resolve the overlap within this frame.
+                    totalImpulse += n * (overlap / uDeltaTime) * pushFactor * stiffness;
+
+                    // Blockage Logic (Same as original)
                     if (otherActive < 0.5) {
-                        // If neighbor is SLEEPING and CLOSER to goal, they block us.
                         if (distance(pos, goal) > distance(otherPos, goal)) {
-                            // Only get discouraged if we are somewhat close to goal
-                            // Prevents getting stuck far away
-                            if (distToGoal < 0.5) {
-                                blocked = true;
-                            }
+                            if (distToGoal < 0.5) blocked = true;
                         }
                     }
 
-                    // Wake Up Logic
-                    // Wake up if I am hit by an active unit (and I'm not blocked/at goal)
+                    // Wake Up Logic (Same as original)
                     if (activeState < 0.5 && !atGoal && !blocked) {
-                        if (otherActive > 0.5) {
-                            activeState = 1.0;
-                        }
+                        if (otherActive > 0.5) activeState = 1.0;
                     }
                 }
             }
         }
 
-        // --- MOVEMENT ---
+        // --- VELOCITY UPDATE ---
         if (activeState > 0.5) {
+            // Apply Flow Force
             vec2 flowDir = texture(uGradientTexture, gridUV).xy;
             if (length(flowDir) < 0.1) flowDir = normalize(goal - pos);
-            moveForce += flowDir * SPEED * uDeltaTime;
+
+            // Integrate Acceleration (Force) into Velocity
+            vel += flowDir * SPEED;
+
+            // Add Collision Impulses to Velocity
+            vel += totalImpulse * 0.5;
+
+            // Apply Friction/Damping to keep it from exploding and maintain snappiness
+            vel *= FRICTION;
+        } else {
+            // Kill momentum instantly if sleeping
+            vel = vec2(0.0);
         }
 
         // --- SLEEP DECISION ---
@@ -135,15 +140,12 @@ void main() {
             activeState = 0.0;
         }
 
-        // --- FREEZE ON SLEEP ---
-        // Only apply forces if the unit is explicitly AWAKE.
-        // If it is sleeping (activeState < 0.5), position remains completely unchanged.
+        // --- POSITION INTEGRATION ---
         if (activeState > 0.5) {
-            pos += moveForce;
-            pos += separation * 0.5; // Apply separation with dampening
+            pos += vel * uDeltaTime;
         }
 
-        // --- MAP OBSTACLES ---
+        // --- OBSTACLE HANDLING (Hard Constraint) ---
         vec2 nextGridUV = getGridCoord(pos, uEmitterSize);
         float aheadObstacle = texture(uGradientTexture, nextGridUV).w;
 
@@ -152,13 +154,15 @@ void main() {
             if (length(grad) > 0.001) {
                 vec2 obstacleNormal = normalize(grad);
                 pos = oldPos + (obstacleNormal * 0.01);
+                vel *= -0.2; // Slight bounce off walls
             } else {
                 pos = oldPos;
+                vel = vec2(0.0);
             }
         }
     }
 
-    fragData[0] = vec4(pos, vel);
+    fragData[0] = vec4(pos, vel); // Velocity is now preserved in the texture
     fragData[1] = vec4(activeState, 0.0, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
