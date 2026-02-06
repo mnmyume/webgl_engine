@@ -31,25 +31,34 @@ uniform float uWake;
 
 uniform float uFlowWeight;
 
-const float SPEED = 0.15;
-const float STOP_DIST = 0.05;
-const float COLLISION_RAD = 0.03;
-const float FRICTION = 0.9; // Keeps the movement controlled and snappy
+// --- Constants for Stability ---
+const float SPEED = 0.25;
+const float STOP_DIST = 0.16;
+const float SETTLE_DIST = 0.12;    // Radius where particles can start settling
+const float COLLISION_RAD = 0.025;
+const float NEIGHBOR_RAD = 0.1;   // Radius for flocking
+const float FRICTION = 0.82;
+const float MAX_VEL = 2.5;
+const float PUSH_STRENGTH = 0.6;
+
+// --- Flocking Weights ---
+const float COHESION_WEIGHT = 0.2;
+const float ALIGNMENT_WEIGHT = 0.2;
 
 out vec4[4] fragData;
 
 vec2 getGridCoord(vec2 pos, float emitterSize) {
-    vec2 uv = (pos + vec2(emitterSize/2.0))/vec2(emitterSize);
+    vec2 uv = (pos + vec2(emitterSize / 2.0)) / vec2(emitterSize);
     return uv;
 }
 
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(uEmitterTexSize);
-    vec2 goal = (2.0 * vec2(uGoal.x/32.0, 1.0 - uGoal.y/32.0) - vec2(1.0));
+    vec2 goal = (2.0 * vec2(uGoal.x / 32.0, 1.0 - uGoal.y / 32.0) - vec2(1.0));
 
     vec4 data0 = texture(uDataSlot0, uv);
     vec2 pos = data0.xy;
-    vec2 vel = data0.zw; // Now we actively use and update velocity
+    vec2 vel = data0.zw;
     float activeState = texture(uDataSlot1, uv).x;
 
     vec2 gridUV = getGridCoord(pos, uEmitterSize);
@@ -58,103 +67,105 @@ void main() {
 
     float distToGoal = distance(pos, goal);
     bool atGoal = distToGoal < STOP_DIST;
-    bool blocked = false;
 
     vec2 totalImpulse = vec2(0.0);
+    vec2 avgVel = vec2(0.0);
+    vec2 avgPos = vec2(0.0);
+    float neighborCount = 0.0;
 
-    // --- INITIALIZE ---
-    if(uState == 1){
+    if(uState == 1) {
         pos = texture(uEmitterTexture, uv).xy;
         activeState = 1.0;
         vel = vec2(0.0);
-    }
-    // --- UPDATE LOOP ---
-    else if(uState == 2) {
+    } else if(uState == 2) {
         vec2 oldPos = pos;
 
-        // --- COLLISION/IMPULSE LOOP ---
-        for(float y = 0.0; y < uEmitterTexSize; y++) {
-            for(float x = 0.0; x < uEmitterTexSize; x++) {
-                if (x == gl_FragCoord.x && y == gl_FragCoord.y) continue;
+        // --- NEIGHBOR LOOP (Collision + Flocking) ---
+        for(float y = 0.5; y < uEmitterTexSize; y++) {
+            for(float x = 0.5; x < uEmitterTexSize; x++) {
+                if (abs(x - gl_FragCoord.x) < 0.1 && abs(y - gl_FragCoord.y) < 0.1) continue;
 
-                vec2 otherUV = (vec2(x, y) + 0.5) / uEmitterTexSize;
+                vec2 otherUV = vec2(x, y) / uEmitterTexSize;
                 vec4 otherData = texture(uDataSlot0, otherUV);
                 float otherActive = texture(uDataSlot1, otherUV).x;
-                vec2 otherPos = otherData.xy;
-                vec2 otherVel = otherData.zw;
 
-                vec2 delta = pos - otherPos;
+                vec2 delta = pos - otherData.xy;
                 float dSq = dot(delta, delta);
-                float minDist = COLLISION_RAD * 2.0;
+                float d = sqrt(dSq);
 
-                if (dSq < minDist * minDist && dSq > 0.00001) {
-                    float d = sqrt(dSq);
+                // Separation (Collision)
+                float minDist = COLLISION_RAD * 2.1;
+                if (d < minDist && d > 0.000001) {
                     float overlap = minDist - d;
                     vec2 n = delta / d;
+                    float weight = (otherActive < 0.5) ? 1.5 : 0.8;
+                    totalImpulse += n * overlap * weight * PUSH_STRENGTH;
 
-                    // Impulse Calculation: Convert overlap into a restorative force
-                    // We use a pseudo-spring impulse to resolve penetration over time
-                    float stiffness = 0.5;
-                    float pushFactor = (otherActive < 0.5) ? 1.0 : 0.5;
-
-                    // The impulse magnitude is proportional to how much we need to move
-                    // to resolve the overlap within this frame.
-                    totalImpulse += n * (overlap / uDeltaTime) * pushFactor * stiffness;
-
-                    // Blockage Logic (Same as original)
-                    if (otherActive < 0.5) {
-                        if (distance(pos, goal) > distance(otherPos, goal)) {
-                            if (distToGoal < 0.5) blocked = true;
-                        }
+                    if (activeState < 0.5 && !atGoal && otherActive > 0.5) {
+                        activeState = 1.0;
                     }
+                }
 
-                    // Wake Up Logic (Same as original)
-                    if (activeState < 0.5 && !atGoal && !blocked) {
-                        if (otherActive > 0.5) activeState = 1.0;
-                    }
+                // Cohesion and Alignment Data Collection
+                if (d < NEIGHBOR_RAD && otherActive > 0.5) {
+                    avgVel += otherData.zw;
+                    avgPos += otherData.xy;
+                    neighborCount += 1.0;
                 }
             }
         }
 
         // --- VELOCITY UPDATE ---
         if (activeState > 0.5) {
-            // Apply Flow Force
             vec2 flowDir = texture(uGradientTexture, gridUV).xy;
             if (length(flowDir) < 0.1) flowDir = normalize(goal - pos);
 
-            // Integrate Acceleration (Force) into Velocity
             vel += flowDir * SPEED;
 
-            // Add Collision Impulses to Velocity
-            vel += totalImpulse * 0.5;
+            // Apply Flocking Forces
+            if (neighborCount > 0.0) {
+                avgVel /= neighborCount;
+                avgPos /= neighborCount;
 
-            // Apply Friction/Damping to keep it from exploding and maintain snappiness
+                // Alignment: steer towards average velocity
+                vec2 alignmentDir = avgVel - vel == vec2(0.0) ? vec2(0.0) : normalize(avgVel - vel);
+                vel += alignmentDir * ALIGNMENT_WEIGHT;
+
+                // Cohesion: steer towards average position center
+                vec2 cohesionDir = avgPos - pos == vec2(0.0) ? vec2(0.0) : normalize(avgPos - pos);
+                vel += cohesionDir * COHESION_WEIGHT;
+            }
+
+            vel += totalImpulse / uDeltaTime;
             vel *= FRICTION;
+
+            if (length(vel) > MAX_VEL) {
+                vel = normalize(vel) * MAX_VEL;
+            }
         } else {
-            // Kill momentum instantly if sleeping
-            vel = vec2(0.0);
+            vel += totalImpulse / uDeltaTime;
+            vel *= 0.5;
         }
 
-        // --- SLEEP DECISION ---
-        if (atGoal || blocked) {
+        if (atGoal && length(vel) < 0.1) {
             activeState = 0.0;
+        } else if (!atGoal) {
+            activeState = 1.0;
         }
 
-        // --- POSITION INTEGRATION ---
-        if (activeState > 0.5) {
-            pos += vel * uDeltaTime;
+        if (activeState > 0.5 || length(vel) > 0.01) {
+            pos += 0.7 * vel * uDeltaTime;
         }
 
-        // --- OBSTACLE HANDLING (Hard Constraint) ---
+        // --- OBSTACLE HANDLING ---
         vec2 nextGridUV = getGridCoord(pos, uEmitterSize);
-        float aheadObstacle = texture(uGradientTexture, nextGridUV).w;
-
-        if (aheadObstacle > 0.5) {
-            vec2 grad = texture(uGradientTexture, nextGridUV).xy;
-            if (length(grad) > 0.001) {
-                vec2 obstacleNormal = normalize(grad);
-                pos = oldPos + (obstacleNormal * 0.01);
-                vel *= -0.2; // Slight bounce off walls
+        vec4 gradData = texture(uGradientTexture, nextGridUV);
+        if (gradData.w > 0.5) {
+            vec2 normal = gradData.xy;
+            if (length(normal) > 0.01) {
+                normal = normalize(normal);
+                pos = oldPos + normal * 0.005;
+                vel = reflect(vel, normal) * 0.2;
             } else {
                 pos = oldPos;
                 vel = vec2(0.0);
@@ -162,7 +173,7 @@ void main() {
         }
     }
 
-    fragData[0] = vec4(pos, vel); // Velocity is now preserved in the texture
+    fragData[0] = vec4(pos, vel);
     fragData[1] = vec4(activeState, 0.0, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);

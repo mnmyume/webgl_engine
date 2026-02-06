@@ -28,7 +28,7 @@ import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 export function initNewSlowEnemy(gl, canvas) {
     const particleParams = {
-        count: 36,
+        count: 16,
         duration: 20,
         lifeTime: 20,
         minSize: 15,
@@ -324,7 +324,7 @@ export function initNewSlowEnemy(gl, canvas) {
             boidsMaterial.setUniform('uDeltaTime', time.Interval);
             boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
 
-            boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
+            // boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
 
             boidsSolver.update(gl);
 

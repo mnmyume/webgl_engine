@@ -135,12 +135,12 @@ void main() {
             activeState = 0.0;
         }
 
-        // --- CRITICAL FIX: FREEZE ON SLEEP ---
+        // --- FREEZE ON SLEEP ---
         // Only apply forces if the unit is explicitly AWAKE.
         // If it is sleeping (activeState < 0.5), position remains completely unchanged.
         if (activeState > 0.5) {
             pos += moveForce;
-            pos += separation * 0.5; // Apply separation with dampening
+            pos += separation * 0.5;
         }
 
         // --- MAP OBSTACLES ---
