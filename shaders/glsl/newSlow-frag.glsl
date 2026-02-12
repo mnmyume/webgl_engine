@@ -32,12 +32,12 @@ uniform float uWake;
 uniform float uFlowWeight;
 
 // --- Constants for Stability ---
-const float SPEED = 0.25;
+const float SPEED = 0.3;
 const float STOP_DIST = 0.16;
 const float SETTLE_DIST = 0.12;    // Radius where particles can start settling
 const float COLLISION_RAD = 0.025;
 const float NEIGHBOR_RAD = 0.1;   // Radius for flocking
-const float FRICTION = 0.82;
+const float FRICTION = 0.9;
 const float MAX_VEL = 2.5;
 const float PUSH_STRENGTH = 0.6;
 

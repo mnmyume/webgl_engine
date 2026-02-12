@@ -327,6 +327,7 @@ export function initNewSlowEnemy(gl, canvas) {
             // boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
 
             boidsSolver.update(gl);
+            boidsMaterial.setUniform('uWake', 0.0);
 
             if (boidsSolver.Mode === FrameSolver.MODE.init) {
                 boidsSolver.Mode = FrameSolver.MODE.play;
