@@ -10,6 +10,11 @@
 precision highp float;
 precision highp int;
 
+uniform mat4 _uni_projMat;
+uniform mat4 _uni_viewMat;
+#value _uni_modelMat:mat4(1.0)
+uniform mat4 _uni_modelMat;
+
 #include "./includes/aniTex.glsl"
 
 #value uBoidsTexture:0
@@ -26,6 +31,7 @@ out vec2 vLinVel;
 out float vAniType;
 out float vFrame;
 out float vActiveState;
+out float vDebug;
 
 vec2 getEmitterCoord(float particleID, float gridSize) {
     vec2 uv = vec2(mod(particleID,gridSize), floor(particleID/gridSize))/gridSize;
@@ -47,8 +53,9 @@ void main()
     vec2 pos = vec2(texture(uBoidsTexture,emitterUV).x / uAspect, texture(uBoidsTexture,emitterUV).y);
     vec2 vel = vec2(texture(uBoidsTexture,emitterUV).z / uAspect, texture(uBoidsTexture,emitterUV).w);
     float activeState = texture(uBoidsTexture1,emitterUV).x;
+    float distToGoal = texture(uBoidsTexture1,emitterUV).y;
 
-    gl_Position = vec4(pos, 0, 1);
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
     gl_PointSize = 15.0;
 
     vGeneration = 0.0;
@@ -56,4 +63,5 @@ void main()
     vAniType = 0.0;
     vFrame = 0.0;
     vActiveState = activeState;
+    vDebug = distToGoal;
 }

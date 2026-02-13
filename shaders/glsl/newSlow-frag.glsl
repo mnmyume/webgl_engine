@@ -32,18 +32,18 @@ uniform float uWake;
 uniform float uFlowWeight;
 
 // --- Constants for Stability ---
-const float SPEED = 0.3;
-const float STOP_DIST = 0.16;
-const float SETTLE_DIST = 0.12;    // Radius where particles can start settling
-const float COLLISION_RAD = 0.025;
-const float NEIGHBOR_RAD = 0.1;   // Radius for flocking
+const float SPEED = 3.0;
+const float STOP_DIST = 1.6;
+const float SETTLE_DIST = 1.2;    // Radius where particles can start settling
+const float COLLISION_RAD = 0.75;
+const float NEIGHBOR_RAD = 1.0;   // Radius for flocking
 const float FRICTION = 0.9;
-const float MAX_VEL = 2.5;
-const float PUSH_STRENGTH = 0.6;
+const float MAX_VEL = 10.0;
+const float PUSH_STRENGTH = 6.0;
 
 // --- Flocking Weights ---
-const float COHESION_WEIGHT = 0.2;
-const float ALIGNMENT_WEIGHT = 0.2;
+const float COHESION_WEIGHT = 0.0;
+const float ALIGNMENT_WEIGHT = 0.0;
 
 out vec4[4] fragData;
 
@@ -54,7 +54,8 @@ vec2 getGridCoord(vec2 pos, float emitterSize) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(uEmitterTexSize);
-    vec2 goal = (2.0 * vec2(uGoal.x / 32.0, 1.0 - uGoal.y / 32.0) - vec2(1.0));
+    vec2 goal = (vec2(uGoal.x / 32.0, 1.0 - uGoal.y / 32.0) - vec2(0.5));
+    goal *= uEmitterSize;
 
     vec4 data0 = texture(uDataSlot0, uv);
     vec2 pos = data0.xy;
@@ -147,8 +148,9 @@ void main() {
             vel *= 0.5;
         }
 
-        if (atGoal && length(vel) < 0.1) {
+        if (atGoal ) {  // && length(vel) < 0.1
             activeState = 0.0;
+            vel = vec2(0.0);
         } else if (!atGoal) {
             activeState = 1.0;
         }
@@ -174,7 +176,7 @@ void main() {
     }
 
     fragData[0] = vec4(pos, vel);
-    fragData[1] = vec4(activeState, 0.0, 0.0, 1.0);
+    fragData[1] = vec4(activeState, distToGoal, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
 }

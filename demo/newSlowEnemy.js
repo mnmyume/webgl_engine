@@ -64,7 +64,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
 
     const aspect = canvas.width / canvas.height;
     const time = new Time();
-    const emitterSize = 2;
+    const emitterSize = 64;
     const emitterTexSize = sqrtFloor(particleParams.count);
     const emitterCorner = [-emitterSize/2, -emitterSize/2];
 
@@ -348,7 +348,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
             quadMaterial.postDraw(gl);
 
             // --- draw obstacle ---
-            obstacleMaterial.preDraw(gl);
+            obstacleMaterial.preDraw(gl, camera);
             quadShape.draw(gl, quadMaterial);
             obstacleMaterial.postDraw(gl);
 
