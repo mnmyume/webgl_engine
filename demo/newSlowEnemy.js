@@ -26,7 +26,7 @@ import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 
-export function initNewSlowEnemy(gl, canvas) {
+export function initNewSlowEnemy(gl, canvas, camera) {
     const particleParams = {
         count: 16,
         duration: 20,
@@ -343,7 +343,7 @@ export function initNewSlowEnemy(gl, canvas) {
             gl.blendFunc(gl.ONE, gl.ZERO);
 
             // --- draw emitter quad ---
-            quadMaterial.preDraw(gl);
+            quadMaterial.preDraw(gl, camera);
             quadShape.draw(gl, quadMaterial);
             quadMaterial.postDraw(gl);
 
@@ -355,7 +355,7 @@ export function initNewSlowEnemy(gl, canvas) {
             // --- draw particle ---
             particleMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
             particleMaterial.setTexture('uBoidsTexture1', boidsSolver.frontBuffer.textures[1]);
-            particleMaterial.preDraw(gl);
+            particleMaterial.preDraw(gl, camera);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);
         }

@@ -22,9 +22,19 @@ function main() {
     // gl.viewport(0, 0, canvas.width, canvas.height);
     gl.disable(gl.CULL_FACE);
 
+    // init camera
+    const camera = new OrthCamera({
+        widthSpan: 70,
+        aspect: canvas.width / canvas.height,
+    });
+    camera.setPosition([0, 0, 10]);
+    camera.updateProjection();
+    camera.updateView();
+    camera.updateViewInverse();
+
     // initFlyEnemy(gl, canvas);
     // initSlowEnemy(gl, canvas);
-    initNewSlowEnemy(gl, canvas);
+    initNewSlowEnemy(gl, canvas, camera);
 }
 
 
