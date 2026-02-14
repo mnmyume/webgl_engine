@@ -39,6 +39,17 @@ vec2 getEmitterCoord(float particleID, float gridSize) {
     return uv;
 }
 
+float getAniType(vec2 vel) {
+    float index = 0.0;
+    if (vel.y != 0.0) {
+        index = (vel.y > 0.0) ? 3.0 : 2.0;
+    }
+    else if (vel.x != 0.0) {
+        index = (vel.x > 0.0) ? 0.0 : 1.0;
+    }
+    return index;
+}
+
 void main()
 {
     // aniTex
@@ -53,14 +64,15 @@ void main()
     vec2 pos = vec2(texture(uBoidsTexture,emitterUV).x / uAspect, texture(uBoidsTexture,emitterUV).y);
     vec2 vel = vec2(texture(uBoidsTexture,emitterUV).z / uAspect, texture(uBoidsTexture,emitterUV).w);
     float activeState = texture(uBoidsTexture1,emitterUV).x;
+    float aniType = getAniType(vel);
     float distToGoal = texture(uBoidsTexture1,emitterUV).y;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
-    gl_PointSize = 30.0;
+    gl_PointSize = 100.0;
 
     vGeneration = 0.0;
     vLinVel = vel;
-    vAniType = 0.0;
+    vAniType = aniType;
     vFrame = 0.0;
     vActiveState = activeState;
     vDebug = distToGoal;

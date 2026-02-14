@@ -56,37 +56,25 @@ void main()
     //    if(vGeneration < 0.0)
     //        discard;
 
-    vec2 localUV = vec2(gl_PointCoord.x, 1.0-gl_PointCoord.y);
-
-    vec2 linVel = vLinVel;
-
-    mat2 rot = rotateVelMatrix(linVel);
-    vec2 rotatedLocalUV = rotateUV(localUV, rot);
-    if(length(linVel)==0.0) {
-        rotatedLocalUV = localUV;
+    vec2 localUV = vec2(gl_PointCoord.x, gl_PointCoord.y);
+    float ratio = 360.0 / 160.0;
+    localUV.x = (localUV.x - 0.5) * ratio + 0.5;
+    if (localUV.x < 0.0 || localUV.x > 1.0 || localUV.y < 0.0 || localUV.y > 1.0) {
+        discard;
     }
 
-    // draw triangle
-//    bool isOutTriangle = outTriangle(rotatedLocalUV);
-//    if (isOutTriangle) {
-//        discard;
-//    }
+    vec2 linVel = vLinVel;
 
 //     animation texture
     vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, vAniType, vFrame);
     vec2 aniTexCoord = aniTexParams.xy;
     vec2 numColsRows = aniTexParams.zw;
 
-    vec2 finalUV = rotatedLocalUV/numColsRows + aniTexCoord;   // rotatedLocalUV
+    vec2 finalUV = localUV/numColsRows + aniTexCoord;   // rotatedLocalUV
 
     vec4 color = texture(uColorSampler, finalUV);
 
-    if(color.a<0.8)
+    if(color.a<0.9)
         discard;
     fragColor = color;
-
-//    if(vActiveState > 0.5)
-//        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
-//    else
-//        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
 }

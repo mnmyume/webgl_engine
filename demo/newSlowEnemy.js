@@ -192,7 +192,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
         colorTexture.initialize({gl});
 
         particleMaterial = new Material('particleMaterial',{
-            shader: particleShader, blend:1
+            shader: particleShader, blend:0
         });
         particleMaterial.initialize({gl});
         particleMaterial.setUniform('uEmitterTexSize', emitterTexSize)
