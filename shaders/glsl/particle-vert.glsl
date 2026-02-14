@@ -15,23 +15,17 @@ uniform mat4 _uni_viewMat;
 #value _uni_modelMat:mat4(1.0)
 uniform mat4 _uni_modelMat;
 
-#include "./includes/aniTex.glsl"
-
-#value uBoidsTexture:0
-uniform sampler2D uBoidsTexture;
+#value uBoidsTexture0:0
+uniform sampler2D uBoidsTexture0;
 #value uBoidsTexture1:1
 uniform sampler2D uBoidsTexture1;
 
-
 uniform float uEmitterTexSize;
-uniform float uAspect;
 
 out float vGeneration;
 out vec2 vLinVel;
 out float vAniType;
 out float vFrame;
-out float vActiveState;
-out float vDebug;
 
 vec2 getEmitterCoord(float particleID, float gridSize) {
     vec2 uv = vec2(mod(particleID,gridSize), floor(particleID/gridSize))/gridSize;
@@ -52,20 +46,18 @@ float getAniType(vec2 vel) {
 
 void main()
 {
-    // aniTex
-    float numFrames = _uAniTexNumFrames;
-    float aniFps = _uAniTexFps;
-
+//    // aniTex
+//    float numFrames = _uAniTexNumFrames;
+//    float aniFps = _uAniTexFps;
 //    float frame = mod(floor(aFrameLife*aniFps) , numFrames);
 
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uEmitterTexSize);
 
-    vec2 pos = vec2(texture(uBoidsTexture,emitterUV).x / uAspect, texture(uBoidsTexture,emitterUV).y);
-    vec2 vel = vec2(texture(uBoidsTexture,emitterUV).z / uAspect, texture(uBoidsTexture,emitterUV).w);
-    float activeState = texture(uBoidsTexture1,emitterUV).x;
+    vec4 boidsData = texture(uBoidsTexture0,emitterUV);
+    vec2 pos = boidsData.xy;
+    vec2 vel = boidsData.zw;
     float aniType = getAniType(vel);
-    float distToGoal = texture(uBoidsTexture1,emitterUV).y;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
     gl_PointSize = 100.0;
@@ -74,6 +66,4 @@ void main()
     vLinVel = vel;
     vAniType = aniType;
     vFrame = 0.0;
-    vActiveState = activeState;
-    vDebug = distToGoal;
 }

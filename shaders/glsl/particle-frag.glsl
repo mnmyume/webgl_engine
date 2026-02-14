@@ -15,8 +15,6 @@ in float vGeneration;
 in vec2 vLinVel;
 in float vAniType;
 in float vFrame;
-in float vActiveState;
-in float vDebug;
 
 out vec4 fragColor;
 
@@ -56,21 +54,10 @@ void main()
     //    if(vGeneration < 0.0)
     //        discard;
 
-    vec2 localUV = vec2(gl_PointCoord.x, gl_PointCoord.y);
-    float ratio = 360.0 / 160.0;
-    localUV.x = (localUV.x - 0.5) * ratio + 0.5;
-    if (localUV.x < 0.0 || localUV.x > 1.0 || localUV.y < 0.0 || localUV.y > 1.0) {
-        discard;
-    }
-
     vec2 linVel = vLinVel;
 
-//     animation texture
-    vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, vAniType, vFrame);
-    vec2 aniTexCoord = aniTexParams.xy;
-    vec2 numColsRows = aniTexParams.zw;
-
-    vec2 finalUV = localUV/numColsRows + aniTexCoord;   // rotatedLocalUV
+    // animation texture
+    vec2 finalUV = _GEN_ANI_TEX_UV(gl_PointCoord, uColorSampler, vAniType, vFrame);
 
     vec4 color = texture(uColorSampler, finalUV);
 

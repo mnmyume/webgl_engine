@@ -42,6 +42,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
         texHeight: 1440,
         cellWidth: 160,
         cellHeight: 360,
+        cellRatio: 360/160,
         numFrames: 12,
         numTypes: 4,
         aniFps: 6,
@@ -52,7 +53,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     const boidsParams = {
         flowWeight: 3.0,
         stopDist: 1.6,
-        separationRad: 1.0,
+        separationRad: 2.0,
         separationWeight: 6.0,
         neighborRad: 1.0,
         dampScalar: 0.97,
@@ -61,7 +62,6 @@ export function initNewSlowEnemy(gl, canvas, camera) {
         alignmentWeight: 0.0
     }
 
-    const aspect = canvas.width / canvas.height;
     const time = new Time();
     const emitterSize = 64;
     const emitterTexSize = sqrtFloor(particleParams.count);
@@ -197,14 +197,14 @@ export function initNewSlowEnemy(gl, canvas, camera) {
         particleMaterial.initialize({gl});
         particleMaterial.setUniform('uEmitterTexSize', emitterTexSize)
         particleMaterial.setUniform('uColor', particleParams.color);
-        particleMaterial.setUniform('uAspect', aspect);
         particleMaterial.setTexture('uColorSampler', colorTexture);
 
         // aniTex
         particleMaterial.setUniform('_uAniTexBoundarySize', [aniTexParams.texWidth, aniTexParams.texHeight]);
         particleMaterial.setUniform('_uAniTexCellSize', [aniTexParams.cellWidth, aniTexParams.cellHeight]);
         particleMaterial.setUniform('_uAniTexNumFrames', aniTexParams.numFrames);
-        particleMaterial.setUniform('_uAniTexFps', aniTexParams.aniFps)
+        particleMaterial.setUniform('_uAniTexFps', aniTexParams.aniFps);
+        particleMaterial.setUniform('_uAniTexCellRatio', aniTexParams.cellRatio);
 
         const particleShape = new Shape('particleShape',{
             state: 3, count: particleParams.count,
@@ -222,7 +222,6 @@ export function initNewSlowEnemy(gl, canvas, camera) {
             shader: quadShader,
         });
         quadMaterial.initialize({gl});
-        quadMaterial.setUniform('uAspect', aspect);
 
         const quadData = genQuadUVXY(emitterSize);
         const quadShape = new Shape(
@@ -243,7 +242,6 @@ export function initNewSlowEnemy(gl, canvas, camera) {
         });
         obstacleMaterial.initialize({gl});
         obstacleMaterial.setTexture('uInitGridTexture', initGridTexture);
-        obstacleMaterial.setUniform('uAspect', aspect);
 
         function drawWavefront() {
             requestAnimationFrame(drawWavefront);
@@ -326,7 +324,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
             obstacleMaterial.postDraw(gl);
 
             // --- draw particle ---
-            particleMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
+            particleMaterial.setTexture('uBoidsTexture0', boidsSolver.frontBuffer.textures[0]);
             particleMaterial.setTexture('uBoidsTexture1', boidsSolver.frontBuffer.textures[1]);
             particleMaterial.preDraw(gl, camera);
             particleShape.draw(gl, particleMaterial);

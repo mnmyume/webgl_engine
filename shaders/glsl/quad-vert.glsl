@@ -18,14 +18,12 @@ layout(location = POSITION_LOCATION) in vec2 aPos;
 #buffer aUV:quadBuffer, size:2, stride:16, offset:8
 layout(location = UV_LOCATION) in vec2 aUV;
 
-uniform float uAspect;
-
 out vec2 vUV;
 
 
 void main()
 {
-    vec2 position = vec2(aPos.x/uAspect, aPos.y);
+    vec2 position = vec2(aPos.x, aPos.y);
     vUV = aUV;
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 0.0, 1.0);
 }

@@ -199,7 +199,7 @@ void main() {
     }
 
     fragData[0] = vec4(pos, vel);
-    fragData[1] = vec4(activeState, distToGoal, 0.0, 1.0);
+    fragData[1] = vec4(activeState, 0.0, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
 }

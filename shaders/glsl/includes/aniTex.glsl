@@ -2,8 +2,17 @@ uniform ivec2 _uAniTexBoundarySize;
 uniform ivec2 _uAniTexCellSize;
 uniform float _uAniTexNumFrames;
 uniform float _uAniTexFps;
+uniform float _uAniTexCellRatio;
 
-vec4 _GEN_ANI_TEX_UV(sampler2D aniSampler, float aniType, float frame){
+vec2 _GEN_ANI_TEX_UV(vec2 pointCoord, sampler2D aniSampler, float aniType, float frame){
+
+    // float frame = mod(floor(aFrameLife*_uAniTexFps) , _uAniTexNumFrames);
+
+    vec2 localUV = vec2(pointCoord.x, pointCoord.y);
+    localUV.x = (localUV.x - 0.5) * _uAniTexCellRatio + 0.5;
+    if (localUV.x < 0.0 || localUV.x > 1.0 || localUV.y < 0.0 || localUV.y > 1.0) {
+        discard;
+    }
 
     int texWidth = textureSize(aniSampler, 0).x;
     int texHeight = textureSize(aniSampler, 0).y;
@@ -14,10 +23,14 @@ vec4 _GEN_ANI_TEX_UV(sampler2D aniSampler, float aniType, float frame){
 
     float numCols = float(texWidth / cellWidth);
     float numRows = float(texHeight / cellHeight);
+    vec2 numColsRows = vec2(numCols, numRows);
     float row = floor(currFrame / numCols);
     float col = mod(currFrame, numCols);
     float uOffset = col/numCols;
     float vOffset = row/numRows;
+    vec2 aniTexCoord = vec2(uOffset, vOffset);
 
-    return vec4(uOffset, vOffset, numCols, numRows);
+    vec2 finalUV = localUV/numColsRows + aniTexCoord;
+
+    return finalUV;
 }
