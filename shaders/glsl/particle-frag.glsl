@@ -14,7 +14,7 @@ uniform float shrink;
 in float vGeneration;
 in vec2 vLinVel;
 in float vAniType;
-in float vFrame;
+in float vFrameLife;
 
 out vec4 fragColor;
 
@@ -57,7 +57,7 @@ void main()
     vec2 linVel = vLinVel;
 
     // animation texture
-    vec2 finalUV = _GEN_ANI_TEX_UV(gl_PointCoord, uColorSampler, vAniType, vFrame);
+    vec2 finalUV = _GEN_ANI_TEX_UV(gl_PointCoord, uColorSampler, vAniType, vFrameLife);
 
     vec4 color = texture(uColorSampler, finalUV);
 

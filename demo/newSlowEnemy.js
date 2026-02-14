@@ -157,6 +157,9 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     boidsMaterial.setUniform('uGoal', [gridConfig.goal[0], gridConfig.goal[1]]);
     boidsMaterial.setUniform('uWake', 0.0);
 
+    boidsMaterial.setUniform('uDuration', particleParams.duration);
+    boidsMaterial.setUniform('uLifeTime', particleParams.lifeTime);
+
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
 
     const boidsShape = new Shape('boidsShape', {

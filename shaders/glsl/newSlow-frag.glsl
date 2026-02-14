@@ -30,6 +30,10 @@ uniform float uGridSize;
 uniform vec2 uGoal;
 uniform float uWake;
 
+uniform float uDuration;
+uniform float uLifeTime;
+
+
 uniform float uFlowWeight;
 uniform float uStopDist;
 uniform float uSeparationRad;
@@ -127,6 +131,8 @@ void main() {
     vec2 avgPos = vec2(0.0);
     float neighborCount = 0.0;
 
+    float frameLife = mod(uTime, uLifeTime);
+
     if(uState == 1) {
         pos = texture(uEmitterTexture, uv).xy;
         activeState = 1.0;
@@ -199,7 +205,7 @@ void main() {
     }
 
     fragData[0] = vec4(pos, vel);
-    fragData[1] = vec4(activeState, 0.0, 0.0, 1.0);
+    fragData[1] = vec4(activeState, frameLife, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);
     fragData[3] = vec4(0.0, 0.0, 0.0, 1.0);
 }

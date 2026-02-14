@@ -4,9 +4,9 @@ uniform float _uAniTexNumFrames;
 uniform float _uAniTexFps;
 uniform float _uAniTexCellRatio;
 
-vec2 _GEN_ANI_TEX_UV(vec2 pointCoord, sampler2D aniSampler, float aniType, float frame){
+vec2 _GEN_ANI_TEX_UV(vec2 pointCoord, sampler2D aniSampler, float aniType, float frameLife){
 
-    // float frame = mod(floor(aFrameLife*_uAniTexFps) , _uAniTexNumFrames);
+    float frame = mod(floor(frameLife*_uAniTexFps) , _uAniTexNumFrames);
 
     vec2 localUV = vec2(pointCoord.x, pointCoord.y);
     localUV.x = (localUV.x - 0.5) * _uAniTexCellRatio + 0.5;

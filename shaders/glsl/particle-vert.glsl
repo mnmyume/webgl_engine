@@ -25,7 +25,7 @@ uniform float uEmitterTexSize;
 out float vGeneration;
 out vec2 vLinVel;
 out float vAniType;
-out float vFrame;
+out float vFrameLife;
 
 vec2 getEmitterCoord(float particleID, float gridSize) {
     vec2 uv = vec2(mod(particleID,gridSize), floor(particleID/gridSize))/gridSize;
@@ -46,18 +46,15 @@ float getAniType(vec2 vel) {
 
 void main()
 {
-//    // aniTex
-//    float numFrames = _uAniTexNumFrames;
-//    float aniFps = _uAniTexFps;
-//    float frame = mod(floor(aFrameLife*aniFps) , numFrames);
-
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uEmitterTexSize);
 
-    vec4 boidsData = texture(uBoidsTexture0,emitterUV);
-    vec2 pos = boidsData.xy;
-    vec2 vel = boidsData.zw;
+    vec4 boidsData0 = texture(uBoidsTexture0,emitterUV);
+    vec4 boidsData1 = texture(uBoidsTexture1,emitterUV);
+    vec2 pos = boidsData0.xy;
+    vec2 vel = boidsData0.zw;
     float aniType = getAniType(vel);
+    float frameLife = boidsData1.y;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
     gl_PointSize = 100.0;
@@ -65,5 +62,5 @@ void main()
     vGeneration = 0.0;
     vLinVel = vel;
     vAniType = aniType;
-    vFrame = 0.0;
+    vFrameLife = frameLife;
 }
