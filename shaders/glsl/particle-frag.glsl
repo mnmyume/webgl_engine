@@ -82,9 +82,8 @@ void main()
 //        discard;
 //    fragColor = color;
 
-//    if(vActiveState > 0.5)
-//        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
-//    else
-//        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
-    fragColor = vec4(0.0, vDebug, 0.0, 1.0);
+    if(vActiveState > 0.5)
+        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    else
+        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
 }

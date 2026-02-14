@@ -50,16 +50,15 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     }
 
     const boidsParams = {
-        maxSpeed: 20,
-        maxForce: 1,
-        perceptionRadius: 5.0,
-        checkCount: 8,
-        separationWeight: 1.0,
-        alignmentWeight: 1.0,
-        cohesionWeight: 1.0,
-        flowWeight: 1.0,
-        avoidWeight: 10.0,
-        dampScalar: 1.0
+        flowWeight: 3.0,
+        stopDist: 1.6,
+        separationRad: 1.0,
+        separationWeight: 6.0,
+        neighborRad: 1.0,
+        dampScalar: 0.9,
+        maxSpeed: 10.0,
+        cohesionWeight: 0.0,
+        alignmentWeight: 0.0
     }
 
     const aspect = canvas.width / canvas.height;
@@ -67,41 +66,6 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     const emitterSize = 64;
     const emitterTexSize = sqrtFloor(particleParams.count);
     const emitterCorner = [-emitterSize/2, -emitterSize/2];
-
-    // --- GUI SETUP ---
-    const gui = new GUI({ title: 'Wavefront Settings' });
-
-    // 1. Particle Folder
-    const fParticles = gui.addFolder('Particles');
-    fParticles.add(particleParams, 'count', 100, 5000, 100).name('Count'); // min, max, step
-    fParticles.add(particleParams, 'duration', 1, 100).name('Duration');
-    fParticles.add(particleParams, 'lifeTime', 1, 100).name('Life Time');
-    fParticles.add(particleParams, 'minSize', 1, 100).name('Min Size');
-    fParticles.add(particleParams, 'maxSize', 1, 100).name('Max Size');
-    fParticles.add(particleParams, 'alpha', 0, 1).name('Alpha');
-
-    // Colors handle [r,g,b] arrays automatically (make sure your renderer handles 0-1 range)
-    fParticles.addColor(particleParams, 'color').name('Color');
-
-    // 2. Animation Texture Folder
-    const fAni = gui.addFolder('Animation Texture');
-    fAni.add(aniTexParams, 'numFrames', 1, 64, 1).name('Num Frames');
-    fAni.add(aniTexParams, 'aniFps', 1, 60, 1).name('FPS');
-    fAni.add(aniTexParams, 'accFactor', 0, 10).name('Acc Factor');
-    fAni.close(); // Start closed to save space
-
-    // 3. Boids Folder
-    const fBoids = gui.addFolder('Boids Physics');
-    fBoids.add(boidsParams, 'maxSpeed', 0, 50).name('Max Speed');
-    fBoids.add(boidsParams, 'maxForce', 0, 5).name('Max Force');
-    fBoids.add(boidsParams, 'checkCount', 0, 100).name('Check Count');
-    fBoids.add(boidsParams, 'perceptionRadius', 0, 20).name('Radius');
-    fBoids.add(boidsParams, 'separationWeight', 0, 10).name('Separation');
-    fBoids.add(boidsParams, 'alignmentWeight', 0, 10).name('Alignment');
-    fBoids.add(boidsParams, 'cohesionWeight', 0, 10).name('Cohesion');
-    fBoids.add(boidsParams, 'flowWeight', 0, 10).name('Flow');
-    fBoids.add(boidsParams, 'avoidWeight', 0, 20).name('Avoid');
-    fBoids.add(boidsParams, 'dampScalar', 0.8, 1.0).name('Damping');
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader({
@@ -189,6 +153,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     boidsMaterial.initialize({gl});
     boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
     boidsMaterial.setUniform('uEmitterSize', emitterSize);
+    boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
     boidsMaterial.setUniform('uGoal', [gridConfig.goal[0], gridConfig.goal[1]]);
     boidsMaterial.setUniform('uWake', 0.0);
 
@@ -324,7 +289,15 @@ export function initNewSlowEnemy(gl, canvas, camera) {
             boidsMaterial.setUniform('uDeltaTime', time.Interval);
             boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
 
-            // boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
+            boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
+            boidsMaterial.setUniform('uStopDist', boidsParams.stopDist);
+            boidsMaterial.setUniform('uSeparationRad', boidsParams.separationRad);
+            boidsMaterial.setUniform('uSeparationWeight', boidsParams.separationWeight);
+            boidsMaterial.setUniform('uNeighborRad', boidsParams.neighborRad);
+            boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
+            boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
+            boidsMaterial.setUniform('uCohesionWeight', boidsParams.cohesionWeight);
+            boidsMaterial.setUniform('uAlignmentWeight', boidsParams.alignmentWeight);
 
             boidsSolver.update(gl);
             boidsMaterial.setUniform('uWake', 0.0);

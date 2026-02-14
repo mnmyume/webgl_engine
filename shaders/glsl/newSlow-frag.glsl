@@ -26,24 +26,19 @@ uniform bool uLoop;
 
 uniform float uEmitterTexSize;
 uniform float uEmitterSize;
+uniform float uGridSize;
 uniform vec2 uGoal;
 uniform float uWake;
 
 uniform float uFlowWeight;
-
-// --- Constants for Stability ---
-const float SPEED = 3.0;
-const float STOP_DIST = 1.6;
-const float SETTLE_DIST = 1.2;    // Radius where particles can start settling
-const float COLLISION_RAD = 0.75;
-const float NEIGHBOR_RAD = 1.0;   // Radius for flocking
-const float FRICTION = 0.9;
-const float MAX_VEL = 10.0;
-const float PUSH_STRENGTH = 6.0;
-
-// --- Flocking Weights ---
-const float COHESION_WEIGHT = 0.0;
-const float ALIGNMENT_WEIGHT = 0.0;
+uniform float uStopDist;
+uniform float uSeparationRad;
+uniform float uSeparationWeight;
+uniform float uNeighborRad;
+uniform float uDampScalar;
+uniform float uMaxSpeed;
+uniform float uCohesionWeight;
+uniform float uAlignmentWeight;
 
 out vec4[4] fragData;
 
@@ -52,22 +47,80 @@ vec2 getGridCoord(vec2 pos, float emitterSize) {
     return uv;
 }
 
+vec2 mapGoalToWorld(vec2 goalIndex, float gridSize, float emitterSize) {
+    vec2 goal = (vec2(goalIndex.x / gridSize, 1.0 - goalIndex.y / gridSize) - vec2(0.5));
+    goal *= emitterSize;
+    return goal;
+}
+
+float sqrtDist(vec2 pos, vec2 otherPos) {
+    vec2 delta = pos - otherPos;
+    float dSq = dot(delta, delta);
+    float d = sqrt(dSq);
+    return d;
+}
+
+vec2 separation(vec2 pos, vec2 otherPos, float otherActive, float separationRad) {
+    vec2 impulse = vec2(0.0);
+    vec2 delta = pos - otherPos;
+    float dSq = dot(delta, delta);
+    float d = sqrt(dSq);
+
+    float minDist = separationRad * 2.0;
+    if (d < minDist && d > 0.000001) {
+        float overlap = minDist - d;
+        vec2 n = delta / d;
+        impulse += n * overlap * uSeparationWeight;
+    }
+
+    return impulse;
+}
+
+vec2 alignment(vec2 vel, vec2 avgVel, float neighborCount, float alignmentWeight) {
+    avgVel /= neighborCount;
+    vec2 alignmentDir = avgVel - vel == vec2(0.0) ? vec2(0.0) : normalize(avgVel - vel);
+    vec2 alig = alignmentDir * alignmentWeight;
+    return alig;
+}
+
+vec2 cohesion(vec2 pos, vec2 avgPos, float neighborCount, float cohesionWeight) {
+    avgPos /= neighborCount;
+    vec2 cohesionDir = avgPos - pos == vec2(0.0) ? vec2(0.0) : normalize(avgPos - pos);
+    vec2 cohe = cohesionDir * cohesionWeight;
+    return cohe;
+}
+
+vec2 damp(vec2 vel, float dampScalar, float maxSpeed) {
+    vel *= dampScalar;
+    if (length(vel) > maxSpeed) {
+        vel = normalize(vel) * maxSpeed;
+    }
+    return vel;
+}
+
+vec2 updatePos(vec2 pos, vec2 vel, float deltaTime) {
+    pos += vel * uDeltaTime;
+    return pos;
+}
+
+
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(uEmitterTexSize);
-    vec2 goal = (vec2(uGoal.x / 32.0, 1.0 - uGoal.y / 32.0) - vec2(0.5));
-    goal *= uEmitterSize;
+    vec2 goal = mapGoalToWorld(uGoal, uGridSize, uEmitterSize);
 
     vec4 data0 = texture(uDataSlot0, uv);
+    vec4 data1 = texture(uDataSlot1, uv);
     vec2 pos = data0.xy;
     vec2 vel = data0.zw;
-    float activeState = texture(uDataSlot1, uv).x;
+    float activeState = data1.x;
 
     vec2 gridUV = getGridCoord(pos, uEmitterSize);
 
-    if(uWake > 0.5) activeState = 1.0;
+    if(uWake > 0.5)
+        activeState = 1.0;
 
     float distToGoal = distance(pos, goal);
-    bool atGoal = distToGoal < STOP_DIST;
+    bool atGoal = distToGoal < uStopDist;
 
     vec2 totalImpulse = vec2(0.0);
     vec2 avgVel = vec2(0.0);
@@ -88,29 +141,17 @@ void main() {
 
                 vec2 otherUV = vec2(x, y) / uEmitterTexSize;
                 vec4 otherData = texture(uDataSlot0, otherUV);
+                vec2 otherPos = otherData.xy;
+                vec2 otherVel = otherData.zw;
                 float otherActive = texture(uDataSlot1, otherUV).x;
+                float otherDist = distance(pos, otherPos);
 
-                vec2 delta = pos - otherData.xy;
-                float dSq = dot(delta, delta);
-                float d = sqrt(dSq);
-
-                // Separation (Collision)
-                float minDist = COLLISION_RAD * 2.1;
-                if (d < minDist && d > 0.000001) {
-                    float overlap = minDist - d;
-                    vec2 n = delta / d;
-                    float weight = (otherActive < 0.5) ? 1.5 : 0.8;
-                    totalImpulse += n * overlap * weight * PUSH_STRENGTH;
-
-                    if (activeState < 0.5 && !atGoal && otherActive > 0.5) {
-                        activeState = 1.0;
-                    }
-                }
+                totalImpulse += separation(pos, otherPos, otherActive, uSeparationRad);
 
                 // Cohesion and Alignment Data Collection
-                if (d < NEIGHBOR_RAD && otherActive > 0.5) {
-                    avgVel += otherData.zw;
-                    avgPos += otherData.xy;
+                if (otherDist < uNeighborRad && otherActive > 0.5) {
+                    avgVel += otherVel;
+                    avgPos += otherPos;
                     neighborCount += 1.0;
                 }
             }
@@ -121,49 +162,31 @@ void main() {
             vec2 flowDir = texture(uGradientTexture, gridUV).xy;
             if (length(flowDir) < 0.1) flowDir = normalize(goal - pos);
 
-            vel += flowDir * SPEED;
+            vel += flowDir * uFlowWeight;
 
             // Apply Flocking Forces
             if (neighborCount > 0.0) {
-                avgVel /= neighborCount;
-                avgPos /= neighborCount;
-
-                // Alignment: steer towards average velocity
-                vec2 alignmentDir = avgVel - vel == vec2(0.0) ? vec2(0.0) : normalize(avgVel - vel);
-                vel += alignmentDir * ALIGNMENT_WEIGHT;
-
-                // Cohesion: steer towards average position center
-                vec2 cohesionDir = avgPos - pos == vec2(0.0) ? vec2(0.0) : normalize(avgPos - pos);
-                vel += cohesionDir * COHESION_WEIGHT;
+                vel += alignment(vel, avgVel, neighborCount, uAlignmentWeight);
+                vel += cohesion(pos, avgPos, neighborCount, uCohesionWeight);
             }
 
-            vel += totalImpulse / uDeltaTime;
-            vel *= FRICTION;
-
-            if (length(vel) > MAX_VEL) {
-                vel = normalize(vel) * MAX_VEL;
-            }
-        } else {
-            vel += totalImpulse / uDeltaTime;
-            vel *= 0.5;
+            vel += totalImpulse;
+            vel = damp(vel, uDampScalar, uMaxSpeed);
         }
 
-        if (atGoal ) {  // && length(vel) < 0.1
+        if (atGoal) {  // && length(vel) < 0.1
             activeState = 0.0;
             vel = vec2(0.0);
-        } else if (!atGoal) {
-            activeState = 1.0;
         }
 
-        if (activeState > 0.5 || length(vel) > 0.01) {
-            pos += 0.7 * vel * uDeltaTime;
-        }
+        pos = updatePos(pos, vel, uDeltaTime);
 
         // --- OBSTACLE HANDLING ---
         vec2 nextGridUV = getGridCoord(pos, uEmitterSize);
-        vec4 gradData = texture(uGradientTexture, nextGridUV);
-        if (gradData.w > 0.5) {
-            vec2 normal = gradData.xy;
+        vec4 nextGridData = texture(uGradientTexture, nextGridUV);
+        bool isObstacle = nextGridData.w > 0.5;
+        if (isObstacle) {
+            vec2 normal = nextGridData.xy;
             if (length(normal) > 0.01) {
                 normal = normalize(normal);
                 pos = oldPos + normal * 0.005;
