@@ -62,28 +62,31 @@ void main()
 
     mat2 rot = rotateVelMatrix(linVel);
     vec2 rotatedLocalUV = rotateUV(localUV, rot);
-
-    // draw triangle
-    bool isOutTriangle = outTriangle(rotatedLocalUV);
-    if (isOutTriangle) {
-        discard;
+    if(length(linVel)==0.0) {
+        rotatedLocalUV = localUV;
     }
 
-////     animation texture
-//    vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, vAniType, vFrame);
-//    vec2 aniTexCoord = aniTexParams.xy;
-//    vec2 numColsRows = aniTexParams.zw;
-//
-//    vec2 finalUV = rotatedLocalUV/numColsRows + aniTexCoord;   // rotatedLocalUV
-//
-//    vec4 color = texture(uColorSampler, finalUV);
-//
-//    if(color.a<0.8)
+    // draw triangle
+//    bool isOutTriangle = outTriangle(rotatedLocalUV);
+//    if (isOutTriangle) {
 //        discard;
-//    fragColor = color;
+//    }
 
-    if(vActiveState > 0.5)
-        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
-    else
-        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
+//     animation texture
+    vec4 aniTexParams = _GEN_ANI_TEX_UV(uColorSampler, vAniType, vFrame);
+    vec2 aniTexCoord = aniTexParams.xy;
+    vec2 numColsRows = aniTexParams.zw;
+
+    vec2 finalUV = rotatedLocalUV/numColsRows + aniTexCoord;   // rotatedLocalUV
+
+    vec4 color = texture(uColorSampler, finalUV);
+
+    if(color.a<0.8)
+        discard;
+    fragColor = color;
+
+//    if(vActiveState > 0.5)
+//        fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+//    else
+//        fragColor = vec4(0.0, 0.0, 1.0, 1.0);
 }

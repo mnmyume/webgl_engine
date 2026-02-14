@@ -56,7 +56,7 @@ void main()
     float distToGoal = texture(uBoidsTexture1,emitterUV).y;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
-    gl_PointSize = 15.0;
+    gl_PointSize = 30.0;
 
     vGeneration = 0.0;
     vLinVel = vel;

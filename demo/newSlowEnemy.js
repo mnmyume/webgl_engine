@@ -38,10 +38,10 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     }
 
     const aniTexParams = {
-        texWidth: 384,
-        texHeight: 32,
-        cellWidth: 32,
-        cellHeight: 32,
+        texWidth: 1920,
+        texHeight: 1440,
+        cellWidth: 160,
+        cellHeight: 360,
         numFrames: 12,
         numTypes: 4,
         aniFps: 6,
@@ -55,7 +55,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
         separationRad: 1.0,
         separationWeight: 6.0,
         neighborRad: 1.0,
-        dampScalar: 0.9,
+        dampScalar: 0.97,
         maxSpeed: 10.0,
         cohesionWeight: 0.0,
         alignmentWeight: 0.0
@@ -182,7 +182,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/leaf/leaf-Sheet-5.png';
+    colTexImg.src = '../resources/adv_chara.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,
