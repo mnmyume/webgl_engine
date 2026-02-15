@@ -11,8 +11,6 @@ uniform vec3 uColor;
 #value shrink:0.88
 uniform float shrink;
 
-in float vGeneration;
-in vec2 vLinVel;
 in float vAniType;
 in float vFrameLife;
 
@@ -51,11 +49,6 @@ bool outTriangle(vec2 uv) {
 
 void main()
 {
-    //    if(vGeneration < 0.0)
-    //        discard;
-
-    vec2 linVel = vLinVel;
-
     // animation texture
     vec2 finalUV = _GEN_ANI_TEX_UV(gl_PointCoord, uColorSampler, vAniType, vFrameLife);
 

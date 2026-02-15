@@ -8,6 +8,7 @@ import { initQuad }from "./demo/quad.js";
 import { initFlyEnemy } from "./demo/flyEnemy.js";
 import { initSlowEnemy } from "./demo/slowEnemy.js";
 import { initNewSlowEnemy } from "./demo/newSlowEnemy.js";
+import { initAniEnemy} from "./demo/aniEnemy.js";
 
 
 function main() {
@@ -34,7 +35,8 @@ function main() {
 
     // initFlyEnemy(gl, canvas);
     // initSlowEnemy(gl, canvas);
-    initNewSlowEnemy(gl, canvas, camera);
+    // initNewSlowEnemy(gl, canvas, camera);
+    initAniEnemy(gl, canvas, camera);
 }
 
 

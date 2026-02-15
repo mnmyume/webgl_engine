@@ -107,7 +107,7 @@ export function initFlyEnemy(gl, canvas) {
     fBoids.add(boidsParams, 'dampScalar', 0.8, 1.0).name('Damping');
 
     // --- init wavefront solver ---
-    const wavefrontShader = new Shader({
+    const wavefrontShader = new Shader('wavefrontShader', {
         vertexSource: screenQuadVert,
         fragmentSource: wavefrontFrag,
     });
@@ -143,7 +143,7 @@ export function initFlyEnemy(gl, canvas) {
     wavefrontSolver.Mode = FrameSolver.MODE.init;
 
     // --- init gradient solver ---
-    const gradientShader = new Shader({
+    const gradientShader = new Shader('gradientShader', {
         vertexSource: screenQuadVert,
         fragmentSource: gradientFrag,
     });
@@ -180,7 +180,7 @@ export function initFlyEnemy(gl, canvas) {
     emitterTexture.setData(gl,
         genRectHaltonPos(emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
 
-    const mapShader = new Shader({
+    const mapShader = new Shader('mapShader', {
         vertexSource: densityVert,
         fragmentSource: densityFrag,
     });
@@ -208,7 +208,7 @@ export function initFlyEnemy(gl, canvas) {
     mapSolver.initialize({gl});
 
     // boids solver
-    const boidsShader = new Shader({
+    const boidsShader = new Shader('boidsShader', {
         vertexSource: screenQuadVert,
         fragmentSource: boidsFrag,
     });
@@ -238,7 +238,7 @@ export function initFlyEnemy(gl, canvas) {
     boidsSolver.initialize({gl});
 
     // --- init particle renderer ---
-    const particleShader = new Shader({
+    const particleShader = new Shader('particleShader', {
         vertexSource: particleVert,
         fragmentSource: particleFrag
     });
@@ -277,7 +277,7 @@ export function initFlyEnemy(gl, canvas) {
         });
 
         // --- init emitter quad renderer---
-        const quadShader = new Shader({
+        const quadShader = new Shader('quadShader', {
             vertexSource: quadVert,
             fragmentSource: quadFrag,
         });
@@ -297,7 +297,7 @@ export function initFlyEnemy(gl, canvas) {
         quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
 
         // --- init obstacle renderer ---
-        const obstacleShader = new Shader({
+        const obstacleShader = new Shader('obstacleShader', {
             vertexSource: quadVert,
             fragmentSource: obstacleFrag,
         });

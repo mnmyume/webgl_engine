@@ -9,8 +9,8 @@ const DERIVATIVES = {
 }
 
 export default class Shader {
-    constructor(params = {}) {
-        this.name = params.name ?? 'defaultShader';
+    constructor(name='defaultShader', params = {}) {
+        this.name = name;
         this.vertSrc = params.vertexSource ?? null;
         this.fragSrc = params.fragmentSource ?? null;
         this.initValues = params.initValues ?? {};

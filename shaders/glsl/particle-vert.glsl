@@ -1,12 +1,4 @@
 #version 300 es
-#define POSITION_LOCATION 0
-#define LINEAR_VELOCITY_LOCATION 1
-#define ACCELERATION_LOCATION 2
-#define GENERATION_LOCATION 3
-#define SIZE_LOCATION 4
-#define FRAME_LIFE_LOCATION 5
-#define ANI_TYPE_LOCATION 6
-
 precision highp float;
 precision highp int;
 
@@ -22,8 +14,6 @@ uniform sampler2D uBoidsTexture1;
 
 uniform float uEmitterTexSize;
 
-out float vGeneration;
-out vec2 vLinVel;
 out float vAniType;
 out float vFrameLife;
 
@@ -34,14 +24,15 @@ vec2 getEmitterCoord(float particleID, float gridSize) {
 }
 
 float getAniType(vec2 vel) {
-    float index = 0.0;
-    if (vel.y != 0.0) {
-        index = (vel.y > 0.0) ? 3.0 : 2.0;
+    // 0: Right, 1: Left, 2: Down, 3: Up
+    if (abs(vel.x) > abs(vel.y)) {
+        return (vel.x > 0.0) ? 0.0 : 1.0;
     }
-    else if (vel.x != 0.0) {
-        index = (vel.x > 0.0) ? 0.0 : 1.0;
+    else {
+        if (vel.y == 0.0 && vel.x == 0.0) return 0.0;
+
+        return (vel.y > 0.0) ? 3.0 : 2.0;
     }
-    return index;
 }
 
 void main()
@@ -59,8 +50,6 @@ void main()
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
     gl_PointSize = 100.0;
 
-    vGeneration = 0.0;
-    vLinVel = vel;
     vAniType = aniType;
     vFrameLife = frameLife;
 }

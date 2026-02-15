@@ -19,7 +19,7 @@ export function initQuad(gl, canvas, camera) {
     }
 
     // init quad shader
-    const quadShader = new Shader({
+    const quadShader = new Shader('quadShader', {
         vertexSource: quadVert,
         fragmentSource: quadFrag,
     });
