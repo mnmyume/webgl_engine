@@ -104,7 +104,7 @@ export default class AniRender {
     }
 
     initialize(gl, params={}){
-        this.Mode = this.params.mode;
+        this.Mode = this.mode;
         let {material, shape} = params;
         super.initialize(graphic);
 

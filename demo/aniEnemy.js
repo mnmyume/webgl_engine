@@ -177,9 +177,10 @@ export function initAniEnemy(gl, canvas, camera) {
     boidsSolver.initialize({gl});
 
     // --- init particle renderer ---
-    const clone = new AniRender('ani',{
-        image, texCellSize:aniTexParams.cellWidth});
-    clone.initialize(gl);
+    const image = "../resources/adv_chara.png";
+    const ani = new AniRender('ani',{
+        image, texCellSize:aniTexParams.cellWidth, mode:AniRender.MODE.play});
+    ani.initialize(gl, {});
 
 
 
@@ -297,6 +298,8 @@ export function initAniEnemy(gl, canvas, camera) {
         obstacleMaterial.postDraw(gl);
 
         // --- draw particle ---
+        ani.preDraw(gl,camera);
+        ani.draw(gl,camera);
 
     }
     drawWavefront();
