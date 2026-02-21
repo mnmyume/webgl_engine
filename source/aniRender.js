@@ -127,8 +127,7 @@ export default class AniRender {
         this.material.setUniform('uPixelOffsetY', this.pixelOffsetY);
         this.material.setUniform('uOffset', this.offset);
         this.material.setUniform('uDepth',this.depth);
-        // this.material.setUniform('uPosition', this.position);
-        this.material.setUniform('uPosition', [-32,-32]);
+        this.material.setUniform('uPosition', this.position);
         this.material.setUniform('uCanvasMode', this.canvasMode);
 
         this.material.setUniform('uAniSeq', this.aniSequenceIndex);

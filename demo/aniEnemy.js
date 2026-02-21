@@ -200,8 +200,9 @@ export function initAniEnemy(gl, canvas, camera) {
 
         const aniRender = new AniRender('aniRender', {
             texBoundarySize: aniTexParams.texBoundarySize, texCellSize: aniTexParams.texCellSize,
-            scale:aniTexParams.scale,
+            scale:aniTexParams.scale
         });
+        window.a = aniRender;
         aniRender.initialize({gl}, {
             material:charMaterial, shape:charShape, aniTex:aniTexture});
 
