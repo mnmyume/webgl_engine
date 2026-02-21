@@ -122,19 +122,13 @@ export default class AniRender {
     }
 
     preDraw(gl, camera){
-        this.material.preDraw(gl, camera);
-    }
-
-    draw(gl, camera){
-
-
         this.material.setUniform('uScale', 10);
         // this.material.setUniform('uScale', this.scale);
         this.material.setUniform('uPixelOffsetY', this.pixelOffsetY);
         this.material.setUniform('uOffset', this.offset);
         this.material.setUniform('uDepth',this.depth);
-        this.material.setUniform('uPosition', this.position);
-        // this.material.setUniform('uPosition', [-32,-32]);
+        // this.material.setUniform('uPosition', this.position);
+        this.material.setUniform('uPosition', [-32,-32]);
         this.material.setUniform('uCanvasMode', this.canvasMode);
 
         this.material.setUniform('uAniSeq', this.aniSequenceIndex);
@@ -146,7 +140,10 @@ export default class AniRender {
         if(this.mode === AniRender.MODE.stop || this.mode === AniRender.MODE.pause)
             this.material.setUniform('uTime', this.pauseDuration);
 
+        this.material.preDraw(gl, camera);
+    }
 
+    draw(gl, camera){
         this.shape.draw(gl, this.material)
         // gl.enable(gl.BLEND);
         // gl.disable(gl.DEPTH_TEST);
