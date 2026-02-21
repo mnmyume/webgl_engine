@@ -99,7 +99,7 @@ void main()
     vec2 texIndex = vTexBoundary.xy;
     vec2 texSize  = vTexBoundary.zw*uScale;
     vec2 offset = vec2(0,uPixelOffsetY/uTexCellSize*uUnitSize*uScale);
-    vec3 position = CANVAS_TRANSFORM(uCanvasMode|MODE_CHAR, uUnitSize, vec3(uPosition, uDepth), aUV,texSize,offset);
+    vec3 position = CANVAS_TRANSFORM(uCanvasMode|MODE_CHAR, uUnitSize, vec3(pos, uDepth), aUV,texSize,offset);
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1);
 
