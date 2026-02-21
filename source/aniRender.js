@@ -71,7 +71,7 @@ export default class AniRender {
         this.depth = params.depth??-2;
         this.scale = params.scale??1;
         this.pixelOffsetY = params.pixelOffsetY??0;
-        this.canvasMode = params.canvasMode??1024; //platformer:1024
+        this.canvasMode = params.canvasMode??2048; //platformer:1024
         this.mode = AniRender.MODE.stop;
 
         this.position = params.position??[0,0];

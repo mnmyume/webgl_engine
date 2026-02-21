@@ -202,13 +202,13 @@ export function initAniEnemy(gl, canvas, camera) {
             texBoundarySize: aniTexParams.texBoundarySize, texCellSize: aniTexParams.texCellSize,
             scale:aniTexParams.scale
         });
-        window.a = aniRender;
+
         aniRender.initialize({gl}, {
             material:charMaterial, shape:charShape, aniTex:aniTexture});
 
+        window.a = aniRender;
         charMaterial.setUniform('uEmitterTexSize', emitterTexSize);
         charMaterial.setUniform('uParticleSize', particleParams.minSize);
-
         // --- init emitter quad renderer---
         const quadShader = new Shader('quadShader', {
             vertexSource: quadVert,
