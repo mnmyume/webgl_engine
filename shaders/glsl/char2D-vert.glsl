@@ -1,19 +1,38 @@
 #version 300 es
-precision mediump float;
-precision mediump int;
+precision highp float;
+precision highp int;
 
-#value uTexCellSize:48
-uniform float uTexCellSize;
-uniform mat4 _uni_viewMat;
+#include "./includes/canvas-mode-transform.glsl"
+
+#define UV_LOCATION 1
+
+#buffer aUV:charBuffer, size:2, stride:8, offset:0
+layout(location = UV_LOCATION) in vec2 aUV;
+
 uniform mat4 _uni_projMat;
+uniform mat4 _uni_viewMat;
+#value _uni_modelMat:mat4(1.0)
+uniform mat4 _uni_modelMat;
 
-out vec4 vTexBoundary;
+#value uBoidsTexture0:0
+uniform sampler2D uBoidsTexture0;
+#value uBoidsTexture1:1
+uniform sampler2D uBoidsTexture1;
+
+uniform float uEmitterTexSize;
+uniform float uParticleSize;
 
 #value uAniFPS:16.0
 uniform float uAniFPS;
 uniform float uTime;
 
-#value uPosition:vec2(0)
+#value uTexBoundarySize:[160,360]
+uniform vec2 uTexBoundarySize;
+
+#value uTexCellSize:48
+uniform float uTexCellSize;
+
+#value uPosition:[0,0]
 uniform vec2 uPosition;
 #value uDepth:-2.0
 uniform float uDepth;
@@ -22,29 +41,24 @@ uniform float uDepth;
 #value uPixelOffsetY:32.0
 uniform float uPixelOffsetY;
 
-#value uTexBoundarySize:vec2(1,2)
-uniform vec2 uTexBoundarySize;
-
 #value uScale:1.0
 uniform float uScale;
 
 #value uAniSeq:14
 uniform float uAniSeq;
 
-#value uOffset:vec3(0)
+#value uOffset:[0,0,0]
 uniform vec3 uOffset;
 
 
-#value uCanvasMode:2048
+#value uCanvasMode:256
 uniform int uCanvasMode;
 
 #value uUnitSize:1
 uniform float uUnitSize;
 
-#value uBoidsTexture0:0
-uniform sampler2D uBoidsTexture0;
-#value uBoidsTexture1:1
-uniform sampler2D uBoidsTexture1;
+out vec2 vUV;
+out vec4 vTexBoundary;
 
 vec2 getEmitterCoord(float particleID, float gridSize) {
     vec2 uv = vec2(mod(particleID,gridSize), floor(particleID/gridSize))/gridSize;
@@ -53,19 +67,21 @@ vec2 getEmitterCoord(float particleID, float gridSize) {
 }
 
 float getAniType(vec2 vel) {
-    // 0: Right, 1: Left, 2: Down, 3: Up
-    if (abs(vel.x) > abs(vel.y)) {
-        return (vel.x > 0.0) ? 0.0 : 1.0;
-    }
-    else {
-        if (vel.y == 0.0 && vel.x == 0.0) return 0.0;
+    // 0: Up-Left, 1: Down-Right, 2: Down-Left, 3: Up-Right
 
-        return (vel.y > 0.0) ? 3.0 : 2.0;
+    if (vel.x >= 0.0) {
+        // Moving predominantly Right (+x)
+        // +y = Up-Right (3.0), -y = Down-Right (1.0)
+        return (vel.y >= 0.0) ? 3.0 : 1.0;
+    } else {
+        // Moving predominantly Left (-x)
+        // +y = Up-Left (0.0), -y = Down-Left (2.0)
+        return (vel.y >= 0.0) ? 0.0 : 2.0;
     }
 }
 
-void main(void) {
-
+void main()
+{
     float particleID = float(gl_InstanceID);
     vec2 emitterUV = getEmitterCoord(particleID, uEmitterTexSize);
 
@@ -73,21 +89,19 @@ void main(void) {
     vec4 boidsData1 = texture(uBoidsTexture1,emitterUV);
     vec2 pos = boidsData0.xy;
     vec2 vel = boidsData0.zw;
-    float aniType = getAniType(vel);
     float frameLife = boidsData1.y;
+    float aniType = getAniType(vel);
 
     int aniIndexX = int(uTime*uAniFPS*uTexBoundarySize.x);
-    int aniIndexY = int(uAniSeq*uTexBoundarySize.y);
+    int aniIndexY = int(aniType*uTexBoundarySize.y);
     vTexBoundary = vec4(aniIndexX,aniIndexY,uTexBoundarySize.x,uTexBoundarySize.y);
 
-//    vec2 texIndex = vTexBoundary.xy;
-//    vec2 texSize  = vTexBoundary.zw*uScale;
-//    vec2 offset = vec2(0,uPixelOffsetY/uTexCellSize*uUnitSize*uScale);
-//    vec3 position = CANVAS_TRANSFORM(uCanvasMode|MODE_CHAR, uUnitSize, vec3(uPosition, uDepth), uv,texSize,offset);
+    vec2 texIndex = vTexBoundary.xy;
+    vec2 texSize  = vTexBoundary.zw*uScale;
+    vec2 offset = vec2(0,uPixelOffsetY/uTexCellSize*uUnitSize*uScale);
+    vec3 position = CANVAS_TRANSFORM(uCanvasMode|MODE_CHAR, uUnitSize, vec3(uPosition, uDepth), aUV,texSize,offset);
 
+    gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(position, 1);
 
-//    gl_Position = _uni_projMat * _uni_viewMat * vec4(position+uOffset, 1.0);
-    gl_Position = _uni_projMat * _uni_viewMat * vec4(pos, 0.0, 1.0);
-    gl_PointSize = 100.0;
-
+    vUV = vec2(aUV.x, 1.0-aUV.y);
 }

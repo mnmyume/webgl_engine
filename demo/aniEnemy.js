@@ -8,7 +8,6 @@ import FrameSolver from "../source/frameSolver.js";
 import Solver from "../source/solver.js";
 import SolverShape from "../source/solverShape.js";
 import SolverMaterial from "../source/solverMaterial.js";
-import AniRender from "../source/aniRender.js";
 import {readAttrSchema} from "../source/shapeHelper.js";
 import {sqrtFloor} from "../source/mathHelper.js";
 import {genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON, genWavefrontDataClick, getMouseGridPosition} from "../source/generatorHelper.js";
@@ -23,13 +22,16 @@ import slowFrag from "../shaders/glsl/newSlow-frag.glsl";
 import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
+import char2DVert from "../shaders/glsl/char2D-vert.glsl";
+import char2DFrag from "../shaders/glsl/char2D-frag.glsl";
 
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
+import AniRender from "../source/aniRender.js";
 
 
 export function initAniEnemy(gl, canvas, camera) {
     const particleParams = {
-        count: 16,
+        count: 1,
         duration: 20,
         lifeTime: 20,
         minSize: 15,
@@ -39,16 +41,10 @@ export function initAniEnemy(gl, canvas, camera) {
     }
 
     const aniTexParams = {
-        texWidth: 1920,
-        texHeight: 1440,
-        cellWidth: 160,
-        cellHeight: 360,
-        cellRatio: 360/160,
-        numFrames: 12,
-        numTypes: 4,
-        aniFps: 6,
-        accDivisor: 80000,
-        accFactor: 2
+        texSize: [1152,384],
+        texBoundarySize: [1,2],
+        texCellSize: 48,
+        scale: 10
     }
 
     const boidsParams = {
@@ -69,7 +65,7 @@ export function initAniEnemy(gl, canvas, camera) {
     const emitterCorner = [-emitterSize/2, -emitterSize/2];
 
     // --- init wavefront solver ---
-    const wavefrontShader = new Shader('wavefrontShader',{
+    const wavefrontShader = new Shader('wavefrontShader', {
         vertexSource: screenQuadVert,
         fragmentSource: wavefrontFrag,
     });
@@ -105,7 +101,7 @@ export function initAniEnemy(gl, canvas, camera) {
     wavefrontSolver.Mode = FrameSolver.MODE.init;
 
     // --- init gradient solver ---
-    const gradientShader = new Shader('gradientShader',{
+    const gradientShader = new Shader('gradientShader', {
         vertexSource: screenQuadVert,
         fragmentSource: gradientFrag,
     });
@@ -142,7 +138,7 @@ export function initAniEnemy(gl, canvas, camera) {
         genRectHaltonPos(emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
 
     // boids solver
-    const boidsShader = new Shader('boidsShader',{
+    const boidsShader = new Shader('boidsShader', {
         vertexSource: screenQuadVert,
         fragmentSource: slowFrag,
     });
@@ -177,131 +173,163 @@ export function initAniEnemy(gl, canvas, camera) {
     boidsSolver.initialize({gl});
 
     // --- init particle renderer ---
-    const image = "../resources/adv_chara.png";
-    const ani = new AniRender('ani',{
-        image, texCellSize:aniTexParams.cellWidth, mode:AniRender.MODE.play});
-    ani.initialize(gl, {});
-
-
-
-
-    // --- init emitter quad renderer---
-    const quadShader = new Shader('quadShader',{
-        vertexSource: quadVert,
-        fragmentSource: quadFrag,
+    const charShader = new Shader('charShader', {
+        vertexSource: char2DVert,
+        fragmentSource: char2DFrag
     });
-    quadShader.initialize({gl});
+    charShader.initialize({gl});
 
-    const quadMaterial = new Material('quadMaterial', {
-        shader: quadShader,
-    });
-    quadMaterial.initialize({gl});
+    const colTexImg = new Image();
+    colTexImg.src = '../resources/cat.png';
+    colTexImg.onload = _ => {
+        const aniTexture = new Texture2D('aniTexture', {
+            image: colTexImg,
+            scaleDown: 'LINEAR',
+            scaleUp: 'LINEAR'
+        });
+        aniTexture.initialize({gl});
 
-    const quadData = genQuadUVXY(emitterSize);
-    const quadShape = new Shape(
-        'quad',
-        {verticeCount: 6, schema: readAttrSchema(quadVert.input)});
-    quadShape.initialize({gl});
-    quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
-
-    // --- init obstacle renderer ---
-    const obstacleShader = new Shader('obstacleShader', {
-        vertexSource: quadVert,
-        fragmentSource: obstacleFrag,
-    });
-    obstacleShader.initialize({gl});
-
-    const obstacleMaterial = new Material('obstacleMaterial', {
-        shader: obstacleShader, blend:1
-    });
-    obstacleMaterial.initialize({gl});
-    obstacleMaterial.setTexture('uInitGridTexture', initGridTexture);
-
-    function drawWavefront() {
-        requestAnimationFrame(drawWavefront);
-        // update goal from mouse click
-        canvas.addEventListener('mousedown', (e) => {
-            const clickPos = getMouseGridPosition(e, canvas, gridConfig.gridSize);
-
-            if (!clickPos) return;
-
-            console.log("Click grid:", clickPos);
-
-            const newData = genWavefrontDataClick(gridConfig, clickPos);
-
-            initGridTexture.setData(gl, newData);
-            wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
-            boidsMaterial.setUniform('uGoal', [clickPos.x, clickPos.y]);
-            boidsMaterial.setUniform('uWake', 1.0);
-
-            wavefrontSolver.Mode = FrameSolver.MODE.init;
+        const charMaterial = new Material('charMaterial', {
+            shader: charShader, blend:0
         });
 
-        // --- wavefront solver update ---
-        wavefrontMaterial.setUniform('uState', wavefrontSolver.mode);
-        wavefrontSolver.update(gl);
+        const charShape = new Shape('charShape', {
+            count: particleParams.count,
+            schema: readAttrSchema(char2DVert.input)
+        });
 
-        if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
-            wavefrontSolver.Mode = FrameSolver.MODE.play;
+        const aniRender = new AniRender('aniRender', {
+            texBoundarySize: aniTexParams.texBoundarySize, texCellSize: aniTexParams.texCellSize,
+            scale:aniTexParams.scale,
+        });
+        aniRender.initialize({gl}, {
+            material:charMaterial, shape:charShape, aniTex:aniTexture});
+
+        charMaterial.setUniform('uEmitterTexSize', emitterTexSize);
+        charMaterial.setUniform('uParticleSize', particleParams.minSize);
+
+        // --- init emitter quad renderer---
+        const quadShader = new Shader('quadShader', {
+            vertexSource: quadVert,
+            fragmentSource: quadFrag,
+        });
+        quadShader.initialize({gl});
+
+        const quadMaterial = new Material('quadMaterial', {
+            shader: quadShader,
+        });
+        quadMaterial.initialize({gl});
+
+        const quadData = genQuadUVXY(emitterSize);
+        const quadShape = new Shape(
+            'quad',
+            {schema: readAttrSchema(quadVert.input)});
+        quadShape.initialize({gl});
+        quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
+
+        // --- init obstacle renderer ---
+        const obstacleShader = new Shader('obstacleShader', {
+            vertexSource: quadVert,
+            fragmentSource: obstacleFrag,
+        });
+        obstacleShader.initialize({gl});
+
+        const obstacleMaterial = new Material('obstacleMaterial', {
+            shader: obstacleShader, blend:1
+        });
+        obstacleMaterial.initialize({gl});
+        obstacleMaterial.setTexture('uInitGridTexture', initGridTexture);
+
+        function drawWavefront() {
+            requestAnimationFrame(drawWavefront);
+            // update goal from mouse click
+            canvas.addEventListener('mousedown', (e) => {
+                const clickPos = getMouseGridPosition(e, canvas, gridConfig.gridSize);
+
+                if (!clickPos) return;
+
+                console.log("Click grid:", clickPos);
+
+                const newData = genWavefrontDataClick(gridConfig, clickPos);
+
+                initGridTexture.setData(gl, newData);
+                wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
+                boidsMaterial.setUniform('uGoal', [clickPos.x, clickPos.y]);
+                boidsMaterial.setUniform('uWake', 1.0);
+
+                wavefrontSolver.Mode = FrameSolver.MODE.init;
+            });
+
+            // --- wavefront solver update ---
+            wavefrontMaterial.setUniform('uState', wavefrontSolver.mode);
+            wavefrontSolver.update(gl);
+
+            if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
+                wavefrontSolver.Mode = FrameSolver.MODE.play;
+            }
         }
-    }
 
-    function drawGradient() {
+        function drawGradient() {
 
-        requestAnimationFrame(drawGradient);
+            requestAnimationFrame(drawGradient);
 
-        time.update();
+            time.update();
 
-        // --- gradient solver update ---
-        gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
-        gradientSolver.update(gl);
+            // --- gradient solver update ---
+            gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
+            gradientSolver.update(gl);
 
-        // --- boids solver update ---
-        boidsMaterial.setUniform('uTime', time.ElapsedTime);
-        boidsMaterial.setUniform('uDeltaTime', time.Interval);
-        boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
+            // --- boids solver update ---
+            boidsMaterial.setUniform('uTime', time.ElapsedTime);
+            boidsMaterial.setUniform('uDeltaTime', time.Interval);
+            boidsMaterial.setTexture('uGradientTexture', gradientSolver.frontBuffer.textures[0]);
 
-        boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
-        boidsMaterial.setUniform('uStopDist', boidsParams.stopDist);
-        boidsMaterial.setUniform('uSeparationRad', boidsParams.separationRad);
-        boidsMaterial.setUniform('uSeparationWeight', boidsParams.separationWeight);
-        boidsMaterial.setUniform('uNeighborRad', boidsParams.neighborRad);
-        boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
-        boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
-        boidsMaterial.setUniform('uCohesionWeight', boidsParams.cohesionWeight);
-        boidsMaterial.setUniform('uAlignmentWeight', boidsParams.alignmentWeight);
+            boidsMaterial.setUniform('uFlowWeight', boidsParams.flowWeight);
+            boidsMaterial.setUniform('uStopDist', boidsParams.stopDist);
+            boidsMaterial.setUniform('uSeparationRad', boidsParams.separationRad);
+            boidsMaterial.setUniform('uSeparationWeight', boidsParams.separationWeight);
+            boidsMaterial.setUniform('uNeighborRad', boidsParams.neighborRad);
+            boidsMaterial.setUniform('uDampScalar', boidsParams.dampScalar);
+            boidsMaterial.setUniform('uMaxSpeed', boidsParams.maxSpeed);
+            boidsMaterial.setUniform('uCohesionWeight', boidsParams.cohesionWeight);
+            boidsMaterial.setUniform('uAlignmentWeight', boidsParams.alignmentWeight);
 
-        boidsSolver.update(gl);
-        boidsMaterial.setUniform('uWake', 0.0);
+            boidsSolver.update(gl);
+            boidsMaterial.setUniform('uWake', 0.0);
 
-        if (boidsSolver.Mode === FrameSolver.MODE.init) {
-            boidsSolver.Mode = FrameSolver.MODE.play;
+            if (boidsSolver.Mode === FrameSolver.MODE.init) {
+                boidsSolver.Mode = FrameSolver.MODE.play;
+            }
+
+
+            // gl
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+            gl.clearColor(0.2, 0.2, 0.2, 1.0);
+            gl.colorMask(true, true, true, true);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.blendFunc(gl.ONE, gl.ZERO);
+
+            // --- draw emitter quad ---
+            quadMaterial.preDraw(gl, camera);
+            quadShape.draw(gl, quadMaterial);
+            quadMaterial.postDraw(gl);
+
+            // --- draw obstacle ---
+            obstacleMaterial.preDraw(gl, camera);
+            quadShape.draw(gl, quadMaterial);
+            obstacleMaterial.postDraw(gl);
+
+            // --- draw particle ---
+            charMaterial.setTexture('uBoidsTexture0', boidsSolver.frontBuffer.textures[0]);
+            charMaterial.setTexture('uBoidsTexture1', boidsSolver.frontBuffer.textures[1]);
+            charMaterial.setUniform('uTime', time.ElapsedTime);
+
+            aniRender.preDraw(gl, camera);
+            aniRender.draw(gl,camera);
+            aniRender.postDraw(gl);
         }
-
-
-        // gl
-        gl.viewport(0, 0, canvas.width, canvas.height);
-
-        gl.clearColor(0.2, 0.2, 0.2, 1.0);
-        gl.colorMask(true, true, true, true);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.blendFunc(gl.ONE, gl.ZERO);
-
-        // --- draw emitter quad ---
-        quadMaterial.preDraw(gl, camera);
-        quadShape.draw(gl, quadMaterial);
-        quadMaterial.postDraw(gl);
-
-        // --- draw obstacle ---
-        obstacleMaterial.preDraw(gl, camera);
-        quadShape.draw(gl, quadMaterial);
-        obstacleMaterial.postDraw(gl);
-
-        // --- draw particle ---
-        ani.preDraw(gl,camera);
-        ani.draw(gl,camera);
-
+        drawWavefront();
+        drawGradient();
     }
-    drawWavefront();
-    drawGradient();
 }

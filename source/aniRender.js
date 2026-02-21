@@ -1,11 +1,10 @@
 import Shader from "./shader.js";
 import Material from "./material.js";
 import charFrag from "../shaders/glsl/char2D-frag.glsl";
-import charVert from "../shaders/glsl/char2D-frag.glsl";
+import charVert from "../shaders/glsl/char2D-vert.glsl";
 import Shape from "./shape.js";
 import {readAttrSchema} from "./shapeHelper.js";
 import Texture2D from "./texture2d.js";
-import {$getAttr} from "./headless.js";
 import {$assert} from "./common.js";
 
 
@@ -79,52 +78,27 @@ export default class AniRender {
         this.offset = params.offset??[0,0,0];
     }
 
-
     //Override by 3D setting
     localBoundary = [0,0,0,0,0,0];
     get LocalBoundary(){return super.LocalBoundary;}
     set LocalBoundary(val){super.LocalBoundary = val;}
 
 
-    createMat(gl, image = this.image){
-        const shader = new Shader('char', {vertex:charVert,fragment:charFrag});
-        shader.initialize({gl});
-        const material = new Material("char", {shader});
-        material.initialize({gl});
-        material.setUniform('uTexCellSize', this.texCellSize);
-        material.setUniform('uTexBoundarySize', this.texBoundarySize);
-
-        const imageData = $getAttr(image);
-        const tex = new Texture2D('test',{image:imageData});
-        tex.initialize({gl});
-        $assert(material);
-        material.setTexture('uAniTex', tex);
-        material.setUniform('uTexSize', [imageData.width,imageData.height]);
-        return material;
-    }
-
-    initialize(gl, params={}){
+    initialize({gl}, params={}){
         this.Mode = this.mode;
-        let {material, shape} = params;
-        super.initialize(graphic);
-
-        this.transform.update();
-
-        if(!material) {
-
-            material = this.createMat(graphic);
-
-        }
-
+        let {material, shape, aniTex} = params;
         this.material = material;
-
-
-        if(!shape){
-            shape = new Shape('char', {schema: readAttrSchema(charVert.input)});
-            shape.initialize(graphic);
-            this.updateBuffer(graphic,shape);
-        }
         this.shape = shape;
+
+        this.material.initialize({gl});
+
+        this.shape.initialize({gl});
+        this.updateBuffer(gl, this.shape, this.material);
+
+        this.material.setTexture('uAniTex', aniTex);
+        this.material.setUniform('uTexCellSize', this.texCellSize);
+        this.material.setUniform('uTexBoundarySize', this.texBoundarySize);
+        this.material.setUniform('uTexSize', [aniTex.width, aniTex.height]);
     }
 
     //override fnc
@@ -133,11 +107,7 @@ export default class AniRender {
 
     }
 
-    preDraw(gl, camera){
-        super.preDraw(graphic,camera);
-    }
-
-    updateBuffer(gl, shape, uvSize = 1){
+    updateBuffer(gl, shape, material, uvSize = 1){
 
         const attrData = [];
         attrData.push( 0,uvSize);
@@ -147,18 +117,24 @@ export default class AniRender {
         attrData.push( 0,0);
         attrData.push( uvSize,0);
         attrData.push( uvSize,uvSize);
-        shape.update(gl,'charBuffer', attrData);
+        shape.update(gl,'charBuffer', {material:material, data:attrData});
 
+    }
+
+    preDraw(gl, camera){
+        this.material.preDraw(gl, camera);
     }
 
     draw(gl, camera){
 
 
-        this.material.setUniform('uScale', this.scale);
+        this.material.setUniform('uScale', 10);
+        // this.material.setUniform('uScale', this.scale);
         this.material.setUniform('uPixelOffsetY', this.pixelOffsetY);
         this.material.setUniform('uOffset', this.offset);
         this.material.setUniform('uDepth',this.depth);
         this.material.setUniform('uPosition', this.position);
+        // this.material.setUniform('uPosition', [-32,-32]);
         this.material.setUniform('uCanvasMode', this.canvasMode);
 
         this.material.setUniform('uAniSeq', this.aniSequenceIndex);
@@ -170,14 +146,18 @@ export default class AniRender {
         if(this.mode === AniRender.MODE.stop || this.mode === AniRender.MODE.pause)
             this.material.setUniform('uTime', this.pauseDuration);
 
+
+        this.shape.draw(gl, this.material)
         // gl.enable(gl.BLEND);
         // gl.disable(gl.DEPTH_TEST);
         // gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-        super.draw(graphic);
+
         // gl.enable(gl.DEPTH_TEST);
         // gl.disable(gl.BLEND);
     }
 
-
+    postDraw(gl){
+        this.material.postDraw(gl);
+    }
 
 }
