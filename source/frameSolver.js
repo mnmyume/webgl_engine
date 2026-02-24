@@ -1,5 +1,5 @@
 import Texture2D from "./texture2d.js";
-import {$assert} from "./common.js";
+import {$assert} from "./common/commonHelper.js";
 import Framebuffer from "./framebuffer.js";
 
 export default class FrameSolver{

@@ -3,7 +3,7 @@ import MagicString from 'magic-string'
 import path from 'path';
 import fs from "fs";
 import {fileURLToPath} from 'url';
-import {$assert} from "./source/common.js";
+import {$assert} from "./source/common/commonHelper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 

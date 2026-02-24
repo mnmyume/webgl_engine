@@ -1,5 +1,5 @@
 import Shape from './shape.js';
-import {$assert} from "./common.js";
+import {$assert} from "./common/commonHelper.js";
 import VAO from "./vao.js";
 
 

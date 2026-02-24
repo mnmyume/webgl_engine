@@ -22,8 +22,8 @@ import slowFrag from "../shaders/glsl/newSlow-frag.glsl";
 import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
-import char2DVert from "../shaders/glsl/char2D-vert.glsl";
-import char2DFrag from "../shaders/glsl/char2D-frag.glsl";
+import char2DVert from "../shaders/glsl/newParticle-vert.glsl";
+import char2DFrag from "../shaders/glsl/newParticle-frag.glsl";
 
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 import AniRender from "../source/aniRender.js";
@@ -206,7 +206,6 @@ export function initAniEnemy(gl, canvas, camera) {
         aniRender.initialize({gl}, {
             material:charMaterial, shape:charShape, aniTex:aniTexture});
 
-        window.a = aniRender;
         charMaterial.setUniform('uEmitterTexSize', emitterTexSize);
         charMaterial.setUniform('uParticleSize', particleParams.minSize);
         // --- init emitter quad renderer---

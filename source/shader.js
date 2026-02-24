@@ -1,4 +1,4 @@
-import {$assert, $getShaderInfo} from "./common.js";
+import {$assert, $getShaderInfo} from "./common/commonHelper.js";
 
 
 const DERIVATIVES = {

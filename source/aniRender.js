@@ -5,7 +5,7 @@ import charVert from "../shaders/glsl/char2D-vert.glsl";
 import Shape from "./shape.js";
 import {readAttrSchema} from "./shapeHelper.js";
 import Texture2D from "./texture2d.js";
-import {$assert} from "./common.js";
+import {$assert} from "./common/commonHelper.js";
 
 
 export default class AniRender {
@@ -122,8 +122,7 @@ export default class AniRender {
     }
 
     preDraw(gl, camera){
-        this.material.setUniform('uScale', 10);
-        // this.material.setUniform('uScale', this.scale);
+        this.material.setUniform('uScale', this.scale);
         this.material.setUniform('uPixelOffsetY', this.pixelOffsetY);
         this.material.setUniform('uOffset', this.offset);
         this.material.setUniform('uDepth',this.depth);

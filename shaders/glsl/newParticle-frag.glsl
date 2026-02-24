@@ -40,7 +40,7 @@ void main()
     color = rdTexUV(uAniTex, uTexCellSize, uTexSize);
 
     if(color.a>0.5)
-        fragColor = vec4(color.rgb, uAlpha);
+    fragColor = vec4(color.rgb, uAlpha);
     else
-        discard;
+    fragColor=vec4(1.0);
 }

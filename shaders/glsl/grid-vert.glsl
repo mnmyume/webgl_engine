@@ -1,7 +1,7 @@
 #version 300 es
 precision mediump float;
 precision mediump int;
-#include "canvas-mode-transform.glsl"
+#include "./includes/canvas-mode-transform.glsl"
 #define VERTEX_LOCATION 0
 #define UV_LOCATION 1
 

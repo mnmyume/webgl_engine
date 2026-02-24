@@ -1,4 +1,4 @@
-import {$assert} from "./common.js";
+import {$assert} from "./common/commonHelper.js";
 
 window.__textures = {};
 export default class Texture2D {

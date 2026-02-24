@@ -12,7 +12,7 @@ in vec2 vVertex;
 in vec2 vUV;
 
 
-#value uNumOfGrid:ivec2(128,128)
+#value uNumOfGrid:[128,128]
 uniform ivec2 uNumOfGrid;
 
 #value uSelCol:0
@@ -47,9 +47,9 @@ uniform float uShineOffset;
 #value ulineWidth:0.001
 uniform float ulineWidth;
 
-#value uGridBGCol:vec4(0.94, 0.96, 0.78, 1.0)
+#value uGridBGCol:[0.94, 0.96, 0.78, 1.0]
 uniform vec4 uGridBGCol;
-#value uGridLineCol:vec4(0.2,0.4,.9, 0.35)
+#value uGridLineCol:[0.2,0.4,.9, 0.35]
 uniform vec4 uGridLineCol;
 
 

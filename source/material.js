@@ -1,4 +1,4 @@
-import {$assert,$match} from "./common.js";
+import {$assert,$match} from "./common/commonHelper.js";
 import Texture2D from './texture2d.js';
 
 

@@ -1,11 +1,11 @@
-import Shader from "../../../keanu3d-webgl/shader.js";
-import Material from "../../../keanu3d-webgl/material.js";
-import gridFrag from "../../../keanu3d-webgl/shaders/glsl/grid-frag.glsl";
-import gridVert from "../../../keanu3d-webgl/shaders/glsl/grid-vert.glsl";
-import Shape from "../../../keanu3d-webgl/shape.js";
-import {quad, grid, readAttrSchema} from "../../../keanu3d-webgl/shapeHelper.js";
-import Texture2D from "../../../keanu3d-webgl/texture2d.js";
-import {SET_TEXCOL_BY_BLOCK_VAL, SET_TEXCOL_BY_BOUNDARY,SET_RANDOM_TEXCOL_BY_BOUNDARY, setting} from "../../editor/setting.js";
+import Shader from "./shader.js";
+import Material from "./material.js";
+import gridFrag from "../shaders/glsl/grid-frag.glsl";
+import gridVert from "../shaders/glsl/grid-vert.glsl";
+import Shape from "./shape.js";
+import {quad, grid, readAttrSchema} from "./shapeHelper.js";
+import Texture2D from "./texture2d.js";
+import {SET_TEXCOL_BY_BOUNDARY} from "./generatorHelper.js";
 
 
 export default class Grid {
@@ -22,6 +22,7 @@ export default class Grid {
     selData = null;
     errData = null;
     hintData = null;
+    selGridCol = 'rgba(160,193,210,1.0)'
 
     delete(){
         this.material = null;
@@ -35,70 +36,35 @@ export default class Grid {
         this.selData = null;
         this.errData = null;
         this.hintData = null;
-        super.delete();
     }
 
     set SelBoundary(val){
 
         this.selData = new Float32Array(this.height*this.width*4);
-        SET_TEXCOL_BY_BOUNDARY(this.selData, val, this.width, this.height, setting.PALETTE.selGridCol);
-        this.selTexture.setData(this.graphic, this.selData)
-
-    }
-    set ErrBoundary(val){
-
-
-        this.errData = new Float32Array(this.height*this.width*4);
-        SET_TEXCOL_BY_BOUNDARY(this.errData, val, this.width, this.height, setting.PALETTE.selErrCol);
-        this.errTexture.setData(this.graphic, this.errData)
-
-    }
-    set ErrBoundaryGroup(val){
-
-
-        this.errData = new Float32Array(this.height*this.width*4);
-        SET_RANDOM_TEXCOL_BY_BOUNDARY(this.errData, val, this.width, this.height, setting.PALETTE.selErrCol);
-        this.errTexture.setData(this.graphic, this.errData)
-
-    }
-
-    set HintBoundary(val){
-        this.hintData = new Float32Array(this.height*this.width*4);
-        SET_TEXCOL_BY_BOUNDARY(this.hintData, val, this.width, this.height,  setting.PALETTE.selHintCol,0.1);
-        this.hintTexture.setData(this.graphic, this.hintData);
-    }
-
-    set CollisionHintBoundary(val){
-
-        //ATTN: using uniform called 'uHintCol' in grid-frag.glsl
-        //alpha value range from 1/10 of [1, 2,3,4,5]
-        this.hintData = new Float32Array(this.height*this.width*4);
-        SET_TEXCOL_BY_BLOCK_VAL(this.hintData, val, this.width, this.height,  setting.PALETTE.selCollisionCol);
-        this.hintTexture.setData(this.graphic, this.hintData);
+        SET_TEXCOL_BY_BOUNDARY(this.selData, val, this.width, this.height, this.selGridCol);
+        this.selTexture.setData(this.gl, this.selData)
     }
 
     constructor(name='__test',params={}){
-        super(name,params);
+
     }
 
     //this.parent.glFrameWork
-    initialize({mode, gridUnitSize=1, col , row}){
-        super.initialize();
-        const graphic = this.graphic;
+    initialize({gl, mode, gridUnitSize=1, col , row}){
         this.#timer = Date.now();
+        this.gl = gl;
 
-        const shader = new Shader('grid', {vertex:gridVert,fragment:gridFrag});
-        shader.initialize(graphic);
+        const shader = new Shader('grid', {vertexSource:gridVert,fragmentSource:gridFrag});
+        shader.initialize({gl});
         this.material = new Material("grid", {shader});
-        this.material.initialize(graphic);
+        this.material.initialize({gl});
 
-        this.material.uniform['uNumOfGrid'].value = [col,row];
-        this.material.uniform['uGridMode'].value = mode;
-        this.material.uniform['uUnitSize'].value = gridUnitSize;
+        this.material.uniforms['uNumOfGrid'].value = [col,row];
+        this.material.uniforms['uGridMode'].value = mode;
+        this.material.uniforms['uUnitSize'].value = gridUnitSize;
 
         this.width = col;
         this.height = row;
-
 
 
         //#define ISO_MAT(s) mat3(vec3(float(s)*0.5,-float(s)*0.25,0.0),vec3(-float(s)*0.5,-float(s)*0.25,0.0),vec3(0.0, 0.0, 1.0))
@@ -121,27 +87,27 @@ export default class Grid {
             schema:readAttrSchema(gridVert.input),
             state:Shape.RENDERSTATE.triangle});
 
-        this.shape.initialize(graphic);
+        this.shape.initialize({gl});
 
 
 
-        this.shape.update(graphic,'gridBuffer', {material:this.material, data:data});
+        this.shape.update(gl,'gridBuffer', {material:this.material, data:data});
 
         this.selData = new Float32Array(col*row*4);
         this.selTexture = new Texture2D('selTexture', {width:col,height:row, data:this.selData});
-        this.selTexture.initialize(graphic);
+        this.selTexture.initialize({gl});
         this.material.setTexture('uSelCol', this.selTexture);
 
 
         this.errData = new Float32Array(col*row*4);
         this.errTexture = new Texture2D('errTexture', {width:col,height:row, data:this.errData});
-        this.errTexture.initialize(graphic);
+        this.errTexture.initialize({gl});
         this.material.setTexture('uErrCol', this.errTexture);
 
 
         this.hintData = new Float32Array(col*row*4);
         this.hintTexture = new Texture2D('hintTexture', {width:col,height:row, data:this.hintData});
-        this.hintTexture.initialize(graphic);
+        this.hintTexture.initialize({gl});
         this.material.setTexture('uHintCol', this.hintTexture);
     }
 
@@ -149,14 +115,16 @@ export default class Grid {
     set Mode(val){this.mode = val;}
     get Mode(){return this.mode;}
 
-    preDraw(graphic, camera){
-        super.preDraw(graphic,camera);
+    preDraw(gl, camera){
+        this.material.uniforms['uTime'].value = (Date.now() - this.#timer)/1000;
+        this.material.setUniform('uGridBGCol', [0.94, 0.96, 0.78, 1.0]);
+        this.material.setUniform('uGridLineCol', [0.2,0.4,.9, 0.35]);
+
+        this.material.preDraw(gl, camera);
     }
-    draw(graphic = this.parent?.GLFrameWork?.Graphics,cam = this.parent?.camera){
+    draw(gl, camera){
 
-        const gl = graphic.gl;
 
-        this.material.uniform['uTime'].value = (Date.now() - this.#timer)/1000;
         if(this.Mode === 2){
             gl.enable(gl.BLEND);
             gl.disable(gl.DEPTH_TEST);
@@ -165,7 +133,7 @@ export default class Grid {
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         }
         if(this.Mode !== 1)
-            super.draw(graphic);
+            this.shape.draw(gl, this.material);
 
         if(this.Mode === 2){
             gl.enable(gl.DEPTH_TEST);
@@ -174,15 +142,14 @@ export default class Grid {
 
     }
 
-    postDraw(graphic, camera){
-        const gl = graphic.gl;
-        super.postDraw(graphic, camera);
+    postDraw(gl){
+        this.material.postDraw(gl);
 
-        // this.material.uniform['switcher'].value = [0,1];
+        // this.material.uniforms['switcher'].value = [0,1];
         // super.preDraw(graphic, camera);
         // this.draw(graphic, camera);
         // super.postDraw(graphic, camera);
-        // this.material.uniform['switcher'].value = [1,0];
+        // this.material.uniforms['switcher'].value = [1,0];
     }
 
 

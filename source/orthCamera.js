@@ -45,7 +45,7 @@ export default class OrthCamera extends Camera {
         // this.bottom = 0;
         // this.top = height;
         this.bottom = -height * 0.5;
-        this.top = height * 0.5;
+        this.top = -this.bottom;
         this.projectionMatrix = $ortho(this.left, this.right, this.bottom, this.top, this.near, this.far);
     }
 
