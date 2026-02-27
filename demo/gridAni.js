@@ -15,9 +15,7 @@ import quadFrag from "../shaders/glsl/quad-frag.glsl";
 import screenQuadVert from "../shaders/glsl/screenQuad-vert.glsl";
 import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
-import slowFrag from "../shaders/glsl/newSlow-frag.glsl";
-import particleVert from "../shaders/glsl/particle-vert.glsl";
-import particleFrag from "../shaders/glsl/particle-frag.glsl";
+import boidsFrag from "../shaders/glsl/boids-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 import char2DVert from "../shaders/glsl/newParticle-vert.glsl";
 import char2DFrag from "../shaders/glsl/newParticle-frag.glsl";
@@ -35,8 +33,8 @@ import { $invProjView } from "../source/common/commonHelper.js";
 export function initGridAni(gl, canvas, camera) {
 
     const gridParams = {
-        gridCol: 10,
-        gridRow: 10,
+        gridCol: gridConfig.gridSize,
+        gridRow: gridConfig.gridSize,
         gridUnitSize: 1,
     }
     const gridNum = [gridParams.gridCol, gridParams.gridRow];
@@ -49,7 +47,7 @@ export function initGridAni(gl, canvas, camera) {
     }
 
     const particleParams = {
-        count: 1,
+        count: 4,
         duration: 20,
         lifeTime: 20,
     }
@@ -69,7 +67,7 @@ export function initGridAni(gl, canvas, camera) {
     const time = new Time();
     const emitterSize = 10;
     const emitterTexSize = sqrtFloor(particleParams.count);
-    const emitterCorner = [-emitterSize / 2, -emitterSize / 2];
+    const emitterCorner = [0,0];
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader('wavefrontShader', {
@@ -147,7 +145,7 @@ export function initGridAni(gl, canvas, camera) {
     // boids solver
     const boidsShader = new Shader('boidsShader', {
         vertexSource: screenQuadVert,
-        fragmentSource: slowFrag,
+        fragmentSource: boidsFrag,
     });
     boidsShader.initialize({ gl });
 
@@ -208,7 +206,7 @@ export function initGridAni(gl, canvas, camera) {
         });
 
         const charShape = new Shape('charShape', {
-            count: 1,
+            count: particleParams.count,
             schema: readAttrSchema(char2DVert.input)
         });
 
@@ -247,6 +245,8 @@ export function initGridAni(gl, canvas, camera) {
 
             requestAnimationFrame(drawGridAni);
 
+            time.update();
+
             // --- wavefront solver update ---
             wavefrontMaterial.setUniform('uState', wavefrontSolver.mode);
             wavefrontSolver.update(gl);
@@ -254,8 +254,6 @@ export function initGridAni(gl, canvas, camera) {
             if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
                 wavefrontSolver.Mode = FrameSolver.MODE.play;
             }
-
-            time.update();
 
             // --- gradient solver update ---
             gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
@@ -300,6 +298,7 @@ export function initGridAni(gl, canvas, camera) {
             aniRender.draw(gl, camera);
             aniRender.postDraw(gl);
         }
+
         drawGridAni();
     }
 }

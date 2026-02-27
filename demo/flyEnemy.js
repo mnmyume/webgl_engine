@@ -20,7 +20,7 @@ import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
 import densityVert from "../shaders/glsl/density-vert.glsl";
 import densityFrag from "../shaders/glsl/density-frag.glsl";
-import boidsFrag from "../shaders/glsl/boids-frag.glsl";
+import boidsFrag from "../shaders/glsl/fly-frag.glsl";
 import particleVert from "../shaders/glsl/particle-vert.glsl";
 import particleFrag from "../shaders/glsl/particle-frag.glsl";
 import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";

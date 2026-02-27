@@ -69,14 +69,10 @@ vec2 getEmitterCoord(float particleID, float gridSize) {
 float getAniType(vec2 vel) {
     // 0: Up-Left, 1: Down-Right, 2: Down-Left, 3: Up-Right
 
-    if (vel.x >= 0.0) {
-        // Moving predominantly Right (+x)
-        // +y = Up-Right (3.0), -y = Down-Right (1.0)
-        return (vel.y > 0.0) ? 3.0 : 1.0;
+    if (length(vel.x) >= length(vel.y)) {
+        return (vel.x >= 0.0) ? 1.0 : 0.0;
     } else {
-        // Moving predominantly Left (-x)
-        // +y = Up-Left (0.0), -y = Down-Left (2.0)
-        return (vel.y > 0.0) ? 0.0 : 2.0;
+        return (vel.y > 0.0) ? 2.0 : 3.0;
     }
 }
 
