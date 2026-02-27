@@ -72,11 +72,11 @@ float getAniType(vec2 vel) {
     if (vel.x >= 0.0) {
         // Moving predominantly Right (+x)
         // +y = Up-Right (3.0), -y = Down-Right (1.0)
-        return (vel.y >= 0.0) ? 3.0 : 1.0;
+        return (vel.y > 0.0) ? 3.0 : 1.0;
     } else {
         // Moving predominantly Left (-x)
         // +y = Up-Left (0.0), -y = Down-Left (2.0)
-        return (vel.y >= 0.0) ? 0.0 : 2.0;
+        return (vel.y > 0.0) ? 0.0 : 2.0;
     }
 }
 

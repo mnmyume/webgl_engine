@@ -56,7 +56,7 @@ export function initGridAni(gl, canvas, camera) {
 
     const boidsParams = {
         flowWeight: 3.0,
-        stopDist: 1.6,
+        stopDist: 0.1,
         separationRad: 2.0,
         separationWeight: 6.0,
         neighborRad: 1.0,

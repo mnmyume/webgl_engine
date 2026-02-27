@@ -51,11 +51,6 @@ vec2 getGridCoord(vec2 pos, float emitterSize) {
     return uv;
 }
 
-vec2 mapGoalToWorld(vec2 goalIndex, float gridSize, float emitterSize) {
-    vec2 goal = (vec2(goalIndex.x / gridSize, 1.0 - goalIndex.y / gridSize) - vec2(0.5));
-    goal *= emitterSize;
-    return goal;
-}
 
 float sqrtDist(vec2 pos, vec2 otherPos) {
     vec2 delta = pos - otherPos;
@@ -110,7 +105,7 @@ vec2 updatePos(vec2 pos, vec2 vel, float deltaTime) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(uEmitterTexSize);
-    vec2 goal = mapGoalToWorld(uGoal, uGridSize, uEmitterSize);
+    vec2 goal = uGoal;
 
     vec4 data0 = texture(uDataSlot0, uv);
     vec4 data1 = texture(uDataSlot1, uv);
