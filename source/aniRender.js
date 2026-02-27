@@ -131,12 +131,12 @@ export default class AniRender {
 
         this.material.setUniform('uAniSeq', this.aniSequenceIndex);
 
-        if(this.mode === AniRender.MODE.play){
-            $assert(this.startTime);
-            this.material.setUniform('uTime', (Date.now()/1000-this.startTime));
-        }
-        if(this.mode === AniRender.MODE.stop || this.mode === AniRender.MODE.pause)
-            this.material.setUniform('uTime', this.pauseDuration);
+        // if(this.mode === AniRender.MODE.play){
+        //     $assert(this.startTime);
+        //     this.material.setUniform('uTime', (Date.now()/1000-this.startTime));
+        // }
+        // if(this.mode === AniRender.MODE.stop || this.mode === AniRender.MODE.pause)
+        //     this.material.setUniform('uTime', this.pauseDuration);
 
         this.material.preDraw(gl, camera);
     }

@@ -127,7 +127,7 @@ void main() {
     float frameLife = mod(uTime, uLifeTime);
 
     if(uState == 1) {
-//        pos = texture(uEmitterTexture, uv).xy;
+        pos = texture(uEmitterTexture, uv).xy;
         activeState = 1.0;
         vel = vec2(0.0);
     } else if(uState == 2) {
@@ -196,7 +196,7 @@ void main() {
             }
         }
     }
-    pos = gl_FragCoord.xy;
+
     fragData[0] = vec4(pos, vel);
     fragData[1] = vec4(activeState, frameLife, 0.0, 1.0);
     fragData[2] = vec4(0.0, 0.0, 1.0, 1.0);

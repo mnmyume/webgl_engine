@@ -47,7 +47,7 @@ export function initGridAni(gl, canvas, camera) {
     }
 
     const particleParams = {
-        count: 4,
+        count: 1,
         duration: 20,
         lifeTime: 20,
     }
@@ -55,7 +55,7 @@ export function initGridAni(gl, canvas, camera) {
     const boidsParams = {
         flowWeight: 3.0,
         stopDist: 0.1,
-        separationRad: 2.0,
+        separationRad: 1.0,
         separationWeight: 6.0,
         neighborRad: 1.0,
         dampScalar: 0.97,
@@ -67,7 +67,7 @@ export function initGridAni(gl, canvas, camera) {
     const time = new Time();
     const emitterSize = 10;
     const emitterTexSize = sqrtFloor(particleParams.count);
-    const emitterCorner = [0,0];
+    const emitterCorner = [0, 0];
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader('wavefrontShader', {
@@ -215,9 +215,10 @@ export function initGridAni(gl, canvas, camera) {
             scale: aniTexParams.scale, canvasMode: 2048,
         });
         aniRender.initialize({ gl }, {
-            material: charMaterial, shape: charShape, aniTex: aniTexture
+            material: charMaterial, shape: charShape,
+            aniTex: aniTexture, mode: AniRender.MODE.play
         });
-
+        aniRender.material.setUniform('uEmitterTexSize', emitterTexSize);
 
         canvas.addEventListener('mousedown', (e) => {
             const clickPos = getMouseScreenPos(e, canvas);
