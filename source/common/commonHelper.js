@@ -56,7 +56,7 @@ export function $convert2NDC(point,resolution){
 export function $projView(mat, cam){
 
     const viewMat = math.mat4.create();
-    math.mat3d.toMat4(viewMat, cam.viewMatrix);
+    // math.mat3d.toMat4(viewMat, cam.viewMatrix);
     math.mat4.mul(mat, cam.projectionMatrix,viewMat);
     return mat;
 }

@@ -53,8 +53,8 @@ out vec4 vTexBoundary;
 
 void main()
 {
-    int aniIndexX = 0; // int(uTime*uAniFPS*uTexBoundarySize.x);
-    int aniIndexY = 3; //int(uAniSeq*uTexBoundarySize.y);
+    int aniIndexX = int(uTime*uAniFPS*uTexBoundarySize.x);
+    int aniIndexY = int(uAniSeq*uTexBoundarySize.y);
     vTexBoundary = vec4(aniIndexX,aniIndexY,uTexBoundarySize.x,uTexBoundarySize.y);
 
     vec2 texIndex = vTexBoundary.xy;

@@ -10,6 +10,7 @@ import { initSlowEnemy } from "./demo/slowEnemy.js";
 import { initNewSlowEnemy } from "./demo/newSlowEnemy.js";
 import { initAniEnemy } from "./demo/aniEnemy.js";
 import { initGrid } from "./demo/gridDemo.js";
+import { initGridAni } from "./demo/gridAni.js";
 
 
 function main() {
@@ -38,8 +39,8 @@ function main() {
     // initSlowEnemy(gl, canvas);
     // initNewSlowEnemy(gl, canvas, camera);
     // initAniEnemy(gl, canvas, camera);
-    initGrid(gl, canvas, camera);
-
+    // initGrid(gl, canvas, camera);
+    initGridAni(gl, canvas, camera);
 }
 
 

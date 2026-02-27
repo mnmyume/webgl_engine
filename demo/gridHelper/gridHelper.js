@@ -22,7 +22,7 @@ const glCanvas = document.getElementById("glCanvas");
 const ctx = canvas.getContext('2d');
 const gl = glCanvas.getContext('webgl2');
 
-const GRID_SIZE = 32;
+const GRID_SIZE = 10;
 const CELL_SIZE = canvas.width / GRID_SIZE;
 
 let grid = [];
@@ -86,9 +86,9 @@ function initGrid() {
             let cellType = 'empty';
 
             // Boundary
-            if (r === 0 || r === GRID_SIZE - 1 || c === 0 || c === GRID_SIZE - 1) {
-                cellType = 'obstacle';
-            }
+            // if (r === 0 || r === GRID_SIZE - 1 || c === 0 || c === GRID_SIZE - 1) {
+            //     cellType = 'obstacle';
+            // }
 
             row.push({
                 r: r,
@@ -256,7 +256,7 @@ function main() {
 
     // --- wavefront init ---
 
-    const wavefrontShader = new Shader({
+    const wavefrontShader = new Shader('wavefront',{
         vertexSource: screenQuadVert,
         fragmentSource: wavefrontFrag,
     });
@@ -293,7 +293,7 @@ function main() {
 
     // --- gradient init ---
 
-    const gradientShader = new Shader({
+    const gradientShader = new Shader('gradient', {
         vertexSource: screenQuadVert,
         fragmentSource: gradientFrag,
     });
