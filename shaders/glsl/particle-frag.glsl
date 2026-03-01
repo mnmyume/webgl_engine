@@ -54,7 +54,8 @@ void main()
 
     vec4 color = texture(uColorSampler, finalUV);
 
-    if(color.a<0.9)
-        discard;
-    fragColor = color;
+//    if(color.a<0.9)
+//        discard;
+//    fragColor = color;
+    fragColor = vec4(1.0);
 }

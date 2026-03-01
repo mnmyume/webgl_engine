@@ -27,7 +27,7 @@ function main() {
 
     // init camera
     const camera = new OrthCamera({
-        widthSpan:20,
+        widthSpan:4,    // 20
         aspect: canvas.width / canvas.height,
     });
     camera.setPosition([0, 0, 10]);
@@ -35,7 +35,7 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    // initFlyEnemy(gl, canvas);
+    // initFlyEnemy(gl, canvas, camera);
     // initSlowEnemy(gl, canvas);
     // initNewSlowEnemy(gl, canvas, camera);
     // initAniEnemy(gl, canvas, camera);

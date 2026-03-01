@@ -163,8 +163,8 @@ export function getMouseScreenPos(event, canvas) {
 export function getMouseGridPosition(event, canvas, gridSize) {
     const [mouseX, mouseY] = getMouseScreenPos(event, canvas);
 
-    const normX = mouseX / rect.width;
-    const normY = mouseY / rect.height;
+    const normX = mouseX / canvas.width;
+    const normY = mouseY / canvas.height;
 
     const gridX = Math.floor(normX * gridSize);
     const gridY = Math.floor(normY * gridSize);

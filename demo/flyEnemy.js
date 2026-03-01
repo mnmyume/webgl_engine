@@ -28,7 +28,7 @@ import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
 import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 
-export function initFlyEnemy(gl, canvas) {
+export function initFlyEnemy(gl, canvas, camera) {
     const particleParams = {
         count: 100,
         duration: 20,
@@ -262,7 +262,6 @@ export function initFlyEnemy(gl, canvas) {
         particleMaterial.initialize({gl});
         particleMaterial.setUniform('uEmitterTexSize', emitterTexSize)
         particleMaterial.setUniform('uColor', particleParams.color);
-        particleMaterial.setUniform('uAspect', aspect);
         particleMaterial.setTexture('uColorSampler', colorTexture);
 
         // aniTex
@@ -287,7 +286,6 @@ export function initFlyEnemy(gl, canvas) {
             shader: quadShader,
         });
         quadMaterial.initialize({gl});
-        quadMaterial.setUniform('uAspect', aspect);
 
         const quadData = genQuadUVXY(emitterSize);
         const quadShape = new Shape(
@@ -308,7 +306,6 @@ export function initFlyEnemy(gl, canvas) {
         });
         obstacleMaterial.initialize({gl});
         obstacleMaterial.setTexture('uInitGridTexture', initGridTexture);
-        obstacleMaterial.setUniform('uAspect', aspect);
 
         function drawWavefront() {
             requestAnimationFrame(drawWavefront);
@@ -383,18 +380,18 @@ export function initFlyEnemy(gl, canvas) {
             gl.blendFunc(gl.ONE, gl.ZERO);
 
             // --- draw emitter quad ---
-            quadMaterial.preDraw(gl);
+            quadMaterial.preDraw(gl, camera);
             quadShape.draw(gl, quadMaterial);
             quadMaterial.postDraw(gl);
 
             // --- draw obstacle ---
-            obstacleMaterial.preDraw(gl);
+            obstacleMaterial.preDraw(gl, camera);
             quadShape.draw(gl, quadMaterial);
             obstacleMaterial.postDraw(gl);
 
             // --- draw particle ---
-            particleMaterial.setTexture('uBoidsTexture', boidsSolver.frontBuffer.textures[0]);
-            particleMaterial.preDraw(gl);
+            particleMaterial.setTexture('uBoidsTexture0', boidsSolver.frontBuffer.textures[0]);
+            particleMaterial.preDraw(gl, camera);
             particleShape.draw(gl, particleMaterial);
             particleMaterial.postDraw(gl);
         }

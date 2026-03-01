@@ -134,8 +134,7 @@ void main() {
     float frameLife = mod(uTime, uLifeTime);
 
     if(uState == 1) {
-//        pos = texture(uEmitterTexture, uv).xy;
-        pos = vec2(0);
+        pos = texture(uEmitterTexture, uv).xy;
         activeState = 1.0;
         vel = vec2(0.0);
     } else if(uState == 2) {

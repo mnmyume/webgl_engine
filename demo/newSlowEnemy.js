@@ -28,7 +28,7 @@ import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
 
 export function initNewSlowEnemy(gl, canvas, camera) {
     const particleParams = {
-        count: 16,
+        count: 36,
         duration: 20,
         lifeTime: 20,
         minSize: 15,
@@ -51,19 +51,19 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     }
 
     const boidsParams = {
-        flowWeight: 3.0,
-        stopDist: 1.6,
-        separationRad: 2.0,
+        flowWeight: 0.1,
+        stopDist: 0.02,
+        separationRad: 0.03,
         separationWeight: 6.0,
-        neighborRad: 1.0,
+        neighborRad: 0.1,
         dampScalar: 0.97,
-        maxSpeed: 10.0,
+        maxSpeed: 1.0,
         cohesionWeight: 0.0,
         alignmentWeight: 0.0
     }
 
     const time = new Time();
-    const emitterSize = 64;
+    const emitterSize = 2;
     const emitterTexSize = sqrtFloor(particleParams.count);
     const emitterCorner = [-emitterSize/2, -emitterSize/2];
 
@@ -185,7 +185,7 @@ export function initNewSlowEnemy(gl, canvas, camera) {
     let particleMaterial;
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/adv_chara.png';
+    colTexImg.src = '../resources/kitty4.png';
     colTexImg.onload = _ => {
         const colorTexture = new Texture2D('colorTexture', {
             image: colTexImg,

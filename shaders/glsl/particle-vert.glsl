@@ -48,7 +48,7 @@ void main()
     float frameLife = boidsData1.y;
 
     gl_Position = _uni_projMat * _uni_viewMat * _uni_modelMat * vec4(pos, 0, 1);
-    gl_PointSize = 100.0;
+    gl_PointSize = 10.0;
 
     vAniType = aniType;
     vFrameLife = frameLife;
