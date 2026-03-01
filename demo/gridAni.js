@@ -252,7 +252,7 @@ export function initGridAni(gl, canvas, camera) {
             wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
             wavefrontSolver.Mode = FrameSolver.MODE.init;
 
-            boidsMaterial.setUniform('uTarget', [boundary[0], boundary[1]]);
+            boidsMaterial.setUniform('uTarget', [boundary[0]+0.5, boundary[1]+0.5]);
             boidsMaterial.setUniform('uWake', 1.0);
         });
 
