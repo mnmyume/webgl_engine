@@ -330,7 +330,7 @@ function main() {
         }
 
         wavefrontTexture.setData(gl, genInitData(GRID_SIZE))
-        wavefrontMaterial.setUniform('uGoal', [endCell.c, endCell.r]);
+        wavefrontMaterial.setUniform('uTarget', [endCell.c, endCell.r]);
 
         wavefrontSolver.update(gl);
 

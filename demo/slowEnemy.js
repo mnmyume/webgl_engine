@@ -189,7 +189,7 @@ export function initSlowEnemy(gl, canvas) {
     boidsMaterial.initialize({gl});
     boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
     boidsMaterial.setUniform('uEmitterSize', emitterSize);
-    boidsMaterial.setUniform('uGoal', [gridConfig.goal[0], gridConfig.goal[1]]);
+    boidsMaterial.setUniform('uTarget', [gridConfig.goal[0], gridConfig.goal[1]]);
     boidsMaterial.setUniform('uWake', 0.0);
 
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
@@ -294,7 +294,7 @@ export function initSlowEnemy(gl, canvas) {
 
                 initGridTexture.setData(gl, newData);
                 wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
-                boidsMaterial.setUniform('uGoal', [clickPos.x, clickPos.y]);
+                boidsMaterial.setUniform('uTarget', [clickPos.x, clickPos.y]);
                 boidsMaterial.setUniform('uWake', 1.0);
 
                 wavefrontSolver.Mode = FrameSolver.MODE.init;

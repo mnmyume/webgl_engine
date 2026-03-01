@@ -27,7 +27,7 @@ uniform bool uLoop;
 uniform float uEmitterTexSize;
 uniform float uEmitterSize;
 uniform float uGridSize;
-uniform vec2 uGoal;
+uniform vec2 uTarget;
 uniform float uWake;
 
 uniform float uDuration;
@@ -47,7 +47,7 @@ uniform float uAlignmentWeight;
 out vec4[4] fragData;
 
 vec2 getGridUV(vec2 pos, float gridSize) {
-    return pos / gridSize;
+    return vec2(pos.x / gridSize, pos.y / gridSize);
 }
 
 float sqrtDist(vec2 pos, vec2 otherPos) {
@@ -103,7 +103,7 @@ vec2 updatePos(vec2 pos, vec2 vel, float deltaTime) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(uEmitterTexSize);
-    vec2 goal = uGoal;
+    vec2 goal = uTarget;
 
     vec4 data0 = texture(uDataSlot0, uv);
     vec4 data1 = texture(uDataSlot1, uv);

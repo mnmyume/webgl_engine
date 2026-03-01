@@ -26,7 +26,7 @@ uniform bool uLoop;
 
 uniform float uEmitterTexSize;
 uniform float uEmitterSize;
-uniform vec2 uGoal;
+uniform vec2 uTarget;
 uniform float uWake;
 
 uniform float uFlowWeight;
@@ -44,7 +44,7 @@ vec2 getGridCoord(vec2 pos, float emitterSize) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / vec2(uEmitterTexSize);
-    vec2 goal = (2.0 * vec2(uGoal.x/32.0, 1.0 - uGoal.y/32.0) - vec2(1.0));
+    vec2 goal = (2.0 * vec2(uTarget.x/32.0, 1.0 - uTarget.y/32.0) - vec2(1.0));
 
     vec4 data0 = texture(uDataSlot0, uv);
     vec2 pos = data0.xy;

@@ -2,7 +2,7 @@
   "gridSize": 10,
   "goal": [
     0,
-    0
+    5
   ],
   "obstacles": []
 }

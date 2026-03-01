@@ -156,7 +156,7 @@ export function initGridAni(gl, canvas, camera) {
     boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
     boidsMaterial.setUniform('uEmitterSize', emitterSize);
     boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
-    boidsMaterial.setUniform('uGoal', [gridConfig.goal[0], gridConfig.goal[1]]);
+    boidsMaterial.setUniform('uTarget', [gridConfig.goal[0], gridConfig.goal[1]]);
     boidsMaterial.setUniform('uWake', 0.0);
 
     boidsMaterial.setUniform('uDuration', particleParams.duration);
@@ -183,6 +183,20 @@ export function initGridAni(gl, canvas, camera) {
         gl: gl, mode: 2048,
         gridUnitSize: gridParams.gridUnitSize, col: gridParams.gridCol, row: gridParams.gridRow
     });
+
+    // --- Load arrow texture for grid overlay ---
+    const arrowImg = new Image();
+    arrowImg.src = '../resources/arrow.png';
+    arrowImg.onload = _ => {
+        const arrowTexture = new Texture2D('arrowTexture', {
+            image: arrowImg,
+            scaleDown: 'LINEAR',
+            scaleUp: 'LINEAR'
+        });
+        arrowTexture.initialize({ gl });
+        grid.material.setTexture('uArrowTex', arrowTexture);
+        grid.material.setUniform('uGridSize', gridConfig.gridSize);
+    };
 
     const charShader = new Shader('charShader', {
         vertexSource: char2DVert,
@@ -233,12 +247,12 @@ export function initGridAni(gl, canvas, camera) {
             if (grid)
                 grid.SelBoundary = selection;
 
-            const newData = genWavefrontDataClick(gridConfig, clickPos);
+            const newData = genWavefrontDataClick(gridConfig, { x: boundary[0], y: boundary[1] });
             initGridTexture.setData(gl, newData);
             wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
             wavefrontSolver.Mode = FrameSolver.MODE.init;
 
-            boidsMaterial.setUniform('uGoal', [boundary[0], boundary[1]]);
+            boidsMaterial.setUniform('uTarget', [boundary[0], boundary[1]]);
             boidsMaterial.setUniform('uWake', 1.0);
         });
 
@@ -259,6 +273,9 @@ export function initGridAni(gl, canvas, camera) {
             // --- gradient solver update ---
             gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
             gradientSolver.update(gl);
+
+            grid.material.setTexture('uGradientTex', gradientSolver.frontBuffer.textures[0]);
+
 
             // --- boids solver update ---
             boidsMaterial.setUniform('uTime', time.ElapsedTime);

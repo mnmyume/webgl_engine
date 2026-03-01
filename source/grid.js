@@ -2,6 +2,7 @@ import Shader from "./shader.js";
 import Material from "./material.js";
 import gridFrag from "../shaders/glsl/grid-frag.glsl";
 import gridVert from "../shaders/glsl/grid-vert.glsl";
+import gridGradFrag from "../shaders/glsl/gridGrad-frag.glsl";
 import Shape from "./shape.js";
 import {quad, grid, readAttrSchema} from "./shapeHelper.js";
 import Texture2D from "./texture2d.js";
@@ -54,7 +55,7 @@ export default class Grid {
         this.#timer = Date.now();
         this.gl = gl;
 
-        const shader = new Shader('grid', {vertexSource:gridVert,fragmentSource:gridFrag});
+        const shader = new Shader('grid', {vertexSource:gridVert,fragmentSource:gridGradFrag});
         shader.initialize({gl});
         this.material = new Material("grid", {shader});
         this.material.initialize({gl});

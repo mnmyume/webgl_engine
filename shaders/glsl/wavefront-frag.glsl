@@ -20,7 +20,7 @@ uniform int uState;  // init mode, uState = 1; play mode, uState = 2;
 uniform bool uLoop;
 
 uniform float uGridSize;
-uniform vec2 uGoalCoord;
+uniform vec2 uTargetCoord;
 
 vec2 direction[4] = vec2[](
     vec2(-1, 0),   // left
@@ -41,7 +41,7 @@ void main()
 
     // init
     if(uState == 1) {
-        vec2 initUV = vec2(uv.x, 1.0 - uv.y);
+        vec2 initUV = vec2(uv.x, uv.y);
         currDist = texture(uInitGridTexture, initUV).r;
         isObastacle = texture(uInitGridTexture, initUV).g;
 

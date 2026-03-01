@@ -71,6 +71,14 @@ void main()
     if (currentDist > 0.0) {    // currentObs < 0.5 &&
         for (int i = 0; i < 8; i++) {
 
+            vec2 neighborUV = uv + direction[i] / uGridSize;
+
+            // border check
+            if (neighborUV.x < 0.0 || neighborUV.x > 1.0 ||
+            neighborUV.y < 0.0 || neighborUV.y > 1.0) {
+                continue;
+            }
+
             // Diagonals check
             bool isDiagonal = (i % 2 != 0);
 
