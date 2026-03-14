@@ -5,12 +5,10 @@ import Transform from './source/transform.js';
 import Time from './source/time.js';
 
 import { initQuad }from "./demo/quad.js";
-import { initFlyEnemy } from "./demo/flyEnemy.js";
-import { initSlowEnemy } from "./demo/slowEnemy.js";
-import { initNewSlowEnemy } from "./demo/newSlowEnemy.js";
-import { initAniEnemy } from "./demo/aniEnemy.js";
 import { initGrid } from "./demo/gridDemo.js";
-import { initGridAni } from "./demo/gridAni.js";
+import { initIsoAccAni } from "./demo/isoAccAni.js";
+import { initIsoVelAni } from "./demo/isoVelAni.js";
+import { initTopdownVelAni } from "./demo/topdownVelAni.js";
 
 
 function main() {
@@ -35,12 +33,10 @@ function main() {
     camera.updateView();
     camera.updateViewInverse();
 
-    // initFlyEnemy(gl, canvas);
-    // initSlowEnemy(gl, canvas);
-    // initNewSlowEnemy(gl, canvas, camera);
-    // initAniEnemy(gl, canvas, camera);
     // initGrid(gl, canvas, camera);
-    initGridAni(gl, canvas, camera);
+    // initIsoVelAni(gl, canvas, camera);
+    initTopdownVelAni(gl, canvas, camera);
+    // initIsoAccAni(gl, canvas, camera);
 }
 
 

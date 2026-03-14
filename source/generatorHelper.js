@@ -203,23 +203,26 @@ export function SET_TEXCOL_BY_BOUNDARY(out, boundaryArr, width, height, settingC
     }
 }
 
-export function world2Boundary(startPos, endPos, gridNum, gridUnitSize) {
+export function world2Boundary(startPos, endPos, gridNum, mode = 2048, gridUnitSize) {
     const start = [0, 0],
         end = [0, 0];
 
-    screen2Index(start, startPos, gridNum, 'isometric', gridUnitSize);
-    screen2Index(end, endPos, gridNum, 'isometric', gridUnitSize);
+    screen2Index(start, startPos, gridNum, mode, gridUnitSize);
+    screen2Index(end, endPos, gridNum, mode, gridUnitSize);
 
     const boundary = [0, 0, 0, 0];
     $selection2Boundary(boundary, [start, end]);
     return boundary;
 }
 
-export function screen2Index(out, pos, gridNum, mode = 'isometric', GRID_UNIT_SIZE = 1) {
+export function screen2Index(out, pos, gridNum, mode = 2048, GRID_UNIT_SIZE = 1) {
     $assert(pos);
     let local = [0, 0];
 
-    iso2Local(local, pos, GRID_UNIT_SIZE);
+    if(mode === 1024)
+        local = [pos[0]/GRID_UNIT_SIZE, -pos[1]/GRID_UNIT_SIZE];
+    else if(mode === 2048)
+        iso2Local(local, pos,GRID_UNIT_SIZE);
 
     let [x, y] = local;
     [out[0], out[1]] = [Math.floor(x), Math.floor(y)];

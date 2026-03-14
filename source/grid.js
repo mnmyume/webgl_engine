@@ -2,7 +2,7 @@ import Shader from "./shader.js";
 import Material from "./material.js";
 import gridFrag from "../shaders/glsl/grid-frag.glsl";
 import gridVert from "../shaders/glsl/grid-vert.glsl";
-import gridGradFrag from "../shaders/glsl/gridGrad-frag.glsl";
+import gridGradFrag from "../shaders/glsl/gridGradArrow-frag.glsl";
 import Shape from "./shape.js";
 import {quad, grid, readAttrSchema} from "./shapeHelper.js";
 import Texture2D from "./texture2d.js";

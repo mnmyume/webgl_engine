@@ -99,6 +99,7 @@ export default class AniRender {
         this.material.setUniform('uTexCellSize', this.texCellSize);
         this.material.setUniform('uTexBoundarySize', this.texBoundarySize);
         this.material.setUniform('uTexSize', [aniTex.width, aniTex.height]);
+        this.material.setUniform('uAniFPS', 16);
     }
 
     //override fnc

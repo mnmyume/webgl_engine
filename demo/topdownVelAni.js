@@ -5,49 +5,58 @@ import Material from "../source/material.js";
 import Shape from "../source/shape.js";
 import Texture2D from "../source/texture2d.js";
 import FrameSolver from "../source/frameSolver.js";
-import {readAttrSchema} from "../source/shapeHelper.js";
-import {sqrtFloor} from "../source/mathHelper.js";
-import {genQuadUVXY, genInitData, genRectHaltonPos, genWavefrontInitData, genWavefrontInitDataJSON, genWavefrontDataClick, getMouseGridPosition} from "../source/generatorHelper.js";
-import gridConfig from './gridHelper/grid_config.json';
+import { readAttrSchema } from "../source/shapeHelper.js";
+import { sqrtFloor } from "../source/mathHelper.js";
+import { genRectHaltonPos, genWavefrontInitDataJSON, genWavefrontDataClick } from "../source/generatorHelper.js";
+import gridConfig from './gridHelper/grid_config_test.json';
 
 import quadVert from "../shaders/glsl/quad-vert.glsl";
 import quadFrag from "../shaders/glsl/quad-frag.glsl";
 import screenQuadVert from "../shaders/glsl/screenQuad-vert.glsl";
 import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
-import slowFrag from "../shaders/glsl/boids-frag.glsl";
-import particleVert from "../shaders/glsl/particle-vert.glsl";
-import particleFrag from "../shaders/glsl/particle-frag.glsl";
-import obstacleFrag from "../shaders/glsl/obstacle-frag.glsl";
-import char2DVert from "../shaders/glsl/newParticle-vert.glsl";
-import char2DFrag from "../shaders/glsl/newParticle-frag.glsl";
+import boidsFrag from "../shaders/glsl/boidsVel-frag.glsl";
+import char2DVert from "../shaders/glsl/aniParticle-vert.glsl";
+import char2DFrag from "../shaders/glsl/aniParticle-frag.glsl";
 
-import GUI from 'https://cdn.jsdelivr.net/npm/lil-gui@0.19/+esm';
+import * as math from "gl-matrix";
+
 import AniRender from "../source/aniRender.js";
+import Grid from "../source/grid.js";
+
+import { getMouseScreenPos, world2Boundary } from "../source/generatorHelper.js";
+import { $invProjView } from "../source/common/commonHelper.js";
 
 
-export function initAniEnemy(gl, canvas, camera) {
+
+export function initTopdownVelAni(gl, canvas, camera) {
+
+    const canvasMode = 1024;
+
+    const gridParams = {
+        gridCol: gridConfig.gridSize,
+        gridRow: gridConfig.gridSize,
+        gridUnitSize: 1,
+    }
+    const gridNum = [gridParams.gridCol, gridParams.gridRow];
+
+    const aniTexParams = {
+        texSize: [256, 255],
+        texBoundarySize: [1, 1],
+        texCellSize: 64,
+        scale: 1
+    }
+
     const particleParams = {
         count: 1,
         duration: 20,
         lifeTime: 20,
-        minSize: 15,
-        maxSize: 15,
-        color:[0.85,0.85,0.85],
-        alpha:0.8,
-    }
-
-    const aniTexParams = {
-        texSize: [1152,384],
-        texBoundarySize: [1,2],
-        texCellSize: 48,
-        scale: 10
     }
 
     const boidsParams = {
         flowWeight: 3.0,
-        stopDist: 1.6,
-        separationRad: 2.0,
+        stopDist: 0.1,
+        separationRad: 1.0,
         separationWeight: 6.0,
         neighborRad: 1.0,
         dampScalar: 0.97,
@@ -57,41 +66,41 @@ export function initAniEnemy(gl, canvas, camera) {
     }
 
     const time = new Time();
-    const emitterSize = 64;
+    const emitterSize = gridConfig.gridSize;
     const emitterTexSize = sqrtFloor(particleParams.count);
-    const emitterCorner = [-emitterSize/2, -emitterSize/2];
+    const emitterCorner = [0, 0];
 
     // --- init wavefront solver ---
     const wavefrontShader = new Shader('wavefrontShader', {
         vertexSource: screenQuadVert,
         fragmentSource: wavefrontFrag,
     });
-    wavefrontShader.initialize({gl});
+    wavefrontShader.initialize({ gl });
 
-    const wavefrontMaterial = new Material('wavefrontMaterial',{
+    const wavefrontMaterial = new Material('wavefrontMaterial', {
         shader: wavefrontShader,
     });
-    wavefrontMaterial.initialize({gl});
+    wavefrontMaterial.initialize({ gl });
     wavefrontMaterial.setUniform('uGridSize', gridConfig.gridSize);
 
     const wavefrontShape = new Shape('wavefrontShape', {
-        count:6, schema: readAttrSchema(screenQuadVert.input)
+        count: 6, schema: readAttrSchema(screenQuadVert.input)
     });
-    wavefrontShape.initialize({gl});
+    wavefrontShape.initialize({ gl });
 
     const wavefrontSolver = new FrameSolver('wavefrontSolver', {
         shape: wavefrontShape, material: wavefrontMaterial,
         width: gridConfig.gridSize, height: gridConfig.gridSize,
         screenWidth: canvas.width, screenHeight: canvas.height,
-        mode:1,
+        mode: 1,
     });
-    wavefrontSolver.initialize({gl});
+    wavefrontSolver.initialize({ gl });
 
     const initGridTexture = new Texture2D('initGridTexture', {
         width: gridConfig.gridSize, height: gridConfig.gridSize,
         scaleDown: 'NEAREST', scaleUp: 'NEAREST',
     })
-    initGridTexture.initialize({gl});
+    initGridTexture.initialize({ gl });
     initGridTexture.setData(gl, genWavefrontInitDataJSON(gridConfig));
     wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
 
@@ -102,49 +111,49 @@ export function initAniEnemy(gl, canvas, camera) {
         vertexSource: screenQuadVert,
         fragmentSource: gradientFrag,
     });
-    gradientShader.initialize({gl});
+    gradientShader.initialize({ gl });
 
     const gradientMaterial = new Material('gradientMaterial', {
         shader: gradientShader,
     });
-    gradientMaterial.initialize({gl});
+    gradientMaterial.initialize({ gl });
     gradientMaterial.setUniform('uGridSize', gridConfig.gridSize);
 
     const gradientShape = new Shape('gradientShape', {
-        count:6, schema: readAttrSchema(screenQuadVert.input)
+        count: 6, schema: readAttrSchema(screenQuadVert.input)
     });
-    gradientShape.initialize({gl});
+    gradientShape.initialize({ gl });
 
     const gradientSolver = new FrameSolver('gradientSolver', {
         shape: gradientShape, material: gradientMaterial,
         width: gridConfig.gridSize, height: gridConfig.gridSize,
         screenWidth: canvas.width, screenHeight: canvas.height,
-        mode:1,
+        mode: 1,
     });
-    gradientSolver.initialize({gl});
+    gradientSolver.initialize({ gl });
 
-    // -- init slow enemy solver --
+    // -- init boids --
     const emitterTexture = new Texture2D('emitterTexture', {
         width: emitterTexSize, height: emitterTexSize,
         scaleDown: 'NEAREST',
         // data: texDataArr[genIndex],
         scaleUp: 'NEAREST'
     });
-    emitterTexture.initialize({gl});
+    emitterTexture.initialize({ gl });
     emitterTexture.setData(gl,
         genRectHaltonPos(emitterSize, emitterCorner, emitterTexSize, particleParams.minSize, particleParams.maxSize, particleParams.duration, gridConfig));
 
     // boids solver
     const boidsShader = new Shader('boidsShader', {
         vertexSource: screenQuadVert,
-        fragmentSource: slowFrag,
+        fragmentSource: boidsFrag,
     });
-    boidsShader.initialize({gl});
+    boidsShader.initialize({ gl });
 
     const boidsMaterial = new Material('boidsMaterial', {
         shader: boidsShader,
     });
-    boidsMaterial.initialize({gl});
+    boidsMaterial.initialize({ gl });
     boidsMaterial.setUniform('uEmitterTexSize', emitterTexSize);
     boidsMaterial.setUniform('uEmitterSize', emitterSize);
     boidsMaterial.setUniform('uGridSize', gridConfig.gridSize);
@@ -157,37 +166,58 @@ export function initAniEnemy(gl, canvas, camera) {
     boidsMaterial.setTexture('uEmitterTexture', emitterTexture);
 
     const boidsShape = new Shape('boidsShape', {
-        count:6, schema: readAttrSchema(screenQuadVert.input)
+        count: 6, schema: readAttrSchema(screenQuadVert.input)
     });
-    boidsShape.initialize({gl});
+    boidsShape.initialize({ gl });
 
     const boidsSolver = new FrameSolver('boidsSolver', {
         shape: boidsShape, material: boidsMaterial,
         width: emitterTexSize, height: emitterTexSize,
         screenWidth: canvas.width, screenHeight: canvas.height,
-        mode:1,
+        mode: 1,
     });
-    boidsSolver.initialize({gl});
+    boidsSolver.initialize({ gl });
 
-    // --- init particle renderer ---
+    // --- init renderer ---
+    const grid = new Grid('grid', {});
+    grid.initialize({
+        gl: gl, mode: canvasMode,
+        gridUnitSize: gridParams.gridUnitSize, col: gridParams.gridCol, row: gridParams.gridRow
+    });
+
+    // --- Load arrow texture for grid overlay ---
+    const arrowImg = new Image();
+    arrowImg.src = '../resources/arrow.png';
+    arrowImg.onload = _ => {
+        const arrowTexture = new Texture2D('arrowTexture', {
+            image: arrowImg,
+            scaleDown: 'LINEAR',
+            scaleUp: 'LINEAR'
+        });
+        arrowTexture.initialize({ gl });
+        grid.material.setTexture('uArrowTex', arrowTexture);
+        grid.material.setUniform('uGridSize', gridConfig.gridSize);
+    };
+
     const charShader = new Shader('charShader', {
         vertexSource: char2DVert,
         fragmentSource: char2DFrag
     });
-    charShader.initialize({gl});
+    charShader.initialize({ gl });
 
     const colTexImg = new Image();
-    colTexImg.src = '../resources/cat.png';
+    colTexImg.src = '../resources/zombiespritesheetci3.png';
     colTexImg.onload = _ => {
+
         const aniTexture = new Texture2D('aniTexture', {
             image: colTexImg,
             scaleDown: 'LINEAR',
             scaleUp: 'LINEAR'
         });
-        aniTexture.initialize({gl});
+        aniTexture.initialize({ gl });
 
         const charMaterial = new Material('charMaterial', {
-            shader: charShader, blend:0
+            shader: charShader, blend: 0
         });
 
         const charShape = new Shape('charShape', {
@@ -197,65 +227,41 @@ export function initAniEnemy(gl, canvas, camera) {
 
         const aniRender = new AniRender('aniRender', {
             texBoundarySize: aniTexParams.texBoundarySize, texCellSize: aniTexParams.texCellSize,
-            scale:aniTexParams.scale
+            scale: aniTexParams.scale, canvasMode: canvasMode,
+        });
+        aniRender.initialize({ gl }, {
+            material: charMaterial, shape: charShape,
+            aniTex: aniTexture, mode: AniRender.MODE.play
+        });
+        aniRender.material.setUniform('uEmitterTexSize', emitterTexSize);
+
+        canvas.addEventListener('mousedown', (e) => {
+            const clickPos = getMouseScreenPos(e, canvas);
+
+            const invProjView = $invProjView(math.mat4.create(), camera);
+            const [worldX, worldY, worldZ] = camera.screen2World(gl, clickPos, invProjView);
+            const startPos = [worldX, worldY];
+            const boundary = world2Boundary(startPos, startPos, gridNum, canvasMode, gridParams.gridUnitSize);
+            const selection = [];
+            selection.push(boundary);
+
+            if (grid)
+                grid.SelBoundary = selection;
+
+            const newData = genWavefrontDataClick(gridConfig, { x: boundary[0], y: boundary[1] });
+            initGridTexture.setData(gl, newData);
+            wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
+            wavefrontSolver.Mode = FrameSolver.MODE.init;
+
+            boidsMaterial.setUniform('uTarget', [boundary[0]+0.5, boundary[1]+0.5]);
+            boidsMaterial.setUniform('uWake', 1.0);
         });
 
-        aniRender.initialize({gl}, {
-            material:charMaterial, shape:charShape, aniTex:aniTexture});
+        function drawTopdownVelAni() {
 
-        charMaterial.setUniform('uEmitterTexSize', emitterTexSize);
-        charMaterial.setUniform('uParticleSize', particleParams.minSize);
-        // --- init emitter quad renderer---
-        const quadShader = new Shader('quadShader', {
-            vertexSource: quadVert,
-            fragmentSource: quadFrag,
-        });
-        quadShader.initialize({gl});
+            requestAnimationFrame(drawTopdownVelAni);
 
-        const quadMaterial = new Material('quadMaterial', {
-            shader: quadShader,
-        });
-        quadMaterial.initialize({gl});
-
-        const quadData = genQuadUVXY(emitterSize);
-        const quadShape = new Shape(
-            'quad',
-            {schema: readAttrSchema(quadVert.input)});
-        quadShape.initialize({gl});
-        quadShape.update(gl, 'quadBuffer', {material:quadMaterial, data:quadData});
-
-        // --- init obstacle renderer ---
-        const obstacleShader = new Shader('obstacleShader', {
-            vertexSource: quadVert,
-            fragmentSource: obstacleFrag,
-        });
-        obstacleShader.initialize({gl});
-
-        const obstacleMaterial = new Material('obstacleMaterial', {
-            shader: obstacleShader, blend:1
-        });
-        obstacleMaterial.initialize({gl});
-        obstacleMaterial.setTexture('uInitGridTexture', initGridTexture);
-
-        function drawWavefront() {
-            requestAnimationFrame(drawWavefront);
-            // update goal from mouse click
-            canvas.addEventListener('mousedown', (e) => {
-                const clickPos = getMouseGridPosition(e, canvas, gridConfig.gridSize);
-
-                if (!clickPos) return;
-
-                console.log("Click grid:", clickPos);
-
-                const newData = genWavefrontDataClick(gridConfig, clickPos);
-
-                initGridTexture.setData(gl, newData);
-                wavefrontMaterial.setTexture('uInitGridTexture', initGridTexture);
-                boidsMaterial.setUniform('uTarget', [clickPos.x, clickPos.y]);
-                boidsMaterial.setUniform('uWake', 1.0);
-
-                wavefrontSolver.Mode = FrameSolver.MODE.init;
-            });
+            time.update();
 
             // --- wavefront solver update ---
             wavefrontMaterial.setUniform('uState', wavefrontSolver.mode);
@@ -264,17 +270,13 @@ export function initAniEnemy(gl, canvas, camera) {
             if (wavefrontSolver.Mode === FrameSolver.MODE.init) {
                 wavefrontSolver.Mode = FrameSolver.MODE.play;
             }
-        }
-
-        function drawGradient() {
-
-            requestAnimationFrame(drawGradient);
-
-            time.update();
 
             // --- gradient solver update ---
             gradientMaterial.setTexture('uWavefrontTexture', wavefrontSolver.frontBuffer.textures[0]);
             gradientSolver.update(gl);
+
+            grid.material.setTexture('uGradientTex', gradientSolver.frontBuffer.textures[0]);
+
 
             // --- boids solver update ---
             boidsMaterial.setUniform('uTime', time.ElapsedTime);
@@ -298,35 +300,24 @@ export function initAniEnemy(gl, canvas, camera) {
                 boidsSolver.Mode = FrameSolver.MODE.play;
             }
 
-
-            // gl
+            // render
             gl.viewport(0, 0, canvas.width, canvas.height);
-
             gl.clearColor(0.2, 0.2, 0.2, 1.0);
             gl.colorMask(true, true, true, true);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            gl.blendFunc(gl.ONE, gl.ZERO);
 
-            // --- draw emitter quad ---
-            quadMaterial.preDraw(gl, camera);
-            quadShape.draw(gl, quadMaterial);
-            quadMaterial.postDraw(gl);
+            grid.preDraw(gl, camera);
+            grid.draw(gl);
+            grid.postDraw(gl);
 
-            // --- draw obstacle ---
-            obstacleMaterial.preDraw(gl, camera);
-            quadShape.draw(gl, quadMaterial);
-            obstacleMaterial.postDraw(gl);
-
-            // --- draw particle ---
             charMaterial.setTexture('uBoidsTexture0', boidsSolver.frontBuffer.textures[0]);
             charMaterial.setTexture('uBoidsTexture1', boidsSolver.frontBuffer.textures[1]);
             charMaterial.setUniform('uTime', time.ElapsedTime);
-
             aniRender.preDraw(gl, camera);
-            aniRender.draw(gl,camera);
+            aniRender.draw(gl, camera);
             aniRender.postDraw(gl);
         }
-        drawWavefront();
-        drawGradient();
+
+        drawTopdownVelAni();
     }
 }
