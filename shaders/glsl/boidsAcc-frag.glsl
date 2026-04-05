@@ -6,6 +6,10 @@ precision highp int;
 uniform sampler2D uDataSlot0;    // pos.xy, vel.zw
 #value uDataSlot1:1
 uniform sampler2D uDataSlot1;    // activeState.x
+#value uDataSlot2:2
+uniform sampler2D uDataSlot2;
+#value uDataSlot3:3
+uniform sampler2D uDataSlot3;
 
 #value uEmitterTexture:4
 uniform sampler2D uEmitterTexture;
@@ -18,8 +22,11 @@ uniform float uTime;
 
 #value uState:0
 uniform int uState;
+#value uLoop:true
+uniform bool uLoop;
 
 uniform float uEmitterTexSize;
+uniform float uEmitterSize;
 uniform float uGridSize;
 
 #value uTarget:[0,0]
@@ -27,6 +34,8 @@ uniform vec2 uTarget;
 #value uWake:0.0
 uniform float uWake;
 
+#value uDuration:20.0
+uniform float uDuration;
 #value uLifeTime:20.0
 uniform float uLifeTime;
 

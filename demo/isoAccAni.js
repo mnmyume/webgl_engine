@@ -40,6 +40,7 @@ export function initIsoAccAni(gl, canvas, camera) {
     const gridNum = [gridParams.gridCol, gridParams.gridRow];
 
     const aniTexParams = {
+        texSize: [1152, 384],
         texBoundarySize: [1, 2],
         texCellSize: 48,
         scale: 1
@@ -48,6 +49,7 @@ export function initIsoAccAni(gl, canvas, camera) {
     const particleParams = {
         count: 1,
         duration: 20,
+        lifeTime: 20,
     };
 
     const boidsParams = {
@@ -149,6 +151,7 @@ export function initIsoAccAni(gl, canvas, camera) {
     });
     boidsMaterial.initialize({ gl });
     boidsMaterial.setUniform("uEmitterTexSize", emitterTexSize);
+    boidsMaterial.setUniform("uEmitterSize", emitterSize);
     boidsMaterial.setUniform("uGridSize", gridConfig.gridSize);
     boidsMaterial.setUniform("uTarget", [gridConfig.goal[0], gridConfig.goal[1]]);
     boidsMaterial.setUniform("uWake", 0.0);
