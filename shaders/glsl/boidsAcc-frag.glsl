@@ -6,21 +6,11 @@ precision highp int;
 uniform sampler2D uDataSlot0;    // pos.xy, vel.zw
 #value uDataSlot1:1
 uniform sampler2D uDataSlot1;    // activeState.x
-#value uDataSlot2:2
-uniform sampler2D uDataSlot2;
-#value uDataSlot3:3
-uniform sampler2D uDataSlot3;
 
 #value uEmitterTexture:4
 uniform sampler2D uEmitterTexture;
 #value uGradientTexture:5
 uniform sampler2D uGradientTexture;
-
-// Compatibility slots with older acc pipeline.
-#value uMapTexture1:6
-uniform sampler2D uMapTexture1;
-#value uMapTexture2:7
-uniform sampler2D uMapTexture2;
 
 #value uDeltaTime:0.01666
 uniform float uDeltaTime;
@@ -28,11 +18,8 @@ uniform float uTime;
 
 #value uState:0
 uniform int uState;
-#value uLoop:true
-uniform bool uLoop;
 
 uniform float uEmitterTexSize;
-uniform float uEmitterSize;
 uniform float uGridSize;
 
 #value uTarget:[0,0]
@@ -40,8 +27,6 @@ uniform vec2 uTarget;
 #value uWake:0.0
 uniform float uWake;
 
-#value uDuration:20.0
-uniform float uDuration;
 #value uLifeTime:20.0
 uniform float uLifeTime;
 
@@ -70,16 +55,12 @@ uniform float uAlignmentWeight;
 uniform float uMaxForce;
 #value uPercepRadius:0.0
 uniform float uPercepRadius;
-#value uCheckCount:0
-uniform int uCheckCount;
 #value uSepaWeight:0.0
 uniform float uSepaWeight;
 #value uAligWeight:0.0
 uniform float uAligWeight;
 #value uCoheWeight:0.0
 uniform float uCoheWeight;
-#value uAvoidWeight:0.0
-uniform float uAvoidWeight;
 
 out vec4[4] fragData;
 

@@ -1,17 +1,20 @@
 import Time from "../source/time.js";
 import Shader from "../source/shader.js";
-import Transform from "../source/transform.js";
 import Material from "../source/material.js";
 import Shape from "../source/shape.js";
 import Texture2D from "../source/texture2d.js";
 import FrameSolver from "../source/frameSolver.js";
 import { readAttrSchema } from "../source/shapeHelper.js";
 import { sqrtFloor } from "../source/mathHelper.js";
-import { genRectHaltonPos, genWavefrontInitDataJSON, genWavefrontDataClick } from "../source/generatorHelper.js";
+import {
+    genRectHaltonPos,
+    genWavefrontInitDataJSON,
+    genWavefrontDataClick,
+    getMouseScreenPos,
+    world2Boundary
+} from "../source/generatorHelper.js";
 import gridConfig from "./gridHelper/grid_config_test.json";
 
-import quadVert from "../shaders/glsl/quad-vert.glsl";
-import quadFrag from "../shaders/glsl/quad-frag.glsl";
 import screenQuadVert from "../shaders/glsl/screenQuad-vert.glsl";
 import wavefrontFrag from "../shaders/glsl/wavefront-frag.glsl";
 import gradientFrag from "../shaders/glsl/gradient-frag.glsl";
@@ -23,8 +26,6 @@ import * as math from "gl-matrix";
 
 import AniRender from "../source/aniRender.js";
 import Grid from "../source/grid.js";
-
-import { getMouseScreenPos, world2Boundary } from "../source/generatorHelper.js";
 import { $invProjView } from "../source/common/commonHelper.js";
 
 export function initIsoAccAni(gl, canvas, camera) {
@@ -39,7 +40,6 @@ export function initIsoAccAni(gl, canvas, camera) {
     const gridNum = [gridParams.gridCol, gridParams.gridRow];
 
     const aniTexParams = {
-        texSize: [1152, 384],
         texBoundarySize: [1, 2],
         texCellSize: 48,
         scale: 1
@@ -48,19 +48,16 @@ export function initIsoAccAni(gl, canvas, camera) {
     const particleParams = {
         count: 1,
         duration: 20,
-        lifeTime: 20,
     };
 
     const boidsParams = {
         maxSpeed: 10.0,
         maxForce: 1.0,
         percepRadius: 5.0,
-        checkCount: 8,
         sepaWeight: 1.0,
         aligWeight: 1.0,
         coheWeight: 1.0,
         flowWeight: 3.0,
-        avoidWeight: 10.0,
         dampScalar: 1.0
     };
 
@@ -152,7 +149,6 @@ export function initIsoAccAni(gl, canvas, camera) {
     });
     boidsMaterial.initialize({ gl });
     boidsMaterial.setUniform("uEmitterTexSize", emitterTexSize);
-    boidsMaterial.setUniform("uEmitterSize", emitterSize);
     boidsMaterial.setUniform("uGridSize", gridConfig.gridSize);
     boidsMaterial.setUniform("uTarget", [gridConfig.goal[0], gridConfig.goal[1]]);
     boidsMaterial.setUniform("uWake", 0.0);
@@ -274,19 +270,14 @@ export function initIsoAccAni(gl, canvas, camera) {
             boidsMaterial.setUniform("uTime", time.ElapsedTime);
             boidsMaterial.setUniform("uDeltaTime", time.Interval);
             boidsMaterial.setTexture("uGradientTexture", gradientSolver.frontBuffer.textures[0]);
-            // Keep acc shader map inputs bound within the same pipeline.
-            boidsMaterial.setTexture("uMapTexture1", gradientSolver.frontBuffer.textures[0]);
-            boidsMaterial.setTexture("uMapTexture2", gradientSolver.frontBuffer.textures[0]);
 
             boidsMaterial.setUniform("uMaxSpeed", boidsParams.maxSpeed);
             boidsMaterial.setUniform("uMaxForce", boidsParams.maxForce);
             boidsMaterial.setUniform("uPercepRadius", boidsParams.percepRadius);
-            boidsMaterial.setUniform("uCheckCount", boidsParams.checkCount);
             boidsMaterial.setUniform("uSepaWeight", boidsParams.sepaWeight);
             boidsMaterial.setUniform("uAligWeight", boidsParams.aligWeight);
             boidsMaterial.setUniform("uCoheWeight", boidsParams.coheWeight);
             boidsMaterial.setUniform("uFlowWeight", boidsParams.flowWeight);
-            boidsMaterial.setUniform("uAvoidWeight", boidsParams.avoidWeight);
             boidsMaterial.setUniform("uDampScalar", boidsParams.dampScalar);
 
             boidsSolver.update(gl);
