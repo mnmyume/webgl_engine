@@ -35,8 +35,8 @@ function main() {
 
     // initGrid(gl, canvas, camera);
     // initIsoVelAni(gl, canvas, camera);
-    initTopdownVelAni(gl, canvas, camera);
-    // initIsoAccAni(gl, canvas, camera);
+    // initTopdownVelAni(gl, canvas, camera);
+    initIsoAccAni(gl, canvas, camera);
 }
 
 
